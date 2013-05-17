@@ -5,8 +5,3 @@
 .settings/org.eclipse.m2e.core.prefs -text
 /pom.xml -text
 src/main/java/ch/ivyteam/maven/SetMavenAndEclipseVersion.java -text
-target/classes/META-INF/maven/plugin.xml -text
-target/classes/ch/ivyteam/maven/SetMavenAndEclipseVersion.class -text
-target/maven-archiver/pom.properties -text
-target/maven-plugin-1.0-SNAPSHOT.jar -text
-target/maven-plugin-1.0.0-SNAPSHOT.jar -text

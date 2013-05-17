@@ -31,6 +31,7 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
@@ -79,13 +80,13 @@ public class SetMavenAndEclipseVersion extends AbstractMojo
 
   private void checkParameters() throws MojoExecutionException
   {
-    if (version == null || version.trim().isEmpty())
+    if (StringUtils.isEmpty(version))
     {
       throw new MojoExecutionException("No ivy-version parameter defined. Please define it as command line parameter. E.g. \"-Divy-version=5.0.1-Snapshot\"");
     }
     if (version.indexOf('-') >= 0)
     {
-      bundleVersion = version.substring(0, version.indexOf('-'));
+      bundleVersion = StringUtils.substringAfter(version, "-");
     }
     else
     {
