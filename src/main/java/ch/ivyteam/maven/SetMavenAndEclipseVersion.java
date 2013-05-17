@@ -86,7 +86,7 @@ public class SetMavenAndEclipseVersion extends AbstractMojo
     }
     if (version.indexOf('-') >= 0)
     {
-      bundleVersion = StringUtils.substringAfter(version, "-");
+      bundleVersion = StringUtils.substringBefore(version, "-");
     }
     else
     {
