@@ -102,6 +102,7 @@ public class SetMavenAndEclipseVersion extends AbstractMojo
     File projectDirectory = pom.getParentFile();
     replaceVersionInPom(pom);
     replaceVersionInPluginManifest(projectDirectory);
+    replaceVersionInFeatureXml(projectDirectory);
   }
 
   private void replaceVersionInPluginManifest(File projectDirectory) throws IOException
@@ -161,10 +162,10 @@ public class SetMavenAndEclipseVersion extends AbstractMojo
   private void replaceVersionInPom(File pom) throws Exception
   {
     boolean changed = false;
-    Document pomDocument = readPom(pom);
+    Document pomDocument = readXml(pom);
 
-    changed = replaceVersionInNode(pom, changed, pomDocument, "/project/version/text()");
-    changed = replaceVersionInNode(pom, changed, pomDocument, "/project/parent/version/text()");
+    changed = replaceVersionInPomNode(pom, changed, pomDocument, "/project/version/text()");
+    changed = replaceVersionInPomNode(pom, changed, pomDocument, "/project/parent/version/text()");
 
     if (!changed)
     {
@@ -172,11 +173,45 @@ public class SetMavenAndEclipseVersion extends AbstractMojo
     }
   }
 
-  private boolean replaceVersionInNode(File pom, boolean changed, Document pomDocument, String xPathStr)
+  private void replaceVersionInFeatureXml(File projectDirectory) throws Exception
+  {
+    boolean changed = false;
+    
+    File feature = new File(projectDirectory, "feature.xml");
+    if (feature.exists())
+    {
+      changed = replaceVersionInFeatureAttribute(feature);
+
+      if (!changed)
+      {
+        getLog().info("Feature versions declared in "+feature.getAbsolutePath()+" is up to date. Nothing to do.");
+      }
+    }
+    else
+    {
+      getLog().info("No feature.xml found in project "+projectDirectory+". Nothing to do");
+    }
+  }
+
+  private boolean replaceVersionInFeatureAttribute(File feature) throws Exception, IOException, ParserConfigurationException
+  {
+    String xPath = "/feature/@version";
+    Document featureDocument = readXml(feature);
+    Node versionNode = findNode(featureDocument, xPath);
+    if (needsUpdate(versionNode, bundleVersion))
+    {
+      replaceTextInXml(feature, xPath, versionNode.getNodeValue(), bundleVersion);
+      getLog().info("Replace version "+versionNode.getNodeValue()+" with version "+bundleVersion+" in node "+xPath+" of file "+feature.getAbsolutePath());
+      return true;      
+    }
+    return false;
+  }
+
+  private boolean replaceVersionInPomNode(File pom, boolean changed, Document pomDocument, String xPathStr)
           throws XPathExpressionException, IOException
   {
     Node versionNode = findNode(pomDocument, xPathStr);
-    if (needsUpdate(versionNode))
+    if (needsUpdate(versionNode, version))
     {
       replaceTextInXml(pom, xPathStr, versionNode.getNodeValue(), version);
       getLog().info("Replace version "+versionNode.getNodeValue()+" with version "+version+" in node "+xPathStr+" of pom file "+pom.getAbsolutePath());
@@ -191,24 +226,24 @@ public class SetMavenAndEclipseVersion extends AbstractMojo
     return ((NodeList) xpath.compile(xPathStr).evaluate(pomDocument, XPathConstants.NODESET)).item(0);
   }
 
-  private Document readPom(File pom) throws SAXException, IOException, ParserConfigurationException
+  private Document readXml(File xmlFile) throws SAXException, IOException, ParserConfigurationException
   {
     DocumentBuilderFactory domFactory = DocumentBuilderFactory
             .newInstance();
     Document doc = domFactory.newDocumentBuilder().parse(
-            pom.getAbsolutePath());
+            xmlFile.getAbsolutePath());
     return doc;
   }
 
-  private boolean needsUpdate(Node node)
+  private boolean needsUpdate(Node node, String referenceVersion)
   {
-    return node != null && !node.getTextContent().trim().equals(version.trim());
+    return node != null && !node.getTextContent().trim().equals(referenceVersion.trim());
   }
 
-  private void replaceTextInXml(File pom, String xPathStr, String oldVersion, String newVersion) throws IOException
+  private void replaceTextInXml(File xml, String xPathStr, String oldVersion, String newVersion) throws IOException
   {
     int pos=0;
-    String content = FileUtils.readFileToString(pom);
+    String content = FileUtils.readFileToString(xml);
     StringBuffer newContent = new StringBuffer();
     for (String tag : xPathStr.split("/"))
     {
@@ -217,12 +252,19 @@ public class SetMavenAndEclipseVersion extends AbstractMojo
         newContent.append(content.substring(0, pos));
         content = content.substring(pos);
         newContent.append(content.replaceFirst(Pattern.quote(oldVersion), newVersion));
-        FileUtils.writeStringToFile(pom, newContent.toString());
+      }
+      else if (tag.equals("@version"))
+      {
+        pos = content.indexOf("version=\"");
+        newContent.append(content.substring(0, pos));
+        content = content.substring(pos);
+        newContent.append(content.replaceFirst(Pattern.quote(oldVersion), newVersion));
       }
       else
       {
-        pos = content.indexOf("<"+tag+">", pos);
+        pos = content.indexOf("<"+tag, pos);
       }
     }
+    FileUtils.writeStringToFile(xml, newContent.toString());
   }
 }
