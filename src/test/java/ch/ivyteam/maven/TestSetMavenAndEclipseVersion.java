@@ -88,7 +88,7 @@ public class TestSetMavenAndEclipseVersion extends Assertions
   private void compareLog() throws IOException
   {
     String referenceLog = FileUtils.readFileToString(new File("referenceProject/log.txt"));
-    referenceLog = StringUtils.replace(referenceLog, "C:\\dev\\maven-plugin\\maven-plugin\\testProject\\", POM_FILE.getParentFile().getCanonicalPath()+"\\");
+    referenceLog = StringUtils.replace(referenceLog, "C:\\dev\\maven-plugin\\maven-plugin\\testProject\\", POM_FILE.getParentFile().getAbsolutePath()+"\\");
     assertThat(log.toString()).isEqualTo(referenceLog);
   }
 }
