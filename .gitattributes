@@ -18,5 +18,3 @@ src/main/java/ch/ivyteam/maven/LineNumberXmlReader.java -text
 src/main/java/ch/ivyteam/maven/PomXmlFileUpdater.java -text
 src/main/java/ch/ivyteam/maven/SetMavenAndEclipseVersion.java -text
 src/test/java/ch/ivyteam/maven/TestSetMavenAndEclipseVersion.java -text
-testProject/META-INF/MANIFEST.MF -text
-testProject/pom.xml -text
