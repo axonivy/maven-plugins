@@ -137,7 +137,8 @@ class BundleManifestFileUpdater
 
   private boolean requiredBundleVersionNeedsUpdate(String oldRequiredBundleSpecification)
   {
-    if (oldRequiredBundleSpecification.startsWith("ch.ivyteam."))
+    String bundle = StringUtils.substringBefore(oldRequiredBundleSpecification, ";");
+    if (IvyArtifactDetector.isLocallyBuildIvyArtifact(bundle, requiredBundleVersion))
     {
       String oldVersion = getRequiredBundleVersion(oldRequiredBundleSpecification);          
       return !requiredBundleVersion.equals(oldVersion);

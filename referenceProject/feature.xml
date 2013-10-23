@@ -232,7 +232,7 @@
          id="ch.ivyteam.ivy.designer.cm.ui"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="0.0.0"
          unpack="false"/>
 
    <plugin
@@ -631,7 +631,7 @@
          id="ch.ivyteam.ulc.extension"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="0.0.0"
          unpack="false"/>
 
    <plugin
@@ -645,7 +645,7 @@
          id="ch.ivyteam.ulc.base"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="0.0.0"
          unpack="false"/>
 
    <plugin

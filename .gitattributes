@@ -14,6 +14,7 @@ referenceProject/pom.xml -text
 src/main/java/ch/ivyteam/maven/AbstractXmlFileUpdater.java -text
 src/main/java/ch/ivyteam/maven/BundleManifestFileUpdater.java -text
 src/main/java/ch/ivyteam/maven/FeatureXmlFileUpdater.java -text
+src/main/java/ch/ivyteam/maven/IvyArtifactDetector.java -text
 src/main/java/ch/ivyteam/maven/LineNumberXmlReader.java -text
 src/main/java/ch/ivyteam/maven/PomXmlFileUpdater.java -text
 src/main/java/ch/ivyteam/maven/SetMavenAndEclipseVersion.java -text

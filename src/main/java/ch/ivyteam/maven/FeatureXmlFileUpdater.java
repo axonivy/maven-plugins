@@ -113,9 +113,7 @@ class FeatureXmlFileUpdater extends AbstractXmlFileUpdater
   private boolean versionNeedsUpdate(Node parentNode, Node versionNode, String version)
   {
     String id = getAttributeText(parentNode, "id");
-    return id.startsWith("ch.ivyteam.") && 
-           !id.equals("ch.ivyteam.ulc.feature") &&
-           !id.equals("ch.ivyteam.vn.feature") &&
+    return IvyArtifactDetector.isLocallyBuildIvyArtifact(id, version) &&
            versionNeedsUpdate(versionNode, version);
   }
   

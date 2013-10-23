@@ -115,7 +115,8 @@ class PomXmlFileUpdater extends AbstractXmlFileUpdater
 
   private boolean isIvyArtifact(Node dependency)
   {
-    return getChildNodeText(dependency, "artifactId").startsWith("ch.ivyteam.");
+    String artifactId = getChildNodeText(dependency, "artifactId");
+    return IvyArtifactDetector.isLocallyBuildIvyArtifact(artifactId, bundleVersion);
   }
 
   private boolean versionNodeNeedsUpdate(Node dependency)
