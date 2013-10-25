@@ -117,7 +117,7 @@ class BundleManifestFileUpdater
     String requireBundle = StringUtils.substringAfter(manifestContent, REQUIRE_BUNDLE);
     
     String newRequiredBundleSpecification = updateRequiredBundleSpecifiction(oldRequiredBundleSpecification);
-    requireBundle = requireBundle.replaceFirst(Pattern.quote(oldRequiredBundleSpecification), newRequiredBundleSpecification);
+    requireBundle = requireBundle.replaceFirst(buildSearchPattern(oldRequiredBundleSpecification), newRequiredBundleSpecification+"$1");
 
     log.info("Replace required plugin specification "+oldRequiredBundleSpecification+" with "+newRequiredBundleSpecification+" in manifest file "+manifestFile.getAbsolutePath());        
 
@@ -186,6 +186,11 @@ class BundleManifestFileUpdater
   private void saveManifest() throws IOException
   {
     FileUtils.writeStringToFile(manifestFile, manifestContent);
+  }
+
+  private String buildSearchPattern(String oldRequiredBundleSpecification)
+  {
+    return Pattern.quote(oldRequiredBundleSpecification)+"(,|\\n|\\r\\n)";
   }
 
 }

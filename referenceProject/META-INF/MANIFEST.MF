@@ -8,5 +8,6 @@ Require-Bundle: ch.ivyteam.ivy.security;visibility:=reexport;bundle-version="5.1
  org.aspectj.runtime,
  ch.ivyteam.ivy.cluster.tests;bundle-version="5.1.14";visibility:=reexport,
  ch.ivyteam.ivy.extension.tests;visibility:=reexport;bundle-version="5.1.14",
- ch.ivyteam.ulc.base
+ ch.ivyteam.ulc.base,
+ ch.ivyteam.ivy.cluster;bundle-version="5.1.14"
 Export-Package: ch.ivyteam.ivy.security
