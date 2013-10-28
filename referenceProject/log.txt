@@ -101,3 +101,4 @@ Replace version 0.0.0 with version 5.1.14 in plugin node ch.ivyteam.ivy.dialog.j
 Replace version 0.0.0 with version 5.1.14 in plugin node ch.ivyteam.commons.lib of feature file C:\dev\maven-plugin\maven-plugin\testProject\feature.xml
 Replace version 0.0.0 with version 5.1.14 in plugin node ch.ivyteam.ivy.pagedesigner.extensions of feature file C:\dev\maven-plugin\maven-plugin\testProject\feature.xml
 Replace version 0.0.0 with version 5.1.14 in plugin node ch.ivyteam.ivy.designer.configuration of feature file C:\dev\maven-plugin\maven-plugin\testProject\feature.xml
+Replace product version 5.0.0 with version 5.1.14 in product file C:\dev\maven-plugin\maven-plugin\testProject\Designer.product

@@ -3,10 +3,12 @@
 /.project -text
 .settings/org.eclipse.jdt.core.prefs -text
 .settings/org.eclipse.m2e.core.prefs -text
+originalProject/Designer.product -text
 originalProject/META-INF/MANIFEST.MF -text
 originalProject/feature.xml -text
 originalProject/pom.xml -text
 /pom.xml -text
+referenceProject/Designer.product -text
 referenceProject/META-INF/MANIFEST.MF -text
 referenceProject/feature.xml -text
 referenceProject/log.txt -text
@@ -17,5 +19,6 @@ src/main/java/ch/ivyteam/maven/FeatureXmlFileUpdater.java -text
 src/main/java/ch/ivyteam/maven/IvyArtifactDetector.java -text
 src/main/java/ch/ivyteam/maven/LineNumberXmlReader.java -text
 src/main/java/ch/ivyteam/maven/PomXmlFileUpdater.java -text
+src/main/java/ch/ivyteam/maven/ProductXmlFileUpdater.java -text
 src/main/java/ch/ivyteam/maven/SetMavenAndEclipseVersion.java -text
 src/test/java/ch/ivyteam/maven/TestSetMavenAndEclipseVersion.java -text

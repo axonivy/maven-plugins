@@ -64,6 +64,14 @@ public class TestSetMavenAndEclipseVersion extends Assertions
     compareLog();
   }
 
+  @Test
+  public void testUpdateProductVersion() throws MojoExecutionException, IOException
+  {
+    testee.execute();
+    compareProduct();
+    compareLog();
+  }
+
   private void compareFeature() throws IOException
   {
     String testeeManifest = FileUtils.readFileToString(new File("testProject/feature.xml"));
@@ -91,4 +99,12 @@ public class TestSetMavenAndEclipseVersion extends Assertions
     referenceLog = StringUtils.replace(referenceLog, "C:\\dev\\maven-plugin\\maven-plugin\\testProject\\", POM_FILE.getParentFile().getAbsolutePath()+"\\");
     assertThat(log.toString()).isEqualTo(referenceLog);
   }
+  
+  private void compareProduct() throws IOException
+  {
+    String testeeProduct = FileUtils.readFileToString(new File("testProject/Designer.product"));
+    String referenceProduct = FileUtils.readFileToString(new File("referenceProject/Designer.product"));
+    assertThat(testeeProduct).isEqualTo(referenceProduct);
+  }
+
 }

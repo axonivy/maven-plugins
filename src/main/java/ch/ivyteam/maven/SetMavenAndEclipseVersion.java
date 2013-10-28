@@ -19,10 +19,13 @@ package ch.ivyteam.maven;
 import java.io.File;
 import java.io.IOException;
 
+import javax.xml.xpath.XPathExpressionException;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
+import org.xml.sax.SAXException;
 
 /**
  * Goal which replaces project/version and project/parent/version in all *.pom files and the Bundle-Version in all bundle MANIFEST.MF files
@@ -78,6 +81,13 @@ public class SetMavenAndEclipseVersion extends AbstractMojo
     updateVersionsInPom(pom);
     updateVersionsInBundleManifest(projectDirectory);
     updateVersionInFeatureXml(projectDirectory);
+    updateVersionInProductXml(projectDirectory);
+  }
+
+  private void updateVersionInProductXml(File projectDirectory) throws XPathExpressionException, SAXException, IOException
+  {
+    ProductXmlFileUpdater updater = new ProductXmlFileUpdater(projectDirectory, version, getLog());
+    updater.update();
   }
 
   private void updateVersionsInBundleManifest(File projectDirectory) throws IOException
