@@ -1,2 +1,4 @@
+maven-version-plugin/target
+maven-version-plugin/testProject
 /target
 /testProject

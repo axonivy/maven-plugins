@@ -1,0 +1,40 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>Xpert.ivy</groupId>
+		<artifactId>ch.ivyteam.ivy.build.server.test</artifactId>
+		<version>5.1.14-SNAPSHOT</version>
+		<relativePath>../ch.ivyteam.ivy.build.server.test</relativePath>
+	</parent>
+	<artifactId>ch.ivyteam.ivy.security.tests</artifactId>
+	<version>5.1.14-SNAPSHOT</version>
+	<packaging>eclipse-test-plugin</packaging>
+	
+	<dependencies>
+		<dependency>
+			<groupId>Xpert.ivy</groupId>
+			<artifactId>ch.ivyteam.ivy.security</artifactId>
+			<version>5.1.14-SNAPSHOT</version>
+		</dependency>
+	</dependencies>
+	
+		<build>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-surefire-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<configuration>
+					<dependencies>
+						<dependency>
+							<type>eclipse-feature</type>
+							<artifactId>ch.ivyteam.ivy.designer.feature</artifactId>
+							<version>5.1.14</version>
+						</dependency>
+					</dependencies>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>
