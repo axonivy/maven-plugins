@@ -10,8 +10,8 @@
                 <phases>
                 	<initialize>ch.ivyteam.ivy:ivy-compile-plugin:ensureInstalledEngine</initialize>
                     <compile>ch.ivyteam.ivy:ivy-compile-plugin:compileProject</compile>
-                    <package>ch.ivyteam.ivy:ivy-compile-plugin:attach-artifact</package>
-                    <install> org.apache.maven.plugins:maven-install-plugin:install</install>
+                    <package>ch.ivyteam.ivy:ivy-compile-plugin:pack-iar</package>
+                    <install>org.apache.maven.plugins:maven-install-plugin:install</install>
                 </phases>
             </configuration>
         </component>

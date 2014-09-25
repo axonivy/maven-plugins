@@ -16,8 +16,8 @@ import org.codehaus.plexus.archiver.ArchiverException;
 import org.codehaus.plexus.archiver.util.DefaultFileSet;
 import org.codehaus.plexus.archiver.zip.ZipArchiver;
 
-@Mojo(name = "attach-artifact")
-public class CustomPackagingMojo extends AbstractMojo
+@Mojo(name = "pack-iar")
+public class IarPackagingMojo extends AbstractMojo
 {
   @Parameter(property = "project", required = true, readonly = true)
   private MavenProject project;
@@ -60,7 +60,7 @@ public class CustomPackagingMojo extends AbstractMojo
     }
     catch (ArchiverException | IOException ex)
     {
-      throw new MojoExecutionException("failed to create IAR: " + file.getAbsolutePath(), ex);
+      throw new MojoExecutionException("Failed to create IAR: " + file.getAbsolutePath(), ex);
     }
   }
 
