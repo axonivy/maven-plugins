@@ -31,7 +31,7 @@ import org.xml.sax.SAXException;
  * Goal which replaces project/version and project/parent/version in all *.pom files and the Bundle-Version in all bundle MANIFEST.MF files
  * with the given <code>ivy-version</code>.<BR>
  * 
- * Usage: <code>mvn ch.ivyteam:maven-plugin:setMavenAndEclipseVersion -Divy-version=5.0.1-SNAPSHOT</code>
+ * Usage: <code>mvn ch.ivyteam:maven-version-plugin:setMavenAndEclipseVersion -Divy-version=5.0.1-SNAPSHOT</code>
  * 
  * @goal setMavenAndEclipseVersion
  * 
