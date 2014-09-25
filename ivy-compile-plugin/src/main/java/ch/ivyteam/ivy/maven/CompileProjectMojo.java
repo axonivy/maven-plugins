@@ -6,16 +6,13 @@ import java.util.Collections;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Execute;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
 import ch.ivyteam.ivy.maven.engine.EngineClassLoaderFactory;
 import ch.ivyteam.ivy.maven.engine.MavenProjectBuilderProxy;
 
-@Mojo(name="compileProject", defaultPhase = LifecyclePhase.COMPILE)
-@Execute(lifecycle="iarcycle", phase=LifecyclePhase.COMPILE)
+@Mojo(name="compileProject")
 public class CompileProjectMojo extends AbstractEngineMojo
 {
   

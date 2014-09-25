@@ -14,8 +14,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugins.annotations.Execute;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
@@ -23,8 +21,7 @@ import org.apache.maven.plugins.annotations.Parameter;
  * @author Reguel Wermelinger
  * @since 18.09.2014
  */
-@Mojo(name="ensureInstalledEngine", defaultPhase = LifecyclePhase.INITIALIZE)
-@Execute(lifecycle="iarcycle", phase=LifecyclePhase.INITIALIZE)
+@Mojo(name="ensureInstalledEngine")
 public class EnsureInstalledEngineMojo extends AbstractEngineMojo
 {
   /**

@@ -6,6 +6,7 @@ ivy-compile-plugin/.settings/org.eclipse.m2e.core.prefs -text
 ivy-compile-plugin/pom.xml -text
 ivy-compile-plugin/src/main/java/ch/ivyteam/ivy/maven/AbstractEngineMojo.java -text
 ivy-compile-plugin/src/main/java/ch/ivyteam/ivy/maven/CompileProjectMojo.java -text
+ivy-compile-plugin/src/main/java/ch/ivyteam/ivy/maven/CustomPackagingMojo.java -text
 ivy-compile-plugin/src/main/java/ch/ivyteam/ivy/maven/EnsureInstalledEngineMojo.java -text
 ivy-compile-plugin/src/main/java/ch/ivyteam/ivy/maven/engine/EngineClassLoaderFactory.java -text
 ivy-compile-plugin/src/main/java/ch/ivyteam/ivy/maven/engine/MavenProjectBuilderProxy.java -text
