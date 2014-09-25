@@ -11,19 +11,8 @@
                 	<initialize>ch.ivyteam.ivy:ivy-compile-plugin:ensureInstalledEngine</initialize>
                     <compile>ch.ivyteam.ivy:ivy-compile-plugin:compileProject</compile>
                     <package>ch.ivyteam.ivy:ivy-compile-plugin:attach-artifact</package>
+                    <install> org.apache.maven.plugins:maven-install-plugin:install</install>
                 </phases>
-            </configuration>
-        </component>
-        <component>
-            <role>org.apache.maven.artifact.handler.ArtifactHandler</role>
-            <role-hint>iar</role-hint>
-            <implementation>
-                org.apache.maven.artifact.handler.DefaultArtifactHandler
-            </implementation>
-            <configuration>
-                <type>iar</type>
-                <extension>iar</extension>
-                <packaging>iar</packaging>
             </configuration>
         </component>
     </components>
