@@ -34,7 +34,7 @@
 					<ivyVersion>6.0.0</ivyVersion>
 					<autoInstallEngine>true</autoInstallEngine>
 					<engineDirectory>D:/temp</engineDirectory>
-					<engineDownloadUrl>http://zugprobldmas/job/Trunk_All/lastSuccessfulBuild/artifact/ivy/workspace/Server/target/AxonIvyEngine6.0.0.46967_Windows_x64.zip</engineDownloadUrl>
+					<engineDownloadUrl>http://zugprobldmas/job/Trunk_All/lastSuccessfulBuild/artifact/ivy/workspace/Server/target/AxonIvyEngine6.0.0.46995_Windows_x64.zip</engineDownloadUrl>
 				</configuration>
 			</plugin>
 		</plugins>

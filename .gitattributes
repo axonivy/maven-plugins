@@ -4,8 +4,14 @@ ivy-compile-plugin/.project -text
 ivy-compile-plugin/.settings/org.eclipse.jdt.core.prefs -text
 ivy-compile-plugin/.settings/org.eclipse.m2e.core.prefs -text
 ivy-compile-plugin/pom.xml -text
-ivy-compile-plugin/src/main/java/ch/ivyteam/ivy/compile/CompileMojo.java -text
-ivy-compile-plugin/src/test/java/ch/ivyteam/ivy/compile/TestCompileMojo.java -text
+ivy-compile-plugin/src/main/java/ch/ivyteam/ivy/maven/AbstractEngineMojo.java -text
+ivy-compile-plugin/src/main/java/ch/ivyteam/ivy/maven/CompileProjectMojo.java -text
+ivy-compile-plugin/src/main/java/ch/ivyteam/ivy/maven/EnsureInstalledEngineMojo.java -text
+ivy-compile-plugin/src/main/java/ch/ivyteam/ivy/maven/engine/EngineClassLoaderFactory.java -text
+ivy-compile-plugin/src/main/java/ch/ivyteam/ivy/maven/engine/MavenProjectBuilderProxy.java -text
+ivy-compile-plugin/src/main/resources/META-INF/plexus/components.xml -text
+ivy-compile-plugin/src/test/java/ch/ivyteam/ivy/maven/TestCompileProjectMojo.java -text
+ivy-compile-plugin/src/test/java/ch/ivyteam/ivy/maven/TestEnsureInstalledEngineMojo.java -text
 ivy-compile-plugin/src/test/resources/pom.xml -text
 maven-version-plugin/.classpath -text
 maven-version-plugin/.project -text

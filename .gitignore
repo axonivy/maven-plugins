@@ -1,4 +1,5 @@
 ivy-compile-plugin/target
+ivy-compile-plugin/work
 maven-version-plugin/target
 maven-version-plugin/testProject
 /target

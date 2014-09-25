@@ -1,4 +1,4 @@
-package ch.ivyteam.ivy.compile;
+package ch.ivyteam.ivy.maven;
 
 
 import java.io.File;
@@ -13,21 +13,20 @@ import net.lingala.zip4j.exception.ZipException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.Execute;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
 /**
- * Generates sources for an ivy project!
  * @author Reguel Wermelinger
  * @since 18.09.2014
  */
-@Mojo(name="generateJavaSources", defaultPhase = LifecyclePhase.GENERATE_SOURCES)
-public class CompileMojo extends AbstractMojo
+@Mojo(name="ensureInstalledEngine", defaultPhase = LifecyclePhase.INITIALIZE)
+@Execute(lifecycle="iarcycle", phase=LifecyclePhase.INITIALIZE)
+public class EnsureInstalledEngineMojo extends AbstractEngineMojo
 {
-
   /**
    * Location of the file.
    */
@@ -35,24 +34,10 @@ public class CompileMojo extends AbstractMojo
   private File outputDirectory;
 
   /**
-   * Location we're an unpacked ivy Engine exists. 
-   * If the Engine does not yet exist, it can be automatically downloaded. 
-   * Enable the {@link #autoInstallEngine} parameter may adjust the {@link #engineDownloadUrl} to do so.
-   */
-  @Parameter(defaultValue = "${project.build.directory}/ivyEngine")
-  File engineDirectory;
-
-  /**
-   * The ivy Engine version that is used.
-   */
-  @Parameter(defaultValue="5.1.0", required=true)
-  private String ivyVersion;
-  
-  /**
    * URL where the ivy Engine can be downloaded.
    */
-  @Parameter(defaultValue="http://developer.axonivy.com/download/${ivyVersion}/AxonIvyDesigner${ivyVersion}.46967_Windows_x64.zip")
-  private String engineDownloadUrl;
+  @Parameter(defaultValue="http://developer.axonivy.com/download/${ivyVersion}/AxonIvyDesigner${ivyVersion}.46995_Windows_x64.zip") 
+  String engineDownloadUrl;
   
   /** 
    * Enables the automatic installation of an ivy Engine in the {@link #engineDirectory}.
@@ -60,13 +45,13 @@ public class CompileMojo extends AbstractMojo
    * engine will be downloaded from the {@link #engineDownloadUrl} and unpacked into the
    * {@link #engineDirectory}.
    */
-  @Parameter(defaultValue="false")
-  private boolean autoInstallEngine;
+  @Parameter(defaultValue="false") 
+  boolean autoInstallEngine;
 
-
+  @Override
   public void execute() throws MojoExecutionException
   {
-    System.out.println("Compiling project for ivy version " + ivyVersion);
+    getLog().info("Compiling project for ivy version " + ivyVersion);
 
     ensureEngineIsInstalled();
   }
@@ -87,7 +72,7 @@ public class CompileMojo extends AbstractMojo
 
   private void handleWrongIvyVersion(String installedEngineVersion) throws MojoExecutionException
   {
-    System.out.println("Installed engine has version '"+installedEngineVersion+"' instead of expected '"+ivyVersion+"'");
+    getLog().info("Installed engine has version '"+installedEngineVersion+"' instead of expected '"+ivyVersion+"'");
     if (autoInstallEngine)
     {
       File downloadZip = downloadEngine();
@@ -152,7 +137,7 @@ public class CompileMojo extends AbstractMojo
       String zipFileName = StringUtils.substringAfterLast(engineDownloadUrl, "/");
       File downloadZip = new File(engineDirectory, zipFileName);
       URL engineUrl = new URL(engineDownloadUrl);
-      System.out.println("Starting engine download from "+engineDownloadUrl);
+      getLog().info("Starting engine download from "+engineDownloadUrl);
       Files.copy(engineUrl.openStream(), downloadZip.toPath(), StandardCopyOption.REPLACE_EXISTING);
       return downloadZip;
     }
@@ -168,7 +153,7 @@ public class CompileMojo extends AbstractMojo
     try
     {
       String targetLocation = downloadZip.getParent();
-      System.out.println("Unpacking engine "+downloadZip.getName()+" to "+targetLocation);
+      getLog().info("Unpacking engine "+downloadZip.getName()+" to "+targetLocation);
       ZipFile engineZip = new ZipFile(downloadZip);
       engineZip.extractAll(targetLocation);
     }

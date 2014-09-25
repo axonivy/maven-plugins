@@ -7,9 +7,10 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<name>ivy-compile-plugin Maven Mojo</name>
 	<url>http://maven.apache.org</url>
-
+	
 	<properties>
 		<maven.version>3.2.3</maven.version>
+		<java.version>1.7</java.version>
 	</properties>
 
 	<dependencies>
@@ -30,6 +31,7 @@
 			<version>3.3</version>
 			<scope>provided</scope>
 		</dependency>
+		
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
@@ -74,7 +76,16 @@
 	</dependencies>
 
 	<build>
+	
 		<plugins>
+	        <plugin>
+	            <artifactId>maven-compiler-plugin</artifactId>
+	            <configuration>
+	                <source>${java.version}</source>
+	                <target>${java.version}</target>
+	            </configuration>
+	        </plugin>
+	        
 			<plugin>
 				<!-- Makes MOJO declaration trough Annotation possible. -->
 				<groupId>org.apache.maven.plugins</groupId>

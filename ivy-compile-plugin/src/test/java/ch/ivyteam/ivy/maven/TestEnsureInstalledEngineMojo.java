@@ -1,4 +1,4 @@
-package ch.ivyteam.ivy.compile;
+package ch.ivyteam.ivy.maven;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
@@ -10,7 +10,7 @@ import org.apache.maven.project.MavenProject;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class TestCompileMojo
+public class TestEnsureInstalledEngineMojo
 {
 
   @Rule
@@ -20,7 +20,7 @@ public class TestCompileMojo
   public void testMojoWithPomConfiguration() throws Exception
   {
     MavenProject project = rule.readMavenProject(new File("src/test/resources"));
-    CompileMojo mojo = (CompileMojo) rule.lookupConfiguredMojo(project, "generateJavaSources");
+    EnsureInstalledEngineMojo mojo = (EnsureInstalledEngineMojo) rule.lookupConfiguredMojo(project, "ensureInstalledEngine");
     
     mojo.engineDirectory = Files.createTempDirectory("tmpEngine").toFile();
     mojo.engineDirectory.deleteOnExit();
