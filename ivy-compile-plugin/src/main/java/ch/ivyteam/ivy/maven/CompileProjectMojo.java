@@ -21,18 +21,15 @@ public class CompileProjectMojo extends AbstractEngineMojo
   @Parameter(property = "project", required = true, readonly = true)
   private MavenProject project;
   
+  @Parameter(property = "basedir")
+  File projectToBuild;
+  
   /**
    * Home application where the project to build and its dependencies will be temporary deployed. 
    */
   @Parameter(defaultValue = "${project.build.directory}/ivyBuildApp")
   File buildApplicationDirectory;
   
-  /** 
-   * The ivy project to build by this mojo.
-   */
-  @Parameter(defaultValue = "${basedir}")
-  File projectToBuild;
-
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
   {
