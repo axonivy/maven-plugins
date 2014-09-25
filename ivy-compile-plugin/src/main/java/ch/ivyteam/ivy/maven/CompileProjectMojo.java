@@ -2,21 +2,24 @@ package ch.ivyteam.ivy.maven;
 
 import java.io.File;
 import java.net.URLClassLoader;
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
+import org.apache.maven.project.MavenProject;
 
 import ch.ivyteam.ivy.maven.engine.EngineClassLoaderFactory;
 import ch.ivyteam.ivy.maven.engine.MavenProjectBuilderProxy;
 
-@Mojo(name="compileProject")
+@Mojo(name="compileProject", requiresDependencyResolution=ResolutionScope.COMPILE)
 public class CompileProjectMojo extends AbstractEngineMojo
 {
-  
-  // read IAR dependencies!!!
+  @Parameter(property = "project", required = true, readonly = true)
+  private MavenProject project;
   
   /**
    * Home application where the project to build and its dependencies will be temporary deployed. 
@@ -42,12 +45,25 @@ public class CompileProjectMojo extends AbstractEngineMojo
     try(URLClassLoader classLoader = EngineClassLoaderFactory.createEngineClassLoader(engineDirectory))
     {
       MavenProjectBuilderProxy builder = new MavenProjectBuilderProxy(classLoader, buildApplicationDirectory);
-      builder.execute(projectToBuild, Collections.<File>emptyList(), engineDirectory.getAbsoluteFile());
+      builder.execute(projectToBuild, resolveIarDependencies(), engineDirectory.getAbsoluteFile());
     }
     catch (Exception ex)
     {
       throw new MojoExecutionException("Failed to compile project '"+projectToBuild+"'.", ex);
     }
+  }
+  
+  private List<File> resolveIarDependencies()
+  {
+    List<File> dependentIars = new ArrayList<>();
+    for(org.apache.maven.artifact.Artifact artifact : project.getDependencyArtifacts())
+    {
+      if (artifact.getType().equals("iar"))
+      {
+        dependentIars.add(artifact.getFile());
+      }
+    }
+    return dependentIars;
   }
 
 }
