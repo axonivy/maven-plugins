@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>TestPersistence</groupId>
 	<artifactId>TestPersistence</artifactId>
-	<packaging>jar</packaging>
+	<packaging>iar</packaging>
 	<version>0.0.0.3</version>
 	<name>TestPersistence</name>
 
@@ -22,16 +22,8 @@
 				<groupId>ch.ivyteam.ivy</groupId>
 				<artifactId>ivy-compile-plugin</artifactId>
 				<version>0.0.1-SNAPSHOT</version>
-				<executions>
-					<execution>
-						<id>do.it</id>
-						<goals>
-							<goal>generateJavaSources</goal>
-						</goals>
-					</execution>
-				</executions>
 				<configuration>
-					<ivyVersion>6.0.0</ivyVersion>
+					<ivyVersion>5.1.0</ivyVersion>
 					<autoInstallEngine>true</autoInstallEngine>
 					<engineDirectory>D:/temp</engineDirectory>
 					<engineDownloadUrl>http://zugprobldmas/job/Trunk_All/lastSuccessfulBuild/artifact/ivy/workspace/Server/target/AxonIvyEngine6.0.0.46995_Windows_x64.zip</engineDownloadUrl>

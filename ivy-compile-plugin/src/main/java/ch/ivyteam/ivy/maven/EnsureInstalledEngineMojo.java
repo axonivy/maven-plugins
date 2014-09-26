@@ -3,9 +3,13 @@ package ch.ivyteam.ivy.maven;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.util.Scanner;
+import java.util.regex.Pattern;
 
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
@@ -18,6 +22,8 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
 /**
+ * Downloads the ivy Engine from the NET if does not yet exists in the correct version.
+ * 
  * @author Reguel Wermelinger
  * @since 18.09.2014
  */
@@ -25,16 +31,33 @@ import org.apache.maven.plugins.annotations.Parameter;
 public class EnsureInstalledEngineMojo extends AbstractEngineMojo
 {
   /**
-   * Location of the file.
-   */
-  @Parameter(defaultValue="${project.build.directory}")
-  private File outputDirectory;
-
-  /**
    * URL where the ivy Engine can be downloaded.
    */
   @Parameter(defaultValue="http://developer.axonivy.com/download/${ivyVersion}/AxonIvyDesigner${ivyVersion}.46995_Windows_x64.zip") 
-  String engineDownloadUrl;
+  URL engineDownloadUrl;
+  
+  /** 
+   * URL where a link to the ivy Engine in the expected {@link #ivyVersion} exists. 
+   * The URL will be used to download the required engine if it does not yet exist.
+   * The URL should point to a site providing HTML content with a link to the engine <br>e.g.
+   * <code>&lt;a href="http://developer.axonivy.com/download/5.1.0/AxonIvyEngine5.1.0.46949_Windows_x86.zip"&gt; the engine&lt;/a&gt;</code>
+   */
+  @Parameter(defaultValue="http://developer.axonivy.com/download/product.php")
+  URL engineListPageUrl;
+  
+  /** 
+   * Engine type that will be downloaded if {@link #autoInstallEngine} is set and the engine must be 
+   * retrieved from the {@link #engineListPageUrl}.
+   * Possible values are:
+   * <ul>
+   *    <li>Linux_x64</li>
+   *    <li>Linux_x86</li>
+   *    <li>Windows_x64</li>
+   *    <li>Windows_x86</li>
+   * </ul>
+   */
+  @Parameter(defaultValue="Windows_x64")
+  String osArchitecture;
   
   /** 
    * Enables the automatic installation of an ivy Engine in the {@link #engineDirectory}.
@@ -49,7 +72,6 @@ public class EnsureInstalledEngineMojo extends AbstractEngineMojo
   public void execute() throws MojoExecutionException
   {
     getLog().info("Compiling project for ivy version " + ivyVersion);
-
     ensureEngineIsInstalled();
   }
 
@@ -72,7 +94,7 @@ public class EnsureInstalledEngineMojo extends AbstractEngineMojo
     getLog().info("Installed engine has version '"+installedEngineVersion+"' instead of expected '"+ivyVersion+"'");
     if (autoInstallEngine)
     {
-      File downloadZip = downloadEngine();
+      File downloadZip = new EngineDownloader().downloadEngine();
       if (installedEngineVersion != null)
       {
         removeOldEngineContent();
@@ -83,7 +105,7 @@ public class EnsureInstalledEngineMojo extends AbstractEngineMojo
       installedEngineVersion = getInstalledEngineVersion();
       if (!ivyVersion.equals(installedEngineVersion))
       {
-        throw new MojoExecutionException("Automatic installation of an ivyEngine failed."
+        throw new MojoExecutionException("Automatic installation of an ivyEngine failed. "
                 + "Downloaded version is '"+installedEngineVersion+"' but expecting '"+ivyVersion+"'.");
       }
     }
@@ -127,24 +149,6 @@ public class EnsureInstalledEngineMojo extends AbstractEngineMojo
     return !engineDirectory.isDirectory() || ArrayUtils.isEmpty(engineDirectory.listFiles());
   }
 
-  private File downloadEngine() throws MojoExecutionException
-  {
-    try
-    {
-      String zipFileName = StringUtils.substringAfterLast(engineDownloadUrl, "/");
-      File downloadZip = new File(engineDirectory, zipFileName);
-      URL engineUrl = new URL(engineDownloadUrl);
-      getLog().info("Starting engine download from "+engineDownloadUrl);
-      Files.copy(engineUrl.openStream(), downloadZip.toPath(), StandardCopyOption.REPLACE_EXISTING);
-      return downloadZip;
-    }
-    catch (IOException ex)
-    {
-      throw new MojoExecutionException("Failed to download engine from '" + engineDownloadUrl + "' to '"
-              + engineDirectory + "'", ex);
-    }
-  }
-
   private void unpackEngine(File downloadZip) throws MojoExecutionException
   {
     try
@@ -157,6 +161,77 @@ public class EnsureInstalledEngineMojo extends AbstractEngineMojo
     catch (ZipException ex)
     {
       throw new MojoExecutionException("Failed to unpack downloaded engine '"+ downloadZip + "'.", ex);
+    }
+  }
+
+  class EngineDownloader
+  {
+    
+    private File downloadEngine() throws MojoExecutionException
+    {
+      try
+      {
+        return downloadEngineFromUrl(engineDownloadUrl);
+      }
+      catch(MojoExecutionException ex)
+      {
+        getLog().warn("Failed to download engine from "+engineDownloadUrl);
+        return downloadEngineFromUrl(findEngineDownloadUrlFromListPage());
+      }
+    }
+  
+    private URL findEngineDownloadUrlFromListPage() throws MojoExecutionException
+    {
+      try(InputStream pageStream = engineListPageUrl.openStream())
+      {
+        return findEngineDownloadUrl(pageStream);
+      }
+      catch (IOException ex)
+      {
+        throw new MojoExecutionException("Failed to find engine download link in list page "+engineListPageUrl, ex);
+      }
+    }
+    
+    URL findEngineDownloadUrl(InputStream htmlStream) throws MojoExecutionException, MalformedURLException
+    {
+      Pattern enginePattern = Pattern.compile("href=[\"|'][^\"']*?AxonIvyEngine"+ivyVersion+"\\.[0-9]+_"+osArchitecture+"\\.zip");
+      try(Scanner scanner = new Scanner(htmlStream))
+      {
+        String engineLinkMatch = scanner.findWithinHorizon(enginePattern, 0);
+        String engineLink = StringUtils.substring(engineLinkMatch, "href='".length());
+        if (engineLink == null)
+        {
+          throw new MojoExecutionException("Could not find a link to engine in version '"+ivyVersion+"' on site '"+engineListPageUrl+"'");
+        }
+        return toAbsoluteLink(engineListPageUrl, engineLink);
+      }
+    }
+  
+    private URL toAbsoluteLink(URL baseUrl, String parsedEngineArchivLink) throws MalformedURLException
+    {
+      boolean isAbsoluteLink = StringUtils.startsWith(parsedEngineArchivLink, "http://");
+      if (isAbsoluteLink)
+      {
+        return new URL(parsedEngineArchivLink);
+      }
+      return new URL(baseUrl, parsedEngineArchivLink);
+    }
+  
+    private File downloadEngineFromUrl(URL engineUrl) throws MojoExecutionException
+    {
+      try
+      {
+        String zipFileName = StringUtils.substringAfterLast(engineUrl.toExternalForm(), "/");
+        File downloadZip = new File(engineDirectory, zipFileName);
+        getLog().info("Starting engine download from "+engineUrl);
+        Files.copy(engineUrl.openStream(), downloadZip.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        return downloadZip;
+      }
+      catch (IOException ex)
+      {
+        throw new MojoExecutionException("Failed to download engine from '" + engineUrl + "' to '"
+                + engineDirectory + "'", ex);
+      }
     }
   }
 
