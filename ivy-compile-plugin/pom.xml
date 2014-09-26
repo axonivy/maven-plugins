@@ -5,7 +5,7 @@
 	<artifactId>ivy-compile-plugin</artifactId>
 	<packaging>maven-plugin</packaging>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>ivy-compile-plugin Maven Mojo</name>
+	<name>ch.ivyteam.ivy:ivy-compile-plugin</name>
 	<url>http://maven.apache.org</url>
 	
 	<properties>
@@ -87,6 +87,27 @@
 		</dependency>
 		
 	</dependencies>
+
+	<profiles>
+		<profile>
+			<id>development</id>
+		</profile>
+		<profile>
+			<id>build</id>
+			<distributionManagement>
+				<repository>
+					<id>zugprorepo.releases</id>
+					<name>Internal Release Repository</name>
+					<url>http://zugprorepo/repository/releases/</url>
+				</repository>
+				<snapshotRepository>
+					<id>zugprorepo.buildIntegration</id>
+					<name>Internal Build Integration Repository</name>
+					<url>http://zugprorepo/repository/buildIntegration/</url>
+				</snapshotRepository>
+			</distributionManagement>
+		</profile>
+	</profiles>
 
 	<build>
 	
