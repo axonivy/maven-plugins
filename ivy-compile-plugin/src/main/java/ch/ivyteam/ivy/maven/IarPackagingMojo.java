@@ -52,7 +52,8 @@ public class IarPackagingMojo extends AbstractMojo
     fileSet.setDirectory(new File(basedir));
     fileSet.setIncludingEmptyDirectories(false);
     fileSet.setIncludes(new String[] {"**/*"});
-    fileSet.setExcludes(new String[] {"target", "pom.xml"});
+    fileSet.setExcludes(new String[] {"target/**/*", "pom.xml"});
+    fileSet.setUsingDefaultExcludes(false);
     archiver.addFileSet(fileSet);
     try
     {
