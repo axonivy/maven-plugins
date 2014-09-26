@@ -12,7 +12,7 @@ import org.apache.commons.io.FileUtils;
 
 /**
  * Factory that provides an {@link URLClassLoader} for ivy Engine class access.
- * This makes invocation of engine party possible without starting a new java process.
+ * This makes invocation of engine parts possible without starting a new java process.
  * 
  * @author Reguel Wermelinger
  * @since 25.09.2014
