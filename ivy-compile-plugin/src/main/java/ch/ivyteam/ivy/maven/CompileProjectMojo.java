@@ -30,6 +30,8 @@ public class CompileProjectMojo extends AbstractEngineMojo
   @Parameter(defaultValue = "${project.build.directory}/ivyBuildApp")
   File buildApplicationDirectory;
   
+  private static MavenProjectBuilderProxy builder;
+  
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
   {
@@ -39,15 +41,25 @@ public class CompileProjectMojo extends AbstractEngineMojo
 
   private void compileProject() throws MojoExecutionException
   {
-    try(URLClassLoader classLoader = EngineClassLoaderFactory.createEngineClassLoader(engineDirectory))
+    try
     {
-      MavenProjectBuilderProxy builder = new MavenProjectBuilderProxy(classLoader, buildApplicationDirectory);
-      builder.execute(projectToBuild, resolveIarDependencies(), engineDirectory.getAbsoluteFile());
+      getMavenProjectBuilder().execute(projectToBuild, resolveIarDependencies(), engineDirectory.getAbsoluteFile());
     }
     catch (Exception ex)
     {
       throw new MojoExecutionException("Failed to compile project '"+projectToBuild+"'.", ex);
     }
+  }
+  
+  private MavenProjectBuilderProxy getMavenProjectBuilder() throws Exception
+  {
+    if (builder == null)
+    {
+      URLClassLoader classLoader = EngineClassLoaderFactory.createEngineClassLoader(engineDirectory);
+      builder = new MavenProjectBuilderProxy(classLoader, buildApplicationDirectory);
+      return builder;
+    }
+    return builder;
   }
   
   private List<File> resolveIarDependencies()
