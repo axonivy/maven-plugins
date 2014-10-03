@@ -1,3 +1,5 @@
+ivy-compile-plugin/src/test/resources/base/classes
+ivy-compile-plugin/src/test/resources/base/src_dataClasses/*
 ivy-compile-plugin/target
 ivy-compile-plugin/work
 maven-version-plugin/target

@@ -1,0 +1,27 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>base</groupId>
+	<artifactId>base</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>iar</packaging>
+
+	<pluginRepositories>
+		<!-- required to resolve the ivy-compile-plugin while it's not public -->
+		<pluginRepository>
+			<id>zugprorepo.buildIntegration</id>
+			<name>Internal Build Integration Repository</name>
+			<url>http://zugprorepo/repository/buildIntegration/</url>
+		</pluginRepository>
+	</pluginRepositories>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>ch.ivyteam.ivy</groupId>
+				<artifactId>ivy-compile-plugin</artifactId>
+				<version>0.0.1-SNAPSHOT</version>
+			</plugin>
+		</plugins>
+	</build>
+</project>
