@@ -3,7 +3,9 @@ package ch.ivyteam.ivy.maven;
 import java.io.File;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -19,10 +21,7 @@ import ch.ivyteam.ivy.maven.engine.MavenProjectBuilderProxy;
 public class CompileProjectMojo extends AbstractEngineMojo
 {
   @Parameter(property = "project", required = true, readonly = true)
-  private MavenProject project;
-  
-  @Parameter(property = "basedir")
-  File projectToBuild;
+  MavenProject project;
   
   /**
    * Home application where the project to build and its dependencies will be temporary deployed. 
@@ -43,11 +42,11 @@ public class CompileProjectMojo extends AbstractEngineMojo
   {
     try
     {
-      getMavenProjectBuilder().execute(projectToBuild, resolveIarDependencies(), engineDirectory.getAbsoluteFile());
+      getMavenProjectBuilder().execute(project.getBasedir(), resolveIarDependencies(), engineDirectory.getAbsoluteFile());
     }
     catch (Exception ex)
     {
-      throw new MojoExecutionException("Failed to compile project '"+projectToBuild+"'.", ex);
+      throw new MojoExecutionException("Failed to compile project '"+project.getBasedir()+"'.", ex);
     }
   }
   
@@ -64,8 +63,14 @@ public class CompileProjectMojo extends AbstractEngineMojo
   
   private List<File> resolveIarDependencies()
   {
+    Set<org.apache.maven.artifact.Artifact> dependencies = project.getDependencyArtifacts();
+    if (dependencies == null)
+    {
+      return Collections.emptyList();
+    }
+    
     List<File> dependentIars = new ArrayList<>();
-    for(org.apache.maven.artifact.Artifact artifact : project.getDependencyArtifacts())
+    for(org.apache.maven.artifact.Artifact artifact : dependencies)
     {
       if (artifact.getType().equals("iar"))
       {

@@ -3,54 +3,27 @@ package ch.ivyteam.ivy.maven;
 import static org.fest.assertions.api.Assertions.assertThat;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.util.Collection;
 
 import net.lingala.zip4j.core.ZipFile;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.maven.plugin.testing.MojoRule;
-import org.apache.maven.project.MavenProject;
 import org.junit.Rule;
 import org.junit.Test;
 
 public class TestIarPackagingMojo
 {
-  private File base;
-  private IarPackagingMojo mojo;
   
   @Rule
-  public MojoRule rule = new MojoRule()
-  {
-    @Override
-    protected void before() throws Throwable 
-    {
-      base = Files.createTempDirectory("MyBaseProject").toFile();
-      FileUtils.copyDirectory(new File("src/test/resources/base"), base);
-      MavenProject project = rule.readMavenProject(base);
-      mojo = (IarPackagingMojo) rule.lookupConfiguredMojo(project, "pack-iar");
-    }
-    
-    @Override
-    protected void after() 
-    {
-      try
-      {
-        FileUtils.deleteDirectory(base);
-      }
-      catch (IOException ex)
-      {
-        throw new RuntimeException(ex);
-      }  
-    }
-  };
+  public ProjectMojoRule<IarPackagingMojo> rule = 
+    new ProjectMojoRule<>(new File("src/test/resources/base"), "pack-iar");
   
   @Test
   public void testArchiveCreation() throws Exception
   {
+    IarPackagingMojo mojo = rule.getMojo();
     mojo.execute();
-    Collection<File> iarFiles = FileUtils.listFiles(new File(base, "target"), new String[]{"iar"}, false);
+    Collection<File> iarFiles = FileUtils.listFiles(new File(mojo.project.getBasedir(), "target"), new String[]{"iar"}, false);
     assertThat(iarFiles).hasSize(1);
     
     File iarFile = iarFiles.iterator().next();
@@ -67,8 +40,9 @@ public class TestIarPackagingMojo
   @Test
   public void testCanDefineCustomExclusions() throws Exception
   {
+    IarPackagingMojo mojo = rule.getMojo();
     String filterCandidate = "private/notPublic.txt";
-    assertThat(new File(base, filterCandidate)).exists();
+    assertThat(new File(mojo.project.getBasedir(), filterCandidate)).exists();
     
     mojo.excludes = new String[]{"private/**/*"};
     mojo.execute();

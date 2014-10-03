@@ -11,6 +11,7 @@ ivy-compile-plugin/src/main/java/ch/ivyteam/ivy/maven/IarPackagingMojo.java -tex
 ivy-compile-plugin/src/main/java/ch/ivyteam/ivy/maven/engine/EngineClassLoaderFactory.java -text
 ivy-compile-plugin/src/main/java/ch/ivyteam/ivy/maven/engine/MavenProjectBuilderProxy.java -text
 ivy-compile-plugin/src/main/resources/META-INF/plexus/components.xml -text
+ivy-compile-plugin/src/test/java/ch/ivyteam/ivy/maven/ProjectMojoRule.java -text
 ivy-compile-plugin/src/test/java/ch/ivyteam/ivy/maven/TestCompileProjectMojo.java -text
 ivy-compile-plugin/src/test/java/ch/ivyteam/ivy/maven/TestEnsureInstalledEngineMojo.java -text
 ivy-compile-plugin/src/test/java/ch/ivyteam/ivy/maven/TestIarPackagingMojo.java -text
