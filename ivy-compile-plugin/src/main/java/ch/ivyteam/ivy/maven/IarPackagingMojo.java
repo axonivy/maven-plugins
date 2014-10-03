@@ -3,6 +3,7 @@ package ch.ivyteam.ivy.maven;
 import java.io.File;
 import java.io.IOException;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -21,8 +22,23 @@ import org.codehaus.plexus.archiver.zip.ZipArchiver;
 @Mojo(name = "pack-iar")
 public class IarPackagingMojo extends AbstractMojo
 {
+  private static final String[] DEFAULT_EXCLUDES = new String[] {".svn/**/*", "target/**/*", "pom.xml",};
+
   @Parameter(property = "project", required = true, readonly = true)
   MavenProject project;
+  
+  /** 
+   * Define additional IAR excludes with ANT-style exclusion declarations. 
+   * 
+   * <p>The default (always active) exclusions are:
+   * <pre><code>&lt;excludes&gt;
+   *    &lt;exclude&gt;pom.xml&lt;/exclude&gt;
+   *    &lt;exclude&gt;target/**&#47;*&lt;/exclude&gt;
+   *    &lt;exclude&gt;.svn/**&#47;*&lt;/exclude&gt;
+   * &lt;/excludes&gt;</code></pre>
+   */
+  @Parameter
+  String[] excludes;
 
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
@@ -45,7 +61,7 @@ public class IarPackagingMojo extends AbstractMojo
     fileSet.setDirectory(sourceDir);
     fileSet.setIncludingEmptyDirectories(false);
     fileSet.setIncludes(new String[] {"**/*"});
-    fileSet.setExcludes(new String[] {"target/**/*", "pom.xml"});
+    fileSet.setExcludes(ArrayUtils.addAll(DEFAULT_EXCLUDES, excludes));
     fileSet.setUsingDefaultExcludes(false);
     archiver.addFileSet(fileSet);
     try

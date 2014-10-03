@@ -49,6 +49,7 @@ ivy-compile-plugin/src/test/resources/base/dataclasses/base/Data.ivyClass -text
 ivy-compile-plugin/src/test/resources/base/library.libraryconfig -text
 ivy-compile-plugin/src/test/resources/base/overrides.overrideconfig -text
 ivy-compile-plugin/src/test/resources/base/pom.xml -text
+ivy-compile-plugin/src/test/resources/base/private/notPublic.txt -text
 ivy-compile-plugin/src/test/resources/base/processes/myWebService.mod -text
 ivy-compile-plugin/src/test/resources/base/roles.roleconfig -text
 ivy-compile-plugin/src/test/resources/base/specialLib/CustomType.jar -text

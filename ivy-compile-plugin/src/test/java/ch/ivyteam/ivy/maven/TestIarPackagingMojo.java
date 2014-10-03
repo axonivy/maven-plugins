@@ -64,4 +64,19 @@ public class TestIarPackagingMojo
     assertThat(archive.getFileHeader("target/sampleOutput.txt")).as("'target' folder should not be packed").isNull();
   }
   
+  @Test
+  public void testCanDefineCustomExclusions() throws Exception
+  {
+    String filterCandidate = "private/notPublic.txt";
+    assertThat(new File(base, filterCandidate)).exists();
+    
+    mojo.excludes = new String[]{"private/**/*"};
+    mojo.execute();
+    ZipFile archive = new ZipFile(mojo.project.getArtifact().getFile());
+    
+    assertThat(archive.getFileHeader(filterCandidate)).as("Custom exclusion must be filtered").isNull();
+    assertThat(archive.getFileHeader("pom.xml")).as("Default exclusion must be filtered").isNull();
+    assertThat(archive.getFileHeaders().size()).isGreaterThan(50).as("archive must contain content");
+  }
+  
 }
