@@ -33,7 +33,7 @@ public class EnsureInstalledEngineMojo extends AbstractEngineMojo
   /**
    * URL where the ivy Engine can be downloaded.
    */
-  @Parameter(defaultValue="http://developer.axonivy.com/download/${ivyVersion}/AxonIvyDesigner${ivyVersion}.46995_Windows_x64.zip") 
+  @Parameter(defaultValue="http://www.ivyteam.ch/downloads/XIVY/Saentis/6.0.0-S1/AxonIvyDesigner6.0.0.47062.S1_Windows_x64.zip") 
   URL engineDownloadUrl;
   
   /** 
@@ -42,7 +42,7 @@ public class EnsureInstalledEngineMojo extends AbstractEngineMojo
    * The URL should point to a site providing HTML content with a link to the engine <br>e.g.
    * <code>&lt;a href="http://developer.axonivy.com/download/5.1.0/AxonIvyEngine5.1.0.46949_Windows_x86.zip"&gt; the engine&lt;/a&gt;</code>
    */
-  @Parameter(defaultValue="http://developer.axonivy.com/download/product.php")
+  @Parameter(defaultValue="http://www.ivyteam.ch/flatpress/?page=dwnld")
   URL engineListPageUrl;
   
   /** 

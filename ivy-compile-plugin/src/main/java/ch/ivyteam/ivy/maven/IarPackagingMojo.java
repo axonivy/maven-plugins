@@ -22,7 +22,7 @@ import org.codehaus.plexus.archiver.zip.ZipArchiver;
 @Mojo(name = "pack-iar")
 public class IarPackagingMojo extends AbstractMojo
 {
-  private static final String[] DEFAULT_EXCLUDES = new String[] {".svn/**/*", "target/**/*", "pom.xml",};
+  private static final String[] DEFAULT_EXCLUDES = new String[] {".svn/**/*", "target/**/*"};
 
   @Parameter(property = "project", required = true, readonly = true)
   MavenProject project;
@@ -32,7 +32,6 @@ public class IarPackagingMojo extends AbstractMojo
    * 
    * <p>The default (always active) exclusions are:
    * <pre><code>&lt;excludes&gt;
-   *    &lt;exclude&gt;pom.xml&lt;/exclude&gt;
    *    &lt;exclude&gt;target/**&#47;*&lt;/exclude&gt;
    *    &lt;exclude&gt;.svn/**&#47;*&lt;/exclude&gt;
    * &lt;/excludes&gt;</code></pre>
