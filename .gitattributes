@@ -3,6 +3,7 @@ ivy-compile-plugin/.classpath -text
 ivy-compile-plugin/.project -text
 ivy-compile-plugin/.settings/org.eclipse.jdt.core.prefs -text
 ivy-compile-plugin/.settings/org.eclipse.m2e.core.prefs -text
+ivy-compile-plugin/.settings/org.eclipse.wst.validation.prefs -text
 ivy-compile-plugin/pom.xml -text
 ivy-compile-plugin/src/main/java/ch/ivyteam/ivy/maven/AbstractEngineMojo.java -text
 ivy-compile-plugin/src/main/java/ch/ivyteam/ivy/maven/CompileProjectMojo.java -text
