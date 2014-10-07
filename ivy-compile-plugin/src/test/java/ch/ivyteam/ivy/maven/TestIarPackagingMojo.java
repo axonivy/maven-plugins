@@ -33,7 +33,6 @@ public class TestIarPackagingMojo
     ZipFile archive = new ZipFile(iarFile);
     
     assertThat(archive.getFileHeader(".classpath")).as(".classpath must be packed for internal binary retrieval").isNotNull();
-    assertThat(archive.getFileHeader("pom.xml")).as("pom.xml should not be packed").isNull();
     assertThat(archive.getFileHeader("target/sampleOutput.txt")).as("'target' folder should not be packed").isNull();
   }
   
@@ -49,7 +48,6 @@ public class TestIarPackagingMojo
     ZipFile archive = new ZipFile(mojo.project.getArtifact().getFile());
     
     assertThat(archive.getFileHeader(filterCandidate)).as("Custom exclusion must be filtered").isNull();
-    assertThat(archive.getFileHeader("pom.xml")).as("Default exclusion must be filtered").isNull();
     assertThat(archive.getFileHeaders().size()).isGreaterThan(50).as("archive must contain content");
   }
   
