@@ -17,13 +17,13 @@ public abstract class AbstractEngineMojo extends AbstractMojo
    * Location where an unpacked ivy Engine exists. 
    * If the Engine does not yet exist, it can be automatically downloaded. 
    */
-  @Parameter(defaultValue = "${project.build.directory}/ivyEngine")
+  @Parameter(defaultValue = "${java.io.tmpdir}/ivyEngine")
   protected File engineDirectory;
   
   /**
    * The ivy Engine version that is used.
    */
-  @Parameter(defaultValue = "5.1.0", required = true)
+  @Parameter(defaultValue = "6.0.0", required = true)
   protected String ivyVersion;
 
   public AbstractEngineMojo()
