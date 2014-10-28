@@ -2,7 +2,7 @@ Replace version 5.1.0-SNAPSHOT with version 5.1.14-SNAPSHOT in node /project/ver
 Replace version 5.1.0-SNAPSHOT with version 5.1.14-SNAPSHOT in node /project/parent/version of pom file C:\dev\maven-plugin\maven-plugin\testProject\pom.xml
 Replace version 5.1.0-SNAPSHOT with version 5.1.14-SNAPSHOT in dependency node of artifact ch.ivyteam.ivy.security of pom file C:\dev\maven-plugin\maven-plugin\testProject\pom.xml
 Replace version 0.0.0 with version 5.1.14 in tycho-surefire-plugin dependency node of artifact ch.ivyteam.ivy.designer.feature of pom file C:\dev\maven-plugin\maven-plugin\testProject\pom.xml
-Replace version 5.1.0 with version 5.1.14 in node /project/properties/ivy-version of pom file C:\dev\maven-plugin\maven-plugin\maven-version-plugin\testProject\pom.xml
+Replace version 5.1.0 with version 5.1.14 in node /project/properties/ivy-version of pom file C:\dev\maven-plugin\maven-plugin\testProject\pom.xml
 Replace plugin version 5.1.0.qualifier with version 5.1.14.qualifier in manifest file C:\dev\maven-plugin\maven-plugin\testProject\META-INF\MANIFEST.MF
 Replace required plugin specification ch.ivyteam.ivy.security;visibility:=reexport;bundle-version="5.1.0" with ch.ivyteam.ivy.security;visibility:=reexport;bundle-version="5.1.14" in manifest file C:\dev\maven-plugin\maven-plugin\testProject\META-INF\MANIFEST.MF
 Replace required plugin specification ch.ivyteam.ivy.cluster.tests;bundle-version="5.1.0";visibility:=reexport with ch.ivyteam.ivy.cluster.tests;bundle-version="5.1.14";visibility:=reexport in manifest file C:\dev\maven-plugin\maven-plugin\testProject\META-INF\MANIFEST.MF
