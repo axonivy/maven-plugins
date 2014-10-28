@@ -21,6 +21,9 @@ import java.io.IOException;
 
 import javax.xml.xpath.XPathExpressionException;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.NameFileFilter;
+import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -39,6 +42,10 @@ import org.xml.sax.SAXException;
  */
 public class SetMavenAndEclipseVersion extends AbstractMojo
 {
+  private static final String IVY_MAVEN_BUILD_DIRECTORY = "development/ch.ivyteam.ivy.build.maven";
+
+  static final String IVY_TOP_LEVEL_ARTIFACT_AND_GROUP_ID = "ch.ivyteam.ivy";
+
   /**
    * @parameter expression="${project}"
    * @required
@@ -50,8 +57,6 @@ public class SetMavenAndEclipseVersion extends AbstractMojo
    */
   private String version;
   
-  private File pomFile;
-
   @Override
   public void execute() throws MojoExecutionException
   {
@@ -59,6 +64,10 @@ public class SetMavenAndEclipseVersion extends AbstractMojo
     {
       checkParameters();
       updateVersion();
+      if (isIvyTopLevelPom())
+      {
+        updateIvyMavenBuildModulesAndParentConfigPoms();
+      }
     }
     catch (Exception ex)
     {
@@ -82,6 +91,28 @@ public class SetMavenAndEclipseVersion extends AbstractMojo
     updateVersionsInBundleManifest(projectDirectory);
     updateVersionInFeatureXml(projectDirectory);
     updateVersionInProductXml(projectDirectory);
+  }
+
+  private boolean isIvyTopLevelPom()
+  {
+    return IVY_TOP_LEVEL_ARTIFACT_AND_GROUP_ID.equals(project.getGroupId()) && 
+           IVY_TOP_LEVEL_ARTIFACT_AND_GROUP_ID.equals(project.getArtifactId()) &&
+           getIvyMavenBuildDirectory().exists();
+  }
+  
+  private void updateIvyMavenBuildModulesAndParentConfigPoms() throws Exception
+  {
+    File ivyMavenBuildDirectory = getIvyMavenBuildDirectory();
+    for (File pomXmlFile : FileUtils.listFiles(ivyMavenBuildDirectory, new NameFileFilter("pom.xml"), TrueFileFilter.INSTANCE))
+    {
+      updateVersionsInPom(pomXmlFile);
+    }
+  }
+
+  private File getIvyMavenBuildDirectory()
+  {
+    File ivyMavenBuildDirectory = new File(project.getBasedir(), IVY_MAVEN_BUILD_DIRECTORY);
+    return ivyMavenBuildDirectory;
   }
 
   private void updateVersionInProductXml(File projectDirectory) throws XPathExpressionException, SAXException, IOException
@@ -115,15 +146,11 @@ public class SetMavenAndEclipseVersion extends AbstractMojo
   
   private File getPomFile()
   {
-    if (project != null)
-    {
-      return project.getFile();
-    }
-    return pomFile;
+    return project.getFile();
   }
 
-  void setPomFile(File pomFile)
+  void setProject(MavenProject project)
   {
-    this.pomFile = pomFile;
+    this.project = project;
   }
 }

@@ -1,0 +1,6 @@
+Replace version 5.1.0-SNAPSHOT with version 5.1.14-SNAPSHOT in node /project/version of pom file C:\dev\maven-plugin\maven-plugin\maven-version-plugin\testIvy\pom.xml
+No manifest file found in project testIvy. Nothing to do
+No feature.xml found in project testIvy. Nothing to do
+No *.product file found in project testIvy. Nothing to do
+Replace version 5.1.0-SNAPSHOT with version 5.1.14-SNAPSHOT in node /project/version of pom file C:\dev\maven-plugin\maven-plugin\maven-version-plugin\testIvy\development\ch.ivyteam.ivy.build.maven\config\pom.xml
+Replace version 5.1.0-SNAPSHOT with version 5.1.14-SNAPSHOT in node /project/version of pom file C:\dev\maven-plugin\maven-plugin\maven-version-plugin\testIvy\development\ch.ivyteam.ivy.build.maven\pom.xml

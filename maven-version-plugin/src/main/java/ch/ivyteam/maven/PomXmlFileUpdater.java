@@ -45,6 +45,7 @@ class PomXmlFileUpdater extends AbstractXmlFileUpdater
     changed = updateParentVersion(changed);
     changed = updateDependenciesVersion(changed);
     changed = updateDependenciesVersionInTychoSurefirePlugin(changed);
+    changed = updateIvyVersionProperty(changed);
 
     if (changed)
     {
@@ -96,6 +97,11 @@ class PomXmlFileUpdater extends AbstractXmlFileUpdater
       }
     }
     return changed;
+  }
+  
+  private boolean updateIvyVersionProperty(boolean changed) throws XPathExpressionException
+  {
+    return updateVersion(changed, "/project/properties/ivy-version", bundleVersion);
   }
   
   private boolean pluginDependencyVersionNeedsUpdate(Node dependency)
@@ -156,15 +162,21 @@ class PomXmlFileUpdater extends AbstractXmlFileUpdater
   private boolean updateVersion(boolean changed, String xPathStr)
           throws XPathExpressionException
   {
+    return updateVersion(changed, xPathStr, version);
+  }
+
+  private boolean updateVersion(boolean changed, String xPathStr, String newVersion)
+          throws XPathExpressionException
+  {
     Node versionNode = findNode(xPathStr);
-    if (versionNeedsUpdate(versionNode, version))
+    if (versionNeedsUpdate(versionNode, newVersion))
     {
-      replaceElementText(versionNode, version);
-      log.info("Replace version "+versionNode.getTextContent()+" with version "+version+" in node "+xPathStr+" of pom file "+xmlFile.getAbsolutePath());
+      replaceElementText(versionNode, newVersion);
+      log.info("Replace version "+versionNode.getTextContent()+" with version "+newVersion+" in node "+xPathStr+" of pom file "+xmlFile.getAbsolutePath());
       changed = true;
     }
     return changed;
   }
 
-
+  
 }

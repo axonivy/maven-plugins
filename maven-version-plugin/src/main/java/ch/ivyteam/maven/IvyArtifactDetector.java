@@ -11,6 +11,7 @@ import java.util.List;
 public class IvyArtifactDetector
 {
   private static final List<String> TRUNK_EXTERNAL_BUILD_ARTIFACTS = Arrays.asList("ch.ivyteam.ulc.base", "ch.ivyteam.ulc.extension", "ch.ivyteam.ivy.designer.cm.ui", "ch.ivyteam.vn.feature");
+  private static final List<String> BRANCH_5_1_EXTERNAL_BUILD_ARTIFACTS = Arrays.asList("ch.ivyteam.ulc.base", "ch.ivyteam.ulc.extension", "ch.ivyteam.ivy.designer.cm.ui", "ch.ivyteam.vn.feature");
   private static final List<String> BRANCH_5_0_EXTERNAL_BUILD_ARTIFACTS = Arrays.asList("ch.ivyteam.ulc.base", "ch.ivyteam.ulc.extension", "ch.ivyteam.ulc.feature");
 
   public static boolean isLocallyBuildIvyArtifact(String artifactId, String version)
@@ -23,6 +24,10 @@ public class IvyArtifactDetector
     if (version.startsWith("5.0"))
     {
       return !BRANCH_5_0_EXTERNAL_BUILD_ARTIFACTS.contains(artifactId);
+    }
+    else if (version.startsWith("5.1"))
+    {
+      return !BRANCH_5_1_EXTERNAL_BUILD_ARTIFACTS.contains(artifactId);
     }
     else
     {

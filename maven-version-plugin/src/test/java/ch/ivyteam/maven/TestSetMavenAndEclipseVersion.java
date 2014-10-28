@@ -9,6 +9,7 @@ import mockit.MockUp;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
+import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.StringUtils;
 import org.fest.assertions.Assertions;
 import org.junit.Before;
@@ -26,7 +27,11 @@ public class TestSetMavenAndEclipseVersion extends Assertions
   @Before
   public void before() throws IOException
   {
-    testee.setPomFile(POM_FILE);
+    MavenProject project = new MavenProject();
+    project.setFile(POM_FILE);
+    project.setGroupId(SetMavenAndEclipseVersion.IVY_TOP_LEVEL_ARTIFACT_AND_GROUP_ID);
+    project.setArtifactId(SetMavenAndEclipseVersion.IVY_TOP_LEVEL_ARTIFACT_AND_GROUP_ID);
+    testee.setProject(project);
     testee.setLog(new MockUp<Log>(){
       @Mock void info( CharSequence content )
       {
