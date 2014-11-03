@@ -11,6 +11,10 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
 
+/**
+ * @author Reguel Wermelinger
+ * @since 03.11.2014
+ */
 public class TestIarPackagingMojo
 {
   
@@ -18,8 +22,12 @@ public class TestIarPackagingMojo
   public ProjectMojoRule<IarPackagingMojo> rule = 
     new ProjectMojoRule<>(new File("src/test/resources/base"), "pack-iar");
   
+  /**
+   * Happy path creation tests
+   * @throws Exception
+   */
   @Test
-  public void testArchiveCreation() throws Exception
+  public void archiveCreationDefault() throws Exception
   {
     IarPackagingMojo mojo = rule.getMojo();
     mojo.execute();
@@ -30,14 +38,18 @@ public class TestIarPackagingMojo
     assertThat(iarFile.getName()).isEqualTo("base-0.0.1-SNAPSHOT.iar");
     assertThat(mojo.project.getArtifact().getFile())
       .as("Created IAR must be registered as artifact for later repository installation.").isEqualTo(iarFile);
-    ZipFile archive = new ZipFile(iarFile);
     
-    assertThat(archive.getFileHeader(".classpath")).as(".classpath must be packed for internal binary retrieval").isNotNull();
-    assertThat(archive.getFileHeader("target/sampleOutput.txt")).as("'target' folder should not be packed").isNull();
+    try(java.util.zip.ZipFile archive = new java.util.zip.ZipFile(iarFile))
+    {
+      assertThat(archive.getEntry(".classpath")).as(".classpath must be packed for internal binary retrieval").isNotNull();
+      assertThat(archive.getEntry("src_hd")).as("Empty directories should be included (by default) "
+              + "so that the IAR can be re-imported into the designer").isNotNull();
+      assertThat(archive.getEntry("target/sampleOutput.txt")).as("'target' folder should not be packed").isNull();
+    }
   }
   
   @Test
-  public void testCanDefineCustomExclusions() throws Exception
+  public void canDefineCustomExclusions() throws Exception
   {
     IarPackagingMojo mojo = rule.getMojo();
     String filterCandidate = "private/notPublic.txt";
@@ -49,6 +61,19 @@ public class TestIarPackagingMojo
     
     assertThat(archive.getFileHeader(filterCandidate)).as("Custom exclusion must be filtered").isNull();
     assertThat(archive.getFileHeaders().size()).isGreaterThan(50).as("archive must contain content");
+  }
+  
+  @Test
+  public void canExcludeEmptyDirectories() throws Exception
+  {
+    IarPackagingMojo mojo = rule.getMojo();
+    mojo.includeEmptyDirs = false;
+    mojo.execute();
+    
+    try(java.util.zip.ZipFile archive = new java.util.zip.ZipFile(mojo.project.getArtifact().getFile()))
+    {
+      assertThat(archive.getEntry("src_hd")).as("Empty directory should be excluded by mojo configuration").isNull();
+    }
   }
   
 }

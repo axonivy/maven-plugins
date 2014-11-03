@@ -38,6 +38,14 @@ public class IarPackagingMojo extends AbstractMojo
    */
   @Parameter
   String[] excludes;
+  
+  /** 
+   * Includes empty directories in the packed IAR.
+   * If set to <code>false</code>, the IAR can not be re-imported as 
+   * Designer project as standard project artifacts (e.g. source folders) could be missing.
+   */
+  @Parameter(defaultValue="true")
+  boolean includeEmptyDirs;
 
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
@@ -58,7 +66,7 @@ public class IarPackagingMojo extends AbstractMojo
     archiver.setDestFile(targetIar);
     DefaultFileSet fileSet = new DefaultFileSet();
     fileSet.setDirectory(sourceDir);
-    fileSet.setIncludingEmptyDirectories(false);
+    fileSet.setIncludingEmptyDirectories(includeEmptyDirs);
     fileSet.setIncludes(new String[] {"**/*"});
     fileSet.setExcludes(ArrayUtils.addAll(DEFAULT_EXCLUDES, excludes));
     fileSet.setUsingDefaultExcludes(false);
