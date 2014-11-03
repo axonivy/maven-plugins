@@ -118,9 +118,8 @@ public class TestEnsureInstalledEngineMojo
     assertThat(mojo.engineDirectory).isDirectory();
     assertThat(mojo.engineDirectory.listFiles()).isEmpty();
     
-    mojo.ivyVersion = "5.1.0";
     mojo.autoInstallEngine = true;
-    mojo.engineDownloadUrl = new MockedIvyEngineDownloadUrl("5.1.0").getMockInstance();
+    mojo.engineDownloadUrl = new MockedIvyEngineDownloadUrl(mojo.ivyVersion).getMockInstance();
     
     mojo.execute();
     assertThat(mojo.engineDirectory.listFiles()).isNotEmpty();
@@ -130,9 +129,9 @@ public class TestEnsureInstalledEngineMojo
   public void testEngineDownload_validatesDownloadedVersion() throws Exception
   {
     mojo.engineDirectory = createTempDir("tmpEngine");
-    mojo.ivyVersion = "5.1.0";
     mojo.autoInstallEngine = true;
-    mojo.engineDownloadUrl = new MockedIvyEngineDownloadUrl("6.0.0").getMockInstance();
+    mojo.ivyVersion = "9999.0.0";
+    mojo.engineDownloadUrl = new MockedIvyEngineDownloadUrl(AbstractEngineMojo.DEFAULT_VERSION).getMockInstance();
     
     try
     {
@@ -149,7 +148,6 @@ public class TestEnsureInstalledEngineMojo
   public void testEngineDownload_canDisableAutoDownload() throws Exception
   {
     mojo.engineDirectory = createTempDir("tmpEngine");
-    mojo.ivyVersion = "5.1.0";
     mojo.autoInstallEngine = false;
     
     try
@@ -282,6 +280,21 @@ public class TestEnsureInstalledEngineMojo
       .as("The default engine list page url '"+mojo.engineListPageUrl.toExternalForm()+"' "
               + "must provide an engine for the current default engine version '"+mojo.ivyVersion+"'.")
       .contains(mojo.ivyVersion);
+  }
+  
+  @Test
+  public void testIvyVersion_mustMatchMinimalPluginVersion()
+  {
+    mojo.ivyVersion = "5.1.0";
+    try
+    {
+      mojo.execute();
+      failBecauseExceptionWasNotThrown(MojoExecutionException.class);
+    }
+    catch (MojoExecutionException ex)
+    {
+      assertThat(ex).hasMessageContaining("'5.1.0' is lower than the minimal compatible version");
+    }
   }
   
 }

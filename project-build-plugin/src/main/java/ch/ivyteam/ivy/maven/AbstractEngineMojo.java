@@ -13,6 +13,7 @@ import org.apache.maven.plugins.annotations.Parameter;
  */
 public abstract class AbstractEngineMojo extends AbstractMojo
 {
+  protected static final String MINIMAL_COMPATIBLE_VERSION = "6.0.0";
   protected static final String DEFAULT_VERSION = "6.0.0";
   
   /**
@@ -32,7 +33,7 @@ public abstract class AbstractEngineMojo extends AbstractMojo
   protected File engineCacheDirectory;
   
   /**
-   * The ivy Engine version that is used.
+   * The ivy Engine version that is used. Must be equal or higher than {@value #MINIMAL_COMPATIBLE_VERSION}
    */
   @Parameter(defaultValue = DEFAULT_VERSION, required = true)
   protected String ivyVersion;

@@ -17,6 +17,8 @@ import net.lingala.zip4j.exception.ZipException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.maven.artifact.versioning.ArtifactVersion;
+import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -73,7 +75,19 @@ public class EnsureInstalledEngineMojo extends AbstractEngineMojo
   public void execute() throws MojoExecutionException
   {
     getLog().info("Compiling project for ivy version " + ivyVersion);
+    validateVersion();
     ensureEngineIsInstalled();
+  }
+
+  private void validateVersion() throws MojoExecutionException
+  {
+    ArtifactVersion minimalCompatibleVersion = new DefaultArtifactVersion(AbstractEngineMojo.MINIMAL_COMPATIBLE_VERSION);
+    ArtifactVersion currentArtifactVersion = new DefaultArtifactVersion(ivyVersion);
+    if (minimalCompatibleVersion.compareTo(currentArtifactVersion) > 0)
+    {
+      throw new MojoExecutionException("The ivyVersion '"+ivyVersion+"' is lower than the minimal compatible version"
+              + " '"+MINIMAL_COMPATIBLE_VERSION+"'.");
+    }
   }
 
   private void ensureEngineIsInstalled() throws MojoExecutionException
