@@ -273,4 +273,15 @@ public class TestEnsureInstalledEngineMojo
     return engineDownloader.findEngineDownloadUrl(IOUtils.toInputStream(html)).toExternalForm();
   }
   
+  @Test
+  public void testDefaultListPage_isAvailable() throws Exception
+  {
+    EngineDownloader engineDownloader = mojo.new EngineDownloader();
+    String engineUrl = engineDownloader.findEngineDownloadUrl(mojo.engineListPageUrl.openStream()).toExternalForm();
+    assertThat(engineUrl)
+      .as("The default engine list page url '"+mojo.engineListPageUrl.toExternalForm()+"' "
+              + "must provide an engine for the current default engine version '"+mojo.ivyVersion+"'.")
+      .contains(mojo.ivyVersion);
+  }
+  
 }
