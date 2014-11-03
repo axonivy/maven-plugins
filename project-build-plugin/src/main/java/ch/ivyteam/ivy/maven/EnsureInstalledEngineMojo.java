@@ -31,16 +31,17 @@ import org.apache.maven.plugins.annotations.Parameter;
 public class EnsureInstalledEngineMojo extends AbstractEngineMojo
 {
   /**
-   * URL where the ivy Engine can be downloaded.
+   * URL where a packed ivy Engine can be downloaded. E.g.
+   * <code>http://developer.axonivy.com/download/6.0.0/AxonIvyEngine6.0.0.46949_Windows_x86.zip</code>
    */
-  @Parameter(defaultValue="http://localhost") 
+  @Parameter
   URL engineDownloadUrl;
   
   /** 
    * URL where a link to the ivy Engine in the expected {@link #ivyVersion} exists. 
    * The URL will be used to download the required engine if it does not yet exist.
    * The URL should point to a site providing HTML content with a link to the engine <br>e.g.
-   * <code>&lt;a href="http://developer.axonivy.com/download/5.1.0/AxonIvyEngine5.1.0.46949_Windows_x86.zip"&gt; the engine&lt;/a&gt;</code>
+   * <code>&lt;a href="http://developer.axonivy.com/download/6.0.0/AxonIvyEngine6.0.0.46949_Windows_x86.zip"&gt; the engine&lt;/a&gt;</code>
    */
   @Parameter(defaultValue="http://www.ivyteam.ch/flatpress/?page=dwnld")
   URL engineListPageUrl;
@@ -77,6 +78,10 @@ public class EnsureInstalledEngineMojo extends AbstractEngineMojo
 
   private void ensureEngineIsInstalled() throws MojoExecutionException
   {
+    if (engineDirectory == null)
+    {
+      engineDirectory = new File(engineCacheDirectory, ivyVersion);
+    }
     if (engineDirectoryIsEmpty())
     {
       engineDirectory.mkdirs();
@@ -171,13 +176,16 @@ public class EnsureInstalledEngineMojo extends AbstractEngineMojo
     {
       try
       {
-        return downloadEngineFromUrl(engineDownloadUrl);
+        if (engineDownloadUrl != null)
+        { 
+          return downloadEngineFromUrl(engineDownloadUrl);
+        }
       }
       catch(MojoExecutionException ex)
       {
         getLog().warn("Failed to download engine from "+engineDownloadUrl);
-        return downloadEngineFromUrl(findEngineDownloadUrlFromListPage());
       }
+      return downloadEngineFromUrl(findEngineDownloadUrlFromListPage());
     }
   
     private URL findEngineDownloadUrlFromListPage() throws MojoExecutionException
@@ -194,7 +202,7 @@ public class EnsureInstalledEngineMojo extends AbstractEngineMojo
     
     URL findEngineDownloadUrl(InputStream htmlStream) throws MojoExecutionException, MalformedURLException
     {
-      Pattern enginePattern = Pattern.compile("href=[\"|'][^\"']*?AxonIvyEngine"+ivyVersion+"\\.[0-9]+_"+osArchitecture+"\\.zip");
+      Pattern enginePattern = Pattern.compile("href=[\"|'][^\"']*?AxonIvyEngine"+ivyVersion+"[^_]*_"+osArchitecture+"\\.zip");
       try(Scanner scanner = new Scanner(htmlStream))
       {
         String engineLinkMatch = scanner.findWithinHorizon(enginePattern, 0);
