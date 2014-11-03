@@ -42,7 +42,7 @@ public class CompileProjectMojo extends AbstractEngineMojo
   {
     try
     {
-      getMavenProjectBuilder().execute(project.getBasedir(), resolveIarDependencies(), engineDirectory.getAbsoluteFile());
+      getMavenProjectBuilder().execute(project.getBasedir(), resolveIarDependencies(), getEngineDirectory().getAbsoluteFile());
     }
     catch (Exception ex)
     {
@@ -54,7 +54,7 @@ public class CompileProjectMojo extends AbstractEngineMojo
   {
     if (builder == null)
     {
-      URLClassLoader classLoader = EngineClassLoaderFactory.createEngineClassLoader(engineDirectory);
+      URLClassLoader classLoader = EngineClassLoaderFactory.createEngineClassLoader(getEngineDirectory());
       builder = new MavenProjectBuilderProxy(classLoader, buildApplicationDirectory);
       return builder;
     }

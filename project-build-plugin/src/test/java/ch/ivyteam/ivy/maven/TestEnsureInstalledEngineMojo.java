@@ -74,7 +74,7 @@ public class TestEnsureInstalledEngineMojo
         .exists().isDirectory();
       assertThat(defaultEngineDir)
         .as("Engine directory should automatically be set to subdir of the local repository cache.")
-        .isEqualTo(mojo.engineDirectory);
+        .isEqualTo(mojo.getEngineDirectory());
     }
     finally
     {

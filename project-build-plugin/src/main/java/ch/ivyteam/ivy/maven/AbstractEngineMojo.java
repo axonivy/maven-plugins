@@ -22,7 +22,7 @@ public abstract class AbstractEngineMojo extends AbstractMojo
    * <p>If the Engine does not yet exist, it can be automatically downloaded. 
    */
   @Parameter
-  protected File engineDirectory;
+  File engineDirectory;
   
   /**
    * Location where ivy engines in required version can be extracted to. 
@@ -40,6 +40,15 @@ public abstract class AbstractEngineMojo extends AbstractMojo
   public AbstractEngineMojo()
   {
     super();
+  }
+  
+  protected final File getEngineDirectory()
+  {
+    if (engineDirectory == null)
+    {
+      return new File(engineCacheDirectory, ivyVersion);
+    }
+    return engineDirectory;
   }
 
 }

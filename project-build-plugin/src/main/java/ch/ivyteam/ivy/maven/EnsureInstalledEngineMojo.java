@@ -78,13 +78,9 @@ public class EnsureInstalledEngineMojo extends AbstractEngineMojo
 
   private void ensureEngineIsInstalled() throws MojoExecutionException
   {
-    if (engineDirectory == null)
-    {
-      engineDirectory = new File(engineCacheDirectory, ivyVersion);
-    }
     if (engineDirectoryIsEmpty())
     {
-      engineDirectory.mkdirs();
+      getEngineDirectory().mkdirs();
     }
     
     String installedEngineVersion = getInstalledEngineVersion();
@@ -125,17 +121,17 @@ public class EnsureInstalledEngineMojo extends AbstractEngineMojo
   {
     try
     {
-      FileUtils.cleanDirectory(engineDirectory);
+      FileUtils.cleanDirectory(getEngineDirectory());
     }
     catch (IOException ex)
     {
-      throw new MojoExecutionException("Failed to clean outdated ivy Engine directory '"+engineDirectory+"'.", ex);
+      throw new MojoExecutionException("Failed to clean outdated ivy Engine directory '"+getEngineDirectory()+"'.", ex);
     }
   }
 
   private String getInstalledEngineVersion()
   {
-    File ivyLibs = new File(engineDirectory, "lib/ivy");
+    File ivyLibs = new File(getEngineDirectory(), "lib/ivy");
     if (ivyLibs.exists())
     {
       String[] libraryNames = ivyLibs.list();
@@ -151,7 +147,7 @@ public class EnsureInstalledEngineMojo extends AbstractEngineMojo
 
   private boolean engineDirectoryIsEmpty()
   {
-    return !engineDirectory.isDirectory() || ArrayUtils.isEmpty(engineDirectory.listFiles());
+    return !getEngineDirectory().isDirectory() || ArrayUtils.isEmpty(getEngineDirectory().listFiles());
   }
 
   private void unpackEngine(File downloadZip) throws MojoExecutionException
@@ -230,7 +226,7 @@ public class EnsureInstalledEngineMojo extends AbstractEngineMojo
       try
       {
         String zipFileName = StringUtils.substringAfterLast(engineUrl.toExternalForm(), "/");
-        File downloadZip = new File(engineDirectory, zipFileName);
+        File downloadZip = new File(getEngineDirectory(), zipFileName);
         getLog().info("Starting engine download from "+engineUrl);
         Files.copy(engineUrl.openStream(), downloadZip.toPath(), StandardCopyOption.REPLACE_EXISTING);
         return downloadZip;
@@ -238,7 +234,7 @@ public class EnsureInstalledEngineMojo extends AbstractEngineMojo
       catch (IOException ex)
       {
         throw new MojoExecutionException("Failed to download engine from '" + engineUrl + "' to '"
-                + engineDirectory + "'", ex);
+                + getEngineDirectory() + "'", ex);
       }
     }
   }
