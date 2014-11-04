@@ -2,6 +2,7 @@ maven-version-plugin/target
 maven-version-plugin/testProject
 project-build-plugin/src/test/resources/base/classes
 project-build-plugin/src/test/resources/base/src_dataClasses/*
+project-build-plugin/src/test/resources/base/src_wsproc/*.*
 project-build-plugin/target
 project-build-plugin/work
 /target
