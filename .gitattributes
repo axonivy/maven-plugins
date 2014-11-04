@@ -80,7 +80,6 @@ project-build-plugin/src/test/resources/base/config/co.meta -text
 project-build-plugin/src/test/resources/base/databases.dbConfig -text
 project-build-plugin/src/test/resources/base/dataclasses/base/BaseData.ivyClass -text
 project-build-plugin/src/test/resources/base/dataclasses/base/Data.ivyClass -text
-project-build-plugin/src/test/resources/base/library.libraryconfig -text
 project-build-plugin/src/test/resources/base/overrides.overrideconfig -text
 project-build-plugin/src/test/resources/base/pom.xml -text
 project-build-plugin/src/test/resources/base/private/notPublic.txt -text
@@ -89,6 +88,7 @@ project-build-plugin/src/test/resources/base/roles.roleconfig -text
 project-build-plugin/src/test/resources/base/specialLib/CustomType.jar -text
 project-build-plugin/src/test/resources/base/src/META-INF/persistence.xml -text
 project-build-plugin/src/test/resources/base/src/ch/ivyteam/test/MyBean.java -text
+project-build-plugin/src/test/resources/base/src_test/ch/ivyteam/test/TestMyBean.java -text
 project-build-plugin/src/test/resources/base/target/sampleOutput.txt -text
 project-build-plugin/src/test/resources/base/testusers.userconfig -text
 project-build-plugin/src/test/resources/base/webContent/META-INF/MANIFEST.MF -text

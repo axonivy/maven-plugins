@@ -16,6 +16,10 @@
 	</pluginRepositories>
 
 	<build>
+		<outputDirectory>${project.basedir}/classes</outputDirectory>
+		<testSourceDirectory>${project.basedir}/src_test</testSourceDirectory>
+		<testOutputDirectory>${project.basedir}/classes</testOutputDirectory>
+		
 		<plugins>
 			<plugin>
 				<groupId>ch.ivyteam.ivy</groupId>
