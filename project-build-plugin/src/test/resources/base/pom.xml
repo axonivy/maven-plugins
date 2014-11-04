@@ -25,7 +25,7 @@
 				<groupId>ch.ivyteam.ivy</groupId>
 				<artifactId>project-build-plugin</artifactId>
 				<version>0.0.2-SNAPSHOT</version>
-				<extensions>true</extensions> 
+				<extensions>false</extensions> 
 			</plugin>
 		</plugins>
 	</build>

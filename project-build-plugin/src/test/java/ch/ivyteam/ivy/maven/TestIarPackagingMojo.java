@@ -35,7 +35,7 @@ public class TestIarPackagingMojo
     assertThat(iarFiles).hasSize(1);
     
     File iarFile = iarFiles.iterator().next();
-    assertThat(iarFile.getName()).isEqualTo("base-0.0.1-SNAPSHOT.iar");
+    assertThat(iarFile.getName()).isEqualTo("base-1.0.0.iar");
     assertThat(mojo.project.getArtifact().getFile())
       .as("Created IAR must be registered as artifact for later repository installation.").isEqualTo(iarFile);
     
