@@ -17,9 +17,17 @@ import org.apache.maven.project.MavenProject;
 import ch.ivyteam.ivy.maven.engine.EngineClassLoaderFactory;
 import ch.ivyteam.ivy.maven.engine.MavenProjectBuilderProxy;
 
-@Mojo(name="compileProject", requiresDependencyResolution=ResolutionScope.COMPILE)
+/**
+ * Compiles an ivy Project with an ivyEngine.
+ * 
+ * @author Reguel Wermelinger
+ * @since 04.11.2014
+ */
+@Mojo(name=CompileProjectMojo.GOAL, requiresDependencyResolution=ResolutionScope.COMPILE)
 public class CompileProjectMojo extends AbstractEngineMojo
 {
+  public static final String GOAL = "compileProject";
+  
   @Parameter(property = "project", required = true, readonly = true)
   MavenProject project;
   

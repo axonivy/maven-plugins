@@ -19,9 +19,10 @@ import org.codehaus.plexus.archiver.zip.ZipArchiver;
  * @author Reguel Wermelinger
  * @since 03.10.2014
  */
-@Mojo(name = "pack-iar")
+@Mojo(name = IarPackagingMojo.GOAL)
 public class IarPackagingMojo extends AbstractMojo
 {
+  public static final String GOAL = "pack-iar";
   private static final String[] DEFAULT_EXCLUDES = new String[] {".svn/**/*", "target/**/*"};
 
   @Parameter(property = "project", required = true, readonly = true)

@@ -20,7 +20,7 @@ public class TestIarPackagingMojo
   
   @Rule
   public ProjectMojoRule<IarPackagingMojo> rule = 
-    new ProjectMojoRule<>(new File("src/test/resources/base"), "pack-iar");
+    new ProjectMojoRule<>(new File("src/test/resources/base"), IarPackagingMojo.GOAL);
   
   /**
    * Happy path creation tests

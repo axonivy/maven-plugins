@@ -21,8 +21,6 @@ import net.lingala.zip4j.model.ZipParameters;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.testing.MojoRule;
-import org.apache.maven.project.MavenProject;
 import org.apache.wink.client.MockHttpServer;
 import org.junit.Rule;
 import org.junit.Test;
@@ -34,16 +32,17 @@ public class TestEnsureInstalledEngineMojo
   private EnsureInstalledEngineMojo mojo;
 
   @Rule
-  public MojoRule rule = new MojoRule()
-  {
-    @Override
-    protected void before() throws Throwable 
+  public ProjectMojoRule<EnsureInstalledEngineMojo> rule = 
+    new ProjectMojoRule<EnsureInstalledEngineMojo>(new File("src/test/resources/base"), EnsureInstalledEngineMojo.GOAL)
     {
-      MavenProject project = rule.readMavenProject(new File("src/test/resources/base"));
-      mojo = (EnsureInstalledEngineMojo) rule.lookupConfiguredMojo(project, "ensureInstalledEngine");
-    }
-  };
-  
+      @Override
+      protected void before() throws Throwable 
+      {
+        super.before();
+        TestEnsureInstalledEngineMojo.this.mojo = getMojo();
+      }
+    };
+    
   @Test
   public void testEngineDownload_defaultBehaviour() throws Exception
   {

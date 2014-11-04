@@ -29,9 +29,11 @@ import org.apache.maven.plugins.annotations.Parameter;
  * @author Reguel Wermelinger
  * @since 18.09.2014
  */
-@Mojo(name="ensureInstalledEngine")
+@Mojo(name=EnsureInstalledEngineMojo.GOAL)
 public class EnsureInstalledEngineMojo extends AbstractEngineMojo
 {
+  public static final String GOAL = "ensureInstalledEngine";
+  
   /**
    * URL where a packed ivy Engine can be downloaded. E.g.
    * <code>http://developer.axonivy.com/download/6.0.0/AxonIvyEngine6.0.0.46949_Windows_x86.zip</code>
