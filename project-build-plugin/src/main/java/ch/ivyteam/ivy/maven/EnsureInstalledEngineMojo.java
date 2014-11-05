@@ -29,7 +29,7 @@ import org.apache.maven.plugins.annotations.Parameter;
  * @author Reguel Wermelinger
  * @since 18.09.2014
  */
-@Mojo(name=EnsureInstalledEngineMojo.GOAL)
+@Mojo(name=EnsureInstalledEngineMojo.GOAL, requiresProject=false)
 public class EnsureInstalledEngineMojo extends AbstractEngineMojo
 {
   public static final String GOAL = "ensureInstalledEngine";
@@ -38,7 +38,7 @@ public class EnsureInstalledEngineMojo extends AbstractEngineMojo
    * URL where a packed ivy Engine can be downloaded. E.g.
    * <code>http://developer.axonivy.com/download/6.0.0/AxonIvyEngine6.0.0.46949_Windows_x86.zip</code>
    */
-  @Parameter
+  @Parameter(property="engineDownloadUrl")
   URL engineDownloadUrl;
   
   /** 
@@ -47,7 +47,7 @@ public class EnsureInstalledEngineMojo extends AbstractEngineMojo
    * The URL should point to a site providing HTML content with a link to the engine <br>e.g.
    * <code>&lt;a href="http://developer.axonivy.com/download/6.0.0/AxonIvyEngine6.0.0.46949_Windows_x86.zip"&gt; the engine&lt;/a&gt;</code>
    */
-  @Parameter(defaultValue="http://developer.axonivy.com/download/maven.html")
+  @Parameter(defaultValue="http://developer.axonivy.com/download/maven.html", property="engineListPageUrl")
   URL engineListPageUrl;
   
   /** 
@@ -61,7 +61,7 @@ public class EnsureInstalledEngineMojo extends AbstractEngineMojo
    *    <li>Windows_x86</li>
    * </ul>
    */
-  @Parameter(defaultValue="Windows_x64")
+  @Parameter(defaultValue="Windows_x64", property="osArchitecture")
   String osArchitecture;
   
   /** 
@@ -70,7 +70,7 @@ public class EnsureInstalledEngineMojo extends AbstractEngineMojo
    * engine will be downloaded from the {@link #engineDownloadUrl} and unpacked into the
    * {@link #engineDirectory}.
    */
-  @Parameter(defaultValue="true") 
+  @Parameter(defaultValue="true", property="autoInstallEngine") 
   boolean autoInstallEngine;
 
   @Override

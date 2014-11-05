@@ -22,20 +22,20 @@ public abstract class AbstractEngineMojo extends AbstractMojo
    * 
    * <p>If the Engine does not yet exist, it can be automatically downloaded. 
    */
-  @Parameter
+  @Parameter(property="engineDirectory")
   File engineDirectory;
   
   /**
    * Location where ivy engines in required version can be extracted to. 
    * <p>If the Engine does not yet exist, it can be automatically downloaded. 
    */
-  @Parameter(defaultValue = "${settings.localRepository}/.cache/ivy")
+  @Parameter(defaultValue = "${settings.localRepository}/.cache/ivy", property="engineCacheDirectory")
   protected File engineCacheDirectory;
   
   /**
    * The ivy Engine version that is used. Must be equal or higher than {@value #MINIMAL_COMPATIBLE_VERSION}
    */
-  @Parameter(defaultValue = DEFAULT_VERSION, required = true)
+  @Parameter(defaultValue = DEFAULT_VERSION, required = true, property="ivyVersion")
   protected String ivyVersion;
 
   public AbstractEngineMojo()
