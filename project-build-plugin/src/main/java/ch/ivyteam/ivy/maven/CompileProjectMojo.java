@@ -7,12 +7,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.repository.RepositorySystem;
+import org.slf4j.impl.StaticLoggerBinder;
 
 import ch.ivyteam.ivy.maven.engine.EngineClassLoaderFactory;
 import ch.ivyteam.ivy.maven.engine.MavenProjectBuilderProxy;
@@ -37,6 +41,12 @@ public class CompileProjectMojo extends AbstractEngineMojo
   @Parameter(defaultValue = "${project.build.directory}/ivyBuildApp")
   File buildApplicationDirectory;
   
+  @Component
+  private RepositorySystem repository;
+  
+  @Parameter(defaultValue="${localRepository}")
+  ArtifactRepository localRepository;
+  
   private static MavenProjectBuilderProxy builder;
   
   @Override
@@ -50,6 +60,7 @@ public class CompileProjectMojo extends AbstractEngineMojo
   {
     try
     {
+      StaticLoggerBinder.getSingleton().setMavenLog(getLog()); // forward slf4j logs (from engine) to Maven Logger
       getMavenProjectBuilder().execute(project.getBasedir(), resolveIarDependencies(), getEngineDirectory().getAbsoluteFile());
     }
     catch (Exception ex)
@@ -62,7 +73,8 @@ public class CompileProjectMojo extends AbstractEngineMojo
   {
     if (builder == null)
     {
-      URLClassLoader classLoader = EngineClassLoaderFactory.createEngineClassLoader(getEngineDirectory());
+      EngineClassLoaderFactory classLoaderFactory = new EngineClassLoaderFactory(repository, localRepository);
+      URLClassLoader classLoader = classLoaderFactory.createEngineClassLoader(getEngineDirectory());
       builder = new MavenProjectBuilderProxy(classLoader, buildApplicationDirectory);
       return builder;
     }

@@ -41,6 +41,7 @@ project-build-plugin/src/main/java/ch/ivyteam/ivy/maven/CompileProjectMojo.java 
 project-build-plugin/src/main/java/ch/ivyteam/ivy/maven/EnsureInstalledEngineMojo.java -text
 project-build-plugin/src/main/java/ch/ivyteam/ivy/maven/IarPackagingMojo.java -text
 project-build-plugin/src/main/java/ch/ivyteam/ivy/maven/engine/EngineClassLoaderFactory.java -text
+project-build-plugin/src/main/java/ch/ivyteam/ivy/maven/engine/EngineClassPathCustomizer.java -text
 project-build-plugin/src/main/java/ch/ivyteam/ivy/maven/engine/MavenProjectBuilderProxy.java -text
 project-build-plugin/src/main/resources/META-INF/m2e/lifecycle-mapping-metadata.xml -text
 project-build-plugin/src/main/resources/META-INF/plexus/components.xml -text
@@ -48,6 +49,7 @@ project-build-plugin/src/test/java/ch/ivyteam/ivy/maven/ProjectMojoRule.java -te
 project-build-plugin/src/test/java/ch/ivyteam/ivy/maven/TestCompileProjectMojo.java -text
 project-build-plugin/src/test/java/ch/ivyteam/ivy/maven/TestEnsureInstalledEngineMojo.java -text
 project-build-plugin/src/test/java/ch/ivyteam/ivy/maven/TestIarPackagingMojo.java -text
+project-build-plugin/src/test/java/ch/ivyteam/ivy/maven/log/LogCollector.java -text
 project-build-plugin/src/test/resources/base/.classpath -text
 project-build-plugin/src/test/resources/base/.project -text
 project-build-plugin/src/test/resources/base/.settings/.jsdtscope -text
