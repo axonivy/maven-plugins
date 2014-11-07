@@ -75,7 +75,7 @@ public class TestCompileProjectMojo
     File classDir = new File(mojo.project.getBasedir(), "classes");
     FileUtils.cleanDirectory(wsProcDir);
     FileUtils.cleanDirectory(dataClassDir);
-    FileUtils.cleanDirectory(classDir);
+    FileUtils.deleteDirectory(classDir);
     
     mojo.buildApplicationDirectory = Files.createTempDirectory("MyBuildApplication").toFile();
     mojo.execute();
