@@ -11,6 +11,7 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.ArtifactRepository;
+import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.repository.RepositorySystem;
 
 /**
@@ -85,8 +86,7 @@ public class EngineClassLoaderFactory
     File log4JOverSlf4j = new File(maven.localRepository.getBasedir(), maven.localRepository.pathOf(log4jOverSlf4j));
     if (!log4JOverSlf4j.exists())
     {
-      throw new RuntimeException("Failed to resolve '" + log4jOverSlf4j 
-              + "' from local repository in '"+log4JOverSlf4j+"'.");
+      maven.log.warn("Failed to resolve '" + log4jOverSlf4j + "' from local repository in '"+log4JOverSlf4j+"'.");
     }
     return log4JOverSlf4j;
   }
@@ -96,11 +96,13 @@ public class EngineClassLoaderFactory
   {
     private RepositorySystem repoSystem;
     private ArtifactRepository localRepository;
+    private Log log;
     
-    public MavenContext(RepositorySystem repoSystem, ArtifactRepository localRepository)
+    public MavenContext(RepositorySystem repoSystem, ArtifactRepository localRepository, Log log)
     {
       this.repoSystem = repoSystem;
       this.localRepository = localRepository;
+      this.log = log;
     }
   }
   

@@ -74,7 +74,7 @@ public class CompileProjectMojo extends AbstractEngineMojo
   {
     if (builder == null)
     {
-      MavenContext context = new EngineClassLoaderFactory.MavenContext(repository, localRepository);
+      MavenContext context = new EngineClassLoaderFactory.MavenContext(repository, localRepository, getLog());
       EngineClassLoaderFactory classLoaderFactory = new EngineClassLoaderFactory(context);
       URLClassLoader classLoader = classLoaderFactory.createEngineClassLoader(getEngineDirectory());
       builder = new MavenProjectBuilderProxy(classLoader, buildApplicationDirectory);
