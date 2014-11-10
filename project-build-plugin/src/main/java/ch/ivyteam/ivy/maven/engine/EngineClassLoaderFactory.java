@@ -87,7 +87,7 @@ public class EngineClassLoaderFactory
     if (log4JOverSlf4j.exists())
     {
       throw new RuntimeException("Failed to resolve '" + log4jOverSlf4j 
-              + "' from local repository in '"+localRepository.getBasedir()+"'.");
+              + "' from local repository in '"+log4JOverSlf4j+"'.");
     }
     return log4JOverSlf4j;
   }
