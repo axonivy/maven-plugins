@@ -19,6 +19,7 @@ import org.apache.maven.repository.RepositorySystem;
 import org.slf4j.impl.StaticLoggerBinder;
 
 import ch.ivyteam.ivy.maven.engine.EngineClassLoaderFactory;
+import ch.ivyteam.ivy.maven.engine.EngineClassLoaderFactory.MavenContext;
 import ch.ivyteam.ivy.maven.engine.MavenProjectBuilderProxy;
 
 /**
@@ -73,7 +74,8 @@ public class CompileProjectMojo extends AbstractEngineMojo
   {
     if (builder == null)
     {
-      EngineClassLoaderFactory classLoaderFactory = new EngineClassLoaderFactory(repository, localRepository);
+      MavenContext context = new EngineClassLoaderFactory.MavenContext(repository, localRepository);
+      EngineClassLoaderFactory classLoaderFactory = new EngineClassLoaderFactory(context);
       URLClassLoader classLoader = classLoaderFactory.createEngineClassLoader(getEngineDirectory());
       builder = new MavenProjectBuilderProxy(classLoader, buildApplicationDirectory);
       return builder;

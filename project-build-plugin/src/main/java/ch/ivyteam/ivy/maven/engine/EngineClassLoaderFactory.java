@@ -32,13 +32,12 @@ public class EngineClassLoaderFactory
           "webapps"+File.separator+"ivy"+File.separator+"WEB-INF"+File.separator+"lib"+File.separator
         );
   
-  private RepositorySystem repoSystem;
-  private ArtifactRepository localRepository;
   
-  public EngineClassLoaderFactory(RepositorySystem repoSystem, ArtifactRepository localRepository)
+  private MavenContext maven;
+  
+  public EngineClassLoaderFactory(MavenContext mavenContext)
   {
-    this.repoSystem = repoSystem;
-    this.localRepository = localRepository;
+    this.maven = mavenContext;
   }
   
   public URLClassLoader createEngineClassLoader(File engineDirectory) throws MalformedURLException
@@ -82,14 +81,27 @@ public class EngineClassLoaderFactory
   
   private File getLog4jOverSlf4jJar()
   {
-    Artifact log4jOverSlf4j = repoSystem.createArtifact("org.slf4j", "log4j-over-slf4j", LOG4J_TO_SLF4J_VERSION, "jar");
-    File log4JOverSlf4j = new File(localRepository.getBasedir(), localRepository.pathOf(log4jOverSlf4j));
-//    if (log4JOverSlf4j.exists())
-//    {
-//      throw new RuntimeException("Failed to resolve '" + log4jOverSlf4j 
-//              + "' from local repository in '"+log4JOverSlf4j+"'.");
-//    }
+    Artifact log4jOverSlf4j = maven.repoSystem.createArtifact("org.slf4j", "log4j-over-slf4j", LOG4J_TO_SLF4J_VERSION, "jar");
+    File log4JOverSlf4j = new File(maven.localRepository.getBasedir(), maven.localRepository.pathOf(log4jOverSlf4j));
+    if (!log4JOverSlf4j.exists())
+    {
+      throw new RuntimeException("Failed to resolve '" + log4jOverSlf4j 
+              + "' from local repository in '"+log4JOverSlf4j+"'.");
+    }
     return log4JOverSlf4j;
+  }
+
+  
+  public static class MavenContext
+  {
+    private RepositorySystem repoSystem;
+    private ArtifactRepository localRepository;
+    
+    public MavenContext(RepositorySystem repoSystem, ArtifactRepository localRepository)
+    {
+      this.repoSystem = repoSystem;
+      this.localRepository = localRepository;
+    }
   }
   
 }
