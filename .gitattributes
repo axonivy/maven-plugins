@@ -82,6 +82,8 @@ project-build-plugin/src/test/resources/base/config/co.meta -text
 project-build-plugin/src/test/resources/base/databases.dbConfig -text
 project-build-plugin/src/test/resources/base/dataclasses/base/BaseData.ivyClass -text
 project-build-plugin/src/test/resources/base/dataclasses/base/Data.ivyClass -text
+project-build-plugin/src/test/resources/base/lib/hamcrest-core-1.3.jar -text
+project-build-plugin/src/test/resources/base/lib/junit-4.11.jar -text
 project-build-plugin/src/test/resources/base/overrides.overrideconfig -text
 project-build-plugin/src/test/resources/base/pom.xml -text
 project-build-plugin/src/test/resources/base/private/notPublic.txt -text
