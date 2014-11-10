@@ -84,11 +84,11 @@ public class EngineClassLoaderFactory
   {
     Artifact log4jOverSlf4j = repoSystem.createArtifact("org.slf4j", "log4j-over-slf4j", LOG4J_TO_SLF4J_VERSION, "jar");
     File log4JOverSlf4j = new File(localRepository.getBasedir(), localRepository.pathOf(log4jOverSlf4j));
-    if (log4JOverSlf4j.exists())
-    {
-      throw new RuntimeException("Failed to resolve '" + log4jOverSlf4j 
-              + "' from local repository in '"+log4JOverSlf4j+"'.");
-    }
+//    if (log4JOverSlf4j.exists())
+//    {
+//      throw new RuntimeException("Failed to resolve '" + log4jOverSlf4j 
+//              + "' from local repository in '"+log4JOverSlf4j+"'.");
+//    }
     return log4JOverSlf4j;
   }
   
