@@ -43,7 +43,9 @@ public class EngineClassLoaderFactory
   
   public URLClassLoader createEngineClassLoader(File engineDirectory) throws MalformedURLException
   {
-    return new URLClassLoader(getIvyEngineClassPathUrls(engineDirectory));
+    return new URLClassLoader(getIvyEngineClassPathUrls(engineDirectory)
+            , getClass().getClassLoader() // inherit slf4j logger configuration!
+            );
   }
   
   private URL[] getIvyEngineClassPathUrls(File engineDirectory) throws MalformedURLException
@@ -75,22 +77,13 @@ public class EngineClassLoaderFactory
   private List<File> customize(List<File> engineClassPath)
   {
     EngineClassPathCustomizer classPathCustomizer = new EngineClassPathCustomizer();
-    classPathCustomizer.registerReplacement("log4j-", getLog4jOverSlf4jJar()); // bridge log4j logs to SFL4J
-    classPathCustomizer.registerFilter("slf4j-log4j12"); // do not bind log4j as implementation of SLF4J
+    // bridge log4j logs to SFL4J
+    classPathCustomizer.registerReplacement("log4j-", maven.getJar("org.slf4j", "log4j-over-slf4j", LOG4J_TO_SLF4J_VERSION)); 
+    // do not bind log4j as implementation of SLF4J
+    classPathCustomizer.registerReplacement("slf4j-log4j12", maven.getJar("com.jcabi", "jcabi-maven-slf4j", "0.9"));
     return classPathCustomizer.customizeClassPath(engineClassPath);
   }
   
-  private File getLog4jOverSlf4jJar()
-  {
-    Artifact log4jOverSlf4j = maven.repoSystem.createArtifact("org.slf4j", "log4j-over-slf4j", LOG4J_TO_SLF4J_VERSION, "jar");
-    File log4JOverSlf4j = new File(maven.localRepository.getBasedir(), maven.localRepository.pathOf(log4jOverSlf4j));
-    if (!log4JOverSlf4j.exists())
-    {
-      maven.log.warn("Failed to resolve '" + log4jOverSlf4j + "' from local repository in '"+log4JOverSlf4j+"'.");
-    }
-    return log4JOverSlf4j;
-  }
-
   
   public static class MavenContext
   {
@@ -103,6 +96,17 @@ public class EngineClassLoaderFactory
       this.repoSystem = repoSystem;
       this.localRepository = localRepository;
       this.log = log;
+    }
+    
+    public File getJar(String groupId, String artifactId, String version)
+    {
+      Artifact artifact = repoSystem.createArtifact(groupId, artifactId, version, "jar");
+      File jar = new File(localRepository.getBasedir(), localRepository.pathOf(artifact));
+      if (!jar.exists())
+      {
+        log.warn("Failed to resolve '" + artifactId + "' from local repository in '"+jar+"'.");
+      }
+      return jar;
     }
   }
   

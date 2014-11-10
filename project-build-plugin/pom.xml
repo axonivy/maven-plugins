@@ -56,10 +56,10 @@
 			<!-- Binds SLF4J logs (from ivy Engine) to Maven logger -->
 			<groupId>com.jcabi</groupId>
 			<artifactId>jcabi-maven-slf4j</artifactId>
-			<version>0.8</version>
+			<version>0.9</version>
 		</dependency>
-       <!-- Required for engine classLoader (but not for the plugin runtime itself) -->
        <dependency>
+	       <!-- Required for engine classLoader (but not for the plugin runtime itself) -->
 			<groupId>org.slf4j</groupId>
 			<artifactId>log4j-over-slf4j</artifactId>
 			<version>1.7.7</version><!-- version should match ivy Engine sfl4j version!
