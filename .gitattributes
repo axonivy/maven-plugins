@@ -43,6 +43,7 @@ project-build-plugin/src/main/java/ch/ivyteam/ivy/maven/IarPackagingMojo.java -t
 project-build-plugin/src/main/java/ch/ivyteam/ivy/maven/engine/EngineClassLoaderFactory.java -text
 project-build-plugin/src/main/java/ch/ivyteam/ivy/maven/engine/EngineClassPathCustomizer.java -text
 project-build-plugin/src/main/java/ch/ivyteam/ivy/maven/engine/MavenProjectBuilderProxy.java -text
+project-build-plugin/src/main/java/ch/ivyteam/ivy/maven/engine/Slf4jSimpleEngineProperties.java -text
 project-build-plugin/src/main/resources/META-INF/m2e/lifecycle-mapping-metadata.xml -text
 project-build-plugin/src/main/resources/META-INF/plexus/components.xml -text
 project-build-plugin/src/test/java/ch/ivyteam/ivy/maven/ProjectMojoRule.java -text

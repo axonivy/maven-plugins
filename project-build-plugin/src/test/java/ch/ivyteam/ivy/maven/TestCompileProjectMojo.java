@@ -7,11 +7,9 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SystemUtils;
@@ -25,9 +23,6 @@ import org.junit.FixMethodOrder;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
-
-import ch.ivyteam.ivy.maven.log.LogCollector;
-import ch.ivyteam.ivy.maven.log.LogCollector.LogEntry;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class TestCompileProjectMojo
@@ -48,42 +43,9 @@ public class TestCompileProjectMojo
       .append(File.separatorChar).append("repository");
     return defaultHomePath.toString();
   }
-  
-  /**
-   * Test must run before any other test that invokes the ivyEngine (as it will bind the logger to assert).
-   * @throws Exception
-   */
-  @Test
-  public void A_logging() throws Exception
-  {
-    LogCollector logCollector = new LogCollector();
-    CompileProjectMojo mojo = rule.getMojo();
-    mojo.setLog(logCollector);
-    mojo.execute();
-    assertThat(logCollector.getLogs())
-      .as("Logs from engine must be forwarded")
-      .isNotEmpty();
-    
-    assertThat(filterMessagesStartingWith("Loading of configuration class", logCollector.getWarnings())).isEmpty();
-    assertThat(logCollector.getErrors()).isEmpty();
-  }
-  
-  private static List<LogEntry> filterMessagesStartingWith(String prefix, List<LogEntry> logs)
-  {
-    List<LogEntry> filtered = new ArrayList<>();
-    for(LogEntry log : logs)
-    {
-      if (!log.toString().startsWith(prefix))
-      {
-        filtered.add(log);
-      }
-    }
-    return filtered;
-  }
-  
 
   @Test
-  public void B_buildWithExistingProject() throws Exception
+  public void buildWithExistingProject() throws Exception
   {
     CompileProjectMojo mojo = rule.getMojo();
     

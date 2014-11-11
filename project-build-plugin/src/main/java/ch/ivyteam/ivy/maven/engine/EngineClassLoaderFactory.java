@@ -24,7 +24,7 @@ import org.apache.maven.repository.RepositorySystem;
 public class EngineClassLoaderFactory
 {
   /** must match version in pom.xml */
-  private static final String LOG4J_TO_SLF4J_VERSION = "1.7.7";
+  private static final String SLF4J_VERSION = "1.7.7";
 
   private static List<String> ENGINE_LIB_DIRECTORIES = Arrays.asList(
           "lib"+File.separator+"ivy"+File.separator,
@@ -43,9 +43,7 @@ public class EngineClassLoaderFactory
   
   public URLClassLoader createEngineClassLoader(File engineDirectory) throws MalformedURLException
   {
-    return new URLClassLoader(getIvyEngineClassPathUrls(engineDirectory)
-            , getClass().getClassLoader() // inherit slf4j logger configuration!
-            );
+    return new URLClassLoader(getIvyEngineClassPathUrls(engineDirectory));
   }
   
   private URL[] getIvyEngineClassPathUrls(File engineDirectory) throws MalformedURLException
@@ -77,14 +75,19 @@ public class EngineClassLoaderFactory
   private List<File> customize(List<File> engineClassPath)
   {
     EngineClassPathCustomizer classPathCustomizer = new EngineClassPathCustomizer();
+    
     // bridge log4j logs to SFL4J
-    classPathCustomizer.registerReplacement("log4j-", maven.getJar("org.slf4j", "log4j-over-slf4j", LOG4J_TO_SLF4J_VERSION)); 
-    // do not bind log4j as implementation of SLF4J
-    classPathCustomizer.registerReplacement("slf4j-log4j12", maven.getJar("com.jcabi", "jcabi-maven-slf4j", "0.9"));
+    classPathCustomizer.registerReplacement("log4j-", 
+            maven.getJar("org.slf4j", "log4j-over-slf4j", SLF4J_VERSION)); 
+    
+    // do not bind log4j as implementation of SLF4J but use slf4j-simple
+    classPathCustomizer.registerReplacement("slf4j-log4j12", 
+            maven.getJar("org.slf4j", "slf4j-simple", SLF4J_VERSION));
+    Slf4jSimpleEngineProperties.install();
+    
     return classPathCustomizer.customizeClassPath(engineClassPath);
   }
-  
-  
+
   public static class MavenContext
   {
     private RepositorySystem repoSystem;

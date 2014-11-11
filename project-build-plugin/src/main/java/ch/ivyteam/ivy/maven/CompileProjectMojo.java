@@ -16,7 +16,6 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.RepositorySystem;
-import org.slf4j.impl.StaticLoggerBinder;
 
 import ch.ivyteam.ivy.maven.engine.EngineClassLoaderFactory;
 import ch.ivyteam.ivy.maven.engine.EngineClassLoaderFactory.MavenContext;
@@ -61,7 +60,6 @@ public class CompileProjectMojo extends AbstractEngineMojo
   {
     try
     {
-      StaticLoggerBinder.getSingleton().setMavenLog(getLog()); // forward slf4j logs (from engine) to Maven Logger
       getMavenProjectBuilder().execute(project.getBasedir(), resolveIarDependencies(), getEngineDirectory().getAbsoluteFile());
     }
     catch (Exception ex)
