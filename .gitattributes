@@ -40,6 +40,7 @@ project-build-plugin/src/main/java/ch/ivyteam/ivy/maven/AbstractEngineMojo.java 
 project-build-plugin/src/main/java/ch/ivyteam/ivy/maven/CompileProjectMojo.java -text
 project-build-plugin/src/main/java/ch/ivyteam/ivy/maven/EnsureInstalledEngineMojo.java -text
 project-build-plugin/src/main/java/ch/ivyteam/ivy/maven/IarPackagingMojo.java -text
+project-build-plugin/src/main/java/ch/ivyteam/ivy/maven/conversion/FileSetConverter.java -text
 project-build-plugin/src/main/java/ch/ivyteam/ivy/maven/engine/EngineClassLoaderFactory.java -text
 project-build-plugin/src/main/java/ch/ivyteam/ivy/maven/engine/EngineClassPathCustomizer.java -text
 project-build-plugin/src/main/java/ch/ivyteam/ivy/maven/engine/MavenProjectBuilderProxy.java -text

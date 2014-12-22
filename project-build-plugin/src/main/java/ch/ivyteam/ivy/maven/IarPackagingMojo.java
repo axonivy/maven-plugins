@@ -5,6 +5,7 @@ import java.io.IOException;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.model.FileSet;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -15,6 +16,8 @@ import org.codehaus.plexus.archiver.ArchiverException;
 import org.codehaus.plexus.archiver.util.DefaultFileSet;
 import org.codehaus.plexus.archiver.zip.ZipArchiver;
 
+import ch.ivyteam.ivy.maven.conversion.FileSetConverter;
+
 /**
  * @author Reguel Wermelinger
  * @since 03.10.2014
@@ -23,6 +26,7 @@ import org.codehaus.plexus.archiver.zip.ZipArchiver;
 public class IarPackagingMojo extends AbstractMojo
 {
   public static final String GOAL = "pack-iar";
+  private static final String[] DEFAULT_INCLUDES = new String[] {"**/*"};
   private static final String[] DEFAULT_EXCLUDES = new String[] {".svn/**/*", "target/**/*"};
 
   @Parameter(property = "project", required = true, readonly = true)
@@ -32,13 +36,26 @@ public class IarPackagingMojo extends AbstractMojo
    * Define additional IAR excludes with ANT-style exclusion declarations. 
    * 
    * <p>The default (always active) exclusions are:
-   * <pre><code>&lt;excludes&gt;
-   *    &lt;exclude&gt;target/**&#47;*&lt;/exclude&gt;
-   *    &lt;exclude&gt;.svn/**&#47;*&lt;/exclude&gt;
-   * &lt;/excludes&gt;</code></pre>
+   * <pre><code>&lt;iarExcludes&gt;
+   *    &lt;iarExclude&gt;target/**&#47;*&lt;/iarExclude&gt;
+   *    &lt;iarExclude&gt;.svn/**&#47;*&lt;/iarExclude&gt;
+   *&lt;/iarExcludes&gt;</code></pre>
    */
   @Parameter
-  String[] excludes;
+  String[] iarExcludes;
+  
+  /** 
+   * Define additional IAR {@link FileSet fileSets} with ANT-style exclusion declarations. 
+   * <pre><code>&lt;iarFileSets&gt;
+   *    &lt;iarFileSet&gt;
+   *        &lt;includes&gt;
+   *            &lt;include&gt;**&#47;*&lt;/include&gt;
+   *        &lt;/includes&gt;
+   *    &lt;/iarFileSet&gt;
+   *&lt;/iarFileSets&gt;</code></pre>
+   */
+  @Parameter
+  FileSet[] iarFileSets;
   
   /** 
    * Includes empty directories in the packed IAR.
@@ -46,7 +63,7 @@ public class IarPackagingMojo extends AbstractMojo
    * Designer project as standard project artifacts (e.g. source folders) could be missing.
    */
   @Parameter(defaultValue="true")
-  boolean includeEmptyDirs;
+  boolean iarIncludesEmptyDirs;
 
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
@@ -65,13 +82,12 @@ public class IarPackagingMojo extends AbstractMojo
   {
     ZipArchiver archiver = new ZipArchiver();
     archiver.setDestFile(targetIar);
-    DefaultFileSet fileSet = new DefaultFileSet();
-    fileSet.setDirectory(sourceDir);
-    fileSet.setIncludingEmptyDirectories(includeEmptyDirs);
-    fileSet.setIncludes(new String[] {"**/*"});
-    fileSet.setExcludes(ArrayUtils.addAll(DEFAULT_EXCLUDES, excludes));
-    fileSet.setUsingDefaultExcludes(false);
-    archiver.addFileSet(fileSet);
+    archiver.addFileSet(getDefaultFileset(sourceDir));
+    FileSetConverter fsConverter = new FileSetConverter(project.getBasedir());
+    for(org.codehaus.plexus.archiver.FileSet fs : fsConverter.toPlexusFileSets(iarFileSets))
+    {
+      archiver.addFileSet(fs);
+    }
     try
     {
       archiver.createArchive();
@@ -80,6 +96,17 @@ public class IarPackagingMojo extends AbstractMojo
     {
       throw new MojoExecutionException("Failed to create IAR: " + targetIar.getAbsolutePath(), ex);
     }
+  }
+
+  private DefaultFileSet getDefaultFileset(File sourceDir)
+  {
+    DefaultFileSet fileSet = new DefaultFileSet();
+    fileSet.setDirectory(sourceDir);
+    fileSet.setIncludingEmptyDirectories(iarIncludesEmptyDirs);
+    fileSet.setIncludes(DEFAULT_INCLUDES);
+    fileSet.setExcludes(ArrayUtils.addAll(DEFAULT_EXCLUDES, iarExcludes));
+    fileSet.setUsingDefaultExcludes(false);
+    return fileSet;
   }
 
 }

@@ -6,15 +6,6 @@
 	<version>1.0.0</version>
 	<packaging>iar</packaging>
 
-	<pluginRepositories>
-		<!-- required to resolve the ivy-compile-plugin while it's not public -->
-		<pluginRepository>
-			<id>zugprorepo.buildIntegration</id>
-			<name>Internal Build Integration Repository</name>
-			<url>http://zugprorepo/repository/buildIntegration/</url>
-		</pluginRepository>
-	</pluginRepositories>
-
 	<build>
 		<outputDirectory>${project.basedir}/classes</outputDirectory>
 		<testSourceDirectory>${project.basedir}/src_test</testSourceDirectory>
@@ -24,8 +15,8 @@
 			<plugin>
 				<groupId>ch.ivyteam.ivy</groupId>
 				<artifactId>project-build-plugin</artifactId>
-				<version>0.0.2-SNAPSHOT</version>
-				<extensions>false</extensions> 
+				<version>0.0.3-SNAPSHOT</version>
+				<extensions>false</extensions> <!-- makes only sense in testing context: extensions needs access to local repository which can not be easily tested in plugin-harness tests -->
 			</plugin>
 		</plugins>
 	</build>

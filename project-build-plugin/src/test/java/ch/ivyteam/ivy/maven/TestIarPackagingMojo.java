@@ -3,11 +3,13 @@ package ch.ivyteam.ivy.maven;
 import static org.fest.assertions.api.Assertions.assertThat;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Collection;
 
 import net.lingala.zip4j.core.ZipFile;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.maven.model.FileSet;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -55,7 +57,7 @@ public class TestIarPackagingMojo
     String filterCandidate = "private/notPublic.txt";
     assertThat(new File(mojo.project.getBasedir(), filterCandidate)).exists();
     
-    mojo.excludes = new String[]{"private/**/*"};
+    mojo.iarExcludes = new String[]{"private/**/*"};
     mojo.execute();
     ZipFile archive = new ZipFile(mojo.project.getArtifact().getFile());
     
@@ -64,10 +66,29 @@ public class TestIarPackagingMojo
   }
   
   @Test
+  public void canDefineCustomInclusions() throws Exception
+  {
+    IarPackagingMojo mojo = rule.getMojo();
+    File outputDir = new File(mojo.project.getBasedir(), "target");
+    File customPomXml = new File(outputDir, "myCustomPom.xml");
+    FileUtils.write(customPomXml, "customPomContent");
+    
+    String relativeCustomIncludePath = "target/"+customPomXml.getName();
+    FileSet fs = new FileSet();
+    fs.setIncludes(Arrays.asList(relativeCustomIncludePath));
+    mojo.iarFileSets = new FileSet[]{fs};
+    
+    mojo.execute();
+    ZipFile archive = new ZipFile(mojo.project.getArtifact().getFile());
+    
+    assertThat(archive.getFileHeader(relativeCustomIncludePath)).as("Custom inclusions must be included").isNotNull();
+  }
+  
+  @Test
   public void canExcludeEmptyDirectories() throws Exception
   {
     IarPackagingMojo mojo = rule.getMojo();
-    mojo.includeEmptyDirs = false;
+    mojo.iarIncludesEmptyDirs = false;
     mojo.execute();
     
     try(java.util.zip.ZipFile archive = new java.util.zip.ZipFile(mojo.project.getArtifact().getFile()))
