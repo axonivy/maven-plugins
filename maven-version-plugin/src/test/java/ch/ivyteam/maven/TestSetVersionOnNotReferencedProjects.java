@@ -2,27 +2,29 @@ package ch.ivyteam.maven;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import mockit.Mock;
 import mockit.MockUp;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.util.StringUtils;
 import org.fest.assertions.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 
 
-public class TestSetMavenModulesAndConfigVersion extends Assertions
+public class TestSetVersionOnNotReferencedProjects extends Assertions
 {
   private static final File POM_FILE = new File("testIvy/pom.xml");
 
   private SetMavenAndEclipseVersion testee = new SetMavenAndEclipseVersion();
   
-  private StringBuilder log = new StringBuilder();
+  protected List<String> log = new ArrayList<>();
   
   @Before
   public void before() throws IOException
@@ -35,8 +37,7 @@ public class TestSetMavenModulesAndConfigVersion extends Assertions
     testee.setLog(new MockUp<Log>(){
       @Mock void info( CharSequence content )
       {
-        log.append(content);
-        log.append("\r\n");
+        log.add(content.toString());
       }
     }.getMockInstance());
     testee.setVersion("5.1.14-SNAPSHOT");    
@@ -57,17 +58,29 @@ public class TestSetMavenModulesAndConfigVersion extends Assertions
   public void testUpdateConfigAndModulesPomVersion() throws MojoExecutionException, IOException
   {
     testee.execute();
-    compareConfigPom();
-    compareModulesPom();
+    compareMavenConfigPom();
+    compareMavenModulesPom();
+    compareLog();
+  }
+  
+  @Test
+  public void testUpdateNotReferencedTestPomAndFeature() throws MojoExecutionException, IOException
+  {
+    testee.execute();
+    comparePom("development/features/ch.ivyteam.ivy.another.feature/pom.xml");
+    compareFeature("development/features/ch.ivyteam.ivy.another.feature/feature.xml");
+    comparePom("development/features/ch.ivyteam.ivy.test.feature/pom.xml");
+    compareFeature("development/features/ch.ivyteam.ivy.test.feature/feature.xml");
+    comparePom("development/updatesites/ch.ivyteam.ivy.test.p2/pom.xml");
     compareLog();
   }
 
-  private void compareModulesPom() throws IOException
+  private void compareMavenModulesPom() throws IOException
   {
     comparePom("development/ch.ivyteam.ivy.build.maven/pom.xml");
   }
 
-  private void compareConfigPom() throws IOException
+  private void compareMavenConfigPom() throws IOException
   {
     comparePom("development/ch.ivyteam.ivy.build.maven/config/pom.xml");    
   }
@@ -83,12 +96,25 @@ public class TestSetMavenModulesAndConfigVersion extends Assertions
     String referencePom = FileUtils.readFileToString(new File("referenceIvy", relativePomPath));
     assertThat(testeePom).isEqualTo(referencePom);
   }
-
+  
+  private void compareFeature(String relativeFeatureXmlPath) throws IOException
+  {
+    String testeeManifest = FileUtils.readFileToString(new File("testIvy", relativeFeatureXmlPath));
+    String referenceManifest = FileUtils.readFileToString(new File("referenceIvy", relativeFeatureXmlPath));
+    assertThat(testeeManifest).isEqualTo(referenceManifest);
+  }
   
   private void compareLog() throws IOException
   {
-    String referenceLog = FileUtils.readFileToString(new File("referenceIvy/log.txt"));
-    referenceLog = StringUtils.replace(referenceLog, "C:\\dev\\maven-plugin\\maven-plugin\\testIvy\\", POM_FILE.getParentFile().getAbsolutePath()+"\\");
-    assertThat(log.toString()).isEqualTo(referenceLog);
+    List<String> referenceLog = FileUtils.readLines(new File("referenceIvy/log.txt"));
+    
+    List<String> cleanedReferenceLog = new ArrayList<>();
+    for (String line : referenceLog)
+    {
+      line = StringUtils.replace(line, "C:\\dev\\maven-plugin\\maven-plugin\\testIvy\\", POM_FILE.getParentFile().getAbsolutePath()+"\\");
+      line = StringUtils.replace(line, "\\", File.separator);
+      cleanedReferenceLog.add(line);
+    }
+    assertThat(cleanedReferenceLog).containsOnly(log.toArray());
   }
 }

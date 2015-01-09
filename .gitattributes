@@ -5,6 +5,11 @@ maven-version-plugin/.settings/org.eclipse.jdt.core.prefs -text
 maven-version-plugin/.settings/org.eclipse.m2e.core.prefs -text
 maven-version-plugin/originalIvy/development/ch.ivyteam.ivy.build.maven/config/pom.xml -text
 maven-version-plugin/originalIvy/development/ch.ivyteam.ivy.build.maven/pom.xml -text
+maven-version-plugin/originalIvy/development/features/ch.ivyteam.ivy.another.feature/feature.xml -text
+maven-version-plugin/originalIvy/development/features/ch.ivyteam.ivy.another.feature/pom.xml -text
+maven-version-plugin/originalIvy/development/features/ch.ivyteam.ivy.test.feature/feature.xml -text
+maven-version-plugin/originalIvy/development/features/ch.ivyteam.ivy.test.feature/pom.xml -text
+maven-version-plugin/originalIvy/development/updatesites/ch.ivyteam.ivy.test.p2/pom.xml -text
 maven-version-plugin/originalIvy/pom.xml -text
 maven-version-plugin/originalProject/Designer.product -text
 maven-version-plugin/originalProject/META-INF/MANIFEST.MF -text
@@ -13,6 +18,11 @@ maven-version-plugin/originalProject/pom.xml -text
 maven-version-plugin/pom.xml -text
 maven-version-plugin/referenceIvy/development/ch.ivyteam.ivy.build.maven/config/pom.xml -text
 maven-version-plugin/referenceIvy/development/ch.ivyteam.ivy.build.maven/pom.xml -text
+maven-version-plugin/referenceIvy/development/features/ch.ivyteam.ivy.another.feature/feature.xml -text
+maven-version-plugin/referenceIvy/development/features/ch.ivyteam.ivy.another.feature/pom.xml -text
+maven-version-plugin/referenceIvy/development/features/ch.ivyteam.ivy.test.feature/feature.xml -text
+maven-version-plugin/referenceIvy/development/features/ch.ivyteam.ivy.test.feature/pom.xml -text
+maven-version-plugin/referenceIvy/development/updatesites/ch.ivyteam.ivy.test.p2/pom.xml -text
 maven-version-plugin/referenceIvy/log.txt -text
 maven-version-plugin/referenceIvy/pom.xml -text
 maven-version-plugin/referenceProject/Designer.product -text
@@ -29,7 +39,7 @@ maven-version-plugin/src/main/java/ch/ivyteam/maven/PomXmlFileUpdater.java -text
 maven-version-plugin/src/main/java/ch/ivyteam/maven/ProductXmlFileUpdater.java -text
 maven-version-plugin/src/main/java/ch/ivyteam/maven/SetMavenAndEclipseVersion.java -text
 maven-version-plugin/src/test/java/ch/ivyteam/maven/TestSetMavenAndEclipseVersion.java -text
-maven-version-plugin/src/test/java/ch/ivyteam/maven/TestSetMavenModulesAndConfigVersion.java -text
+maven-version-plugin/src/test/java/ch/ivyteam/maven/TestSetVersionOnNotReferencedProjects.java -text
 project-build-plugin/.classpath -text
 project-build-plugin/.project -text
 project-build-plugin/.settings/org.eclipse.jdt.core.prefs -text

@@ -2,15 +2,17 @@ package ch.ivyteam.maven;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import mockit.Mock;
 import mockit.MockUp;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.util.StringUtils;
 import org.fest.assertions.Assertions;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,11 +21,11 @@ import org.junit.Test;
 public class TestSetMavenAndEclipseVersion extends Assertions
 {
   private static final File POM_FILE = new File("testProject/pom.xml");
+  
+  protected List<String> log = new ArrayList<>();
+  protected SetMavenAndEclipseVersion testee = new SetMavenAndEclipseVersion();
+  
 
-  private SetMavenAndEclipseVersion testee = new SetMavenAndEclipseVersion();
-  
-  private StringBuilder log = new StringBuilder();
-  
   @Before
   public void before() throws IOException
   {
@@ -35,8 +37,7 @@ public class TestSetMavenAndEclipseVersion extends Assertions
     testee.setLog(new MockUp<Log>(){
       @Mock void info( CharSequence content )
       {
-        log.append(content);
-        log.append("\r\n");
+        log.add(content.toString());
       }
     }.getMockInstance());
     testee.setVersion("5.1.14-SNAPSHOT");    
@@ -100,9 +101,16 @@ public class TestSetMavenAndEclipseVersion extends Assertions
   
   private void compareLog() throws IOException
   {
-    String referenceLog = FileUtils.readFileToString(new File("referenceProject/log.txt"));
-    referenceLog = StringUtils.replace(referenceLog, "C:\\dev\\maven-plugin\\maven-plugin\\testProject\\", POM_FILE.getParentFile().getAbsolutePath()+"\\");
-    assertThat(log.toString()).isEqualTo(referenceLog);
+    List<String> referenceLog = FileUtils.readLines(new File("referenceProject/log.txt"));
+    
+    List<String> cleanedReferenceLog = new ArrayList<>();
+    for (String line : referenceLog)
+    {
+      line = StringUtils.replace(line, "C:\\dev\\maven-plugin\\maven-plugin\\testProject\\", POM_FILE.getParentFile().getAbsolutePath()+"\\");
+      line = StringUtils.replace(line, "\\", File.separator);
+      cleanedReferenceLog.add(line);
+    }
+    assertThat(cleanedReferenceLog).containsOnly(log.toArray());
   }
   
   private void compareProduct() throws IOException

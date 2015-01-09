@@ -18,6 +18,8 @@ package ch.ivyteam.maven;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.xpath.XPathExpressionException;
 
@@ -42,9 +44,21 @@ import org.xml.sax.SAXException;
  */
 public class SetMavenAndEclipseVersion extends AbstractMojo
 {
-  private static final String IVY_MAVEN_BUILD_DIRECTORY = "development/ch.ivyteam.ivy.build.maven";
-
   static final String IVY_TOP_LEVEL_ARTIFACT_AND_GROUP_ID = "ch.ivyteam.ivy";
+
+  private static final String IVY_MAVEN_BUILD_DIRECTORY = "development/ch.ivyteam.ivy.build.maven";
+  
+  private static final List<String> NOT_REFERENCED_POMS_TO_UPDATE_TOO = new ArrayList<>();
+  static {
+    NOT_REFERENCED_POMS_TO_UPDATE_TOO.add("development/features/ch.ivyteam.ivy.test.feature/pom.xml");
+    NOT_REFERENCED_POMS_TO_UPDATE_TOO.add("development/updatesites/ch.ivyteam.ivy.test.p2/pom.xml");
+  }
+
+  private static final List<String> NOT_REFERENCED_FEATURE_XMLS_TO_UPDATE_TOO = new ArrayList<>();
+  static {
+    NOT_REFERENCED_FEATURE_XMLS_TO_UPDATE_TOO.add("development/features/ch.ivyteam.ivy.test.feature/feature.xml");
+  }
+
 
   /**
    * @parameter expression="${project}"
@@ -67,6 +81,8 @@ public class SetMavenAndEclipseVersion extends AbstractMojo
       if (isIvyTopLevelPom())
       {
         updateIvyMavenBuildModulesAndParentConfigPoms();
+        updateNotReferencedPoms();
+        updateNotReferencedFeatureXmls();
       }
     }
     catch (Exception ex)
@@ -108,11 +124,40 @@ public class SetMavenAndEclipseVersion extends AbstractMojo
       updateVersionsInPom(pomXmlFile);
     }
   }
+  
+  private void updateNotReferencedPoms() throws Exception
+  {
+    for (String path : NOT_REFERENCED_POMS_TO_UPDATE_TOO)
+    {
+      File pomXmlFile = getProjectBaseRelativeFile(path);
+      if (pomXmlFile.exists())
+      {
+        updateVersionsInPom(pomXmlFile);
+      }
+    }
+  }
+  
+  private void updateNotReferencedFeatureXmls() throws Exception
+  {
+    for (String path : NOT_REFERENCED_FEATURE_XMLS_TO_UPDATE_TOO)
+    {
+      File featureXmlFile = getProjectBaseRelativeFile(path);
+      if (featureXmlFile.exists())
+      {
+        updateVersionInFeatureXml(featureXmlFile.getParentFile());
+      }
+    }
+  }
 
   private File getIvyMavenBuildDirectory()
   {
-    File ivyMavenBuildDirectory = new File(project.getBasedir(), IVY_MAVEN_BUILD_DIRECTORY);
+    File ivyMavenBuildDirectory = getProjectBaseRelativeFile(IVY_MAVEN_BUILD_DIRECTORY);
     return ivyMavenBuildDirectory;
+  }
+  
+  private File getProjectBaseRelativeFile(String relativePath)
+  {
+    return new File(project.getBasedir(), relativePath);
   }
 
   private void updateVersionInProductXml(File projectDirectory) throws XPathExpressionException, SAXException, IOException
