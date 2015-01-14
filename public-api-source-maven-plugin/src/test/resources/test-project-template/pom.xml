@@ -1,0 +1,84 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>ch.ivyteam</groupId>
+	<version>1.0.0-SNAPSHOT</version>
+	<artifactId>test-project</artifactId>
+	<!-- will be set to 'eclipse-plugin' during test -->
+	<packaging>jar</packaging>
+
+	<properties>
+		<maven-version>2.3.2</maven-version>
+		<tycho-version>0.20.0</tycho-version>
+		<api.jar.path>${basedir}/lib/ch.ivyteam.api.jar</api.jar.path>
+	</properties>
+
+	<build>
+		<sourceDirectory>${basedir}/src</sourceDirectory>
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>${maven-version}</version>
+				<configuration>
+					<source>1.7</source>
+					<target>1.7</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>ch.ivyteam</groupId>
+				<artifactId>public-api-source-maven-plugin</artifactId>
+				<version>0.0.1-SNAPSHOT</version>
+				<executions>
+					<execution>
+						<id>plugin-source</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>extended-plugin-source</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>ch.ivyteam</groupId>
+					<artifactId>public-api-source-maven-plugin</artifactId>
+					<configuration>
+						<includes>
+      						<include>ch/ivyteam/test/ClassInIncludes.java</include>
+						</includes>
+						<!-- <includePublicApiSource>false</includePublicApiSource> -->
+						<!-- <additionalFileSets>
+							<fileSet>
+								<directory>${basedir}/src</directory>
+								<includes>
+									<include>ch/ivyteam/test/ClassWithPublicApi.java</include>
+								</includes>
+							</fileSet>
+						</additionalFileSets> -->
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>ch.ivyteam.ivy</groupId>
+			<artifactId>api</artifactId>
+			<version>6.0.0</version>
+			<scope>system</scope>
+			<systemPath>${api.jar.path}</systemPath>
+		</dependency>
+	</dependencies>
+
+	<profiles>
+		<profile>
+			<id>development</id>
+		</profile>
+		<profile>
+			<id>build</id>
+		</profile>
+	</profiles>
+</project>
