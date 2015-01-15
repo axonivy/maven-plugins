@@ -3,6 +3,7 @@ package ch.ivyteam.maven.public_api_source;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -16,6 +17,7 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.tycho.core.facade.BuildProperties;
 import org.eclipse.tycho.core.facade.BuildPropertiesParser;
+import org.eclipse.tycho.source.AbstractSourceJarMojo;
 import org.eclipse.tycho.source.OsgiSourceMojo;
 
 /**
@@ -40,9 +42,39 @@ public class PublicApiSourceMojo extends OsgiSourceMojo
   public void execute() throws MojoExecutionException
   {
     getLog().debug("executing goal " + GOAL);
+    avoidIncludeAnythingIfNotConfigured();
     super.execute();
   }
   
+  /**
+   * To prevent including everything when nothing is configured.
+   */
+  private void avoidIncludeAnythingIfNotConfigured()
+  {
+    try
+    {
+      Field field = AbstractSourceJarMojo.class.getDeclaredField("includes");
+      try
+      {
+        field.setAccessible(true);
+        String[] value = (String[])field.get(this);
+        if (value == null || value.length == 0)
+        {
+          field.set(this, new String[] {"."});
+        }
+      }
+      finally
+      {
+        field.setAccessible(false);
+      }
+    }
+    catch (Exception ex)
+    {
+      getLog().error(ex);
+    }
+    
+  }
+
   @Override
   protected List<Resource> getResources(MavenProject p) throws MojoExecutionException
   {
@@ -50,8 +82,13 @@ public class PublicApiSourceMojo extends OsgiSourceMojo
     resources.addAll(super.getResources(p));
     if (includePublicApiSource)
     {
-      for (String sourceFolder : getAllSourceFolders(p)) {
-        List<String> publicApiFiles = collectPublicApiFiles(p, sourceFolder);
+      PublicApiClassesFinder finder = new PublicApiClassesFinder(new File( getClassesDir(p)));
+      List<File> foundPublicApiClasses = finder.find();
+
+      List<String> allSourceFolders = getAllSourceFolders(p);
+      for (String sourceFolder : allSourceFolders) 
+      {
+        List<String> publicApiFiles = buildPublicApiFilesForSourceFolder(p, foundPublicApiClasses, sourceFolder);
         if (!publicApiFiles.isEmpty())
         {
           resources.add(
@@ -61,8 +98,31 @@ public class PublicApiSourceMojo extends OsgiSourceMojo
                           null));
         }
       }
+      for (File notAssignedPublicApiClass : foundPublicApiClasses)
+      {
+        getLog().warn("No source File found for " + notAssignedPublicApiClass.getAbsolutePath());
+      }
     }
     return resources;
+  }
+
+  private List<String> buildPublicApiFilesForSourceFolder(MavenProject p, List<File> foundPublicApiClasses,
+          String sourceFolder)
+  {
+    List<String> publicApiFiles = new ArrayList<>();
+    Iterator<File> foundClassesIterator = foundPublicApiClasses.iterator();
+    while (foundClassesIterator.hasNext())
+    {
+      File foundClass = foundClassesIterator.next();
+      String correspondingSourcePath = convertClassPathToSourcePath( getClassesDir(p), foundClass);
+      File correspondingSourceFile = new File(new File(p.getBasedir(), sourceFolder), correspondingSourcePath);
+      if (correspondingSourceFile.exists())
+      {
+        publicApiFiles.add(correspondingSourcePath);
+        foundClassesIterator.remove();
+      }
+    }
+    return publicApiFiles;
   }
   
   private List<String> getAllSourceFolders(MavenProject p)
@@ -77,19 +137,9 @@ public class PublicApiSourceMojo extends OsgiSourceMojo
     return sourceFolders;
   }
 
-  @SuppressWarnings("unused")
-  private List<String> collectPublicApiFiles(MavenProject p, String sourceFolder)
+  private String getClassesDir(MavenProject p)
   {
-    String classesDir = p.getBuild().getOutputDirectory();
-    PublicApiClassesFinder finder = new PublicApiClassesFinder(new File(classesDir));
-    
-    ArrayList<String> publicApiFiles = new ArrayList<>();
-    for (File foundClass : finder.find())
-    {
-      String correspondingSourcePath = convertClassPathToSourcePath(classesDir, foundClass);
-      publicApiFiles.add(correspondingSourcePath);
-    }
-    return publicApiFiles;
+    return p.getBuild().getOutputDirectory();
   }
 
   private String convertClassPathToSourcePath(String classesDir, File foundClass)
@@ -146,10 +196,6 @@ public class PublicApiSourceMojo extends OsgiSourceMojo
 
         return buildPropertiesParser;
       }
-      catch (Exception ex)
-      {
-        ex.printStackTrace();
-      }
       finally
       {
         field.setAccessible(false);
@@ -157,7 +203,7 @@ public class PublicApiSourceMojo extends OsgiSourceMojo
     }
     catch (Exception ex)
     {
-      ex.printStackTrace();
+      getLog().error(ex);
     }
 
     return null;

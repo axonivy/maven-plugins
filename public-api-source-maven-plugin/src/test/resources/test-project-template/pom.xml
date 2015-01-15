@@ -15,6 +15,7 @@
 
 	<build>
 		<sourceDirectory>${basedir}/src</sourceDirectory>
+		<!-- <sourceDirectory>${basedir}/anotherSrc</sourceDirectory> -->
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>

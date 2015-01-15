@@ -16,6 +16,8 @@ public class TestPublicApiClassesFinder
     assertThat(classesDir).exists();
     PublicApiClassesFinder finder = new PublicApiClassesFinder(classesDir);
     List<File> result = finder.find();
-    assertThat(result).containsExactly(new File(classesDir, "ch/ivyteam/test/ClassWithPublicApi.class"));
+    assertThat(result).containsOnly(
+            new File(classesDir, "ch/ivyteam/test/ClassWithPublicApi.class"),
+            new File(classesDir, "ch/ivyteam/another/test/AnotherClassWithPublicApi.class"));
   }
 }

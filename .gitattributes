@@ -123,12 +123,15 @@ public-api-source-maven-plugin/src/test/java/ch/ivyteam/maven/public_api_source/
 public-api-source-maven-plugin/src/test/resources/test-project-template/.classpath -text
 public-api-source-maven-plugin/src/test/resources/test-project-template/.project -text
 public-api-source-maven-plugin/src/test/resources/test-project-template/META-INF/MANIFEST.MF -text
+public-api-source-maven-plugin/src/test/resources/test-project-template/anotherSrc/ch/ivyteam/another/test/AnotherClassWithPublicApi.java -text
 public-api-source-maven-plugin/src/test/resources/test-project-template/build.properties -text
 public-api-source-maven-plugin/src/test/resources/test-project-template/lib/ch.ivyteam.api.jar -text
 public-api-source-maven-plugin/src/test/resources/test-project-template/pom.xml -text
 public-api-source-maven-plugin/src/test/resources/test-project-template/src/ch/ivyteam/test/ClassInIncludes.java -text
 public-api-source-maven-plugin/src/test/resources/test-project-template/src/ch/ivyteam/test/ClassWithPublicApi.java -text
 public-api-source-maven-plugin/src/test/resources/test-project-template/src/ch/ivyteam/test/ClassWithoutSourceGeneration.java -text
+public-api-source-maven-plugin/src/test/resources/test-project-template/src/ch/ivyteam/test/README.txt -text
+public-api-source-maven-plugin/src/test/resources/test-project-template/target/classes/ch/ivyteam/another/test/AnotherClassWithPublicApi.class -text
 public-api-source-maven-plugin/src/test/resources/test-project-template/target/classes/ch/ivyteam/test/ClassInIncludes.class -text
 public-api-source-maven-plugin/src/test/resources/test-project-template/target/classes/ch/ivyteam/test/ClassWithPublicApi.class -text
 public-api-source-maven-plugin/src/test/resources/test-project-template/target/classes/ch/ivyteam/test/ClassWithoutSourceGeneration.class -text

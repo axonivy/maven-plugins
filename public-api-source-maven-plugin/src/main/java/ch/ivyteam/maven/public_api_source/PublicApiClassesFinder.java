@@ -44,7 +44,8 @@ public class PublicApiClassesFinder
     try(InputStream inputStream = classToCheck.toURI().toURL().openStream();)
     {
       PublicApiClassVisitor classVisitor = new PublicApiClassVisitor();
-      new ClassReader(inputStream).accept(classVisitor, 0);
+      ClassReader classReader = new ClassReader(inputStream);
+      classReader.accept(classVisitor, 0);
       return classVisitor.publicApiAnnotationFound;
     }
     catch (MalformedURLException ex)

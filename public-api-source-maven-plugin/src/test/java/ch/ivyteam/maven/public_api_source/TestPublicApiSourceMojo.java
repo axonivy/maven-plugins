@@ -5,6 +5,7 @@ import static org.fest.assertions.api.Assertions.assertThat;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.util.zip.ZipFile;
 
@@ -14,6 +15,7 @@ import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.facade.BuildPropertiesParser;
 import org.eclipse.tycho.core.osgitools.DefaultArtifactKey;
+import org.eclipse.tycho.source.AbstractSourceJarMojo;
 import org.junit.Rule;
 import org.junit.Test;
 public class TestPublicApiSourceMojo
@@ -45,8 +47,13 @@ public class TestPublicApiSourceMojo
     {
       assertThat(sourceJarZip.getEntry("ch/ivyteam/test/ClassWithPublicApi.java"))
         .as("ClassWithPublicApi.java must exist in source jar.").isNotNull();
+      
+      assertThat(sourceJarZip.getEntry("ch/ivyteam/another/test/AnotherClassWithPublicApi.java"))
+        .as("AnotherClassWithPublicApi.java (from second source directory) must exist in source jar.").isNotNull();
+      
       assertThat(sourceJarZip.getEntry("ch/ivyteam/test/ClassInIncludes.java"))
         .as("ClassInIncludes.java must exist in source jar.").isNotNull();
+      
       assertThat(sourceJarZip.getEntry("ch/ivyteam/test/ClassWithoutSourceGeneration.java"))
         .as("ClassWithoutSourceGeneration.java must not exist in source jar.").isNull();
     }
@@ -61,7 +68,9 @@ public class TestPublicApiSourceMojo
   {
     PublicApiSourceMojo mojo = rule.getMojo();
     assertThat(mojo).isNotNull();
+    
     mojo.includePublicApiSource = false;
+    
     mojo.execute();
     File basedir = mojo.getProject().getBasedir();
     File sourceJar = new File(basedir, "target/test-project-1.0.0-SNAPSHOT-sources.jar");
@@ -71,8 +80,10 @@ public class TestPublicApiSourceMojo
       assertThat(sourceJarZip.getEntry("ch/ivyteam/test/ClassWithPublicApi.java"))
         .as("ClassWithPublicApi.java must not exist in source jar, since includePublicApiSource is set to false.")
         .isNull();
+      
       assertThat(sourceJarZip.getEntry("ch/ivyteam/test/ClassInIncludes.java"))
         .as("ClassInIncludes.java must exist in source jar.").isNotNull();
+      
       assertThat(sourceJarZip.getEntry("ch/ivyteam/test/ClassWithoutSourceGeneration.java"))
         .as("ClassWithoutSourceGeneration.java must not exist in source jar.").isNull();
     }
@@ -81,7 +92,54 @@ public class TestPublicApiSourceMojo
       sourceJarZip.close();
     }
   }
+
+  @Test
+  public void onlyIncludePublicApiWhenIncludesPropertyEmpty() throws Exception
+  {
+    PublicApiSourceMojo mojo = rule.getMojo();
+    assertThat(mojo).isNotNull();
+    
+    setIncludesPropertyToEmpty(mojo);
+    
+    mojo.execute();
+    File basedir = mojo.getProject().getBasedir();
+    File sourceJar = new File(basedir, "target/test-project-1.0.0-SNAPSHOT-sources.jar");
+    ZipFile sourceJarZip = new ZipFile(sourceJar);
+    try
+    {
+      assertThat(sourceJarZip.getEntry("ch/ivyteam/test/ClassWithPublicApi.java"))
+        .as("ClassWithPublicApi.java must exist in source jar.").isNotNull();
+      
+      assertThat(sourceJarZip.getEntry("ch/ivyteam/another/test/AnotherClassWithPublicApi.java"))
+        .as("AnotherClassWithPublicApi.java (from second source directory) must exist in source jar.").isNotNull();
+      
+      assertThat(sourceJarZip.getEntry("ch/ivyteam/test/ClassInIncludes.java"))
+        .as("ClassInIncludes.java must not exist in source jar.").isNull();
+      
+      assertThat(sourceJarZip.getEntry("ch/ivyteam/test/ClassWithoutSourceGeneration.java"))
+        .as("ClassWithoutSourceGeneration.java must not exist in source jar.").isNull();
+      
+    }
+    finally
+    {
+      sourceJarZip.close();
+    }
+  }
   
+  private void setIncludesPropertyToEmpty(PublicApiSourceMojo mojo) throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException
+  {
+    Field field = AbstractSourceJarMojo.class.getDeclaredField("includes");
+    try
+    {
+      field.setAccessible(true);
+      field.set(mojo, new String[0]);
+    }
+    finally
+    {
+      field.setAccessible(false);
+    }
+  }
+
   private class PublicApiSourceMojoRule extends MojoRule
   {
     File templateProjectDir = new File("src/test/resources/test-project-template");
