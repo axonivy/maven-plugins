@@ -5,5 +5,6 @@ project-build-plugin/src/test/resources/base/src_dataClasses/*
 project-build-plugin/src/test/resources/base/src_wsproc/*.*
 project-build-plugin/target
 project-build-plugin/work
+public-api-source-maven-plugin/src/test/resources/test-project-template/bin/*
 /target
 /testProject
