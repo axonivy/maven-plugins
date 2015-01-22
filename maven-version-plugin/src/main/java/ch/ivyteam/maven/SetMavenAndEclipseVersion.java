@@ -59,6 +59,11 @@ public class SetMavenAndEclipseVersion extends AbstractMojo
     NOT_REFERENCED_FEATURE_XMLS_TO_UPDATE_TOO.add("development/features/ch.ivyteam.ivy.test.feature/feature.xml");
   }
 
+  private static final List<String> NOT_REFERENCED_CATEGORY_XMLS_TO_UPDATE_TOO = new ArrayList<>();
+  static {
+    NOT_REFERENCED_CATEGORY_XMLS_TO_UPDATE_TOO.add("development/updatesites/ch.ivyteam.ivy.test.p2/category.xml");
+  }
+
 
   /**
    * @parameter expression="${project}"
@@ -83,6 +88,7 @@ public class SetMavenAndEclipseVersion extends AbstractMojo
         updateIvyMavenBuildModulesAndParentConfigPoms();
         updateNotReferencedPoms();
         updateNotReferencedFeatureXmls();
+        updateNotReferencedCategoryXmls();
       }
     }
     catch (Exception ex)
@@ -149,6 +155,18 @@ public class SetMavenAndEclipseVersion extends AbstractMojo
     }
   }
 
+  private void updateNotReferencedCategoryXmls() throws Exception
+  {
+    for (String path : NOT_REFERENCED_CATEGORY_XMLS_TO_UPDATE_TOO)
+    {
+      File categoryXmlFile = getProjectBaseRelativeFile(path);
+      if (categoryXmlFile.exists())
+      {
+        updateVersionsInCategoryXml(categoryXmlFile.getParentFile());
+      }
+    }
+  }
+  
   private File getIvyMavenBuildDirectory()
   {
     File ivyMavenBuildDirectory = getProjectBaseRelativeFile(IVY_MAVEN_BUILD_DIRECTORY);
@@ -184,6 +202,12 @@ public class SetMavenAndEclipseVersion extends AbstractMojo
     updater.update();
   }
 
+  private void updateVersionsInCategoryXml(File projectDirectory) throws Exception
+  {
+    CategoryXmlFileUpdater updater = new CategoryXmlFileUpdater(projectDirectory, version, getLog());
+    updater.update();
+  }
+  
   void setVersion(String version)
   {
     this.version = version;

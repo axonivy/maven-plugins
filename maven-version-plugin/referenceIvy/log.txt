@@ -72,3 +72,4 @@ Replace version 5.1.0 with version 5.1.14 in plugin node ch.ivyteam.management.t
 Replace version 5.1.0 with version 5.1.14 in plugin node ch.ivyteam.util.tests of feature file C:\dev\maven-plugin\maven-plugin\testIvy\development\features\ch.ivyteam.ivy.test.feature\feature.xml
 Replace version 5.1.0 with version 5.1.14 in plugin node ch.ivyteam.test of feature file C:\dev\maven-plugin\maven-plugin\testIvy\development\features\ch.ivyteam.ivy.test.feature\feature.xml
 Replace version 5.1.0 with version 5.1.14 in plugin node ch.ivyteam.ivy.base.services.facade.tests of feature file C:\dev\maven-plugin\maven-plugin\testIvy\development\features\ch.ivyteam.ivy.test.feature\feature.xml
+Replace version 5.1.0.qualifier with version 5.1.14.qualifier in feature node ch.ivyteam.ivy.test.feature of file feature C:\dev\maven-plugin\maven-plugin\testIvy\development\updatesites\ch.ivyteam.ivy.test.p2\category.xml

@@ -1,65 +1,32 @@
 package ch.ivyteam.maven;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugin.logging.Log;
 import org.w3c.dom.Node;
 
 /**
  * Updates the version of the feature and the included features and plugins 
  */
-class FeatureXmlFileUpdater extends AbstractXmlFileUpdater
+class FeatureXmlFileUpdater extends AbstractProjectAwareXmlFileUpdater
 {
-  private File projectDirectory;
-  private String featureVersion;
-  private String requiredVersion;
-  private Log log;
 
   FeatureXmlFileUpdater(File projectDirectory, String newVersion, Log log)
   {
-    super(new File(projectDirectory, "feature.xml"));
-    this.projectDirectory = projectDirectory;
-    if (newVersion.indexOf('-') >= 0)
-    {
-      featureVersion = StringUtils.substringBefore(newVersion, "-");
-    }
-    else
-    {
-      featureVersion = newVersion;
-    }
-    requiredVersion = featureVersion;
-    featureVersion += ".qualifier";    
-    this.log = log;
+    super(projectDirectory, "feature.xml", newVersion, log);
   }
 
-  void update() throws IOException, ParserConfigurationException, Exception
+  @Override
+  protected boolean updateContent() throws Exception
   {
     boolean changed = false;
-    if (xmlFile.exists())
-    {
-      readXml();
-      changed = updateVersion(changed);
-      changed = updateIncludesVersion(changed);
-      changed = updatePluginsVersion(changed);
-      if (changed)
-      {
-        saveXml();
-      }
-      else
-      {
-        log.info("Feature file "+xmlFile.getAbsolutePath()+" is up to date. Nothing to do.");
-      }
-    }
-    else
-    {
-      log.info("No feature.xml found in project "+projectDirectory+". Nothing to do");
-    }
+    changed = updateVersion(changed);
+    changed = updateIncludesVersion(changed);
+    changed = updatePluginsVersion(changed);
+    return changed;
   }
 
   private boolean updatePluginsVersion(boolean changed) throws XPathExpressionException
@@ -108,22 +75,5 @@ class FeatureXmlFileUpdater extends AbstractXmlFileUpdater
       return true;      
     }
     return changed;
-  }
-
-  private boolean versionNeedsUpdate(Node parentNode, Node versionNode, String version)
-  {
-    String id = getAttributeText(parentNode, "id");
-    return IvyArtifactDetector.isLocallyBuildIvyArtifact(id, version) &&
-           versionNeedsUpdate(versionNode, version);
-  }
-  
-  private String getAttributeText(Node elementNode, String attribute)
-  {
-    return elementNode.getAttributes().getNamedItem(attribute).getTextContent();
-  }
-
-  private Node getVersionAttributeNode(Node node)
-  {
-    return node.getAttributes().getNamedItem("version");
   }
 }

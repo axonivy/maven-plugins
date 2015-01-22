@@ -9,6 +9,7 @@ maven-version-plugin/originalIvy/development/features/ch.ivyteam.ivy.another.fea
 maven-version-plugin/originalIvy/development/features/ch.ivyteam.ivy.another.feature/pom.xml -text
 maven-version-plugin/originalIvy/development/features/ch.ivyteam.ivy.test.feature/feature.xml -text
 maven-version-plugin/originalIvy/development/features/ch.ivyteam.ivy.test.feature/pom.xml -text
+maven-version-plugin/originalIvy/development/updatesites/ch.ivyteam.ivy.test.p2/category.xml -text
 maven-version-plugin/originalIvy/development/updatesites/ch.ivyteam.ivy.test.p2/pom.xml -text
 maven-version-plugin/originalIvy/pom.xml -text
 maven-version-plugin/originalProject/Designer.product -text
@@ -22,6 +23,7 @@ maven-version-plugin/referenceIvy/development/features/ch.ivyteam.ivy.another.fe
 maven-version-plugin/referenceIvy/development/features/ch.ivyteam.ivy.another.feature/pom.xml -text
 maven-version-plugin/referenceIvy/development/features/ch.ivyteam.ivy.test.feature/feature.xml -text
 maven-version-plugin/referenceIvy/development/features/ch.ivyteam.ivy.test.feature/pom.xml -text
+maven-version-plugin/referenceIvy/development/updatesites/ch.ivyteam.ivy.test.p2/category.xml -text
 maven-version-plugin/referenceIvy/development/updatesites/ch.ivyteam.ivy.test.p2/pom.xml -text
 maven-version-plugin/referenceIvy/log.txt -text
 maven-version-plugin/referenceIvy/pom.xml -text
@@ -30,8 +32,10 @@ maven-version-plugin/referenceProject/META-INF/MANIFEST.MF -text
 maven-version-plugin/referenceProject/feature.xml -text
 maven-version-plugin/referenceProject/log.txt -text
 maven-version-plugin/referenceProject/pom.xml -text
+maven-version-plugin/src/main/java/ch/ivyteam/maven/AbstractProjectAwareXmlFileUpdater.java -text
 maven-version-plugin/src/main/java/ch/ivyteam/maven/AbstractXmlFileUpdater.java -text
 maven-version-plugin/src/main/java/ch/ivyteam/maven/BundleManifestFileUpdater.java -text
+maven-version-plugin/src/main/java/ch/ivyteam/maven/CategoryXmlFileUpdater.java -text
 maven-version-plugin/src/main/java/ch/ivyteam/maven/FeatureXmlFileUpdater.java -text
 maven-version-plugin/src/main/java/ch/ivyteam/maven/IvyArtifactDetector.java -text
 maven-version-plugin/src/main/java/ch/ivyteam/maven/LineNumberXmlReader.java -text

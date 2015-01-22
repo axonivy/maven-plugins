@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature url="features/ch.ivyteam.ivy.test.feature_5.1.0.qualifier.jar" id="ch.ivyteam.ivy.test.feature" version="5.1.0.qualifier">
+      <category name="ch.ivyteam.ivy.Test"/>
+   </feature>
+   <category-def name="ch.ivyteam.ivy.Test" label="Ivy Tests"/>
+</site>

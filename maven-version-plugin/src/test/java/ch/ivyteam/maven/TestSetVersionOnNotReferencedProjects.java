@@ -41,9 +41,10 @@ public class TestSetVersionOnNotReferencedProjects extends Assertions
       }
     }.getMockInstance());
     testee.setVersion("5.1.14-SNAPSHOT");    
-    FileUtils.deleteDirectory(new File("testIvy"));
-    FileUtils.forceDeleteOnExit(new File("testIvy"));
-    FileUtils.copyDirectory(new File("originalIvy"), new File("testIvy"));
+    File testIvy = new File("testIvy");
+    FileUtils.deleteDirectory(testIvy);
+    FileUtils.forceDeleteOnExit(testIvy);
+    FileUtils.copyDirectory(new File("originalIvy"), testIvy);
   }
   
   @Test
@@ -72,6 +73,7 @@ public class TestSetVersionOnNotReferencedProjects extends Assertions
     comparePom("development/features/ch.ivyteam.ivy.test.feature/pom.xml");
     compareFeature("development/features/ch.ivyteam.ivy.test.feature/feature.xml");
     comparePom("development/updatesites/ch.ivyteam.ivy.test.p2/pom.xml");
+    compareCategory("development/updatesites/ch.ivyteam.ivy.test.p2/category.xml");
     compareLog();
   }
 
@@ -102,6 +104,13 @@ public class TestSetVersionOnNotReferencedProjects extends Assertions
     String testeeManifest = FileUtils.readFileToString(new File("testIvy", relativeFeatureXmlPath));
     String referenceManifest = FileUtils.readFileToString(new File("referenceIvy", relativeFeatureXmlPath));
     assertThat(testeeManifest).isEqualTo(referenceManifest);
+  }
+  
+  private void compareCategory(String relativeCategoryXmlPath) throws IOException
+  {
+    String testeeCatInfo = FileUtils.readFileToString(new File("testIvy", relativeCategoryXmlPath));
+    String referenceCatInfo = FileUtils.readFileToString(new File("referenceIvy", relativeCategoryXmlPath));
+    assertThat(testeeCatInfo).isEqualTo(referenceCatInfo);
   }
   
   private void compareLog() throws IOException
