@@ -1040,6 +1040,27 @@
          version="0.0.0"
          unpack="false"/>
 
+   <plugin
+         id="ch.ivyteam.ulc.base.source"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="ch.ivyteam.ulc.extension.source"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="ch.ivyteam.ivy.richdialog.components.source"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>         
+
    <data
          id="Licence.html"
          download-size="0"
