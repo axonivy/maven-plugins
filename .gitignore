@@ -1,4 +1,6 @@
+/eclipse_workspace
 maven-version-plugin/target
+maven-version-plugin/testIvy
 maven-version-plugin/testProject
 project-build-plugin/src/test/resources/base/classes
 project-build-plugin/src/test/resources/base/src_dataClasses/*
@@ -6,5 +8,7 @@ project-build-plugin/src/test/resources/base/src_wsproc/*.*
 project-build-plugin/target
 project-build-plugin/work
 public-api-source-maven-plugin/src/test/resources/test-project-template/bin/*
+public-api-source-maven-plugin/target
+sample-maven-plugin/target
 /target
 /testProject

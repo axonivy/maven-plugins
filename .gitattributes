@@ -1,4 +1,7 @@
 * text=auto !eol
+build.maven/.project -text
+build.maven/.settings/org.eclipse.m2e.core.prefs -text
+build.maven/plugin/pom.xml -text
 maven-version-plugin/.classpath -text
 maven-version-plugin/.project -text
 maven-version-plugin/.settings/org.eclipse.jdt.core.prefs -text
@@ -44,6 +47,7 @@ maven-version-plugin/src/main/java/ch/ivyteam/maven/ProductXmlFileUpdater.java -
 maven-version-plugin/src/main/java/ch/ivyteam/maven/SetMavenAndEclipseVersion.java -text
 maven-version-plugin/src/test/java/ch/ivyteam/maven/TestSetMavenAndEclipseVersion.java -text
 maven-version-plugin/src/test/java/ch/ivyteam/maven/TestSetVersionOnNotReferencedProjects.java -text
+/pom.xml -text
 project-build-plugin/.classpath -text
 project-build-plugin/.project -text
 project-build-plugin/.settings/org.eclipse.jdt.core.prefs -text
@@ -142,3 +146,12 @@ public-api-source-maven-plugin/src/test/resources/test-project-template/target/c
 public-api-source-maven-plugin/src/test/resources/test-project-template/target/classes/ch/ivyteam/test/ClassInIncludes.class -text
 public-api-source-maven-plugin/src/test/resources/test-project-template/target/classes/ch/ivyteam/test/ClassWithPublicApi.class -text
 public-api-source-maven-plugin/src/test/resources/test-project-template/target/classes/ch/ivyteam/test/ClassWithoutSourceGeneration.class -text
+sample-maven-plugin/.classpath -text
+sample-maven-plugin/.project -text
+sample-maven-plugin/.settings/org.eclipse.jdt.core.prefs -text
+sample-maven-plugin/.settings/org.eclipse.m2e.core.prefs -text
+sample-maven-plugin/.settings/org.eclipse.wst.validation.prefs -text
+sample-maven-plugin/pom.xml -text
+sample-maven-plugin/src/main/java/ch/ivyteam/ivy/maven/SampleMojo.java -text
+sample-maven-plugin/src/test/java/ch/ivyteam/ivy/maven/TestSampleMojo.java -text
+sample-maven-plugin/src/test/resources/pom.xml -text
