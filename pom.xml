@@ -7,13 +7,6 @@
 	<packaging>pom</packaging>
 	<description>Contains all ivy Maven-Plugins as module dependency</description>
 
-	<parent>
-		<groupId>ch.ivyteam.ivy</groupId>
-		<artifactId>ch.ivyteam.ivy.build</artifactId>
-		<version>6.0.0-SNAPSHOT</version>
-		<relativePath>build.maven</relativePath>
-	</parent>
-
 	<modules>
 		<!-- our own Maven-Plugins: -->
 		<module>sample-maven-plugin</module> <!-- only exist for illustrative purposes: copy it and start creating you own plugin! -->
@@ -21,8 +14,8 @@
 		<module>project-build-plugin</module>
 		<module>public-api-source-maven-plugin</module>
 		<!-- add more plugins here, that should be built on Jenkins -->
-		
-		<module>build.maven</module>
+
+		<!-- Parent POMs: must be versioned for full dependency analysis of consuming maven artifacts -->
 		<module>build.maven/plugin</module>
 	</modules>
 
