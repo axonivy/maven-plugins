@@ -2,6 +2,17 @@
 build.maven/.project -text
 build.maven/.settings/org.eclipse.m2e.core.prefs -text
 build.maven/plugin/pom.xml -text
+image-text-plugin/.classpath -text
+image-text-plugin/.project -text
+image-text-plugin/.settings/org.eclipse.jdt.core.prefs -text
+image-text-plugin/.settings/org.eclipse.m2e.core.prefs -text
+image-text-plugin/.settings/org.eclipse.wst.validation.prefs -text
+image-text-plugin/pom.xml -text
+image-text-plugin/src/main/java/ch/ivyteam/ivy/maven/ImageTextMojo.java -text
+image-text-plugin/src/test/java/ch/ivyteam/ivy/maven/ImageViewer.java -text
+image-text-plugin/src/test/java/ch/ivyteam/ivy/maven/TestImageTextMojo.java -text
+image-text-plugin/src/test/resources/pom.xml -text
+image-text-plugin/src/test/resources/splash_empty.bmp -text
 maven-version-plugin/.classpath -text
 maven-version-plugin/.project -text
 maven-version-plugin/.settings/org.eclipse.jdt.core.prefs -text

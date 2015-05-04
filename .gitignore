@@ -1,4 +1,5 @@
 /eclipse_workspace
+image-text-plugin/target
 maven-version-plugin/target
 maven-version-plugin/testIvy
 maven-version-plugin/testProject
