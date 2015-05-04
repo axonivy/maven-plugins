@@ -146,6 +146,7 @@ public class ImageTextMojo extends AbstractMojo
     try
     {
       getLog().debug("Writing modified image '"+targetImage.getAbsolutePath()+"'");
+      targetImage.getParentFile().mkdirs();
       ImageIO.write(modified, "bmp", targetImage);
     }
     catch (IOException ex)
