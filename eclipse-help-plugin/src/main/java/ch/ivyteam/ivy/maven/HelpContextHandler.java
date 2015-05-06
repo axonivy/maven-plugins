@@ -3,7 +3,7 @@ package ch.ivyteam.ivy.maven;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Hashtable;
+import java.util.Map;
 
 import org.apache.xml.serialize.OutputFormat;
 import org.apache.xml.serialize.XMLSerializer;
@@ -12,6 +12,8 @@ import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
 import org.xml.sax.helpers.DefaultHandler;
+
+import ch.ivyteam.ivy.maven.EclipseHelpMojo.Link;
 
 /**
  * <p>This class implements the SAX handler for reading/writing the context
@@ -37,13 +39,12 @@ public class HelpContextHandler extends DefaultHandler
   private ContentHandler outputHandler;
   
   /** Hashtable with contextIDs*/
-  private Hashtable<String, String[]> fContextIDs = new Hashtable<String, String[]>();
+  private Map<String, EclipseHelpMojo.Link> fContextIDs;
   
   /** 
-   * Constructor
    * @param contextIDs the id's used in the source files
    */
-  public HelpContextHandler(Hashtable<String, String[]> contextIDs)
+  public HelpContextHandler(Map<String, EclipseHelpMojo.Link> contextIDs)
   {
     super();
     fContextIDs = contextIDs;
@@ -69,7 +70,6 @@ public class HelpContextHandler extends DefaultHandler
     }
     catch (IOException ex)
     {
-      // TODO Auto-generated catch block
       ex.printStackTrace();
     }    
   }
@@ -87,16 +87,16 @@ public class HelpContextHandler extends DefaultHandler
     else if (name.equals("topic") && (topicId == null))
     {
       topicId = attributes.getValue(uri, "id");
-      String[] sourceAnchors = fContextIDs.get(topicId);
-      if (sourceAnchors != null)
+      Link link = fContextIDs.get(topicId);
+      if (link != null)
       {
         // copy attributes 
         AttributesImpl newAttributes = new AttributesImpl();
         // add normal ID attribute
         newAttributes.addAttribute(uri, "id", "", "CDATA", topicId);
         // add additional attributes for the linking
-        newAttributes.addAttribute(uri, "href", "", "CDATA", sourceAnchors[0] + "#" + topicId);
-        newAttributes.addAttribute(uri, "label", "", "CDATA", sourceAnchors[1]);
+        newAttributes.addAttribute(uri, "href", "", "CDATA", link.getHref() + "#" + topicId);
+        newAttributes.addAttribute(uri, "label", "", "CDATA", link.getLabel());
         // copy back to original set
         attributes = newAttributes;
       }
@@ -131,7 +131,6 @@ public class HelpContextHandler extends DefaultHandler
   public void endDocument() throws SAXException
   {    
     outputHandler.endDocument();
-        
     try
     {
       outputStream.flush();
@@ -139,7 +138,6 @@ public class HelpContextHandler extends DefaultHandler
     }
     catch (IOException ex)
     {
-      // TODO Auto-generated catch block
       ex.printStackTrace();
     }  
   }
