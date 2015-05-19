@@ -15,8 +15,9 @@ import org.apache.maven.model.Resource;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
-import org.eclipse.tycho.core.facade.BuildProperties;
-import org.eclipse.tycho.core.facade.BuildPropertiesParser;
+import org.eclipse.tycho.PackagingType;
+import org.eclipse.tycho.core.shared.BuildProperties;
+import org.eclipse.tycho.core.shared.BuildPropertiesParser;
 import org.eclipse.tycho.source.AbstractSourceJarMojo;
 import org.eclipse.tycho.source.OsgiSourceMojo;
 
@@ -213,8 +214,8 @@ public class PublicApiSourceMojo extends OsgiSourceMojo
           BuildPropertiesParser buildPropertiesParser)
   {
     String packaging = project.getPackaging();
-    boolean relevant = org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_PLUGIN.equals(packaging)
-            || org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_TEST_PLUGIN.equals(packaging);
+    boolean relevant = PackagingType.TYPE_ECLIPSE_PLUGIN.equals(packaging)
+            || PackagingType.TYPE_ECLIPSE_TEST_PLUGIN.equals(packaging);
     if (!relevant)
     {
       return false;

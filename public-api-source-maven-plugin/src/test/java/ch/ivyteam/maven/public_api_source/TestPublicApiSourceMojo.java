@@ -1,6 +1,6 @@
 package ch.ivyteam.maven.public_api_source;
 
-import static org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_PLUGIN;
+import static org.eclipse.tycho.PackagingType.TYPE_ECLIPSE_PLUGIN;
 import static org.fest.assertions.api.Assertions.assertThat;
 
 import java.io.File;
@@ -12,9 +12,9 @@ import java.util.zip.ZipFile;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.testing.MojoRule;
 import org.apache.maven.project.MavenProject;
+import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.ReactorProject;
-import org.eclipse.tycho.core.facade.BuildPropertiesParser;
-import org.eclipse.tycho.core.osgitools.DefaultArtifactKey;
+import org.eclipse.tycho.core.shared.BuildPropertiesParser;
 import org.eclipse.tycho.source.AbstractSourceJarMojo;
 import org.junit.Rule;
 import org.junit.Test;
