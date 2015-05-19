@@ -14,7 +14,7 @@
           <field-name>equinox</field-name>
         </requirement>
         <requirement>
-          <role>org.eclipse.tycho.core.facade.BuildPropertiesParser</role>
+          <role>org.eclipse.tycho.core.shared.BuildPropertiesParser</role>
           <role-hint />
           <field-name>buildPropertiesParser</field-name>
         </requirement>
