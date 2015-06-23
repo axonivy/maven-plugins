@@ -2,6 +2,12 @@
 build.maven/.project -text
 build.maven/.settings/org.eclipse.m2e.core.prefs -text
 build.maven/plugin/pom.xml -text
+db-meta-plugin/.classpath -text
+db-meta-plugin/.project -text
+db-meta-plugin/.settings/org.eclipse.jdt.core.prefs -text
+db-meta-plugin/.settings/org.eclipse.m2e.core.prefs -text
+db-meta-plugin/.settings/org.eclipse.wst.validation.prefs -text
+db-meta-plugin/pom.xml -text
 eclipse-help-plugin/.classpath -text
 eclipse-help-plugin/.project -text
 eclipse-help-plugin/.settings/org.eclipse.jdt.core.prefs -text

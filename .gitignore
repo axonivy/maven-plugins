@@ -1,4 +1,6 @@
+db-meta-plugin/target
 eclipse-help-plugin/target
+/eclipseWorkspace
 /eclipse_workspace
 image-text-plugin/target
 maven-version-plugin/target
