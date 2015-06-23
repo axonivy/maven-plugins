@@ -1,0 +1,865 @@
+// CUP specification for IvyScript
+
+package ch.ivyteam.db.meta.parser.internal; 
+
+import java_cup.runtime.*;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Date;
+import ch.ivyteam.log.Logger;
+import ch.ivyteam.db.meta.model.internal.SqlArtifact;
+import ch.ivyteam.db.meta.model.internal.SqlAtom;
+import ch.ivyteam.db.meta.model.internal.SqlBinaryRelation;
+import ch.ivyteam.db.meta.model.internal.SqlCaseExpr;
+import ch.ivyteam.db.meta.model.internal.SqlDataType;
+import ch.ivyteam.db.meta.model.internal.SqlDatabaseSystemHint;
+import ch.ivyteam.db.meta.model.internal.SqlDatabaseSystemHints;
+import ch.ivyteam.db.meta.model.internal.SqlDmlStatement;
+import ch.ivyteam.db.meta.model.internal.SqlForeignKey;
+import ch.ivyteam.db.meta.model.internal.SqlForeignKeyAction;
+import ch.ivyteam.db.meta.model.internal.SqlFullQualifiedColumnName;
+import ch.ivyteam.db.meta.model.internal.SqlIndex;
+import ch.ivyteam.db.meta.model.internal.SqlInsert;
+import ch.ivyteam.db.meta.model.internal.SqlLiteral;
+import ch.ivyteam.db.meta.model.internal.SqlLogicalExpression;
+import ch.ivyteam.db.meta.model.internal.SqlMeta;
+import ch.ivyteam.db.meta.model.internal.SqlNot;
+import ch.ivyteam.db.meta.model.internal.SqlNull;
+import ch.ivyteam.db.meta.model.internal.SqlParent;
+import ch.ivyteam.db.meta.model.internal.SqlPrimaryKey;
+import ch.ivyteam.db.meta.model.internal.SqlReference;
+import ch.ivyteam.db.meta.model.internal.SqlUpdateColumnExpression;
+import ch.ivyteam.db.meta.model.internal.SqlSimpleExpr;
+import ch.ivyteam.db.meta.model.internal.SqlTable;
+import ch.ivyteam.db.meta.model.internal.SqlTableColumn;
+import ch.ivyteam.db.meta.model.internal.SqlTableContentDefinition;
+import ch.ivyteam.db.meta.model.internal.SqlTrigger;
+import ch.ivyteam.db.meta.model.internal.SqlUniqueConstraint;
+import ch.ivyteam.db.meta.model.internal.SqlUpdate;
+import ch.ivyteam.db.meta.model.internal.SqlView;
+import ch.ivyteam.db.meta.model.internal.SqlViewColumn;
+import ch.ivyteam.db.meta.model.internal.SqlSelectExpression;
+import ch.ivyteam.db.meta.model.internal.SqlSelect;
+import ch.ivyteam.db.meta.model.internal.SqlWhenThen;
+
+
+
+parser code 
+{:
+  @SuppressWarnings("all")
+   
+  /** The logger to use */ 
+  private static final Logger logger = Logger.getPackageLogger(Parser.class);
+  
+  /** The syntax errors */
+  private List<SyntaxError> errors = new ArrayList<SyntaxError>();
+  
+  /** Error Message */
+  private static final String UNEXPECTED_SYMBOL_WITH_VALUE="Unexcepted Symbol {0} ''{1}''";
+  
+  /** Error Message */
+  private static final String UNEXPECTED_SYMBOL="Unexcepted Symbol {0}";
+  
+  /** Error Message */  
+  private static final String UNRECOVERED_SYNTAX_ERROR = "Unrecovered Syntax Error";
+  
+  /** Error Message */  
+  private static final String SYNTAX_ERROR = "Syntax Error";
+  
+  /**
+   * @see java_cup.runtime.lr_parser#syntax_error(java_cup.runtime.Symbol)
+   */
+  @Override
+  public void syntax_error(Symbol _cur_token)
+  {
+    logger.debug("Syntax error on symbol {0}", _cur_token);
+    if (_cur_token.value != null)
+    {
+      errors.add(new SyntaxError(UNEXPECTED_SYMBOL_WITH_VALUE, (TerminalSymbol)_cur_token));
+    }
+    else
+    {
+      errors.add(new SyntaxError(UNEXPECTED_SYMBOL, (TerminalSymbol)_cur_token));
+    }
+  }
+  
+  /**
+   * Adds an error to the error list.
+   * @param syntaxError some syntax error,
+   */
+  void addError(SyntaxError syntaxError)
+  {
+    errors.add(syntaxError);
+  }
+  
+  /**
+   * @see java_cup.runtime.lr_parser#unrecovered_syntax_error(java_cup.runtime.Symbol)
+   */
+  @Override
+  public void unrecovered_syntax_error(Symbol _cur_token) throws Exception
+  {
+    logger.debug("Unrecovered syntax error on symbol {0}", _cur_token);
+    throw new MetaParserException(UNRECOVERED_SYNTAX_ERROR, errors);
+  }
+  
+  /**
+   * @see java_cup.runtime.lr_parser#parse()
+   */
+  @Override
+  public Symbol parse() throws Exception
+  {
+    Symbol symbol;
+    errors.clear();
+    symbol = super.parse();
+    if (errors.size()>0)
+    {
+      throw new MetaParserException(SYNTAX_ERROR, errors);
+    }    
+    return symbol;
+  }
+:};
+
+/* Preliminaries to set up and use the scanner. 
+init with {: scanner.init(); :};
+*/
+
+/* Terminals (tokens returned by the scanner). */
+terminal           CREATE, INSERT, UPDATE;
+terminal 		   TABLE, VIEW;
+terminal 			 INTO, VALUES;
+terminal		   INTEGER, BIGINT, VARCHAR, BIT, BLOB, CLOB, CHAR, DATETIME, DATE, TIME, NUMBER, DECIMAL, FLOAT;
+terminal		   PRIMARY, FOREIGN, KEY, UNIQUE, INDEX;
+terminal 		   REFERENCES, ON, DELETE, SET, CASCADE, THIS;
+terminal 			 TRIGGER, AFTER, BEGIN, EXECUTE, EACH, ROW, STATEMENT;
+terminal			 AS, SELECT, FROM, WHERE, UNION, ALL;
+terminal			 AND, OR, EQUAL, NOT_EQUAL, LESS, LESS_EQUAL, GREATER, GREATER_EQUAL, IS;
+terminal			 CASE, WHEN, THEN, END;
+terminal		   FOR, USE;
+terminal		   NULL, NOT, DEFAULT;
+terminal           L_PARENT, R_PARENT, SEMICOLON, COMMA, DOT;
+terminal String    STRING_LITERAL;
+terminal Integer   INTEGER_LITERAL;
+terminal Double    NUMBER_LITERAL;
+terminal Boolean   BOOLEAN_LITERAL;
+terminal Date	   DATETIME_LITERAL;
+terminal String    IDENTIFIER;
+terminal String    COMMENT;
+terminal           ILLEGAL;
+
+/***************************/
+
+/* Non-terminals */
+non terminal SqlMeta Meta;
+non terminal SqlArtifact Artifact;
+non terminal SqlTable Table;
+non terminal SqlView View;
+non terminal SqlInsert Insert;
+non terminal List<SqlTableContentDefinition> TableContentDefinitions;
+non terminal SqlTableContentDefinition TableContentDefinition;
+non terminal SqlTableColumn TableColumn;
+non terminal SqlPrimaryKey PrimaryKey;
+non terminal SqlForeignKey ForeignKey;
+non terminal SqlForeignKeyAction OnDeleteOpt;
+non terminal SqlForeignKeyAction OnDelete;
+non terminal SqlUniqueConstraint UniqueConstraint;
+non terminal SqlIndex Index;
+non terminal String CommentsOpt;
+non terminal String Comments;
+non terminal SqlDataType DataType;
+non terminal Boolean NullOpt;
+non terminal SqlLiteral DefaultOpt;
+non terminal SqlLiteral Literal;
+non terminal SqlReference ReferencesOpt;
+non terminal SqlReference References;
+non terminal List<String> TableColumnNames;
+non terminal List<SqlDatabaseSystemHints> DatabaseSystemsHintsOpt;
+non terminal List<SqlDatabaseSystemHints> DatabaseSystemsHints;
+non terminal SqlDatabaseSystemHints DatabaseSystemHints;
+non terminal List<SqlDatabaseSystemHint> DatabaseSystemHintList;
+non terminal SqlDatabaseSystemHint DatabaseSystemHint;
+non terminal String DatabaseSystemHintValueOpt;
+non terminal List<SqlLiteral> LiteralList;
+non terminal String IdentifierOpt;
+non terminal List<SqlViewColumn> ViewColumnList;
+non terminal SqlViewColumn ViewColumn;
+non terminal List<SqlSelect> SelectList;
+non terminal SqlSelect Select;
+non terminal List<SqlSelectExpression> SelectExpressionList;
+non terminal SqlSelectExpression SelectExpression;
+non terminal List<String> TableNameList;
+non terminal SqlSimpleExpr LogicalExpression;
+non terminal SqlSimpleExpr AndExpression;
+non terminal SqlSimpleExpr SimpleExpr;
+non terminal SqlBinaryRelation BinaryRelation;
+non terminal SqlAtom Atom;
+non terminal SqlFullQualifiedColumnName FullQualifiedColumnName;
+non terminal SqlCaseExpr CaseExpr;
+non terminal List<SqlWhenThen> WhenThenList;
+non terminal SqlWhenThen WhenThen;
+non terminal SqlTrigger Trigger;
+non terminal List<SqlDmlStatement> DmlStatementList;
+non terminal SqlDmlStatement DmlStatement;
+non terminal SqlUpdate Update;
+non terminal List<SqlUpdateColumnExpression> UpdateColumnExpressionList;
+non terminal SqlUpdateColumnExpression UpdateColumnExpression;
+non terminal SqlSimpleExpr WhereOpt;
+ 
+start with Meta; 
+
+/* The grammar */
+
+Meta ::= 
+      Artifact:artifact 
+	    {:  
+      	  RESULT = new SqlMeta();
+      	  RESULT.addArtifact(artifact); 
+        :}
+      | Meta:meta Artifact:artifact
+        {:
+      	  meta.addArtifact(artifact);
+      	  RESULT = meta;
+        :}
+      ;
+Artifact ::=
+      Table:table
+        {:
+          RESULT = table;
+        :}
+      | Insert:insert
+        {:
+          RESULT = insert;
+        :}
+      | View:view
+        {:
+          RESULT = view;
+        :}               
+      ;
+      
+View ::= 
+			CommentsOpt:comment CREATE VIEW IDENTIFIER:id L_PARENT ViewColumnList:columns R_PARENT AS SelectList:selects DatabaseSystemsHintsOpt:dbSysHints SEMICOLON
+        {:
+          RESULT = new SqlView(id, columns, selects, dbSysHints, comment);
+        :}
+      ;    
+      
+SelectList ::=
+      Select:select
+        {:
+           RESULT = new ArrayList();
+           RESULT.add(select);
+        :}
+      | SelectList:selects UNION ALL Select:select
+        {:
+          RESULT = selects;
+          RESULT.add(select);
+        :}
+      ;
+        
+Select ::= 
+        SELECT SelectExpressionList:expressions FROM TableNameList:tables WHERE LogicalExpression:condition
+          {:
+            RESULT = new SqlSelect(expressions, tables, condition);
+          :}      
+        ;
+        
+ViewColumnList ::=
+        ViewColumn:column
+          {:
+            RESULT = new ArrayList();
+            RESULT.add(column);
+          :}
+        | ViewColumnList:columns COMMA ViewColumn:column
+          {:
+          	RESULT = columns;
+          	RESULT.add(column);
+          :}
+			;    	
+			
+ViewColumn ::=
+				CommentsOpt:comment IDENTIFIER:id DatabaseSystemsHintsOpt:dbSysHints
+					{:
+						RESULT = new SqlViewColumn(id, dbSysHints, comment);
+					:}
+		 ; 		     
+
+SelectExpressionList ::=
+				SelectExpression:expression
+				  {:
+				  	RESULT = new ArrayList();
+				  	RESULT.add(expression);
+				  :}				
+				| SelectExpressionList:expressions COMMA SelectExpression:expression
+				  {:
+				  	RESULT = expressions;
+				  	RESULT.add(expression);
+				  :}
+				;
+				
+SelectExpression ::=
+			  CommentsOpt:comment Atom:atom DatabaseSystemsHintsOpt:dbSysHints
+			    {:
+			    	RESULT = new SqlSelectExpression(atom, dbSysHints, comment);
+			    :}
+				;			
+					 
+TableNameList ::=
+        IDENTIFIER:id
+          {:
+            RESULT = new ArrayList();
+            RESULT.add(id);
+          :}
+        | TableNameList:names COMMA IDENTIFIER:id
+          {:
+          	RESULT = names;
+          	RESULT.add(id);
+          :}
+			;    	
+			
+LogicalExpression ::=
+				AndExpression:and
+					{:
+						RESULT = and;
+					:}
+				| LogicalExpression:first OR AndExpression:second
+					{:
+						RESULT = new SqlLogicalExpression(first, "OR", second); 
+					:}
+				;
+				
+AndExpression ::=
+				SimpleExpr:expr
+					{:
+						RESULT = expr;
+					:}
+				| AndExpression:first AND SimpleExpr:second
+					{:
+						RESULT = new SqlLogicalExpression(first, "AND", second);
+					:}
+			;
+				
+SimpleExpr ::= 
+				BinaryRelation:binRelation
+					{:
+						RESULT = binRelation;
+					:}
+				| NOT SimpleExpr:expr
+					{:
+						RESULT = new SqlNot(expr);
+					:}
+				| L_PARENT LogicalExpression:expr R_PARENT
+					{:
+						RESULT = new SqlParent(expr);
+					:}
+			;			       
+
+BinaryRelation ::= 
+				Atom:first EQUAL Atom:second
+					{:
+					  RESULT = new SqlBinaryRelation(first, "=", second);
+					:}
+				| Atom:first NOT_EQUAL Atom:second
+				  {:
+				  	RESULT = new SqlBinaryRelation(first, "<>", second);
+				  :}
+				| Atom:first LESS Atom:second
+				  {:
+				  	RESULT = new SqlBinaryRelation(first, "<", second);
+				  :}
+				| Atom:first LESS_EQUAL Atom:second
+					{:
+						RESULT = new SqlBinaryRelation(first, "<=", second);
+					:}
+			 	| Atom:first GREATER Atom:second
+			 		{:
+			 			RESULT = new SqlBinaryRelation(first, ">", second);
+			 		:}
+			 	| Atom:first GREATER_EQUAL Atom:second
+			 	  {:
+			 	  	RESULT = new SqlBinaryRelation(first, ">=", second);
+			 	  :} 
+			 	| Atom:first IS NULL
+			 		{:
+			 			RESULT = new SqlBinaryRelation(first, "IS", new SqlLiteral(SqlNull.getInstance())); 
+			 		:}
+			  | Atom:first IS NOT NULL
+			  	{:
+			  		RESULT = new SqlBinaryRelation(first, "IS NOT", new SqlLiteral(SqlNull.getInstance()));
+			  	:}
+			;
+
+Atom ::= 
+				FullQualifiedColumnName:fqColumnName
+					{:
+					  RESULT = fqColumnName;
+					:}
+ 			  | CaseExpr:caseExpr
+ 			    {:
+ 			    	RESULT = caseExpr;
+ 			    :}				  
+				| Literal:lit
+					{:
+						RESULT = lit;
+					:}
+			;
+			
+				
+FullQualifiedColumnName ::=
+				IDENTIFIER:id
+					{:
+						RESULT = new SqlFullQualifiedColumnName(null, id); 
+					:}				
+				| IDENTIFIER:table DOT IDENTIFIER:column
+					{:
+						RESULT = new SqlFullQualifiedColumnName(table, column);
+					:}
+			  ;				
+			  		
+CaseExpr ::= 
+				CASE FullQualifiedColumnName:fqColumnName WhenThenList:whenThenList END			  		
+					{:
+						RESULT = new SqlCaseExpr(fqColumnName, whenThenList);
+					:}
+			  ;	
+			  				
+WhenThenList ::=
+				WhenThen:whenThen
+					{:
+					 	RESULT = new ArrayList();
+				  	RESULT.add(whenThen);					
+					:}
+				| WhenThenList:whenThenList WhenThen:whenThen				  				
+		      {:
+		      	RESULT = whenThenList;
+		      	RESULT.add(whenThen);
+		      :}
+		    ;
+		    
+WhenThen ::= 
+				WHEN Literal:lit THEN FullQualifiedColumnName:fqColumnName
+					{:
+						RESULT = new SqlWhenThen(lit, fqColumnName);
+					:}
+			  ;
+			
+					 
+Table ::=
+      CommentsOpt:comment CREATE TABLE IDENTIFIER:id L_PARENT TableContentDefinitions:definitions R_PARENT DatabaseSystemsHintsOpt:dbSysHints SEMICOLON
+        {:
+          RESULT = new SqlTable(id, definitions, dbSysHints, comment);
+        :}
+      ;    
+      
+TableContentDefinitions ::= 
+	  TableContentDefinition:definition
+	    {:
+	      RESULT = new ArrayList();
+	      RESULT.add(definition);
+	    :}      
+	  | TableContentDefinitions:definitions COMMA TableContentDefinition:definition  
+      	{:
+      	  RESULT = definitions;
+      	  RESULT.add(definition);
+      	:}
+      ;
+      
+TableContentDefinition ::=
+      TableColumn:column
+        {:
+          RESULT = column;
+        :}	
+      | PrimaryKey:primaryKey
+      	{:
+      	  RESULT = primaryKey;
+      	:}
+      | ForeignKey:foreignKey
+        {:
+          RESULT = foreignKey;
+        :}
+      | UniqueConstraint:unique
+        {:
+          RESULT = unique;
+        :}
+      | Index:index
+        {:
+          RESULT = index;
+        :}
+      | Trigger:trigger
+      	{:
+      	  RESULT = trigger;
+      	:}  
+       ;    
+       
+Trigger ::=
+			CommentsOpt:comment TRIGGER IdentifierOpt:id AFTER DELETE ON IDENTIFIER:table EXECUTE FOR EACH ROW BEGIN DmlStatementList:stmts END OR EXECUTE FOR EACH STATEMENT BEGIN DmlStatementList:stmts2 END DatabaseSystemsHintsOpt:dbSysHints
+				{:
+			  	RESULT = new SqlTrigger(id, table, stmts, stmts2, dbSysHints, comment);
+				:}      
+			;
+			 
+DmlStatementList ::= 
+			DmlStatement:stmt
+				{:
+					RESULT = new ArrayList<SqlDmlStatement>();
+					RESULT.add(stmt);
+				:}			 
+		 | DmlStatementList:stmts DmlStatement:stmt
+		 	 {:
+		 	  	RESULT = stmts;
+		 	  	RESULT.add(stmt);
+		 	 :}
+		 ;
+		 
+DmlStatement ::= 
+			Insert:insert
+				{:
+				 	RESULT = insert;
+				:}
+			| Update:update
+				{:
+					RESULT = update;
+				:}
+			;
+					 
+TableColumn ::=
+		CommentsOpt:comment IDENTIFIER:id DataType:dataType NullOpt:nullOpt DefaultOpt:defaultOpt ReferencesOpt:reference DatabaseSystemsHintsOpt:dbSysHints
+		  {:
+		    RESULT = new SqlTableColumn(id, dataType, nullOpt, defaultOpt, reference, dbSysHints, comment);
+		  :}
+		;
+
+DatabaseSystemsHintsOpt ::=
+		  {:
+		    RESULT = null; 
+		  :}
+		 | DatabaseSystemsHints:hints
+		   {:
+		     RESULT = hints;
+		   :}
+		 ;
+
+DatabaseSystemsHints ::=
+		DatabaseSystemHints:hints
+		  {:
+		    RESULT = new ArrayList<SqlDatabaseSystemHints>();
+		    RESULT.add(hints);
+		  :}
+		| DatabaseSystemsHints:dbmsHints DatabaseSystemHints:hints
+		  {:
+		    RESULT = dbmsHints;
+		    RESULT.add(hints);
+		  :}
+		;
+		
+DatabaseSystemHints ::= 
+		FOR IDENTIFIER:dbms USE L_PARENT DatabaseSystemHintList:hints R_PARENT
+		  {:
+		    RESULT = new SqlDatabaseSystemHints(dbms, hints);
+		  :}
+		;
+
+DatabaseSystemHintList ::=
+		DatabaseSystemHint:hint
+		  {:
+		    RESULT = new ArrayList<SqlDatabaseSystemHint>();
+		    RESULT.add(hint);
+		  :}
+		| DatabaseSystemHintList:list COMMA DatabaseSystemHint:hint
+		  {:
+		    RESULT = list;
+		    RESULT.add(hint);
+		  :}  
+		;
+				
+DatabaseSystemHint ::=
+		IDENTIFIER:id DatabaseSystemHintValueOpt:value
+		  {:
+		  	RESULT = new SqlDatabaseSystemHint(id, value);
+		  :}
+		; 		
+		
+DatabaseSystemHintValueOpt ::=
+		  {:
+		    RESULT = null;
+		  :}
+		| EQUAL STRING_LITERAL:value
+		  {:
+		    RESULT = value;
+		  :}
+		;
+		
+NullOpt ::=
+		  {:
+		  	RESULT = true;
+		  :}
+		| NULL
+		  {:
+		    RESULT = true;
+		  :}  
+		| NOT NULL
+		  {:
+		  	RESULT = false;
+		  :}
+		;
+		
+DefaultOpt ::=
+   		  {:
+   		    RESULT = null;
+   		  :}
+   		| DEFAULT Literal:lit
+   		  {:
+   		    RESULT = lit;
+   		  :}  	
+   		;
+   		
+ Literal ::=
+ 		STRING_LITERAL:lit
+ 		  {:
+ 		    RESULT = new SqlLiteral(lit);
+ 		  :}
+ 		| INTEGER_LITERAL:lit 
+ 		  {:
+ 		    RESULT = new SqlLiteral(lit);
+ 		  :}
+		| NUMBER_LITERAL:lit
+		   {:
+		     RESULT = new SqlLiteral(lit);
+		   :}
+		| DATETIME_LITERAL:lit
+		   {:
+		     RESULT = new SqlLiteral(lit);
+		   :}
+		| NULL:lit
+		   {:
+		   	 RESULT = new SqlLiteral(SqlNull.getInstance());
+		   :}	
+		; 		  
+		
+ReferencesOpt ::=
+			{:
+			  RESULT = null;
+			:}
+		  | References:reference
+		    {:
+		      RESULT=reference;
+		    :}
+		  ;
+				
+PrimaryKey ::= 
+		CommentsOpt:comment PRIMARY KEY L_PARENT TableColumnNames:names R_PARENT DatabaseSystemsHintsOpt:dbSysHints
+		  {: 
+		    RESULT = new SqlPrimaryKey(null, names, dbSysHints, comment);
+		  :}
+		;
+	
+TableColumnNames ::=
+        IDENTIFIER:id
+          {:
+            RESULT = new ArrayList();
+            RESULT.add(id);
+          :}
+        | TableColumnNames:names COMMA IDENTIFIER:id
+          {:
+          	RESULT = names;
+          	RESULT.add(id);
+          :}
+		;    		
+	
+ForeignKey ::=
+		CommentsOpt:comment FOREIGN KEY L_PARENT IDENTIFIER:columnId R_PARENT References:references DatabaseSystemsHintsOpt:dbSysHints
+		  {:
+		    RESULT = new SqlForeignKey(null, columnId, references, dbSysHints, comment); 
+		  :}
+		;
+			
+References ::=
+		REFERENCES IDENTIFIER:foreignTable L_PARENT IDENTIFIER:foreignColumn R_PARENT OnDeleteOpt:onDelete
+		  {:
+		    RESULT = new SqlReference(foreignTable, foreignColumn, onDelete);
+		  :}
+		;
+	
+OnDeleteOpt ::=
+           {:
+             RESULT = null;
+           :}  
+		  | OnDelete:onDelete
+		   {:
+		     RESULT = onDelete;
+		   :}
+		  ;
+
+OnDelete ::= 
+		ON DELETE CASCADE
+		  {:
+		     RESULT = SqlForeignKeyAction.ON_DELETE_CASCADE;
+		  :}
+		| ON DELETE SET NULL
+		  {:
+		     RESULT = SqlForeignKeyAction.ON_DELETE_SET_NULL;
+		  :}
+		| ON DELETE THIS CASCADE
+			{:
+				 RESULT = SqlForeignKeyAction.ON_DELETE_THIS_CASCADE;
+			:}
+		;		
+				
+UniqueConstraint ::= 
+		CommentsOpt:comment UNIQUE IdentifierOpt:id L_PARENT TableColumnNames:columns R_PARENT DatabaseSystemsHintsOpt:dbSysHints
+		  {:
+		    RESULT = new SqlUniqueConstraint(id, columns, dbSysHints, comment); 
+		  :} 
+		;		
+		
+IdentifierOpt ::= 
+			{:
+		    RESULT = null;
+		  :}
+ 		| IDENTIFIER:id
+ 		  {:
+ 		    RESULT = id;
+ 		  :}
+ 		 ; 
+		 
+				
+Index ::= 
+		CommentsOpt:comment INDEX IdentifierOpt:id L_PARENT TableColumnNames:columns R_PARENT DatabaseSystemsHintsOpt:dbSysHints
+		  {:
+		    RESULT = new SqlIndex(id, columns, dbSysHints, comment); 
+		  :}
+		 ;  		 
+		  
+CommentsOpt ::=
+		  {:
+		    RESULT = null;
+		  :}
+ 		| Comments:comments
+ 		  {:
+ 		    RESULT = comments;
+ 		  :}
+ 		 ; 
+ 		 
+ Comments ::=
+ 		 COMMENT:comment
+ 		   {:
+ 		     RESULT = comment;
+ 		   :}
+ 		 | Comments:comments COMMENT:comment
+ 		   {:
+ 		     RESULT = comments + "\n" + comment;
+ 		   :}
+ 		 ; 
+ 		  
+DataType ::=
+		INTEGER:integer
+		  {:
+		    RESULT = new SqlDataType(SqlDataType.DataType.INTEGER);
+		  :}
+		| BIGINT:lng
+		  {:
+		    RESULT = new SqlDataType(SqlDataType.DataType.BIGINT);
+		  :}
+		| VARCHAR:varchar L_PARENT INTEGER_LITERAL:length R_PARENT
+		  {:
+		    RESULT = new SqlDataType(SqlDataType.DataType.VARCHAR, length);
+		  :}
+		| BIT:bit
+		  {:
+		    RESULT = new SqlDataType(SqlDataType.DataType.BIT);
+		  :}
+		| BLOB:blob
+		  {:
+		    RESULT = new SqlDataType(SqlDataType.DataType.BLOB);
+		  :}
+		| CLOB:clob
+		  {:
+		    RESULT = new SqlDataType(SqlDataType.DataType.CLOB);
+		  :}
+		| DATETIME:datetime
+		  {:
+		    RESULT = new SqlDataType(SqlDataType.DataType.DATETIME);
+		  :}
+		| DATE:datetime
+		  {:
+		    RESULT = new SqlDataType(SqlDataType.DataType.DATE);
+		  :}
+		| TIME:datetime
+		  {:
+		    RESULT = new SqlDataType(SqlDataType.DataType.TIME);
+		  :}
+		| CHAR:character L_PARENT INTEGER_LITERAL:length R_PARENT
+		  {:
+		    RESULT = new SqlDataType(SqlDataType.DataType.CHAR, length);
+		  :}  
+		| NUMBER:number L_PARENT INTEGER_LITERAL:length R_PARENT
+		  {:
+		    RESULT = new SqlDataType(SqlDataType.DataType.NUMBER, length);
+		  :}
+		| DECIMAL:decimal L_PARENT INTEGER_LITERAL:length COMMA INTEGER_LITERAL:precision R_PARENT
+		  {:
+		    RESULT = new SqlDataType(SqlDataType.DataType.DECIMAL, length, precision);
+		  :}		  
+		| FLOAT:flt
+		  {:
+		    RESULT = new SqlDataType(SqlDataType.DataType.FLOAT);
+		  :}		  
+		;		  
+		
+Insert ::=
+      CommentsOpt:comment INSERT INTO IDENTIFIER:table L_PARENT TableColumnNames:columns R_PARENT VALUES L_PARENT LiteralList:values R_PARENT SEMICOLON 
+        {:
+          RESULT = new SqlInsert(table, columns, values, null, comment);
+        :}
+      ;  
+      
+Update ::=
+		  CommentsOpt:comment UPDATE IdentifierOpt:id SET UpdateColumnExpressionList:columnExpressions WhereOpt:filterExpr SEMICOLON 
+		    {:
+		      RESULT = new SqlUpdate(id, columnExpressions, filterExpr, null, comment);
+		    :}
+		  ;   
+
+UpdateColumnExpressionList ::=
+			UpdateColumnExpression:columnExpression
+				{:
+					RESULT = new ArrayList<SqlUpdateColumnExpression>();
+					RESULT.add(columnExpression);
+				:}
+			| UpdateColumnExpressionList:columnExpressions COMMA UpdateColumnExpression:columnExpression
+				{:
+				  RESULT = columnExpressions;
+				  RESULT.add(columnExpression);
+				:}
+			;
+			
+UpdateColumnExpression ::=
+			IDENTIFIER:column EQUAL Atom:atom
+				{:
+					RESULT = new SqlUpdateColumnExpression(column, atom);
+				:}
+		  ;						
+		  
+WhereOpt ::= 
+			{:
+		    RESULT = null;
+		  :}
+ 		| WHERE LogicalExpression:expr
+ 		  {:
+ 		    RESULT = expr;
+ 		  :}
+ 		 ; 
+					  
+
+LiteralList ::=
+        Literal:lit
+          {:
+            RESULT = new ArrayList();
+            RESULT.add(lit);
+          :}
+        | LiteralList:literals COMMA Literal:lit
+          {:
+          	RESULT = literals;
+          	RESULT.add(lit);
+          :}
+		;    		
+
+		

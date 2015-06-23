@@ -7,6 +7,8 @@ db-meta-plugin/.project -text
 db-meta-plugin/.settings/org.eclipse.jdt.core.prefs -text
 db-meta-plugin/.settings/org.eclipse.m2e.core.prefs -text
 db-meta-plugin/.settings/org.eclipse.wst.validation.prefs -text
+db-meta-plugin/grammar/Parser.cup -text
+db-meta-plugin/grammar/Scanner.jflex -text
 db-meta-plugin/pom.xml -text
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/generator/MetaOuputDifferenceGeneratorTask.java -text
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/generator/MetaOutputDifferenceGenerator.java -text
