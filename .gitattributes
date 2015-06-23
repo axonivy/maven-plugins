@@ -92,6 +92,8 @@ db-meta-plugin/src/main/java/ch/ivyteam/db/meta/model/internal/SqlWhenThen.java 
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/parser/internal/MetaParserException.java -text
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/parser/internal/SyntaxError.java -text
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/parser/internal/TerminalSymbol.java -text
+db-meta-plugin/src/test/java/test/ch/ivyteam/db/meta/generator/internal/TestIssue23610.java -text
+db-meta-plugin/src/test/java/test/simpleTest.meta -text
 db-meta-plugin/techdoc/default.html -text svneol=unset#text/html
 db-meta-plugin/techdoc/schemaGenerator.png -text
 db-meta-plugin/techdoc/schemaGenerator.vsd -text

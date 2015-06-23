@@ -1,0 +1,260 @@
+--
+-- This table stores information about hosts on which Xpert.ivy Server are running and which belong to 
+-- the Xpert.ivy Server Cluster identified by this system database.
+--
+CREATE TABLE IWA_ClusterHost
+(
+  -- Identifies this cluster host
+  ClusterHostId INTEGER NOT NULL,
+  
+  -- Name of the host
+  Name VARCHAR(50) NOT NULL,
+  
+  -- IP Address of the cluster host.
+  IpAddress CHAR(15) NOT NULL,
+  
+  -- Stores whether the ivyGrid Server on this host is running or not
+  IsRunning BIT NOT NULL,
+  
+  -- Stores whether the ivyGrid Server on this host is the cluster master or not. Only one host can be cluster master
+  IsMaster BIT NOT NULL,
+  
+  -- The last time the ivyGrid Server running on this host has reported to be in running state. 
+  -- If a server does a longer period not report to be in running state, 
+  -- an other server of the cluster set the state of this host to not running.
+  LastLifeCheckTimestamp DATETIME NOT NULL,
+  
+  PRIMARY KEY (ClusterHostId), 
+  UNIQUE Name (Name)
+);
+
+
+--
+-- Stores information about applications.
+-- Applications span a own security context (user, role) and workflow context (task, case).
+--
+
+CREATE TABLE IWA_Application
+(
+  -- Identifies the application
+  ApplicationId INTEGER NOT NULL,
+  
+  -- Name of the application
+  Name VARCHAR (40) NOT NULL
+  FOR Oracle USE (ConvertNullToEmptyString),
+  
+  -- Description of the application
+  Description VARCHAR(200) DEFAULT '',
+  
+  -- Name of the owner of the application
+  OwnerName VARCHAR(40) NOT NULL
+  FOR Oracle USE (ConvertNullToEmptyString),
+  
+  -- Password of the owner of the application. 
+  -- Is used to upload a project to the application and to modify the content with the online content tool.
+  OwnerPassword VARCHAR(40) NOT NULL
+  FOR Oracle USE (ConvertNullToEmptyString),
+  
+  -- References a user which is the system user of this applciation. Every application has automatically a system user.
+  SystemUserId INTEGER,
+  
+  -- Password to download this application. 
+  -- Note that with the owener password a user can up- and download an application. 
+  -- With the download password he can only download an application.
+  DownloadPassword VARCHAR(40),  
+  
+  -- The name of the external security system name 
+  -- that is responsible for the authentication of the users and management of the users and their roles for this application.
+  ExternalSecuritySystemName VARCHAR(200) NOT NULL DEFAULT 'ivyteam.webapp.workflow.InternalAuthenticationAuthorizationSys',
+  
+  -- References the security descriptor that holds the user and role permission for the application
+  SecurityDescriptorId INTEGER DEFAULT NULL,
+  
+  -- The Activity state of the application. See java enumeration ch.ivyteam.ivy.application.ActivityState for possible values. 
+  State INTEGER NOT NULL,
+  
+  -- Directory where the files of the application are stored
+  FileDirectory VARCHAR(200) NOT NULL
+  FOR Oracle USE (ConvertNullToEmptyString),
+  
+  PRIMARY KEY (ApplicationId),
+  UNIQUE Name (Name)
+)
+FOR Db2zOs USE (Tablespace='SAPPLICN');
+
+
+--
+-- Stores properties of applications
+--
+
+CREATE TABLE IWA_ApplicationProperty
+(
+  -- Identifies the application property 
+  ApplicationPropertyId INTEGER NOT NULL,
+ 
+  -- References the application this property belongs to 
+  ApplicationId INTEGER NOT NULL REFERENCES IWA_Application(ApplicationId) ON DELETE CASCADE,
+  
+  -- Name that identifies the property
+  PropertyName VARCHAR(50) NOT NULL,
+  
+  -- Value of the property
+  PropertyValue CLOB NOT NULL,
+  
+  PRIMARY KEY (ApplicationPropertyId),
+  INDEX ApplicationId (ApplicationId)
+) 
+FOR Db2zOs USE (Tablespace='SAPPLPRO');
+
+-- This table stores at which days the users do not work. There are three kind of exception days:
+-- <ul>
+-- <li>Yearly exception day (e.g. Chrismas, New Year etc.)</li>
+-- <li>Unique exception day (e.g. October 24, 2003)</li>
+-- <li>Yearly exception day, relativ to easter (e.g. Good friday -> easter-2 days)</li>
+-- <li>Weekly exception days (e.g. Sunday)</li>
+-- </ul>
+-- This information is used to calculate working days.
+CREATE TABLE IWA_WorkExceptionDay
+(
+  -- Identifies this work exception day.
+  WorkExceptionDayId INTEGER NOT NULL,
+  
+  -- References the application this work exception day belongs to.
+  ApplicationId INTEGER NOT NULL,
+  
+  -- Description of the work exception day
+  Description VARCHAR(200) NOT NULL,
+  
+  -- Holds the work exception day kind.<br/>
+  -- 0: Yearly exception day, 1: Unique exception day, 2: Yearly exception day, relativ to easter, 3: Weekly exception day.
+  Kind INTEGER NOT NULL,
+   				
+  -- Kind=0: Day of month (1..31).<br/>
+  -- Kind=1: Day of month (1..31).<br/>
+  -- Kind=2: Number of days relativ to eastern. (Negativ values are possible).<br/>
+  -- Kind=3: Weekday (Sunday=1 .. Saturday=7)<br/>
+  Day INTEGER NOT NULL, 				
+
+  -- 0=January, 1=February, ... , 11=December.<br/>
+  -- Kind=0: Month of yearly exception day.<br/>
+  -- Kind=1: Month of unique exception day.<br/>
+  -- Kind=2: Not used -> NULL.<br/>
+  -- Kind=3: Not used -> NULL. 
+  Month INTEGER,
+  
+  -- Kind=0: Not used -> NULL.
+  -- Kind=1: Year of unique exception day.
+  -- 2004 means the year 2004 AD,
+  -- 04 means the year 04 AD.
+  -- Kind=2: Not used -> NULL.
+  -- Kind=3: Not used -> NULL.						
+  Year INTEGER, 						
+  
+  PRIMARY KEY (WorkExceptionDay),
+  FOREIGN KEY (ApplicationId) REFERENCES IWA_Application(ApplicationId) ON DELETE CASCADE,
+  INDEX IWA_WrkExcptionDay_AppIdIdx (ApplicationId)	
+);
+
+-- This table holds information about additional properties that can be set on an external database. 
+-- The properties are use to configure a JDBC connection to the external database.
+CREATE TABLE IWA_ExternalNamingAndDirectory
+(
+  -- Identifies the external naming and directory server.
+  ExternalNamingAndDirectoryId INTEGER NOT NULL,
+  
+  -- References the application this external naming and directory server belongs to
+  ApplicationId INTEGER NOT NULL,
+  
+  -- User friendly name of the external naming and directory server 
+  UserFriendlyName VARCHAR(40) NOT NULL,
+  
+  -- Name of the Jndi provider to use
+  ProviderName VARCHAR(40) NOT NULL,
+  
+  -- Jndi provider class
+  ProviderClass VARCHAR(200) NOT NULL,
+  
+  -- Connection url to use to connect to the naming and directory server
+  ConnectionUrl VARCHAR(200) NOT NULL,
+  
+  -- Authentication kind to use for authentication in the naming and directory server.
+  AuthenticationKind VARCHAR(40) NOT NULL,
+  
+  -- Name of the user to authenticate as.
+  UserName VARCHAR(200),
+   
+  -- Password to use for authentication. 
+  UserPassword VARCHAR(40),
+  
+  -- Provider dependent flags.
+  Flags INTEGER NOT NULL,
+  
+  -- The default context to connect to.
+  DefaultContext VARCHAR(200) NOT NULL,
+  
+  PRIMARY KEY(ExternalNamingAndDirectoryId),
+  UNIQUE ApplicationIdUserFriendlyName (ApplicationId, UserFriendlyName),
+  FOREIGN KEY (ApplicationId) REFERENCES IWA_Application(ApplicationId) ON DELETE CASCADE
+);
+
+-- Stores information about databases which can be identified from the application by user friendly names. 
+-- The table holds information about the driver, the connection url, the user name, the password to use to connect to the database. 
+-- The AccessFlags holds information about what can be uploaded and downloaded from or to this database.
+CREATE TABLE IWA_ExternalDatabase
+(
+  --Identifies the external database.
+  ExternalDatabaseId INTEGER NOT NULL,
+  
+  -- User friendly name of the external database 
+  UserFriendlyName VARCHAR(40) NOT NULL,
+  
+  -- Jdbc connection url used to connect to the external database
+  ConnectionUrl CLOB NOT NULL,
+  
+  -- Name of the java class that implements the jdbc driver used to connect to the database 
+  DriverName VARCHAR(200) NOT NULL,
+  
+  -- User name used to login to the database
+  UserName VARCHAR(40),
+  
+  -- Password used to login to the database. Password is stored encrpyted.
+  UserPassword VARCHAR(40),
+  
+  -- Access flags that define if the databse data or metadata can be uploaded or downloaded. 
+  -- The values of the flags are defined by the java enumeration ch.ivyteam.ivy.application.ExternalDatabaseConfigurationAccessFlags.
+  AccessFlags INTEGER NOT NULL,
+  
+  -- References the application this external database belongs to.
+  ApplicationId INTEGER NOT NULL,
+  
+  -- Maximum number of connections the Xpert.ivy Server will open to the database.
+  MaxNumberOfConnections INTEGER NOT NULL DEFAULT 1,
+  
+  -- Is auto commit enabled on the connections to the database.
+  AutoCommitEnabled BIT NOT NULL DEFAULT 1,
+  
+  PRIMARY KEY (ExternalDatabaseId),
+  UNIQUE ApplicationIdUserFriendlyName (ApplicationId, UserFriendlyName),
+  FOREIGN KEY (ApplicationId) REFERENCES IWA_Application(ApplicationId) ON DELETE CASCADE
+);
+
+-- This table holds information about additional properties that can be set on an external database. The properties are use to configure a JDBC connection to the external database.
+CREATE TABLE IWA_ExternalDatabaseProperty
+(
+  -- Identifies the external database property
+  ExternalDatabasePropertyId INTEGER NOT NULL,
+
+  -- References the external database this property belongs to
+  ExternalDatabaseId INTEGER NOT NULL,
+  
+  -- Name that identifies the property
+  PropertyName VARCHAR(50) NOT NULL,
+  
+  -- Value of the property
+  PropertyValue CLOB NOT NULL,
+  
+  PRIMARY KEY (ExternalDatabasePropertyId),
+  UNIQUE ExternalDatabaseIdPropertyName (ExternalDatabaseId, PropertyName),
+  FOREIGN KEY (ExternalDatabaseId) REFERENCES IWA_ExternalDatabase(ExternalDatabaseId) ON DELETE CASCADE
+);
+
