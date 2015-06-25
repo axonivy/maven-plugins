@@ -5,7 +5,6 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -281,7 +280,7 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
    */
   private Set<String> getAllDatabaseSystemsWithDatabaseSystemHints(SqlTable table)
   {
-    Set<String> databaseSystems = new HashSet<String>();
+    Set<String> databaseSystems = new LinkedHashSet<String>();
     for (SqlObject object: getSqlObjectsOfTable(table))
     {
       for (SqlDatabaseSystemHints databaseSystemHints : object.getDatabaseManagementSystemHints())
