@@ -15,7 +15,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 
 import ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator;
 import ch.ivyteam.db.meta.model.internal.MetaException;
@@ -30,7 +31,6 @@ import ch.ivyteam.db.meta.model.internal.SqlUniqueConstraint;
 import ch.ivyteam.db.meta.model.internal.SqlView;
 import ch.ivyteam.db.meta.parser.internal.Parser;
 import ch.ivyteam.db.meta.parser.internal.Scanner;
-import ch.ivyteam.util.Pair;
 
 /**
  * Generates a SQL script to convert from one meta-model to the other meta-model.<br>

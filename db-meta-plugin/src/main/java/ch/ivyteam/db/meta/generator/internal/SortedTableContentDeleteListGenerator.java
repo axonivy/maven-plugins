@@ -10,13 +10,14 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 
 import ch.ivyteam.db.meta.model.internal.MetaException;
 import ch.ivyteam.db.meta.model.internal.SqlForeignKey;
 import ch.ivyteam.db.meta.model.internal.SqlForeignKeyAction;
 import ch.ivyteam.db.meta.model.internal.SqlMeta;
 import ch.ivyteam.db.meta.model.internal.SqlTable;
-import ch.ivyteam.util.Pair;
 
 /**
  * Generates a list of tables. The tables are sorted in the way that the content of the table can be deleted in
@@ -190,7 +191,7 @@ public class SortedTableContentDeleteListGenerator extends AbstractSortedTableCo
           if (isForeignKeyRelevant(table, foreignKey))
           {
             referencedByTables = tableDeleteGraph.get(foreignKey.getReference().getForeignTable());
-            referencedByTables.add(new Pair<String, SqlForeignKeyAction>(table.getId(), getGeneratedForeignKeyAction(foreignKey)));
+            referencedByTables.add(new ImmutablePair<String, SqlForeignKeyAction>(table.getId(), getGeneratedForeignKeyAction(foreignKey)));
           }
         }
       }

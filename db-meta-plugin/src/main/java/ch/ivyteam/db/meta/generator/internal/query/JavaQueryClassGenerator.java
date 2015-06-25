@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Option;
 
 import ch.ivyteam.db.meta.generator.internal.JavaClassGenerator;
 import ch.ivyteam.db.meta.model.internal.MetaException;
@@ -24,11 +24,10 @@ public class JavaQueryClassGenerator extends JavaClassGenerator
   /**
    * Constructor
    */
-  @SuppressWarnings("static-access")
   public JavaQueryClassGenerator()
   {
-    OPTIONS.addOption(OptionBuilder.withDescription("Template directory (e.g. for Public API)").isRequired().hasArg().create(OPTION_TEMPLATE_DIR));
-    OPTIONS.addOption(OptionBuilder.withDescription("Source directory (e.g. for java source templates)").isRequired().hasArg().create(OPTION_SOURCE_DIR));
+    options.addOption(Option.builder().desc("Template directory (e.g. for Public API)").required().hasArg().longOpt(OPTION_TEMPLATE_DIR).build());
+    options.addOption(Option.builder().desc("Source directory (e.g. for java source templates)").required().hasArg().longOpt(OPTION_SOURCE_DIR).build());
   }
   
   /**

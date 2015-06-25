@@ -3,12 +3,12 @@ package ch.ivyteam.db.meta.generator.internal.persistency;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.ivyteam.db.meta.generator.internal.ConstantBuilder;
 import ch.ivyteam.db.meta.generator.internal.JavaClassGenerator;
 import ch.ivyteam.db.meta.model.internal.SqlMeta;
 import ch.ivyteam.db.meta.model.internal.SqlTable;
 import ch.ivyteam.db.meta.model.internal.SqlView;
 import ch.ivyteam.db.meta.model.internal.SqlViewColumn;
-import ch.ivyteam.util.StringUtil;
 
 /**
  * Info about a view column that is used in the JavaClassPersistencyServiceImplemenation.ftl
@@ -48,7 +48,7 @@ public class ViewColumnInfo
    */
   public String getConstant()
   {
-    return StringUtil.camelCaseToUpperCase(getName());
+    return new ConstantBuilder(getName()).toConstant();
   }
 
   /**

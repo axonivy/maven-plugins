@@ -5,10 +5,10 @@ import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.io.IOUtils;
 
@@ -38,10 +38,9 @@ public class MetaOutputGenerator
   /** The sql meta definition */
   private SqlMeta sqlMetaDefinition;
   
-  @SuppressWarnings("static-access")
   private Options OPTIONS = new Options().
-    addOption(OptionBuilder.withDescription("*.meta input files").isRequired().hasArgs().create(OPTION_SQL)).
-    addOption(OptionBuilder.withDescription("Name of the generator class").isRequired().hasArg().create(OPTION_GENERATOR));
+    addOption(Option.builder().desc("*.meta input files").required().hasArgs().longOpt(OPTION_SQL).build()).
+    addOption(Option.builder().desc("Name of the generator class").required().hasArg().longOpt(OPTION_GENERATOR).build());
   
   /**
    * Main method
@@ -156,7 +155,7 @@ public class MetaOutputGenerator
    */
   private void analyseArgs(String[] args) throws Exception
   {
-    CommandLine commandLine = new BasicParser().parse(OPTIONS, args, true);
+    CommandLine commandLine = new DefaultParser().parse(OPTIONS, args, true);
     for (String sqlFile : commandLine.getOptionValues(OPTION_SQL))
     {     
       File sqlMetaDefinitionFile = new File(sqlFile);

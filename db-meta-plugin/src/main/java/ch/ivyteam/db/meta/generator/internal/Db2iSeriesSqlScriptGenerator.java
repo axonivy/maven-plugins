@@ -1,12 +1,12 @@
 package ch.ivyteam.db.meta.generator.internal;
 
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.List;
 
 import ch.ivyteam.db.meta.model.internal.SqlForeignKey;
 import ch.ivyteam.db.meta.model.internal.SqlTable;
 import ch.ivyteam.db.meta.model.internal.SqlUniqueConstraint;
-import ch.ivyteam.util.collections.CollectionsUtil;
 
 /**
  * Generates the sql script for Db2 (iSeries) database systems
@@ -47,7 +47,7 @@ public class Db2iSeriesSqlScriptGenerator extends Db2SqlScriptGenerator
   @Override
   protected List<String> getDatabaseSystemNames()
   {
-    return CollectionsUtil.listify(DB2_ISERIES, DB2);
+    return Arrays.asList(DB2_ISERIES, DB2);
   }
   
   /**

@@ -8,11 +8,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import ch.ivyteam.db.meta.model.internal.SqlMeta;
 import ch.ivyteam.db.meta.model.internal.SqlTable;
-import ch.ivyteam.io.FileUtil;
 import freemarker.cache.ClassTemplateLoader;
 import freemarker.cache.FileTemplateLoader;
 import freemarker.cache.MultiTemplateLoader;
@@ -65,20 +64,14 @@ public class JavaQueryClassTemplateWriter
   public void writeToFile(File javaSourceFile) throws IOException
   {
     Template temp = getConfiguration().getTemplate(QUERY_CLASS_TEMPLATE);
-    Writer writer = null;
-    try
+    try(Writer writer = new FileWriter(javaSourceFile))
     {
-      writer = new FileWriter(javaSourceFile);
       temp.process(getDataMap(), writer);
       writer.flush();
     }
     catch (TemplateException ex)
     {
       throw new IllegalStateException("Could not generate Query class: " + javaSourceFile.getAbsolutePath(), ex);
-    }
-    finally
-    {
-      FileUtil.closeFinally(writer);
     }
   }
 

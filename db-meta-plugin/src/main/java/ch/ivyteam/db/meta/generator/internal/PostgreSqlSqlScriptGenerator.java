@@ -1,10 +1,11 @@
 package ch.ivyteam.db.meta.generator.internal;
 
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import ch.ivyteam.db.meta.model.internal.MetaException;
 import ch.ivyteam.db.meta.model.internal.SqlDataType.DataType;
@@ -15,7 +16,6 @@ import ch.ivyteam.db.meta.model.internal.SqlTableColumn;
 import ch.ivyteam.db.meta.model.internal.SqlUniqueConstraint;
 import ch.ivyteam.db.meta.model.internal.SqlUpdate;
 import ch.ivyteam.db.meta.model.internal.SqlUpdateColumnExpression;
-import ch.ivyteam.util.collections.CollectionsUtil;
 
 /**
  * Generates the sql script for Postgre SQL database systems
@@ -79,7 +79,7 @@ public class PostgreSqlSqlScriptGenerator extends SqlScriptGenerator
   @Override
   protected List<String> getDatabaseSystemNames()
   {
-    return CollectionsUtil.listify(POSTGRESQL);
+    return Arrays.asList(POSTGRESQL);
   }
 
   /**
@@ -195,7 +195,7 @@ public class PostgreSqlSqlScriptGenerator extends SqlScriptGenerator
   public void generateAlterTableAlterColumn(PrintWriter pr, SqlTableColumn newColumn, SqlTable newTable, SqlTableColumn oldColumn) throws MetaException
   {
     boolean changed = false;
-    if (!ObjectUtils.equals(newColumn.getDataType(), oldColumn.getDataType()))
+    if (!Objects.equals(newColumn.getDataType(), oldColumn.getDataType()))
     {
       GenerateAlterTableUtil.generateAlterTableAlterColumnType(pr, this, newColumn, newTable, "ALTER COLUMN", "TYPE");
       if (newColumn.getDefaultValue() != null)

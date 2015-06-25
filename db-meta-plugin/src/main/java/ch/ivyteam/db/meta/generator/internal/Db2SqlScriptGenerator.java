@@ -2,8 +2,7 @@ package ch.ivyteam.db.meta.generator.internal;
 
 import java.io.PrintWriter;
 import java.util.List;
-
-import org.apache.commons.lang.ObjectUtils;
+import java.util.Objects;
 
 import ch.ivyteam.db.meta.model.internal.MetaException;
 import ch.ivyteam.db.meta.model.internal.SqlArtifact;
@@ -222,7 +221,7 @@ public abstract class Db2SqlScriptGenerator extends SqlScriptGenerator
   public void generateAlterTableAlterColumn(PrintWriter pr, SqlTableColumn newColumn, SqlTable newTable, SqlTableColumn oldColumn) throws MetaException
   {
     boolean changed=false;
-    if (!ObjectUtils.equals(newColumn.getDataType(), oldColumn.getDataType()))
+    if (!Objects.equals(newColumn.getDataType(), oldColumn.getDataType()))
     {
       GenerateAlterTableUtil.generateAlterTableAlterColumnType(pr, this, newColumn, newTable, "ALTER", "SET DATA TYPE");
       changed=true;

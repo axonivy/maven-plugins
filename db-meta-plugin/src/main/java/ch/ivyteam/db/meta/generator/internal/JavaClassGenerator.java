@@ -5,10 +5,10 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
 import ch.ivyteam.db.meta.model.internal.MetaException;
@@ -27,11 +27,10 @@ public abstract class JavaClassGenerator implements IMetaOutputGenerator
   private static final String OPTION_OUTPUT_DIR = "outputDir";
 
   /**  */
-  @SuppressWarnings("static-access")
-  protected final static Options OPTIONS = new Options()
-    .addOption(OptionBuilder.withDescription("Output root directory for the generated classes.").isRequired().hasArg().create(OPTION_OUTPUT_DIR))
-    .addOption(OptionBuilder.withDescription("Package name of the created java classes.").isRequired().hasArg().create(OPTION_PACKAGE))
-    .addOption(OptionBuilder.withDescription("Tables, the classes has to be generated for").isRequired().hasArgs().create(OPTION_TABLES));
+  protected final Options options = new Options()
+    .addOption(Option.builder().desc("Output root directory for the generated classes.").required().hasArg().longOpt(OPTION_OUTPUT_DIR).build())
+    .addOption(Option.builder().desc("Package name of the created java classes.").required().hasArg().longOpt(OPTION_PACKAGE).build())
+    .addOption(Option.builder().desc("Tables, the classes has to be generated for").required().hasArgs().longOpt(OPTION_TABLES).build());
 
   /** The output directory */
   private File fOutputDirectory;
@@ -103,7 +102,7 @@ public abstract class JavaClassGenerator implements IMetaOutputGenerator
   @Override
   public void analyseArgs(String[] args) throws Exception
   {
-    CommandLine commandLine = new BasicParser().parse(OPTIONS, args);
+    CommandLine commandLine = new DefaultParser().parse(options, args);
     fOutputDirectory = new File(commandLine.getOptionValue(OPTION_OUTPUT_DIR));
     if (!fOutputDirectory.exists())
     {
@@ -143,7 +142,7 @@ public abstract class JavaClassGenerator implements IMetaOutputGenerator
   @Override
   public void printHelp()
   {
-    new HelpFormatter().printHelp(getClass().getSimpleName(), OPTIONS);
+    new HelpFormatter().printHelp(getClass().getSimpleName(), options);
   }
   
   /**

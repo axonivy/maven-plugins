@@ -2,6 +2,7 @@ package ch.ivyteam.db.meta.generator.internal;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import ch.ivyteam.db.meta.model.internal.MetaException;
@@ -15,7 +16,6 @@ import ch.ivyteam.db.meta.model.internal.SqlTableColumn;
 import ch.ivyteam.db.meta.model.internal.SqlUniqueConstraint;
 import ch.ivyteam.db.meta.model.internal.SqlUpdate;
 import ch.ivyteam.db.meta.model.internal.SqlUpdateColumnExpression;
-import ch.ivyteam.util.collections.CollectionsUtil;
 
 /**
  * Generates the sql script for Microsoft SQL Server database systems
@@ -256,7 +256,7 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
   @Override
   protected List<String> getDatabaseSystemNames()
   {
-    return CollectionsUtil.listify(MS_SQL_SERVER);
+    return Arrays.asList(MS_SQL_SERVER);
   }
   
   /**

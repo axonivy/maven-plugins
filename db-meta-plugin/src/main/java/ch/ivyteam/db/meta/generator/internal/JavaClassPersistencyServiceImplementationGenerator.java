@@ -3,7 +3,7 @@ package ch.ivyteam.db.meta.generator.internal;
 import java.io.File;
 
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Option;
 
 import ch.ivyteam.db.meta.generator.internal.persistency.JavaClassForViewTemplateWriter;
 import ch.ivyteam.db.meta.generator.internal.persistency.JavaClassPersistencyServiceImplementationTemplateWriter;
@@ -25,10 +25,9 @@ public class JavaClassPersistencyServiceImplementationGenerator extends JavaClas
   /**
    * Constructor
    */
-  @SuppressWarnings("static-access")
   public JavaClassPersistencyServiceImplementationGenerator()
   {
-    OPTIONS.addOption(OptionBuilder.withDescription("Package where the entity classes are located.").isRequired().hasArg().create(OPTION_ENTITY_PACKAGE));
+    options.addOption(Option.builder().desc("Package where the entity classes are located.").required().hasArg().longOpt(OPTION_ENTITY_PACKAGE).build());
   }
 
   /**

@@ -1,10 +1,11 @@
 package ch.ivyteam.db.meta.generator.internal;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import ch.ivyteam.db.meta.model.internal.MetaException;
 import ch.ivyteam.db.meta.model.internal.SqlDataType;
@@ -14,7 +15,6 @@ import ch.ivyteam.db.meta.model.internal.SqlMeta;
 import ch.ivyteam.db.meta.model.internal.SqlTable;
 import ch.ivyteam.db.meta.model.internal.SqlTableColumn;
 import ch.ivyteam.db.meta.model.internal.SqlView;
-import ch.ivyteam.util.collections.CollectionsUtil;
 
 /**
  * Utility methods to generate ivy persistent realated java classes
@@ -291,7 +291,7 @@ public final class JavaClassGeneratorUtil
     {
       return Collections.EMPTY_LIST;
     }
-    return CollectionsUtil.listify(table.findColumn(parentKey));
+    return Arrays.asList(table.findColumn(parentKey));
   }
 
   /**

@@ -3,6 +3,7 @@ package ch.ivyteam.db.meta.generator.internal;
 import java.io.File;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -12,6 +13,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 
 import ch.ivyteam.db.meta.model.internal.MetaException;
 import ch.ivyteam.db.meta.model.internal.SqlArtifact;
@@ -49,9 +52,6 @@ import ch.ivyteam.db.meta.model.internal.SqlUpdateColumnExpression;
 import ch.ivyteam.db.meta.model.internal.SqlView;
 import ch.ivyteam.db.meta.model.internal.SqlViewColumn;
 import ch.ivyteam.db.meta.model.internal.SqlWhenThen;
-import ch.ivyteam.db.sql.ReservedSqlKeywords;
-import ch.ivyteam.util.Pair;
-import ch.ivyteam.util.collections.CollectionsUtil;
 
 /**
  * Generates sql scripts out of the sql meta information
@@ -867,7 +867,7 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
               statements.add(
                       new SqlUpdate(
                               foreignTable.getId(),
-                              CollectionsUtil.listify(
+                              Arrays.asList(
                                       new SqlUpdateColumnExpression(foreignKey.getColumnName(),
                                         new SqlLiteral(SqlNull.getInstance()))),
                               new SqlBinaryRelation(
@@ -897,7 +897,7 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
                                 .getColumnName()))));
       }
     }
-    return new Pair<Boolean, List<SqlDmlStatement>>(recursiveTrigger, statements);
+    return new ImmutablePair<Boolean, List<SqlDmlStatement>>(recursiveTrigger, statements);
   }
 
   /**

@@ -6,15 +6,15 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
+import org.codehaus.plexus.util.StringUtils;
 
+import ch.ivyteam.db.meta.generator.internal.ConstantBuilder;
 import ch.ivyteam.db.meta.generator.internal.JavaClassGenerator;
 import ch.ivyteam.db.meta.generator.internal.JavaClassGeneratorUtil;
 import ch.ivyteam.db.meta.generator.internal.OracleSqlScriptGenerator;
 import ch.ivyteam.db.meta.model.internal.SqlDataType.DataType;
 import ch.ivyteam.db.meta.model.internal.SqlTable;
 import ch.ivyteam.db.meta.model.internal.SqlTableColumn;
-import ch.ivyteam.util.StringUtil;
 
 /**
  * Info about a column that is used in the JavaClassPersistencyServiceImplemenation.ftl
@@ -117,7 +117,7 @@ public class ColumnInfo
    */
   public String getConstant()
   {
-    return StringUtil.camelCaseToUpperCase(getName());
+    return new ConstantBuilder(getName()).toConstant();
   }
   
   /**
@@ -199,7 +199,7 @@ public class ColumnInfo
       method = dataType;
     }
     
-    return StringUtils.capitalize(method);
+    return StringUtils.capitalise(method);
   }
   
   private boolean isJavaEnumeration()
@@ -376,7 +376,7 @@ public class ColumnInfo
     }
 
     additionalArgs.append("data.get");
-    additionalArgs.append(StringUtils.capitalize(JavaClassGeneratorUtil.generateJavaIdentifier(column)));
+    additionalArgs.append(StringUtils.capitalise(JavaClassGeneratorUtil.generateJavaIdentifier(column)));
     additionalArgs.append("()");
     
     if (isObjectKey())
@@ -419,7 +419,7 @@ public class ColumnInfo
    */
   private String getObjectKeyToDataTypeConversionMethodName()
   {
-    return "key2"+StringUtils.capitalize(getRawJavaDataType());
+    return "key2"+StringUtils.capitalise(getRawJavaDataType());
   }
   
   /**

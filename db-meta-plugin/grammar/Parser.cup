@@ -6,7 +6,7 @@ import java_cup.runtime.*;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Date;
-import ch.ivyteam.log.Logger;
+import org.apache.log4j.Logger;
 import ch.ivyteam.db.meta.model.internal.SqlArtifact;
 import ch.ivyteam.db.meta.model.internal.SqlAtom;
 import ch.ivyteam.db.meta.model.internal.SqlBinaryRelation;
@@ -49,7 +49,7 @@ parser code
   @SuppressWarnings("all")
    
   /** The logger to use */ 
-  private static final Logger logger = Logger.getPackageLogger(Parser.class);
+  private static final Logger logger = Logger.getLogger(Parser.class.getPackage().getName());
   
   /** The syntax errors */
   private List<SyntaxError> errors = new ArrayList<SyntaxError>();
@@ -72,7 +72,7 @@ parser code
   @Override
   public void syntax_error(Symbol _cur_token)
   {
-    logger.debug("Syntax error on symbol {0}", _cur_token);
+    logger.debug("Syntax error on symbol "+_cur_token);
     if (_cur_token.value != null)
     {
       errors.add(new SyntaxError(UNEXPECTED_SYMBOL_WITH_VALUE, (TerminalSymbol)_cur_token));
@@ -98,7 +98,7 @@ parser code
   @Override
   public void unrecovered_syntax_error(Symbol _cur_token) throws Exception
   {
-    logger.debug("Unrecovered syntax error on symbol {0}", _cur_token);
+    logger.debug("Unrecovered syntax error on symbol " + _cur_token);
     throw new MetaParserException(UNRECOVERED_SYNTAX_ERROR, errors);
   }
   

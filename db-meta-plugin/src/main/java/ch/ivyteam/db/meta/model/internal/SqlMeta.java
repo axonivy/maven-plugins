@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import ch.ivyteam.util.Pair;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
+
 
 /**
  * The sql meta information. This is the root of the meta information
@@ -150,7 +152,7 @@ public class SqlMeta
         if (reference.getForeignTable().equals(table.getId()) &&
             reference.getForeignColumn().equals(column.getId()))
         {
-          result.add(new Pair<SqlTable, SqlForeignKey>(foreignTable, foreignKey));
+          result.add(new ImmutablePair<SqlTable, SqlForeignKey>(foreignTable, foreignKey));
         }
       }
     }

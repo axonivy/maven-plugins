@@ -1,9 +1,9 @@
 package ch.ivyteam.db.meta.generator.internal;
 
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.List;
-
-import org.apache.commons.lang.ObjectUtils;
+import java.util.Objects;
 
 import ch.ivyteam.db.meta.model.internal.MetaException;
 import ch.ivyteam.db.meta.model.internal.SqlDataType.DataType;
@@ -13,7 +13,6 @@ import ch.ivyteam.db.meta.model.internal.SqlIndex;
 import ch.ivyteam.db.meta.model.internal.SqlTable;
 import ch.ivyteam.db.meta.model.internal.SqlTableColumn;
 import ch.ivyteam.db.meta.model.internal.SqlUniqueConstraint;
-import ch.ivyteam.util.collections.CollectionsUtil;
 
 /**
  * Generates the sql script for Oracle database systems
@@ -145,7 +144,7 @@ public class OracleSqlScriptGenerator extends SqlScriptGenerator
   @Override
   protected List<String> getDatabaseSystemNames()
   {
-    return CollectionsUtil.listify(ORACLE);
+    return Arrays.asList(ORACLE);
   }
   
   /**
@@ -231,7 +230,7 @@ public class OracleSqlScriptGenerator extends SqlScriptGenerator
   public void generateAlterTableAlterColumn(PrintWriter pr, SqlTableColumn newColumn, SqlTable newTable, SqlTableColumn oldColumn) throws MetaException
   {
     boolean changed = false;
-    if (!ObjectUtils.equals(newColumn.getDataType(), oldColumn.getDataType()))
+    if (!Objects.equals(newColumn.getDataType(), oldColumn.getDataType()))
     {
       GenerateAlterTableUtil.generateAlterTableAlterColumnType(pr, this, newColumn, newTable, "MODIFY", "");
       changed = true;

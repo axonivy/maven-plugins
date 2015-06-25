@@ -1,6 +1,7 @@
 package ch.ivyteam.db.meta.generator.internal;
 
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.List;
 
 import ch.ivyteam.db.meta.model.internal.MetaException;
@@ -12,7 +13,6 @@ import ch.ivyteam.db.meta.model.internal.SqlTableColumn;
 import ch.ivyteam.db.meta.model.internal.SqlUniqueConstraint;
 import ch.ivyteam.db.meta.model.internal.SqlUpdate;
 import ch.ivyteam.db.meta.model.internal.SqlUpdateColumnExpression;
-import ch.ivyteam.util.collections.CollectionsUtil;
 
 /**
  * Generates the sql script for MySql database systems
@@ -94,7 +94,7 @@ public class MySqlSqlScriptGenerator extends SqlScriptGenerator
   @Override
   protected List<String> getDatabaseSystemNames()
   {
-    return CollectionsUtil.listify(MYSQL);
+    return Arrays.asList(MYSQL);
   }
   
   /**

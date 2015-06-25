@@ -1,8 +1,7 @@
 package ch.ivyteam.db.meta.model.internal;
 
+import java.util.Arrays;
 import java.util.List;
-
-import ch.ivyteam.util.collections.CollectionsUtil;
 
 /**
  * Base class of all sql objects that can be specified inside an sql meta information
@@ -45,7 +44,7 @@ public class SqlObject extends SqlArtifact implements Comparable<SqlObject>
    */
   public static String generateId(String prefix, String id, String column)
   {
-    return generateId(prefix, id, CollectionsUtil.listify(column));
+    return generateId(prefix, id, Arrays.asList(column));
   }
 
   /**

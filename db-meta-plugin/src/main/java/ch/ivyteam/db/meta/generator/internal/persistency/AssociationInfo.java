@@ -3,6 +3,7 @@ package ch.ivyteam.db.meta.generator.internal.persistency;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.ivyteam.db.meta.generator.internal.ConstantBuilder;
 import ch.ivyteam.db.meta.generator.internal.JavaClassGenerator;
 import ch.ivyteam.db.meta.generator.internal.JavaClassGeneratorUtil;
 import ch.ivyteam.db.meta.model.internal.MetaException;
@@ -10,7 +11,6 @@ import ch.ivyteam.db.meta.model.internal.SqlMeta;
 import ch.ivyteam.db.meta.model.internal.SqlObject;
 import ch.ivyteam.db.meta.model.internal.SqlTable;
 import ch.ivyteam.db.meta.model.internal.SqlTableColumn;
-import ch.ivyteam.util.StringUtil;
 
 /**
  * Info about an accociation that is used in the JavaClassPersistencyServiceImplemenation.ftl
@@ -79,7 +79,7 @@ public class AssociationInfo
    */
   public String getConstant()
   {
-    return StringUtil.camelCaseToUpperCase(getName());
+    return new ConstantBuilder(getName()).toConstant();
   }
   
   /** 
@@ -110,7 +110,7 @@ public class AssociationInfo
    */
   public String getForeignKeyConstant()
   {
-    return StringUtil.camelCaseToUpperCase(getForeignKey());
+    return new ConstantBuilder(getForeignKey()).toConstant();
   }
 
 }

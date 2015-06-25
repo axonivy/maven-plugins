@@ -7,12 +7,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 
 import ch.ivyteam.db.meta.model.internal.MetaException;
 import ch.ivyteam.db.meta.model.internal.SqlForeignKey;
 import ch.ivyteam.db.meta.model.internal.SqlMeta;
 import ch.ivyteam.db.meta.model.internal.SqlTable;
-import ch.ivyteam.util.Pair;
 
 /**
  * Generates a list of tables. The tables are sorted in the way that the content of the table can be dump in
@@ -130,11 +131,11 @@ public class SortedTableContentDumpListGenerator extends AbstractSortedTableCont
         {
           if (table.findColumn(foreignKey.getColumnName()).isCanBeNull())
           {
-            referencedTables.add(new Pair<String, String>(foreignKey.getReference().getForeignTable(), foreignKey.getColumnName()));  
+            referencedTables.add(new ImmutablePair<String, String>(foreignKey.getReference().getForeignTable(), foreignKey.getColumnName()));  
           }
           else
           {
-            referencedTables.add(new Pair<String, String>(foreignKey.getReference().getForeignTable(), null));
+            referencedTables.add(new ImmutablePair<String, String>(foreignKey.getReference().getForeignTable(), null));
           }
         }
       }

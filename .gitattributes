@@ -14,7 +14,10 @@ db-meta-plugin/src/main/java/ch/ivyteam/db/meta/generator/MetaOuputDifferenceGen
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/generator/MetaOutputDifferenceGenerator.java -text
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/generator/MetaOutputGenerator.java -text
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/generator/MetaOutputGeneratorTask.java -text
+db-meta-plugin/src/main/java/ch/ivyteam/db/meta/generator/ant/MetaOuputDifferenceGeneratorTask.java -text
+db-meta-plugin/src/main/java/ch/ivyteam/db/meta/generator/ant/MetaOutputGeneratorTask.java -text
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/generator/internal/AbstractSortedTableContentListGenerator.java -text
+db-meta-plugin/src/main/java/ch/ivyteam/db/meta/generator/internal/ConstantBuilder.java -text
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/generator/internal/Db2LuwSqlScriptGenerator.java -text
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/generator/internal/Db2SqlScriptGenerator.java -text
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/generator/internal/Db2iSeriesSqlScriptGenerator.java -text
@@ -32,6 +35,7 @@ db-meta-plugin/src/main/java/ch/ivyteam/db/meta/generator/internal/MySqlSqlScrip
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/generator/internal/NewLinePrintWriter.java -text
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/generator/internal/OracleSqlScriptGenerator.java -text
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/generator/internal/PostgreSqlSqlScriptGenerator.java -text
+db-meta-plugin/src/main/java/ch/ivyteam/db/meta/generator/internal/ReservedSqlKeywords.java -text
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/generator/internal/SortedTableContentDeleteListGenerator.java -text
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/generator/internal/SortedTableContentDumpListGenerator.java -text
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/generator/internal/SqlAnywhereSqlScriptGenerator.java -text
@@ -53,6 +57,8 @@ db-meta-plugin/src/main/java/ch/ivyteam/db/meta/generator/internal/query/JavaQue
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/generator/internal/query/JavaSourceTemplateLoader.java -text
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/generator/internal/query/QueryClass.ftl -text
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/generator/internal/query/TableInfo.java -text
+db-meta-plugin/src/main/java/ch/ivyteam/db/meta/generator/maven/MetaOutputDifferenceGeneratorMojo.java -text
+db-meta-plugin/src/main/java/ch/ivyteam/db/meta/generator/maven/MetaOutputGeneratorMojo.java -text
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/model/internal/MetaException.java -text
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/model/internal/SqlArtifact.java -text
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/model/internal/SqlAtom.java -text
@@ -94,8 +100,12 @@ db-meta-plugin/src/main/java/ch/ivyteam/db/meta/model/internal/SqlWhenThen.java 
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/parser/internal/MetaParserException.java -text
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/parser/internal/SyntaxError.java -text
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/parser/internal/TerminalSymbol.java -text
-db-meta-plugin/src/test/java/test/ch/ivyteam/db/meta/generator/internal/TestIssue23610.java -text
-db-meta-plugin/src/test/java/test/simpleTest.meta -text
+db-meta-plugin/src/main/resources/META-INF/m2e/lifecycle-mapping-metadata.xml -text
+db-meta-plugin/src/main/resources/ch/ivyteam/db/meta/generator/internal/persistency/JavaClassForView.ftl -text
+db-meta-plugin/src/main/resources/ch/ivyteam/db/meta/generator/internal/persistency/JavaClassPersistencyServiceImplementation.ftl -text
+db-meta-plugin/src/main/resources/ch/ivyteam/db/meta/generator/internal/query/QueryClass.ftl -text
+db-meta-plugin/src/test/java/ch/ivyteam/db/meta/generator/internal/TestIssue23610.java -text
+db-meta-plugin/src/test/java/simpleTest.meta -text
 db-meta-plugin/techdoc/default.html -text svneol=unset#text/html
 db-meta-plugin/techdoc/schemaGenerator.png -text
 db-meta-plugin/techdoc/schemaGenerator.vsd -text

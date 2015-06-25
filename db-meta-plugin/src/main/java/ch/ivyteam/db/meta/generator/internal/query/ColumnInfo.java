@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import ch.ivyteam.db.meta.generator.internal.ConstantBuilder;
 import ch.ivyteam.db.meta.generator.internal.JavaClassGenerator;
 import ch.ivyteam.db.meta.generator.internal.JavaClassGeneratorUtil;
 import ch.ivyteam.db.meta.model.internal.SqlAtom;
@@ -16,7 +17,6 @@ import ch.ivyteam.db.meta.model.internal.SqlTable;
 import ch.ivyteam.db.meta.model.internal.SqlTableColumn;
 import ch.ivyteam.db.meta.model.internal.SqlView;
 import ch.ivyteam.db.meta.model.internal.SqlViewColumn;
-import ch.ivyteam.util.StringUtil;
 
 /**
  * This class contains information to generate java code
@@ -106,7 +106,7 @@ public abstract class ColumnInfo
     StringBuilder builder = new StringBuilder();
     builder.append(getTableInfo().getJavaDataClassName());
     builder.append(".COLUMN_");
-    builder.append(StringUtil.camelCaseToUpperCase(getColumn().getId()));
+    builder.append(new ConstantBuilder(getColumn().getId()).toConstant());
     return builder.toString();
   }
 
@@ -431,7 +431,7 @@ public abstract class ColumnInfo
       StringBuilder builder = new StringBuilder();
       builder.append(getTableInfo().getJavaDataClassName());
       builder.append(".QueryView.VIEW_COLUMN_");
-      builder.append(StringUtil.camelCaseToUpperCase(column.getId()));
+      builder.append(new ConstantBuilder(column.getId()).toConstant());
       return builder.toString();
     }
   }

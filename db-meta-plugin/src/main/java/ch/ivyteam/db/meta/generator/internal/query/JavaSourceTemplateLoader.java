@@ -6,9 +6,10 @@ import java.io.Reader;
 import java.io.StringReader;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 
-import ch.ivyteam.util.Pair;
 import freemarker.cache.TemplateLoader;
 
 /**
@@ -56,7 +57,7 @@ class JavaSourceTemplateLoader implements TemplateLoader
     {
       return null;
     }
-    return new Pair<File, String>(file, includeTag);
+    return new ImmutablePair<File, String>(file, includeTag);
   }
 
   /**
