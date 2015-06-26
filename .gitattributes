@@ -100,7 +100,10 @@ db-meta-plugin/src/main/resources/ch/ivyteam/db/meta/generator/internal/persiste
 db-meta-plugin/src/main/resources/ch/ivyteam/db/meta/generator/internal/persistency/JavaClassPersistencyServiceImplementation.ftl -text
 db-meta-plugin/src/main/resources/ch/ivyteam/db/meta/generator/internal/query/QueryClass.ftl -text
 db-meta-plugin/src/test/java/ch/ivyteam/db/meta/generator/internal/TestIssue23610.java -text
-db-meta-plugin/src/test/java/simpleTest.meta -text
+db-meta-plugin/src/test/java/ch/ivyteam/db/meta/generator/maven/ProjectMojoRule.java -text
+db-meta-plugin/src/test/java/ch/ivyteam/db/meta/generator/maven/TestMetaOutputGeneratorMojo.java -text
+db-meta-plugin/src/test/resources/base/meta/simpleTest.meta -text
+db-meta-plugin/src/test/resources/base/pom.xml -text
 db-meta-plugin/techdoc/default.html -text svneol=unset#text/html
 db-meta-plugin/techdoc/schemaGenerator.png -text
 db-meta-plugin/techdoc/schemaGenerator.vsd -text

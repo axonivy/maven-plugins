@@ -41,19 +41,19 @@ CREATE TABLE IWA_Application
   
   -- Name of the application
   Name VARCHAR (40) NOT NULL
-  FOR Oracle USE (ConvertNullToEmptyString),
+  FOR Oracle USE (ConvertEmptyStringToNull),
   
   -- Description of the application
   Description VARCHAR(200) DEFAULT '',
   
   -- Name of the owner of the application
   OwnerName VARCHAR(40) NOT NULL
-  FOR Oracle USE (ConvertNullToEmptyString),
+  FOR Oracle USE (ConvertEmptyStringToNull),
   
   -- Password of the owner of the application. 
   -- Is used to upload a project to the application and to modify the content with the online content tool.
   OwnerPassword VARCHAR(40) NOT NULL
-  FOR Oracle USE (ConvertNullToEmptyString),
+  FOR Oracle USE (ConvertEmptyStringToNull),
   
   -- References a user which is the system user of this applciation. Every application has automatically a system user.
   SystemUserId INTEGER,
@@ -75,7 +75,7 @@ CREATE TABLE IWA_Application
   
   -- Directory where the files of the application are stored
   FileDirectory VARCHAR(200) NOT NULL
-  FOR Oracle USE (ConvertNullToEmptyString),
+  FOR Oracle USE (ConvertEmptyStringToNull),
   
   PRIMARY KEY (ApplicationId),
   UNIQUE Name (Name)
@@ -150,7 +150,7 @@ CREATE TABLE IWA_WorkExceptionDay
   -- Kind=3: Not used -> NULL.						
   Year INTEGER, 						
   
-  PRIMARY KEY (WorkExceptionDay),
+  PRIMARY KEY (WorkExceptionDayId),
   FOREIGN KEY (ApplicationId) REFERENCES IWA_Application(ApplicationId) ON DELETE CASCADE,
   INDEX IWA_WrkExcptionDay_AppIdIdx (ApplicationId)	
 );

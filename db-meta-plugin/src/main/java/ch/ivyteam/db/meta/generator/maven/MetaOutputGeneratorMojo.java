@@ -24,6 +24,8 @@ import ch.ivyteam.db.meta.generator.MetaOutputGenerator;
 @Mojo(name="generate-meta-output", defaultPhase=LifecyclePhase.GENERATE_SOURCES)
 public class MetaOutputGeneratorMojo extends AbstractMojo
 {  
+  static final String GOAL = "generate-meta-output";
+
   @Parameter(required = true)
   private String generatorClass;
   
