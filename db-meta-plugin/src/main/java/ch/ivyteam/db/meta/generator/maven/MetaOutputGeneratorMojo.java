@@ -148,7 +148,11 @@ public class MetaOutputGeneratorMojo extends AbstractMojo
       }
       return true;
     }
-    return outputFileOutOfDate(targetDirectoryOrFile, latestInputFileChange);
+    if (outputFileOutOfDate(targetDirectoryOrFile, latestInputFileChange))
+    {
+      return false;
+    }
+    return true;
   }
 
   private long getLatestInputFileChangeTimestamp(List<File> sqlMetaFiles)
