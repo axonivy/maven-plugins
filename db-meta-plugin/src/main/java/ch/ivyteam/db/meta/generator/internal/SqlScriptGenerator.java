@@ -193,6 +193,12 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
     }
   }
   
+  @Override
+  public File getTargetDirectoryOrFile()
+  {
+    return fOutputFile;
+  }
+  
   /**
    * Sets the fComment to the given parameter
    * @param comment the fComment to set

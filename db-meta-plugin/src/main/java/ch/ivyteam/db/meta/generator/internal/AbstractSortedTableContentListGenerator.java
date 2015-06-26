@@ -42,7 +42,12 @@ public abstract class AbstractSortedTableContentListGenerator implements IMetaOu
       throw new Exception("Second generator option must be -databaseSystem");
     }
     fDatabaseSystem = generatorArgs[3];
-    
+  }
+  
+  @Override
+  public File getTargetDirectoryOrFile()
+  {
+    return fOutputFile;
   }
 
   /**

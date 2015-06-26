@@ -74,6 +74,12 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
       outputDir.mkdirs();
     }
   }
+  
+  @Override
+  public File getTargetDirectoryOrFile()
+  {
+    return outputDir;
+  }
 
   /**
    * @see ch.ivyteam.db.meta.generator.internal.IMetaOutputGenerator#generateMetaOutput(ch.ivyteam.db.meta.model.internal.SqlMeta)

@@ -64,7 +64,7 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
     
     className = getEntityClassName(table);
 
-    javaSourceFile = new File(getOutputDirectory(), getTargetPackage().replace('.', File.separatorChar)+File.separator+className+".java");
+    javaSourceFile = new File(getTargetDirectory(), className+".java");
     javaSourceFile.getParentFile().mkdirs();
     pr = new NewLinePrintWriter(javaSourceFile);
     try

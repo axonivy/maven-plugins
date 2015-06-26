@@ -71,7 +71,7 @@ public class JavaQueryClassGenerator extends JavaClassGenerator
     JavaQueryClassTemplateWriter javaQueryClassTemplate = new JavaQueryClassTemplateWriter(meta, table, getTargetPackage(), templateDir, sourceDir);
     String className = javaQueryClassTemplate.getTableInfo().getQueryClassName();
 
-    File javaSourceFile = new File(getOutputDirectory(), getTargetPackage().replace('.', File.separatorChar)+File.separator+className+".java");
+    File javaSourceFile = new File(getTargetDirectory(), className+".java");
     javaSourceFile.getParentFile().mkdirs();
     
     javaQueryClassTemplate.writeToFile(javaSourceFile);

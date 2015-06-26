@@ -94,7 +94,7 @@ public class MetaOutputGenerator
    * Parse meta information
    * @throws Exception if parse fails
    */
-  private void parseMetaDefinition() throws Exception
+  public void parseMetaDefinition() throws Exception
   {
     FileReader fr;
     Parser parser;
@@ -128,7 +128,7 @@ public class MetaOutputGenerator
    * Generators the meta output
    * @throws Exception if generation fails
    */
-  private void generateMetaOutput() throws Exception
+  public void generateMetaOutput() throws Exception
   {
     assert generator != null;
     generator.generateMetaOutput(sqlMetaDefinition);
@@ -137,7 +137,7 @@ public class MetaOutputGenerator
   /** 
    * Prints the help 
    */
-  private void printHelp()
+  public void printHelp()
   {
     new HelpFormatter().printHelp(getClass().getSimpleName(), OPTIONS);
     if (generator != null)
@@ -153,7 +153,7 @@ public class MetaOutputGenerator
    * @param args
    * @throws Exception 
    */
-  private void analyseArgs(String[] args) throws Exception
+  public void analyseArgs(String[] args) throws Exception
   {
     CommandLine commandLine = new DefaultParser().parse(OPTIONS, args, true);
     for (String sqlFile : commandLine.getOptionValues(OPTION_SQL))
@@ -171,5 +171,10 @@ public class MetaOutputGenerator
       generator = (IMetaOutputGenerator) generatorClass.newInstance();
     }
     generator.analyseArgs(commandLine.getArgs());
+  }
+
+  public File getTargetDirectoryOrFile()
+  {
+    return generator.getTargetDirectoryOrFile();
   }
 }

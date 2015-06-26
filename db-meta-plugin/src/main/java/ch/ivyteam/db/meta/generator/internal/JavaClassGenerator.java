@@ -116,6 +116,17 @@ public abstract class JavaClassGenerator implements IMetaOutputGenerator
     }
     analyseAdditionalArgs(commandLine);
   }
+  
+  @Override
+  public File getTargetDirectoryOrFile()
+  {
+    return getTargetDirectory();
+  }
+  
+  protected File getTargetDirectory()
+  {
+    return new File(getOutputDirectory(), getTargetPackage().replace('.', File.separatorChar));
+  }
 
   /**
    * Gets the entity class name for the given table

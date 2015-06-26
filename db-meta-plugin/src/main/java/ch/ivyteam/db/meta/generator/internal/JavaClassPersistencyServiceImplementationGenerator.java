@@ -77,7 +77,7 @@ public class JavaClassPersistencyServiceImplementationGenerator extends JavaClas
     String entityClassName = JavaClassGeneratorUtil.getEntityClassName(view);
     String className = "Db"+entityClassName;
 
-    File javaSourceFile = new File(getOutputDirectory(), getTargetPackage().replace('.', File.separatorChar)+File.separator+className+".java");
+    File javaSourceFile = new File(getTargetDirectory(), className+".java");
     javaSourceFile.getParentFile().mkdirs();
     
     templateWriter.writeToFile(javaSourceFile);
@@ -91,7 +91,7 @@ public class JavaClassPersistencyServiceImplementationGenerator extends JavaClas
     String entityClassName = getEntityClassName(table);
     String className = "Db"+entityClassName;
 
-    File javaSourceFile = new File(getOutputDirectory(), getTargetPackage().replace('.', File.separatorChar)+File.separator+className+".java");
+    File javaSourceFile = new File(getTargetDirectory(), className+".java");
     javaSourceFile.getParentFile().mkdirs();
     
     templateWriter.writeToFile(javaSourceFile);
