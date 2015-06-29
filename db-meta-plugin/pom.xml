@@ -55,6 +55,11 @@
 			<artifactId>jflex</artifactId>
 			<version>1.6.1</version>
 		</dependency>
+    <dependency>
+      <groupId>ch.ivyteam</groupId>
+      <artifactId>parser-generator-plugin</artifactId>
+      <version>0.0.1-SNAPSHOT</version>
+    </dependency>
 		<dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-core</artifactId>
@@ -69,71 +74,24 @@
 	</dependencies>
 	<build>
 		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-antrun-plugin</artifactId>
-				<version>1.8</version>
-				<executions>
-					<execution>
-						<id>ant-preCompile</id>
-						<phase>generate-sources</phase>
+      <plugin>
+        <groupId>ch.ivyteam</groupId>
+        <artifactId>parser-generator-plugin</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+        <executions>
+          <execution>
+            <id>generate-parser</id>
             <goals>
-              <goal>run</goal>
+              <goal>generate-parser</goal>
             </goals>
-						<configuration>
-							<target>
-								<taskdef name="cup" classname="java_cup.anttask.CUPTask" />
-								<taskdef name="jflex" classname="jflex.anttask.JFlexTask" />
-
-								<cup srcfile="${basedir}/grammar/Parser.cup" destdir="${basedir}/target/generated-sources/parser"
-									interface="true" parser="Parser" symbols="Symbols" force="true" />
-								<jflex file="${basedir}/grammar/Scanner.jflex" destdir="${basedir}/target/generated-sources/parser" />
-								<replace token='@SuppressWarnings("all")' value=""
-									dir="${basedir}/target/generated-sources/parser" casesensitive="true">
-									<include name="**/*.java" />
-								</replace>
-								<replace token="class " value='@SuppressWarnings("all") class '
-									dir="${basedir}/target/generated-sources/parser" casesensitive="true">
-									<include name="**/*.java" />
-								</replace>
-								<replace token="interface " value='@SuppressWarnings("all") interface '
-									dir="${basedir}/target/generated-sources/parser" casesensitive="true">
-									<include name="**/*.java" />
-								</replace>
-							</target>
-						</configuration>
-					</execution>
-				</executions>
-				<dependencies>
-					<dependency>
-						<groupId>net.sf.squirrel-sql.thirdparty-non-maven</groupId>
-						<artifactId>java-cup</artifactId>
-						<version>0.11a</version>
-					</dependency>
-					<dependency>
-						<groupId>de.jflex</groupId>
-						<artifactId>jflex</artifactId>
-						<version>1.6.1</version>
-					</dependency>
-				</dependencies>
-			</plugin>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>build-helper-maven-plugin</artifactId>
-				<executions>
-					<execution>
-						<phase>generate-sources</phase>
-						<goals>
-							<goal>add-source</goal>
-						</goals>
-						<configuration>
-							<sources>
-								<source>${project.build.directory}/generated-sources/parser</source>
-							</sources>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
+          </execution>
+        </executions>
+        <configuration>
+          <outputDirectory>${basedir}/target/generated-sources/parser</outputDirectory>
+          <parserFile>${basedir}/grammar/Parser.cup</parserFile>
+          <scannerFile>${basedir}/grammar/Scanner.jflex</scannerFile>
+        </configuration>
+      </plugin>
 		</plugins>
 	</build>
 </project>

@@ -957,6 +957,13 @@ maven-version-plugin/src/main/java/ch/ivyteam/maven/ProductXmlFileUpdater.java -
 maven-version-plugin/src/main/java/ch/ivyteam/maven/SetMavenAndEclipseVersion.java -text
 maven-version-plugin/src/test/java/ch/ivyteam/maven/TestSetMavenAndEclipseVersion.java -text
 maven-version-plugin/src/test/java/ch/ivyteam/maven/TestSetVersionOnNotReferencedProjects.java -text
+parser-generator-plugin/.classpath -text
+parser-generator-plugin/.project -text
+parser-generator-plugin/.settings/org.eclipse.jdt.core.prefs -text
+parser-generator-plugin/.settings/org.eclipse.m2e.core.prefs -text
+parser-generator-plugin/.settings/org.eclipse.wst.validation.prefs -text
+parser-generator-plugin/pom.xml -text
+parser-generator-plugin/src/main/java/ch/ivyteam/parser/maven/ParserGeneratorMojo.java -text
 /pom.xml -text
 project-build-plugin/.classpath -text
 project-build-plugin/.project -text
