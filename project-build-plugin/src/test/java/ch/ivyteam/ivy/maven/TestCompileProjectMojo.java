@@ -95,6 +95,10 @@ public class TestCompileProjectMojo
         return;
       }
       File releaseNotes = new File(engineDir, "ReleaseNotes.txt");
+      if (!releaseNotes.exists())
+      { // corrupt state: previous build did not finish or completely unpack
+        FileUtils.deleteDirectory(engineDir);
+      }
       BasicFileAttributes attr = Files.readAttributes(releaseNotes.toPath(), BasicFileAttributes.class);
       Calendar cal = Calendar.getInstance();
       cal.add(Calendar.DAY_OF_YEAR, -1);
