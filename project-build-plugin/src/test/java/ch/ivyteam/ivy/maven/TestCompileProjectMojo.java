@@ -94,20 +94,30 @@ public class TestCompileProjectMojo
       {
         return;
       }
+      
       File releaseNotes = new File(engineDir, "ReleaseNotes.txt");
-      if (!releaseNotes.exists())
-      { // corrupt state: previous build did not finish or completely unpack
-        FileUtils.deleteDirectory(engineDir);
-      }
-      BasicFileAttributes attr = Files.readAttributes(releaseNotes.toPath(), BasicFileAttributes.class);
-      Calendar cal = Calendar.getInstance();
-      cal.add(Calendar.DAY_OF_YEAR, -1);
-      long yesterday = cal.getTimeInMillis();
-      boolean cachedEngineIsOlderThan24h = yesterday > attr.creationTime().toMillis();
-      if (cachedEngineIsOlderThan24h)
+      if (isOlderThan24h(releaseNotes))
       {
         System.out.println("Deleting cached outdated engine.");
         FileUtils.deleteDirectory(engineDir);
+      }
+    }
+
+    private boolean isOlderThan24h(File releaseNotes)
+    {
+      try
+      {
+        BasicFileAttributes attr = Files.readAttributes(releaseNotes.toPath(), BasicFileAttributes.class);
+        long createTimeMillis = attr.creationTime().toMillis();
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_YEAR, -1);
+        long yesterday = cal.getTimeInMillis();
+        boolean cachedEngineIsOlderThan24h = yesterday > createTimeMillis;
+        return cachedEngineIsOlderThan24h;
+      }
+      catch(IOException ex)
+      { // corrupt state: previous build did not finish or completely unpack
+        return true;
       }
     }
   };
