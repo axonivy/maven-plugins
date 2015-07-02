@@ -230,6 +230,7 @@ public class ${table.queryClassName} extends Query<${table.businessClassName}>
     @Override
     public FilterQuery not(${table.queryClassName} otherQuery)
     {
+      endColumnFilter();
       getQueryBuilder().not(getFilterForSubExpression(otherQuery));
       return this;
     }
