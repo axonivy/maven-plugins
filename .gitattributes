@@ -98,7 +98,6 @@ db-meta-plugin/src/main/java/ch/ivyteam/db/meta/parser/internal/TerminalSymbol.j
 db-meta-plugin/src/main/resources/META-INF/m2e/lifecycle-mapping-metadata.xml -text
 db-meta-plugin/src/main/resources/ch/ivyteam/db/meta/generator/internal/persistency/JavaClassForView.ftl -text
 db-meta-plugin/src/main/resources/ch/ivyteam/db/meta/generator/internal/persistency/JavaClassPersistencyServiceImplementation.ftl -text
-db-meta-plugin/src/main/resources/ch/ivyteam/db/meta/generator/internal/query/QueryClass.ftl -text
 db-meta-plugin/src/test/java/ch/ivyteam/db/meta/generator/internal/TestIssue23610.java -text
 db-meta-plugin/src/test/java/ch/ivyteam/db/meta/generator/maven/ProjectMojoRule.java -text
 db-meta-plugin/src/test/java/ch/ivyteam/db/meta/generator/maven/TestMetaOutputGeneratorMojo.java -text
