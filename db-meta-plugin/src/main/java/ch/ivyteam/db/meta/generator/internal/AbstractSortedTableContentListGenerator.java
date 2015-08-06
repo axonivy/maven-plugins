@@ -2,6 +2,7 @@ package ch.ivyteam.db.meta.generator.internal;
 
 import java.io.File;
 
+import ch.ivyteam.db.meta.generator.Target;
 import ch.ivyteam.db.meta.model.internal.SqlForeignKey;
 
 
@@ -45,9 +46,9 @@ public abstract class AbstractSortedTableContentListGenerator implements IMetaOu
   }
   
   @Override
-  public File getTargetDirectoryOrFile()
+  public Target getTarget()
   {
-    return fOutputFile;
+    return Target.createSingleTargetFile(fOutputFile);
   }
 
   /**

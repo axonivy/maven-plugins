@@ -173,8 +173,8 @@ public class MetaOutputGenerator
     generator.analyseArgs(commandLine.getArgs());
   }
 
-  public File getTargetDirectoryOrFile()
+  public Target getTarget()
   {
-    return generator.getTargetDirectoryOrFile();
+    return generator.getTarget();
   }
 }

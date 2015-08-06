@@ -11,6 +11,7 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
+import ch.ivyteam.db.meta.generator.Target;
 import ch.ivyteam.db.meta.model.internal.MetaException;
 import ch.ivyteam.db.meta.model.internal.SqlMeta;
 import ch.ivyteam.db.meta.model.internal.SqlTable;
@@ -118,9 +119,9 @@ public abstract class JavaClassGenerator implements IMetaOutputGenerator
   }
   
   @Override
-  public File getTargetDirectoryOrFile()
+  public Target getTarget()
   {
-    return getTargetDirectory();
+    return Target.createTargetFiles(getTargetDirectory(), fTablesToGenerateJavaClassFor.size());
   }
   
   protected File getTargetDirectory()

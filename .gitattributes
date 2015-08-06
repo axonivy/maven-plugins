@@ -12,6 +12,7 @@ db-meta-plugin/grammar/Scanner.jflex -text
 db-meta-plugin/pom.xml -text
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/generator/MetaOutputDifferenceGenerator.java -text
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/generator/MetaOutputGenerator.java -text
+db-meta-plugin/src/main/java/ch/ivyteam/db/meta/generator/Target.java -text
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/generator/ant/MetaOuputDifferenceGeneratorTask.java -text
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/generator/ant/MetaOutputGeneratorTask.java -text
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/generator/internal/AbstractSortedTableContentListGenerator.java -text

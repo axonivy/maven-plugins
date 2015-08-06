@@ -15,6 +15,7 @@ import java.util.TreeSet;
 
 import org.apache.commons.io.IOUtils;
 
+import ch.ivyteam.db.meta.generator.Target;
 import ch.ivyteam.db.meta.model.internal.MetaException;
 import ch.ivyteam.db.meta.model.internal.SqlAtom;
 import ch.ivyteam.db.meta.model.internal.SqlBinaryRelation;
@@ -76,9 +77,9 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
   }
   
   @Override
-  public File getTargetDirectoryOrFile()
+  public Target getTarget()
   {
-    return outputDir;
+    return Target.createTargetDirectory(outputDir);
   }
 
   /**

@@ -1,7 +1,6 @@
 package ch.ivyteam.db.meta.generator.internal;
 
-import java.io.File;
-
+import ch.ivyteam.db.meta.generator.Target;
 import ch.ivyteam.db.meta.model.internal.SqlMeta;
 
 /**
@@ -31,12 +30,8 @@ public interface IMetaOutputGenerator
   public void printHelp();
 
   /**
-   * Gets either 
-   * <ul>
-   *    <li>the directory this generator will create files into when calling {@link #generateMetaOutput(SqlMeta)}</li>
-   *    <li>the file this generator will create when calling {@link #generateMetaOutput(SqlMeta)}</li>
-   * </ul>
-   * @return file or directory
+   * Gets information about the files that are generated when calling {@link #generateMetaOutput(SqlMeta)}
+   * @return target
    */
-  public File getTargetDirectoryOrFile();
+  public Target getTarget();
 }

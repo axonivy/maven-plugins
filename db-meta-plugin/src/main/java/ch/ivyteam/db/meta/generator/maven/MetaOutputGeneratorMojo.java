@@ -1,12 +1,14 @@
 package ch.ivyteam.db.meta.generator.maven;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.io.filefilter.FileFileFilter;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -20,6 +22,7 @@ import org.codehaus.plexus.util.Scanner;
 import org.sonatype.plexus.build.incremental.BuildContext;
 
 import ch.ivyteam.db.meta.generator.MetaOutputGenerator;
+import ch.ivyteam.db.meta.generator.Target;
 
 @Mojo(name="generate-meta-output", defaultPhase=LifecyclePhase.GENERATE_SOURCES)
 public class MetaOutputGeneratorMojo extends AbstractMojo
@@ -64,20 +67,20 @@ public class MetaOutputGeneratorMojo extends AbstractMojo
       }
       String[] args = getArguments(sqlMetaFiles);
       generator.analyseArgs(args);
-      File targetDirectoryOrFile = generator.getTargetDirectoryOrFile();
-      if (filesAreUpToDate(sqlMetaFiles, targetDirectoryOrFile))
+      Target target = generator.getTarget();
+      if (filesAreUpToDate(sqlMetaFiles, target))
       {
-        logUpToDate(targetDirectoryOrFile);
+        logUpToDate(target);
         return;
       }
-      logGenerating(targetDirectoryOrFile);
+      logGenerating(target);
  
       generator.parseMetaDefinition();
       generator.generateMetaOutput();
       
-      logSuccess(targetDirectoryOrFile);
+      logSuccess(target);
       
-      buildContext.refresh(targetDirectoryOrFile);
+      refresh(target);
     }
     catch(Throwable ex)
     {
@@ -85,6 +88,18 @@ public class MetaOutputGeneratorMojo extends AbstractMojo
       getLog().error(ex);
       throw new MojoExecutionException("Could not generate meta output", ex);
     }   
+  }
+
+  private void refresh(Target target)
+  {
+    if (target.isSingleTargetFile())
+    {
+      buildContext.refresh(target.getSingleTargetFile());
+    }
+    else
+    {
+      buildContext.refresh(target.getTargetDirectory());
+    }
   }
 
   private String[] getArguments(List<File> sqlMetaFiles)
@@ -121,40 +136,68 @@ public class MetaOutputGeneratorMojo extends AbstractMojo
     return args.toArray(new String[args.size()]);
   }
 
-  private boolean filesAreUpToDate(List<File> sqlMetaFiles, File targetDirectoryOrFile)
+  private boolean filesAreUpToDate(List<File> sqlMetaFiles, Target target)
   {
-    if  (!targetDirectoryOrFile.exists())
+    long latestInputFileChange = getLatestInputFileChangeTimestamp(sqlMetaFiles);
+    if (target.isSingleTargetFile())
     {
-      getLog().debug("Target directory or file does not exist. Build needed.");
-      return false;
+      if (!target.getSingleTargetFile().exists())
+      {
+        getLog().debug("Target file does not exist. Build needed.");
+        return false;
+      }
+      if (outputFileOutOfDate(target.getSingleTargetFile(), latestInputFileChange))
+      {
+        return false;
+      }
     }
-    if (targetDirectoryOrFile.isDirectory())
+    else
     {
-      if (emptyOutputDirectory(targetDirectoryOrFile))
+      if (!target.getTargetDirectory().exists())
+      {
+        getLog().debug("Target directory does not exist. Build needed.");
+        return false;
+      }
+      if (emptyOutputDirectory(target.getTargetDirectory()))
       {
         getLog().debug("Target directory is empty. Build needed.");
         return false;
       }
-      if (deletedOutputFilesInDelta(targetDirectoryOrFile))
+      if (deletedOutputFilesInDelta(target.getTargetDirectory()))
       {
         getLog().debug("Target files were deleted since last incremental build. Build needed.");
         return false;
       }
-    }
-    long latestInputFileChange = getLatestInputFileChangeTimestamp(sqlMetaFiles);
-    if (targetDirectoryOrFile.isDirectory())
-    {
-      if (outputFilesOutOfDate(targetDirectoryOrFile, latestInputFileChange))
+      if (outputFilesOutOfDate(target.getTargetDirectory(), latestInputFileChange))
       {
         return false;
       }
-      return true;
-    }
-    if (outputFileOutOfDate(targetDirectoryOrFile, latestInputFileChange))
-    {
-      return false;
+      if (target.numberOfTargetFiles() > 0)
+      {
+        int fileCount = getNumberOfFilesInDirectory(target);
+        if (fileCount < target.numberOfTargetFiles())
+        {
+          getLog().debug("Target files are missing. Exepecting "+target.numberOfTargetFiles()+". Found "+fileCount+". Build needed");
+          return false;
+        }
+        if (fileCount > target.numberOfTargetFiles())
+        {
+          getLog().debug("Too many target files. Exepecting "+target.numberOfTargetFiles()+". Found "+fileCount+". Build needed");
+          return false;
+        }
+      }
     }
     return true;
+  }
+
+  private int getNumberOfFilesInDirectory(Target target)
+  {
+    File[] listFiles = target.getTargetDirectory().listFiles((FileFilter)FileFileFilter.FILE);
+    if (listFiles == null)
+    {
+      return 0;
+    }
+    return listFiles.length;
   }
 
   private long getLatestInputFileChangeTimestamp(List<File> sqlMetaFiles)
@@ -233,39 +276,44 @@ public class MetaOutputGeneratorMojo extends AbstractMojo
     return sqlMetaFiles;
   }
 
-  private void logUpToDate(File targetDirectoryOrFile)
+  private void logUpToDate(Target target)
   {
-    if (targetDirectoryOrFile.isFile())
+    if (target.numberOfTargetFiles()<=1)
     {
-      getLog().info("Output file "+getProjectRelativePath(targetDirectoryOrFile)+" is up to date. Nothing to do.");
+      getLog().info("Output "+formatTarget(target)+" is up to date. Nothing to do.");
     }
     else
     {
-      getLog().info("Output files in directory "+getProjectRelativePath(targetDirectoryOrFile)+" are up to date. Nothing to do.");
+      getLog().info("Output "+formatTarget(target)+" are up to date. Nothing to do.");
     }
   }
 
-  private void logGenerating(File targetDirectoryOrFile)
+  private void logGenerating(Target target)
   {
-    if (targetDirectoryOrFile.isFile())
-    {
-      getLog().info("Generating meta output file "+getProjectRelativePath(targetDirectoryOrFile)+" using generator class "+ generatorClass +" ...");
-    }
-    else
-    {
-      getLog().info("Generating meta output files to directory "+getProjectRelativePath(targetDirectoryOrFile)+" using generator class "+ generatorClass +" ...");
-    }
+    getLog().info("Generating meta output "+formatTarget(target)+" using generator class "+ generatorClass +" ...");
   }
 
-  private void logSuccess(File targetDirectoryOrFile)
+  private void logSuccess(Target target)
   {
-    if (targetDirectoryOrFile.isFile())
+    getLog().info("Meta output "+formatTarget(target)+" sucessful generated.");
+  }
+  
+  private String formatTarget(Target target)
+  {
+    if (target.isSingleTargetFile())
     {
-      getLog().info("Meta output file "+getProjectRelativePath(targetDirectoryOrFile)+" successful generated.");
+      return "file "+getProjectRelativePath(target.getSingleTargetFile());
     }
     else
     {
-      getLog().info("Meta output files successful generated to directory "+getProjectRelativePath(targetDirectoryOrFile)+".");
+      if (target.numberOfTargetFiles() > 0)
+      {
+        return "files ("+Integer.toString(target.numberOfTargetFiles())+") in directory "+getProjectRelativePath(target.getTargetDirectory());
+      }
+      else
+      {
+        return "files in directory "+getProjectRelativePath(target.getTargetDirectory());
+      }
     }
   }
 

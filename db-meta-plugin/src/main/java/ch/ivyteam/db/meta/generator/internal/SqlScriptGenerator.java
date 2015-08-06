@@ -16,6 +16,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
+import ch.ivyteam.db.meta.generator.Target;
 import ch.ivyteam.db.meta.model.internal.MetaException;
 import ch.ivyteam.db.meta.model.internal.SqlArtifact;
 import ch.ivyteam.db.meta.model.internal.SqlAtom;
@@ -194,9 +195,9 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
   }
   
   @Override
-  public File getTargetDirectoryOrFile()
+  public Target getTarget()
   {
-    return fOutputFile;
+    return Target.createSingleTargetFile(fOutputFile);
   }
   
   /**
