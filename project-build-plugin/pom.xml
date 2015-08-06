@@ -1,27 +1,52 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
+	<groupId>ch.ivyteam.ivy</groupId>
 	<artifactId>project-build-plugin</artifactId>
 	<packaging>maven-plugin</packaging>
 	<version>0.0.3-SNAPSHOT</version>
 
-	<parent>
-		<groupId>ch.ivyteam.ivy</groupId>
-		<artifactId>build.maven.plugin</artifactId>
-		<version>1.0.0-SNAPSHOT</version>
-		<relativePath>../build.maven/plugin</relativePath>
-	</parent>
+	<organization>
+		<name>AXON.IVY AG</name>
+		<url>http://www.ivyTeam.ch</url>
+	</organization>
 
 	<properties>
+		<java.version>1.8</java.version>
+		<maven.version>3.2.3</maven.version>
 		<!-- version should match ivy Engine sfl4j version! And version in EngineClassLoaderFactory.SLF4J_VERSION -->
 		<slf4j.version>1.7.7</slf4j.version>
 	</properties>
 
+	<distributionManagement>
+		<repository>
+			<id>zugpronexus.releases</id>
+			<name>Internal Plugin Release Repository</name>
+			<url>http://zugpronexus:8081/nexus/content/repositories/build-plugin-releases/</url>
+		</repository>
+		<snapshotRepository>
+			<id>zugpronexus.snapshots</id>
+			<name>Internal Plugin Snapshot Repository</name>
+			<url>http://zugpronexus:8081/nexus/content/repositories/build-plugin-snapshots/</url>
+		</snapshotRepository>
+	</distributionManagement>
+
 	<dependencies>
+		<dependency>
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-plugin-api</artifactId>
+			<version>${maven.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>org.apache.maven</groupId>
 			<artifactId>maven-core</artifactId>
 			<version>${maven.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.maven.plugin-tools</groupId>
+			<artifactId>maven-plugin-annotations</artifactId>
+			<version>3.3</version>
 			<scope>provided</scope>
 		</dependency>
 
@@ -66,6 +91,30 @@
 
 		<!-- TEST scoped -->
 		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.11</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.easytesting</groupId>
+			<artifactId>fest-assert-core</artifactId>
+			<version>2.0M10</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.maven.plugin-testing</groupId>
+			<artifactId>maven-plugin-testing-harness</artifactId>
+			<version>3.2.0</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+		    <groupId>org.apache.maven</groupId>
+		    <artifactId>maven-compat</artifactId>
+		    <version>${maven.version}</version>
+		    <scope>test</scope>
+		</dependency>
+		<dependency>
 			<groupId>org.jmockit</groupId>
 			<artifactId>jmockit</artifactId>
 			<version>1.11</version>
@@ -83,6 +132,34 @@
 	<build>
 		<plugins>
 			<plugin>
+	            <artifactId>maven-compiler-plugin</artifactId>
+	            <version>2.3.2</version>
+	            <configuration>
+	                <source>${java.version}</source>
+	                <target>${java.version}</target>
+	            </configuration>
+	        </plugin>
+	        <plugin>
+				<!-- Makes MOJO declaration trough Annotation possible. -->
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-plugin-plugin</artifactId>
+				<version>3.3</version>
+				<configuration>
+					<!-- see http://jira.codehaus.org/browse/MNG-5346 -->
+					<skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
+				</configuration>
+				<executions>
+					<execution>
+						<id>mojo-descriptor</id>
+						<goals><goal>descriptor</goal></goals>
+					</execution>
+					<execution>
+						<id>help-goal</id>
+						<goals><goal>helpmojo</goal></goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>2.10</version>
 				<configuration>
@@ -92,7 +169,35 @@
 				</configuration>
 			</plugin>
 		</plugins>
+		
+		<pluginManagement>
+			<plugins>
+				<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+				<plugin>
+					<groupId>org.eclipse.m2e</groupId>
+					<artifactId>lifecycle-mapping</artifactId>
+					<version>1.0.0</version>
+					<configuration>
+						<lifecycleMappingMetadata>
+							<pluginExecutions>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>org.apache.maven.plugins</groupId>
+										<artifactId>maven-plugin-plugin</artifactId>
+										<versionRange>[3.2,)</versionRange>
+										<goals>
+											<goal>descriptor</goal>
+											<goal>helpmojo</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action><ignore></ignore></action>
+								</pluginExecution>
+							</pluginExecutions>
+						</lifecycleMappingMetadata>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
 	</build>
-
 
 </project>

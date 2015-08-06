@@ -97,16 +97,11 @@
 				<executions>
 					<execution>
 						<id>mojo-descriptor</id>
-						<goals>
-							<goal>descriptor</goal>
-						</goals>
+						<goals><goal>descriptor</goal></goals>
 					</execution>
-					<!-- if you want to generate help goal -->
 					<execution>
 						<id>help-goal</id>
-						<goals>
-							<goal>helpmojo</goal>
-						</goals>
+						<goals><goal>helpmojo</goal></goals>
 					</execution>
 				</executions>
 			</plugin>
@@ -132,23 +127,15 @@
 							<pluginExecutions>
 								<pluginExecution>
 									<pluginExecutionFilter>
-										<groupId>
-											org.apache.maven.plugins
-										</groupId>
-										<artifactId>
-											maven-plugin-plugin
-										</artifactId>
-										<versionRange>
-											[3.2,)
-										</versionRange>
+										<groupId>org.apache.maven.plugins</groupId>
+										<artifactId>maven-plugin-plugin</artifactId>
+										<versionRange>[3.2,)</versionRange>
 										<goals>
 											<goal>descriptor</goal>
 											<goal>helpmojo</goal>
 										</goals>
 									</pluginExecutionFilter>
-									<action>
-										<ignore></ignore>
-									</action>
+									<action><ignore></ignore></action>
 								</pluginExecution>
 							</pluginExecutions>
 						</lifecycleMappingMetadata>
