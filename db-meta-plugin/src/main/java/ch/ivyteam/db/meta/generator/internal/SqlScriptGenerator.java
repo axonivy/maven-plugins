@@ -726,6 +726,30 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
     generateDelimiter(pr);
     pr.append("\n\n");
   }
+  
+  public void generateDelete(PrintWriter pr, SqlInsert insert)
+  {
+    pr.append("DELETE FROM ");
+    pr.append(insert.getTable());
+    pr.append(" WHERE ");
+    
+    boolean first = true;
+    for (int pos = 0; pos < insert.getColumns().size(); pos++)
+    {
+      if (!first)
+      {
+        pr.append(" AND ");
+      }
+      first = false;
+      String column = insert.getColumns().get(pos);
+      pr.append(column);
+      pr.append("=");
+      Object value = insert.getValues().get(pos).getValue();
+      generateValue(pr, value);      
+    }
+    generateDelimiter(pr);
+    pr.append("\n\n");
+  }
 
   /**
    * Generates the trigger definitions.
@@ -2148,5 +2172,4 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
     generateDelimiter(pr);
     pr.println();
   }
-
 }

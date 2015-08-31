@@ -140,6 +140,7 @@ public class MetaOutputDifferenceGenerator
     generateRecreateTriggersOfChangedTables(pr);
     generateCreateViewOfChangedTables(pr);
     generateCreateViewOfAddedViews(pr);
+    generateDeletesOfRemovedInserts(pr);
     generateInsertsOfNewAddedInserts(pr);
     
     generator.generateNonMetaDiffChangesPost(pr, newVersionId);
@@ -213,27 +214,38 @@ public class MetaOutputDifferenceGenerator
     }
   }
 
+  private void generateDeletesOfRemovedInserts(PrintWriter pr)
+  {
+    List<SqlInsert> fromSqlInserts = metaDefinitionFrom.getArtifacts(SqlInsert.class);
+    List<SqlInsert> toSqlInserts = metaDefinitionTo.getArtifacts(SqlInsert.class);
+    List<String> toInsertStmts = getInsertStmts(toSqlInserts);
+    
+    boolean first = true;
+    for (SqlInsert fromSqlInsert : fromSqlInserts)
+    {
+      String fromInsertStmt = getInsertStmt(fromSqlInsert);
+      if (!toInsertStmts.contains(fromInsertStmt))
+      {
+        if (first)
+        {
+          generator.generateCommentLine(pr, "Delete removed default table content");
+        }
+        first = false;
+        generator.generateDelete(pr, fromSqlInsert);
+      }
+    }    
+  }
   private void generateInsertsOfNewAddedInserts(PrintWriter pr)
   {
     List<SqlInsert> fromSqlInserts = metaDefinitionFrom.getArtifacts(SqlInsert.class);
-    List<String> fromInserts = new ArrayList<String>(fromSqlInserts.size());
-    
-    for(SqlInsert fromSqlInsert : fromSqlInserts)
-    {
-      StringWriter fromOut = new StringWriter();
-      generator.generateInsert(new PrintWriter(fromOut), fromSqlInsert);
-      fromInserts.add(fromOut.toString());      
-    }
-    
+    List<String> fromInsertStmts = getInsertStmts(fromSqlInserts);
     List<SqlInsert> toSqlInserts = metaDefinitionTo.getArtifacts(SqlInsert.class);
+    List<String> toInsertStmts = getInsertStmts(toSqlInserts);
+
     boolean first = true;
-    for (SqlInsert toSqlInsert : toSqlInserts)
+    for (String toInsertStmt : toInsertStmts)
     {
-      StringWriter toOut = new StringWriter();
-      generator.generateInsert(new PrintWriter(toOut), toSqlInsert);
-      String toInsertStmt = toOut.toString();
-      
-      if (!fromInserts.contains(toInsertStmt))
+      if (!fromInsertStmts.contains(toInsertStmt))
       {
         if (first)
         {
@@ -243,6 +255,25 @@ public class MetaOutputDifferenceGenerator
         pr.append(toInsertStmt);
       }
     }    
+  }
+
+  private List<String> getInsertStmts(List<SqlInsert> sqlInserts)
+  {
+    List<String> insterts = new ArrayList<String>(sqlInserts.size());
+    
+    for(SqlInsert sqlInsert : sqlInserts)
+    {
+      String insertStmt = getInsertStmt(sqlInsert);
+      insterts.add(insertStmt);      
+    }
+    return insterts;
+  }
+
+  private String getInsertStmt(SqlInsert sqlInsert)
+  {
+    StringWriter output = new StringWriter();
+    generator.generateInsert(new PrintWriter(output), sqlInsert);
+    return output.toString();
   }
 
   private void generateCreateIndexOfAddedIndexes(PrintWriter pr)
