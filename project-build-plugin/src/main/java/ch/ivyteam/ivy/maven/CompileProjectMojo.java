@@ -83,7 +83,7 @@ public class CompileProjectMojo extends AbstractEngineMojo
   
   private List<File> resolveIarDependencies()
   {
-    Set<org.apache.maven.artifact.Artifact> dependencies = project.getDependencyArtifacts();
+    Set<org.apache.maven.artifact.Artifact> dependencies = project.getArtifacts();
     if (dependencies == null)
     {
       return Collections.emptyList();
