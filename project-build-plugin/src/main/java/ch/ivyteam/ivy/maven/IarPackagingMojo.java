@@ -15,6 +15,7 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.archiver.ArchiverException;
 import org.codehaus.plexus.archiver.util.DefaultFileSet;
 import org.codehaus.plexus.archiver.zip.ZipArchiver;
+import org.codehaus.plexus.util.AbstractScanner;
 
 import ch.ivyteam.ivy.maven.conversion.FileSetConverter;
 
@@ -27,7 +28,7 @@ public class IarPackagingMojo extends AbstractMojo
 {
   public static final String GOAL = "pack-iar";
   private static final String[] DEFAULT_INCLUDES = new String[] {"**/*"};
-  private static final String[] DEFAULT_EXCLUDES = new String[] {".svn/**/*", "target/**/*"};
+  private static final String[] DEFAULT_EXCLUDES = new String[] {"target", "target/**/*"};
 
   @Parameter(property = "project", required = true, readonly = true)
   MavenProject project;
@@ -36,10 +37,14 @@ public class IarPackagingMojo extends AbstractMojo
    * Define additional IAR excludes with ANT-style exclusion declarations. 
    * 
    * <p>The default (always active) exclusions are:
+   * <ul>
+   * <li>All maven default excludes. See {@link AbstractScanner#DEFAULTEXCLUDES}</li>
+   * <li>
    * <pre><code>&lt;iarExcludes&gt;
    *    &lt;iarExclude&gt;target/**&#47;*&lt;/iarExclude&gt;
-   *    &lt;iarExclude&gt;.svn/**&#47;*&lt;/iarExclude&gt;
-   *&lt;/iarExcludes&gt;</code></pre>
+   *    &lt;iarExclude&gt;target&lt;/iarExclude&gt;
+   *&lt;/iarExcludes&gt;</code></pre></li>
+   *</ul>
    */
   @Parameter
   String[] iarExcludes;
@@ -105,7 +110,6 @@ public class IarPackagingMojo extends AbstractMojo
     fileSet.setIncludingEmptyDirectories(iarIncludesEmptyDirs);
     fileSet.setIncludes(DEFAULT_INCLUDES);
     fileSet.setExcludes(ArrayUtils.addAll(DEFAULT_EXCLUDES, iarExcludes));
-    fileSet.setUsingDefaultExcludes(false);
     return fileSet;
   }
 
