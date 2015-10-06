@@ -80,7 +80,11 @@ public class TestCompileProjectMojo
     protected void before() throws Throwable {
       super.before();
       
-      getMojo().engineListPageUrl = new URL("http://zugprobldmas/job/Trunk_All/lastSuccessfulBuild/");
+      String alternateEngineListPageUrl = System.getProperty("engineListPageUrl");
+      if (alternateEngineListPageUrl != null)
+      {
+    	  getMojo().engineListPageUrl = new URL(alternateEngineListPageUrl);
+      }
       getMojo().engineCacheDirectory = new File(CACHE_DIR);
       deleteOutdatedEngine();
       getMojo().execute();
