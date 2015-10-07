@@ -19,7 +19,7 @@
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>ch.ivyteam.ivy</groupId>
+				<groupId>com.axonivy.ivy.ci</groupId>
 				<artifactId>project-build-plugin</artifactId>
 				<version>0.0.1-SNAPSHOT</version>
 				<configuration>

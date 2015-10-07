@@ -8,9 +8,9 @@
             </implementation>
             <configuration>
                 <phases>
-                	<initialize>ch.ivyteam.ivy:project-build-plugin:ensureInstalledEngine</initialize>
-                    <compile>ch.ivyteam.ivy:project-build-plugin:compileProject</compile>
-                    <package>ch.ivyteam.ivy:project-build-plugin:pack-iar</package>
+                	<initialize>com.axonivy.ivy.ci:project-build-plugin:ensureInstalledEngine</initialize>
+                    <compile>com.axonivy.ivy.ci:project-build-plugin:compileProject</compile>
+                    <package>com.axonivy.ivy.ci:project-build-plugin:pack-iar</package>
                     <install>org.apache.maven.plugins:maven-install-plugin:install</install>
                     <deploy>org.apache.maven.plugins:maven-deploy-plugin:deploy</deploy>
                 </phases>
