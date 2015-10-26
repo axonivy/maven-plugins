@@ -2,12 +2,16 @@ package ch.ivyteam.db.meta.generator.internal;
 
 import java.io.PrintWriter;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import ch.ivyteam.db.meta.model.internal.MetaException;
+import ch.ivyteam.db.meta.model.internal.SqlDataType;
 import ch.ivyteam.db.meta.model.internal.SqlDataType.DataType;
 import ch.ivyteam.db.meta.model.internal.SqlDmlStatement;
 import ch.ivyteam.db.meta.model.internal.SqlForeignKey;
+import ch.ivyteam.db.meta.model.internal.SqlIndex;
 import ch.ivyteam.db.meta.model.internal.SqlTable;
 import ch.ivyteam.db.meta.model.internal.SqlTableColumn;
 import ch.ivyteam.db.meta.model.internal.SqlUniqueConstraint;
@@ -20,6 +24,8 @@ import ch.ivyteam.db.meta.model.internal.SqlUpdateColumnExpression;
  */
 public class MySqlSqlScriptGenerator extends SqlScriptGenerator
 {
+  private static final int MAX_INDEX_SIZE_IN_BYTES  = 767;
+
   /** Database System */
   public static final String MYSQL = String.valueOf("MySql");
   
@@ -279,5 +285,193 @@ public class MySqlSqlScriptGenerator extends SqlScriptGenerator
       pr.println();
       pr.println();
     }
+  }
+  
+  @Override
+  protected boolean generateIndexInTable(PrintWriter pr, SqlTable table, SqlIndex index)
+  {
+    Map<SqlTableColumn, MemoryInfo> columns = reduceIndexColumnSizes(table, index);
+    if (columns != null)
+    {
+      return generateIndexInTable(pr, index, columns);
+    }
+    else
+    {
+      return super.generateIndexInTable(pr, table, index);
+    }
+  }
+  
+  @Override
+  public void generateIndex(PrintWriter pr, SqlTable table, SqlIndex index)
+  {
+    Map<SqlTableColumn, MemoryInfo> columns = reduceIndexColumnSizes(table, index);
+    if (columns != null)
+    {
+      generateIndex(pr, table, index, columns);
+    }
+    else
+    {
+      super.generateIndex(pr, table, index);
+    }
+  }
+
+  private Map<SqlTableColumn, MemoryInfo> reduceIndexColumnSizes(SqlTable table, SqlIndex index)
+  {
+    int bytes = 0;
+    Map<SqlTableColumn, MemoryInfo> bytesPerColumn = new LinkedHashMap<>();
+    for (String column : index.getColumns())
+    {
+      SqlTableColumn col = table.findColumn(column);
+      int columnBytes = getBytes(col.getDataType());      
+      bytesPerColumn.put(col, new MemoryInfo(col.getDataType().getLength(), columnBytes));
+      bytes += columnBytes;
+    }
+    if (bytes > MAX_INDEX_SIZE_IN_BYTES)
+    {
+      reduce(index, bytesPerColumn, bytes-MAX_INDEX_SIZE_IN_BYTES);
+      return bytesPerColumn;
+    }
+    return null;
+  }
+  
+  private void reduce(SqlIndex index, Map<SqlTableColumn, MemoryInfo> bytesPerColumn, int bytesToReduce)
+  {
+    SqlTableColumn maxColumn=null;
+    MemoryInfo maxMemory=null;
+    
+    for (SqlTableColumn column : bytesPerColumn.keySet())
+    {
+      MemoryInfo memory = bytesPerColumn.get(column);
+      if (maxMemory == null || maxMemory.bytes < memory.bytes && canReduce(column.getDataType().getDataType()))
+      {
+        maxMemory = memory;
+        maxColumn = column;
+      }
+    }
+    if (maxColumn == null || maxMemory == null)
+    {
+      throw new IllegalStateException("Not possible to reduce size of index "+ index.getId());
+    }
+    maxMemory.length = maxMemory.length - bytesToCharLength(bytesToReduce);
+    if (maxMemory.length < 100)
+    {
+      throw new IllegalStateException("Not possible to reduce size of index "+ index.getId());
+    }
+  }
+
+
+  private int bytesToCharLength(int bytes)
+  {
+    int length = bytes/3;
+    if (bytes % 3 != 0)
+    {
+      length = length+1;
+    }
+    return length;
+  }
+
+  private void generateIndex(PrintWriter pr, SqlTable table, SqlIndex index,
+          Map<SqlTableColumn, MemoryInfo> bytesPerColumn)
+  {
+    pr.print("CREATE INDEX ");
+    generateIdentifier(pr, getIndexName(index));
+    pr.println();
+    pr.print("ON ");
+    pr.print(table.getId());
+    pr.print(" (");
+    generateColumnList(pr, bytesPerColumn);
+    pr.print(")");
+    generateDelimiter(pr);
+    pr.println();
+    pr.println();    
+  }
+  
+  private boolean generateIndexInTable(PrintWriter pr, SqlIndex index,
+          Map<SqlTableColumn, MemoryInfo> bytesPerColumn)
+  {
+    writeSpaces(pr, 2);
+    pr.print("INDEX ");
+    generateIdentifier(pr, getIndexName(index));
+    pr.print(' ');
+    pr.print('(');
+    generateColumnList(pr, bytesPerColumn);
+    pr.print(')');
+    return true;
+  }
+
+  
+  /**
+   * Generates a column list
+   * @param pr the writer
+   * @param columns the columns to write
+   */
+  protected void generateColumnList(PrintWriter pr, Map<SqlTableColumn, MemoryInfo> columns)
+  {
+    boolean first = true;
+    for (SqlTableColumn column : columns.keySet())
+    {
+      if (!first)
+      {
+        pr.append(", ");
+      }
+      first = false;
+      generateIdentifier(pr, column.getId());
+      MemoryInfo memoryInfo = columns.get(column);
+      if (column.getDataType().getLength() != memoryInfo.length)
+      {
+        pr.append('(');
+        pr.append(Integer.toString(memoryInfo.length));
+        pr.append(')');
+      }
+    }
+  }
+
+  private boolean canReduce(DataType dataType)
+  {
+    return dataType.equals(DataType.VARCHAR) || dataType.equals(DataType.CHAR);
+  }
+
+  private int getBytes(SqlDataType dataType)
+  {
+    switch(dataType.getDataType())
+    {
+      case VARCHAR:
+      case CHAR:
+        return dataType.getLength()*3;
+      case BIGINT:
+        return 8;
+      case BIT:
+        return 1;
+      case INTEGER:
+        return 4;
+      case FLOAT:
+        return 4;
+      case DATE:
+        return 3;  
+      case TIME:
+        return 3;
+      case DATETIME:
+        return 8;
+      case DECIMAL:
+      case NUMBER:
+        return dataType.getLength()*4/9+4;
+      case BLOB:
+        return 0x1000000;
+      case CLOB:
+        return 0x10000;
+    }
+    return 0;
+  }
+  
+  private static class MemoryInfo
+  {
+    public MemoryInfo(int length, int bytes)
+    {
+      this.length = length;
+      this.bytes = bytes;      
+    }
+    
+    int length;
+    int bytes;
   }
 }

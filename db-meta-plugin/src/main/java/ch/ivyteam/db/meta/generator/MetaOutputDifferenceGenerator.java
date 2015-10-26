@@ -624,7 +624,7 @@ public class MetaOutputDifferenceGenerator
       generator.generateCommentLine(pr, "Create new indexes of table " + newTable.getId());
       for (SqlIndex addedIndex : addedIndexes)
       {
-        generator.generateCreateIndexOnTable(pr, addedIndex, newTable);
+        generator.generateIndex(pr, newTable, addedIndex);
       }
     }
   }
@@ -854,7 +854,7 @@ public class MetaOutputDifferenceGenerator
       generator.generateCommentLine(pr, "Create index which depend on changed columns");
       for (SqlIndex index : changedIndexes)
       {
-        generator.generateCreateIndexOnTable(pr, index, newTable);
+        generator.generateIndex(pr, newTable, index);
       }
     }
   }

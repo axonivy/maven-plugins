@@ -75,7 +75,7 @@ public class OracleSqlScriptGenerator extends SqlScriptGenerator
    * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#generateIndex(java.io.PrintWriter, ch.ivyteam.db.meta.model.internal.SqlTable, ch.ivyteam.db.meta.model.internal.SqlIndex)
    */
   @Override
-  protected void generateIndex(PrintWriter pr, SqlTable table, SqlIndex index)
+  public void generateIndex(PrintWriter pr, SqlTable table, SqlIndex index)
   {
     pr.print("CREATE INDEX ");
     if (isDatabaseSystemHintSet(index, INDEX_NAME))

@@ -1253,7 +1253,7 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
         {
           pr.append(",\n");
         }
-        firstColumn = firstColumn || !generateIndex(pr, index);
+        firstColumn = firstColumn || !generateIndexInTable(pr, table, index);
       }
     }
     
@@ -1422,10 +1422,11 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
    * outside the table declaration override the method {@link #generateIndex(PrintWriter, SqlTable, SqlIndex)}
    * .
    * @param pr the print writer to write to
+   * @param table
    * @param index the index to generate
    * @return true if index was generated if not return false
    */
-  private final boolean generateIndex(PrintWriter pr, SqlIndex index)
+  protected boolean generateIndexInTable(PrintWriter pr, @SuppressWarnings("unused") SqlTable table, SqlIndex index)
   {
     writeSpaces(pr, 2);
     pr.print("INDEX ");
@@ -1501,14 +1502,14 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
    * @param table the table
    * @param index the index to create
    */
-  protected void generateIndex(PrintWriter pr,
+  public void generateIndex(PrintWriter pr,
           SqlTable table, SqlIndex index)
   {
     pr.print("CREATE INDEX ");
     generateIdentifier(pr, getIndexName(index));
     pr.println();
     pr.print("ON ");
-    pr.print(table.getId());
+    generateIdentifier(pr, table.getId());
     pr.print(" (");
     generateColumnList(pr, index.getColumns());
     pr.print(")");
@@ -1520,7 +1521,7 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
   /**
    * @param index
    */
-  private String getIndexName(SqlIndex index)
+  protected String getIndexName(SqlIndex index)
   {
     if (isDatabaseSystemHintSet(index, INDEX_NAME))
     {
@@ -2032,31 +2033,6 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
   public boolean isRecreationOfUniqueConstraintsOnAlterTableNeeded()
   {
     return false;
-  }
-
-  /**
-   * Generates sql to create index on a table. Does create a new index outside
-   * of a table definition (table and columns must already exist).
-   * <pre>
-   * CREATE INDEX index_name ON table_name(column_name1[, column_name2])
-   * </pre>
-   * @param pr
-   * @param index
-   * @param table
-   */
-  public final void generateCreateIndexOnTable(PrintWriter pr, SqlIndex index, SqlTable table)
-  {
-    pr.print("CREATE INDEX ");
-    generateIdentifier(pr, getIndexName(index));
-    pr.print(' ');
-    pr.print("ON");
-    pr.print(' ');
-    generateIdentifier(pr, table.getId());
-    pr.print('(');
-    generateColumnList(pr, index.getColumns());
-    pr.print(')');
-    generateDelimiter(pr);
-    pr.println();
   }
 
   /**
