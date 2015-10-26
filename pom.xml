@@ -11,7 +11,6 @@
 		<!-- our own Maven-Plugins: -->
 		<module>sample-maven-plugin</module> <!-- only exist for illustrative purposes: copy it and start creating you own plugin! -->
 		<module>maven-version-plugin</module>
-		<module>project-build-plugin</module>
 		<module>public-api-source-maven-plugin</module>
 		<module>image-text-plugin</module>
 		<module>eclipse-help-plugin</module>
