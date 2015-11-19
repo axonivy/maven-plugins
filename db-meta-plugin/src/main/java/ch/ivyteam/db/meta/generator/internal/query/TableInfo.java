@@ -29,6 +29,8 @@ public class TableInfo
   private boolean hasBooleanColumns;
 
   private boolean hasStringColumns;
+  
+  private boolean hasClobColumns;
 
   /**
    * Constructor
@@ -87,7 +89,15 @@ public class TableInfo
   {
     return hasStringColumns;
   }
-      
+
+  /**
+   * @return -
+   */
+  public boolean getHasClobColumns()
+  {
+    return hasClobColumns;
+  }
+
   /**
    * @return -
    */
@@ -134,6 +144,10 @@ public class TableInfo
       else if (column.supportsStringOption())
       {
         hasStringColumns=true;
+      }
+      else if (column.supportsClobOption())
+      {
+        hasClobColumns=true;
       }
       else if (column.supportsDateTimeOption())
       {

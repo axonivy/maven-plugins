@@ -213,6 +213,16 @@ public abstract class ColumnInfo
     return dataType == DataType.CHAR ||
            dataType == DataType.VARCHAR;
   }
+  
+  public boolean supportsClobOption()
+  {
+    if (isForeignOrPrimaryKey())
+    {
+      return false;
+    }
+    DataType dataType = getDataType();
+    return dataType == DataType.CLOB;
+  }
 
   /**
    * @return -
