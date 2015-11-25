@@ -140,8 +140,8 @@ class PomXmlFileUpdater extends AbstractXmlFileUpdater
 
   private boolean isTychoSurefirePlugin(Node plugin)
   {
-    return getChildNodeText(plugin, "groupId").equals("org.eclipse.tycho") && 
-           getChildNodeText(plugin, "artifactId").equals("tycho-surefire-plugin");
+    return "org.eclipse.tycho".equals(getChildNodeText(plugin, "groupId")) && 
+           "tycho-surefire-plugin".equals(getChildNodeText(plugin, "artifactId"));
   }
 
   private void updateDependencyVersion(Node dependency)
