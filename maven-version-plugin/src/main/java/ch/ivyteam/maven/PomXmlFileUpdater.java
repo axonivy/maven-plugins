@@ -6,7 +6,6 @@ import java.util.List;
 
 import javax.xml.xpath.XPathExpressionException;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugin.logging.Log;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
@@ -16,31 +15,25 @@ import org.xml.sax.SAXException;
  */
 class PomXmlFileUpdater extends AbstractXmlFileUpdater
 {
-  private String version;
-  private Log log;
-  private String bundleVersion;
+  private final UpdateRun update;
 
-  public PomXmlFileUpdater(File xmlFile, String version, Log log)
+  public PomXmlFileUpdater(File xmlFile, String version, Log log, List<String> externalBuiltArtifacts)
   {
     super(xmlFile);
-    this.version = version;
-    if (version.indexOf('-') >= 0)
-    {
-      bundleVersion = StringUtils.substringBefore(version, "-");
-    }
-    else
-    {
-      bundleVersion = version;
-    }
-
-    this.log = log;
+    update = new UpdateRun(xmlFile.getName(), version, log, externalBuiltArtifacts);
   }
 
   void update() throws SAXException, IOException, XPathExpressionException
   {
-    boolean changed = false;
+    if (!xmlFile.exists())
+    {
+      update.log.debug("No pom.xml file found in project "+xmlFile.getAbsolutePath()+". Nothing to do");
+      return;
+    }
+    
     readXml();
 
+    boolean changed = false;
     changed = updateVersion(changed);
     changed = updateParentVersion(changed);
     changed = updateDependenciesVersion(changed);
@@ -53,7 +46,7 @@ class PomXmlFileUpdater extends AbstractXmlFileUpdater
     }
     else
     {
-      log.info("Pom file "+xmlFile.getAbsolutePath()+" is up to date. Nothing to do.");
+      update.log.info("Pom file "+xmlFile.getAbsolutePath()+" is up to date. Nothing to do.");
     }
   }
 
@@ -101,7 +94,7 @@ class PomXmlFileUpdater extends AbstractXmlFileUpdater
   
   private boolean updateIvyVersionProperty(boolean changed) throws XPathExpressionException
   {
-    return updateVersion(changed, "/project/properties/ivy-version", bundleVersion);
+    return updateVersion(changed, "/project/properties/ivy-version", update.versionNoMavenQualifier());
   }
   
   private boolean pluginDependencyVersionNeedsUpdate(Node dependency)
@@ -122,13 +115,13 @@ class PomXmlFileUpdater extends AbstractXmlFileUpdater
   private boolean isIvyArtifact(Node dependency)
   {
     String artifactId = getChildNodeText(dependency, "artifactId");
-    return IvyArtifactDetector.isLocallyBuildIvyArtifact(artifactId, bundleVersion);
+    return update.isLocalBuiltArtifact(artifactId);
   }
 
   private boolean versionNodeNeedsUpdate(Node dependency)
   {
     Node versionNode = getChildNode(dependency, "version");
-    return versionNeedsUpdate(versionNode, version);
+    return versionNeedsUpdate(versionNode, update.newVersion);
   }
 
   private List<Node> getDependencyNodes(Node plugin)
@@ -147,22 +140,24 @@ class PomXmlFileUpdater extends AbstractXmlFileUpdater
   private void updateDependencyVersion(Node dependency)
   {
     Node versionNode = getChildNode(dependency, "version");
-    replaceElementText(versionNode, version);
-    log.info("Replace version "+versionNode.getTextContent()+" with version "+version+" in dependency node of artifact "+getChildNodeText(dependency, "artifactId")+" of pom file "+xmlFile.getAbsolutePath());
+    replaceElementText(versionNode, update.newVersion);
+    update.log.info("Replace version "+versionNode.getTextContent()+" with version "+update.newVersion+" "
+            + "in dependency node of artifact "+getChildNodeText(dependency, "artifactId")+" of pom file "+xmlFile.getAbsolutePath());
   }
   
   private void updatePluginDependencyVersion(Node dependency)
   {
     Node versionNode = getChildNode(dependency, "version");
-    replaceElementText(versionNode, bundleVersion);
-    log.info("Replace version "+versionNode.getTextContent()+" with version "+bundleVersion+" in tycho-surefire-plugin dependency node of artifact "+getChildNodeText(dependency, "artifactId")+" of pom file "+xmlFile.getAbsolutePath());
+    replaceElementText(versionNode, update.versionNoMavenQualifier());
+    update.log.info("Replace version "+versionNode.getTextContent()+" with version "+update.versionNoMavenQualifier()+" "
+            + "in tycho-surefire-plugin dependency node of artifact "+getChildNodeText(dependency, "artifactId")+" of pom file "+xmlFile.getAbsolutePath());
   }
 
 
   private boolean updateVersion(boolean changed, String xPathStr)
           throws XPathExpressionException
   {
-    return updateVersion(changed, xPathStr, version);
+    return updateVersion(changed, xPathStr, update.newVersion);
   }
 
   private boolean updateVersion(boolean changed, String xPathStr, String newVersion)
@@ -172,7 +167,7 @@ class PomXmlFileUpdater extends AbstractXmlFileUpdater
     if (versionNeedsUpdate(versionNode, newVersion))
     {
       replaceElementText(versionNode, newVersion);
-      log.info("Replace version "+versionNode.getTextContent()+" with version "+newVersion+" in node "+xPathStr+" of pom file "+xmlFile.getAbsolutePath());
+      update.log.info("Replace version "+versionNode.getTextContent()+" with version "+newVersion+" in node "+xPathStr+" of pom file "+xmlFile.getAbsolutePath());
       changed = true;
     }
     return changed;

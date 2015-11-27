@@ -955,8 +955,14 @@ maven-version-plugin/src/main/java/ch/ivyteam/maven/LineNumberXmlReader.java -te
 maven-version-plugin/src/main/java/ch/ivyteam/maven/PomXmlFileUpdater.java -text
 maven-version-plugin/src/main/java/ch/ivyteam/maven/ProductXmlFileUpdater.java -text
 maven-version-plugin/src/main/java/ch/ivyteam/maven/SetMavenAndEclipseVersion.java -text
+maven-version-plugin/src/main/java/ch/ivyteam/maven/UpdateRun.java -text
+maven-version-plugin/src/test/java/ch/ivyteam/maven/TestBundleManifestFileUpdater.java -text
 maven-version-plugin/src/test/java/ch/ivyteam/maven/TestSetMavenAndEclipseVersion.java -text
 maven-version-plugin/src/test/java/ch/ivyteam/maven/TestSetVersionOnNotReferencedProjects.java -text
+maven-version-plugin/src/test/java/ch/ivyteam/maven/updater/TestRemoveRequiredBundleVersion.java -text
+maven-version-plugin/src/test/resources/ch/ivyteam/maven/updater/MANIFEST.MF_expected -text
+maven-version-plugin/src/test/resources/ch/ivyteam/maven/updater/MANIFEST.MF_expectedNoRanges -text
+maven-version-plugin/src/test/resources/ch/ivyteam/maven/updater/MANIFEST.MF_source -text
 parser-generator-plugin/.classpath -text
 parser-generator-plugin/.project -text
 parser-generator-plugin/.settings/org.eclipse.jdt.core.prefs -text

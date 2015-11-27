@@ -19,62 +19,65 @@ package ch.ivyteam.maven;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.xml.xpath.XPathExpressionException;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.NameFileFilter;
-import org.apache.commons.io.filefilter.TrueFileFilter;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.maven.model.FileSet;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.project.MavenProject;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.xml.sax.SAXException;
 
 /**
- * Goal which replaces project/version and project/parent/version in all *.pom files and the Bundle-Version in all bundle MANIFEST.MF files
- * with the given <code>ivy-version</code>.<BR>
- * 
- * Usage: <code>mvn ch.ivyteam:maven-version-plugin:setMavenAndEclipseVersion -Divy-version=5.0.1-SNAPSHOT</code>
- * 
- * @goal setMavenAndEclipseVersion
- * 
- * @phase validate
+ * See development/ch.ivyteam.ivy.build.maven/manual/update-version for sample usage.
  */
+@Mojo(name="setMavenAndEclipseVersion", 
+  defaultPhase=LifecyclePhase.PROCESS_RESOURCES)
 public class SetMavenAndEclipseVersion extends AbstractMojo
 {
-  static final String IVY_TOP_LEVEL_ARTIFACT_AND_GROUP_ID = "ch.ivyteam.ivy";
-
-  private static final String IVY_MAVEN_BUILD_DIRECTORY = "development/ch.ivyteam.ivy.build.maven";
+  @Parameter(property="ivy-version")
+  String version;
   
-  private static final List<String> NOT_REFERENCED_POMS_TO_UPDATE_TOO = new ArrayList<>();
-  static {
-    NOT_REFERENCED_POMS_TO_UPDATE_TOO.add("development/features/ch.ivyteam.ivy.test.feature/pom.xml");
-    NOT_REFERENCED_POMS_TO_UPDATE_TOO.add("development/updatesites/ch.ivyteam.ivy.test.p2/pom.xml");
-  }
-
-  private static final List<String> NOT_REFERENCED_FEATURE_XMLS_TO_UPDATE_TOO = new ArrayList<>();
-  static {
-    NOT_REFERENCED_FEATURE_XMLS_TO_UPDATE_TOO.add("development/features/ch.ivyteam.ivy.test.feature/feature.xml");
-  }
-
-  private static final List<String> NOT_REFERENCED_CATEGORY_XMLS_TO_UPDATE_TOO = new ArrayList<>();
-  static {
-    NOT_REFERENCED_CATEGORY_XMLS_TO_UPDATE_TOO.add("development/updatesites/ch.ivyteam.ivy.test.p2/category.xml");
-  }
-
-
-  /**
-   * @parameter expression="${project}"
-   * @required
+  /** POM project files of an eclipse artifact. 
+   * Eclipse descriptors like 
+   * <code>META-INF/MANIFEST.MF</code>,  
+   * <code>feature.xml</code>,
+   * <code>category.xml</code>,
+   * <code>*.product</code> will be updated as well. 
+   * */
+  @Parameter
+  FileSet[] eclipseArtifactPoms;
+  
+  /** MANIFEST.MF file of an eclipse artifact. 
+   * Other descriptors of this project like 
+   * <code>pom.xml</code>,  
+   * <code>feature.xml</code>,
+   * <code>category.xml</code>,
+   * <code>*.product</code> will be updated as well. 
+   * */
+  @Parameter
+  FileSet[] eclipseManifests;
+  
+  /** Maven project POMs to update. 
+   * No other resource in the same project will be touched than the POM itself. 
    */
-  private MavenProject project;
-
+  @Parameter
+  FileSet[] pomsToUpdate;
+  
   /**
-   * @parameter expression="${ivy-version}
+   * Describes artifacts that should not be touched by this version change
    */
-  private String version;
+  @Parameter(property="external-artifacts")
+  List<String> externalBuiltArtifacts;
+  
+  @Parameter
+  boolean stripBundleVersionOfDependencies;
   
   @Override
   public void execute() throws MojoExecutionException
@@ -82,13 +85,17 @@ public class SetMavenAndEclipseVersion extends AbstractMojo
     try
     {
       checkParameters();
-      updateVersion();
-      if (isIvyTopLevelPom())
+      for(File eclipseProjectPom : getFiles(eclipseArtifactPoms))
       {
-        updateIvyMavenBuildModulesAndParentConfigPoms();
-        updateNotReferencedPoms();
-        updateNotReferencedFeatureXmls();
-        updateNotReferencedCategoryXmls();
+        updateVersion(eclipseProjectPom);
+      }
+      for(File eclipseManifest : getFiles(eclipseManifests))
+      {
+        updateVersion(eclipseManifest.getParentFile());
+      }
+      for(File pomXml : getFiles(pomsToUpdate))
+      {
+        updateVersionsInPom(pomXml.getParentFile());
       }
     }
     catch (Exception ex)
@@ -96,130 +103,90 @@ public class SetMavenAndEclipseVersion extends AbstractMojo
       throw new MojoExecutionException("Could not replace version", ex);
     }
   }
-
+  
   private void checkParameters() throws MojoExecutionException
   {
     if (StringUtils.isEmpty(version))
     {
       throw new MojoExecutionException("No ivy-version parameter defined. Please define it as command line parameter. E.g. \"-Divy-version=5.0.1-Snapshot\"");
     }
+    if (externalBuiltArtifacts == null)
+    {
+      externalBuiltArtifacts = Collections.emptyList();
+    }
   }
 
-  private void updateVersion() throws Exception
+  private void updateVersion(File pom) throws Exception
   {
-    File pom = getPomFile();
     File projectDirectory = pom.getParentFile();
-    updateVersionsInPom(pom);
+    getLog().debug("updating versions in '"+projectDirectory.getAbsolutePath()+"'.");
+    updateVersionsInPom(projectDirectory);
     updateVersionsInBundleManifest(projectDirectory);
     updateVersionInFeatureXml(projectDirectory);
     updateVersionInProductXml(projectDirectory);
-  }
-
-  private boolean isIvyTopLevelPom()
-  {
-    return IVY_TOP_LEVEL_ARTIFACT_AND_GROUP_ID.equals(project.getGroupId()) && 
-           IVY_TOP_LEVEL_ARTIFACT_AND_GROUP_ID.equals(project.getArtifactId()) &&
-           getIvyMavenBuildDirectory().exists();
+    updateVersionsInCategoryXml(projectDirectory);
   }
   
-  private void updateIvyMavenBuildModulesAndParentConfigPoms() throws Exception
-  {
-    File ivyMavenBuildDirectory = getIvyMavenBuildDirectory();
-    for (File pomXmlFile : FileUtils.listFiles(ivyMavenBuildDirectory, new NameFileFilter("pom.xml"), TrueFileFilter.INSTANCE))
-    {
-      updateVersionsInPom(pomXmlFile);
-    }
-  }
-  
-  private void updateNotReferencedPoms() throws Exception
-  {
-    for (String path : NOT_REFERENCED_POMS_TO_UPDATE_TOO)
-    {
-      File pomXmlFile = getProjectBaseRelativeFile(path);
-      if (pomXmlFile.exists())
-      {
-        updateVersionsInPom(pomXmlFile);
-      }
-    }
-  }
-  
-  private void updateNotReferencedFeatureXmls() throws Exception
-  {
-    for (String path : NOT_REFERENCED_FEATURE_XMLS_TO_UPDATE_TOO)
-    {
-      File featureXmlFile = getProjectBaseRelativeFile(path);
-      if (featureXmlFile.exists())
-      {
-        updateVersionInFeatureXml(featureXmlFile.getParentFile());
-      }
-    }
-  }
-
-  private void updateNotReferencedCategoryXmls() throws Exception
-  {
-    for (String path : NOT_REFERENCED_CATEGORY_XMLS_TO_UPDATE_TOO)
-    {
-      File categoryXmlFile = getProjectBaseRelativeFile(path);
-      if (categoryXmlFile.exists())
-      {
-        updateVersionsInCategoryXml(categoryXmlFile.getParentFile());
-      }
-    }
-  }
-  
-  private File getIvyMavenBuildDirectory()
-  {
-    File ivyMavenBuildDirectory = getProjectBaseRelativeFile(IVY_MAVEN_BUILD_DIRECTORY);
-    return ivyMavenBuildDirectory;
-  }
-  
-  private File getProjectBaseRelativeFile(String relativePath)
-  {
-    return new File(project.getBasedir(), relativePath);
-  }
-
   private void updateVersionInProductXml(File projectDirectory) throws XPathExpressionException, SAXException, IOException
   {
-    ProductXmlFileUpdater updater = new ProductXmlFileUpdater(projectDirectory, version, getLog());
-    updater.update();
+    new ProductXmlFileUpdater(projectDirectory, version, getLog(), externalBuiltArtifacts).update();
   }
 
   private void updateVersionsInBundleManifest(File projectDirectory) throws IOException
   {
-    BundleManifestFileUpdater updater = new BundleManifestFileUpdater(projectDirectory, version, getLog());
-    updater.update();
+    new BundleManifestFileUpdater(projectDirectory, version, getLog(), 
+            externalBuiltArtifacts, stripBundleVersionOfDependencies).update();
   }
 
-  private void updateVersionsInPom(File pom) throws Exception
+  private void updateVersionsInPom(File projectDirectory) throws Exception
   {
-    PomXmlFileUpdater updater = new PomXmlFileUpdater(pom, version, getLog());
-    updater.update();
+    new PomXmlFileUpdater(new File(projectDirectory, "pom.xml"), version, getLog(), externalBuiltArtifacts).update();
   }
 
   private void updateVersionInFeatureXml(File projectDirectory) throws Exception
   {
-    FeatureXmlFileUpdater updater = new FeatureXmlFileUpdater(projectDirectory, version, getLog());
-    updater.update();
+    new FeatureXmlFileUpdater(projectDirectory, version, getLog(), externalBuiltArtifacts).update();
   }
 
   private void updateVersionsInCategoryXml(File projectDirectory) throws Exception
   {
-    CategoryXmlFileUpdater updater = new CategoryXmlFileUpdater(projectDirectory, version, getLog());
-    updater.update();
-  }
-  
-  void setVersion(String version)
-  {
-    this.version = version;
-  }
-  
-  private File getPomFile()
-  {
-    return project.getFile();
+    new CategoryXmlFileUpdater(projectDirectory, version, getLog(), externalBuiltArtifacts).update();
   }
 
-  void setProject(MavenProject project)
+  private List<File> getFiles(FileSet[] fileSets)
   {
-    this.project = project;
+    if (ArrayUtils.isEmpty(fileSets))
+    {
+      return Collections.emptyList();
+    }
+    
+    List<File> files = new ArrayList<>();
+    for(FileSet fs : fileSets)
+    {
+      files.addAll(getFiles(fs));
+    }
+    return files;
+  }
+
+  private List<File> getFiles(FileSet fs)
+  {
+    File directory = new File(fs.getDirectory());
+    String includes = StringUtils.join(fs.getIncludes(),",");
+    String excludes = StringUtils.join(fs.getExcludes(),",");
+    try
+    {
+      @SuppressWarnings("unchecked")
+      List<File> files = org.codehaus.plexus.util.FileUtils.getFiles(directory, includes, excludes);
+      if (files.isEmpty())
+      {
+        getLog().debug("FileSet did not match any file in the file system: "+fs);
+      }
+      return files;
+    }
+    catch (IOException ex)
+    {
+      getLog().error(ex);
+      return Collections.emptyList();
+    }
   }
 }

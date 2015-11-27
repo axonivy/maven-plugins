@@ -4,7 +4,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.jar.Manifest;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
@@ -14,61 +17,55 @@ import org.apache.maven.plugin.logging.Log;
 /**
  * Updates the version of the bundle and the required bundles
  */
-class BundleManifestFileUpdater
+public class BundleManifestFileUpdater
 {
   private static final String REQUIRED_BUNDLE_VERSION = ";bundle-version=\"";
   private static final String REQUIRE_BUNDLE = "Require-Bundle";
   private static final String BUNDLE_VERSION = "Bundle-Version";
-  private static final String MANIFEST_MF = "META-INF/MANIFEST.MF";
+  public static final String MANIFEST_MF = "META-INF/MANIFEST.MF";
   private File manifestFile;
   private String bundleVersion;
   private String requiredBundleVersion;
   private Manifest manifest;
-  private Log log;
   private File projectDirectory;
   private String manifestContent;
+  
+  private final UpdateRun update;
+  private final boolean stripBundleVersionOfDependencies;
 
-  BundleManifestFileUpdater(File projectDirectory, String newVersion, Log log)
+  public BundleManifestFileUpdater(File projectDirectory, String newVersion, Log log, 
+          List<String> externalBuiltArtifacts, boolean stripBundleVersionOfDependencies)
   {
     this.projectDirectory = projectDirectory;
+    this.stripBundleVersionOfDependencies = stripBundleVersionOfDependencies;
     this.manifestFile = new File(projectDirectory, MANIFEST_MF);
 
-    this.log = log;
-    if (newVersion.indexOf('-') >= 0)
-    {
-      bundleVersion = StringUtils.substringBefore(newVersion, "-");
-    }
-    else
-    {
-      bundleVersion = newVersion;
-    }
-  
-    requiredBundleVersion = bundleVersion;    
-    bundleVersion += ".qualifier";    
+    update = new UpdateRun(manifestFile.getName(), newVersion, log, externalBuiltArtifacts);
+    bundleVersion = update.versionEclipseQualified();
+    requiredBundleVersion = update.versionNoMavenQualifier();
   }
 
-  void update() throws IOException
+  public void update() throws IOException
   {
-    if (manifestFile.exists())
+    if (!manifestFile.exists())
     {
-      readManifest();
-      boolean updated = false;
-      
-      updated = updateBundleVersion(updated);
-      updated = updateRequiredBundleVersions(updated);
-      
-      if (updated)
-      {
-        saveManifest();
-      }
-      else
-      {
-        log.info("Manifest file "+manifestFile+" is up to date. Nothing to do.");
-      }
+      update.log.debug("No manifest file found in project "+projectDirectory+". Nothing to do");
+      return;
+    }
+    
+    readManifest();
+    boolean updated = false;
+    
+    updated = updateBundleVersion(updated);
+    updated = updateRequiredBundleVersions(updated);
+    
+    if (updated)
+    {
+      saveManifest();
     }
     else
     {
-      log.info("No manifest file found in project "+projectDirectory+". Nothing to do");
+      update.log.info("Manifest file "+manifestFile+" is up to date. Nothing to do.");
     }
   }
 
@@ -77,7 +74,7 @@ class BundleManifestFileUpdater
     String oldVersion = manifest.getMainAttributes().getValue(BUNDLE_VERSION);      
     if (bundleVersionNeedsUpdate(oldVersion))
     {
-      log.info("Replace plugin version "+oldVersion+" with version "+bundleVersion+" in manifest file "+manifestFile.getAbsolutePath());        
+      update.log.info("Replace plugin version "+oldVersion+" with version "+bundleVersion+" in manifest file "+manifestFile.getAbsolutePath());        
       updateBundleVersion(oldVersion);
       return true;
     }
@@ -89,8 +86,7 @@ class BundleManifestFileUpdater
     String requiredBundle = manifest.getMainAttributes().getValue(REQUIRE_BUNDLE);
     if (requiredBundle != null)
     {
-      String[] requiredBundles = splitIntoBundles(requiredBundle);
-      
+      List<String> requiredBundles = splitIntoBundles(requiredBundle);
       for (String bundle : requiredBundles)
       {
         if (requiredBundleVersionNeedsUpdate(bundle))
@@ -104,24 +100,55 @@ class BundleManifestFileUpdater
     return updated;
   }
   
-  private String[] splitIntoBundles(String requiredBundle)
+  static List<String> splitIntoBundles(String requiredBundle)
   {
-    return requiredBundle.split(",");
+    List<String> bundles = new ArrayList<>();
+    Matcher matcher = Pattern.compile(",[a-zA-Z]+[a-zA-Z0-9\r\n]+\\.").matcher(requiredBundle);
+    int lastCut = 0;
+    while(matcher.find())
+    {
+      int newCut = matcher.start();
+      String bundle = requiredBundle.substring(lastCut, newCut);
+      bundles.add(bundle);
+      lastCut = newCut+1;
+    }
+    String lastBundle = requiredBundle.substring(lastCut);
+    bundles.add(lastBundle);
+    return bundles;
   }
   
   private void updateRequiredBundleVersion(String oldRequiredBundleSpecification)
   {
     StringBuilder builder = new StringBuilder();
     builder.append(StringUtils.substringBefore(manifestContent, REQUIRE_BUNDLE));
-    builder.append(REQUIRE_BUNDLE);
-    String requireBundle = StringUtils.substringAfter(manifestContent, REQUIRE_BUNDLE);
+    builder.append(REQUIRE_BUNDLE+": ");
+    String requireBundle = StringUtils.substringAfter(manifestContent, REQUIRE_BUNDLE+": ");
     
+    String requireBundleOnly = requireBundle;
+    Matcher nextAttrMatcher = Pattern.compile("\n[A-Z]").matcher(requireBundle);
+    if (nextAttrMatcher.find())
+    {
+      requireBundleOnly = requireBundle.substring(0, nextAttrMatcher.start());
+    }
+    
+    String end = requireBundle.substring(requireBundleOnly.length());
+    
+    requireBundleOnly = StringUtils.deleteWhitespace(requireBundleOnly); // remove line breaks
     String newRequiredBundleSpecification = updateRequiredBundleSpecifiction(oldRequiredBundleSpecification);
-    requireBundle = requireBundle.replaceFirst(buildSearchPattern(oldRequiredBundleSpecification), newRequiredBundleSpecification+"$1");
+    requireBundleOnly = StringUtils.replaceOnce(requireBundleOnly, oldRequiredBundleSpecification, newRequiredBundleSpecification);
 
-    log.info("Replace required plugin specification "+oldRequiredBundleSpecification+" with "+newRequiredBundleSpecification+" in manifest file "+manifestFile.getAbsolutePath());        
-
-    builder.append(requireBundle);
+    update.log.info("Replace required plugin specification "+oldRequiredBundleSpecification+" with "+newRequiredBundleSpecification+" in manifest file "+manifestFile.getAbsolutePath());        
+    requireBundleOnly = StringUtils.join(splitIntoBundles(requireBundleOnly),",\r\n ");
+    
+    builder.append(requireBundleOnly);
+    if (end.isEmpty())
+    {
+      builder.append("\r\n");
+    }
+    else
+    {
+      builder.append(end);
+    }
     manifestContent = builder.toString();
   }
   
@@ -132,18 +159,39 @@ class BundleManifestFileUpdater
     {
       return oldRequiredBundleSpecification+REQUIRED_BUNDLE_VERSION+requiredBundleVersion+"\"";
     }
+    if (stripBundleVersionOfDependencies)
+    {
+      return StringUtils.substringBefore(oldRequiredBundleSpecification, REQUIRED_BUNDLE_VERSION);
+    }
     return StringUtils.replace(oldRequiredBundleSpecification, version, requiredBundleVersion);
   }
 
   private boolean requiredBundleVersionNeedsUpdate(String oldRequiredBundleSpecification)
   {
     String bundle = StringUtils.substringBefore(oldRequiredBundleSpecification, ";");
-    if (IvyArtifactDetector.isLocallyBuildIvyArtifact(bundle, requiredBundleVersion))
+    if (update.isLocalBuiltArtifact(bundle))
     {
-      String oldVersion = getRequiredBundleVersion(oldRequiredBundleSpecification);          
+      String oldVersion = getRequiredBundleVersion(oldRequiredBundleSpecification);         
+      if (oldVersion == null)
+      {
+        return false;
+      }
+      if (stripBundleVersionOfDependencies)
+      {
+        return true;
+      }
+      if (isRange(oldVersion))
+      {
+        return false;
+      }
       return !requiredBundleVersion.equals(oldVersion);
     }
     return false;
+  }
+
+  private static boolean isRange(String version)
+  {
+    return StringUtils.contains(version, ",");
   }
 
   private String getRequiredBundleVersion(String oldRequiredBundleSpecification)
@@ -161,6 +209,10 @@ class BundleManifestFileUpdater
 
   private boolean bundleVersionNeedsUpdate(String oldVersion)
   {
+    if (StringUtils.isBlank(oldVersion))
+    {
+      return false;
+    }
     return !oldVersion.trim().equals(bundleVersion.trim());
   }
   
@@ -186,11 +238,6 @@ class BundleManifestFileUpdater
   private void saveManifest() throws IOException
   {
     FileUtils.writeStringToFile(manifestFile, manifestContent);
-  }
-
-  private String buildSearchPattern(String oldRequiredBundleSpecification)
-  {
-    return Pattern.quote(oldRequiredBundleSpecification)+"(,|\\n|\\r\\n)";
   }
 
 }

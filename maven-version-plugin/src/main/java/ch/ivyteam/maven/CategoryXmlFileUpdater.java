@@ -14,9 +14,9 @@ import org.w3c.dom.Node;
  */
 class CategoryXmlFileUpdater extends AbstractProjectAwareXmlFileUpdater
 {
-  CategoryXmlFileUpdater(File projectDirectory, String newVersion, Log log)
+  CategoryXmlFileUpdater(File projectDirectory, String newVersion, Log log, List<String> externalBuiltArtifacts)
   {
-    super(projectDirectory, "category.xml", newVersion, log);
+    super(projectDirectory, new UpdateRun("category.xml", newVersion, log, externalBuiltArtifacts));
   }
 
   @Override
@@ -44,7 +44,7 @@ class CategoryXmlFileUpdater extends AbstractProjectAwareXmlFileUpdater
         urlText = StringUtils.replace(urlText, "_"+previousVersion, "_"+featureVersion);
         replaceAttributeText(featureNode, urlNode, urlText);
         
-        log.info("Replace version "+previousVersion+" with version "+featureVersion+" in feature node "+getAttributeText(featureNode, "id")+" of file feature "+xmlFile.getAbsolutePath());
+        update.log.info("Replace version "+previousVersion+" with version "+featureVersion+" in feature node "+getAttributeText(featureNode, "id")+" of file feature "+xmlFile.getAbsolutePath());
         changed = true;       
       }
     }

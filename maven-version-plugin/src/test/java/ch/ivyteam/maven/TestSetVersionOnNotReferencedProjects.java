@@ -3,25 +3,24 @@ package ch.ivyteam.maven;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.maven.model.FileSet;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.logging.Log;
+import org.fest.assertions.api.Assertions;
+import org.junit.Before;
+import org.junit.Test;
 
 import mockit.Mock;
 import mockit.MockUp;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.logging.Log;
-import org.apache.maven.project.MavenProject;
-import org.fest.assertions.Assertions;
-import org.junit.Before;
-import org.junit.Test;
-
 
 public class TestSetVersionOnNotReferencedProjects extends Assertions
 {
-  private static final File POM_FILE = new File("testIvy/pom.xml");
-
   private SetMavenAndEclipseVersion testee = new SetMavenAndEclipseVersion();
   
   protected List<String> log = new ArrayList<>();
@@ -29,18 +28,29 @@ public class TestSetVersionOnNotReferencedProjects extends Assertions
   @Before
   public void before() throws IOException
   {
-    MavenProject project = new MavenProject();
-    project.setFile(POM_FILE);
-    project.setGroupId(SetMavenAndEclipseVersion.IVY_TOP_LEVEL_ARTIFACT_AND_GROUP_ID);
-    project.setArtifactId(SetMavenAndEclipseVersion.IVY_TOP_LEVEL_ARTIFACT_AND_GROUP_ID);
-    testee.setProject(project);
+    FileSet testProjectFs = new FileSet();
+    testProjectFs.setDirectory(new File("testIvy").getAbsolutePath());
+    testProjectFs.setIncludes(Arrays.asList("**/pom.xml"));
+    testProjectFs.setExcludes(Arrays.asList(
+            "**/ch.ivyteam.ivy.another.feature/pom.xml", 
+            "**/ch.ivyteam.ivy.build.maven/*"));
+    testee.eclipseArtifactPoms = new FileSet[]{testProjectFs};
+    
+    FileSet testPoms = new FileSet();
+    testPoms.setDirectory(new File("testIvy").getAbsolutePath());
+    testPoms.setIncludes(Arrays.asList("development/ch.ivyteam.ivy.build.maven/**/pom.xml"));
+    testee.pomsToUpdate = new FileSet[]{testPoms};
+    
     testee.setLog(new MockUp<Log>(){
       @Mock void info( CharSequence content )
       {
         log.add(content.toString());
       }
     }.getMockInstance());
-    testee.setVersion("5.1.14-SNAPSHOT");    
+    testee.version = "5.1.14-SNAPSHOT";    
+    testee.externalBuiltArtifacts = Arrays.asList("ch.ivyteam.ulc.base", "ch.ivyteam.ulc.extension", "ch.ivyteam.ivy.richdialog.components",
+          "ch.ivyteam.ivy.designer.cm.ui", "ch.ivyteam.vn.feature", "ch.ivyteam.ulc.base.source",
+          "ch.ivyteam.ulc.extension.source", "ch.ivyteam.ivy.richdialog.components.source");
     File testIvy = new File("testIvy");
     FileUtils.deleteDirectory(testIvy);
     FileUtils.forceDeleteOnExit(testIvy);
@@ -96,7 +106,8 @@ public class TestSetVersionOnNotReferencedProjects extends Assertions
   {
     String testeePom = FileUtils.readFileToString(new File("testIvy", relativePomPath));
     String referencePom = FileUtils.readFileToString(new File("referenceIvy", relativePomPath));
-    assertThat(testeePom).isEqualTo(referencePom);
+    assertThat(testeePom).as("Content of '"+ relativePomPath+"' is wrong")
+      .isEqualTo(referencePom);
   }
   
   private void compareFeature(String relativeFeatureXmlPath) throws IOException
@@ -120,10 +131,10 @@ public class TestSetVersionOnNotReferencedProjects extends Assertions
     List<String> cleanedReferenceLog = new ArrayList<>();
     for (String line : referenceLog)
     {
-      line = StringUtils.replace(line, "C:\\dev\\maven-plugin\\maven-plugin\\testIvy\\", POM_FILE.getParentFile().getAbsolutePath()+"\\");
+      line = StringUtils.replace(line, "C:\\dev\\maven-plugin\\maven-plugin\\testIvy\\", testee.eclipseArtifactPoms[0].getDirectory()+"\\");
       line = StringUtils.replace(line, "\\", File.separator);
       cleanedReferenceLog.add(line);
     }
-    assertThat(cleanedReferenceLog).containsOnly(log.toArray());
+    assertThat(cleanedReferenceLog).containsOnly(log.toArray(new String[log.size()]));
   }
 }

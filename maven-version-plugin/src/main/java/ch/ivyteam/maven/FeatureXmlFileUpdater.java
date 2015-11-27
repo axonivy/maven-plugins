@@ -14,9 +14,9 @@ import org.w3c.dom.Node;
 class FeatureXmlFileUpdater extends AbstractProjectAwareXmlFileUpdater
 {
 
-  FeatureXmlFileUpdater(File projectDirectory, String newVersion, Log log)
+  FeatureXmlFileUpdater(File projectDirectory, String newVersion, Log log, List<String> externalBuiltArtifacts)
   {
-    super(projectDirectory, "feature.xml", newVersion, log);
+    super(projectDirectory, new UpdateRun("feature.xml", newVersion, log, externalBuiltArtifacts));
   }
 
   @Override
@@ -39,7 +39,7 @@ class FeatureXmlFileUpdater extends AbstractProjectAwareXmlFileUpdater
       if (versionNeedsUpdate(pluginNode, versionNode, requiredVersion))
       {
         replaceAttributeText(pluginNode, versionNode, requiredVersion);
-        log.info("Replace version "+versionNode.getTextContent()+" with version "+requiredVersion+" in plugin node "+getAttributeText(pluginNode, "id")+" of feature file "+xmlFile.getAbsolutePath());
+        update.log.info("Replace version "+versionNode.getTextContent()+" with version "+requiredVersion+" in plugin node "+getAttributeText(pluginNode, "id")+" of feature file "+xmlFile.getAbsolutePath());
         changed = true;       
       }
     }
@@ -56,7 +56,7 @@ class FeatureXmlFileUpdater extends AbstractProjectAwareXmlFileUpdater
       if (versionNeedsUpdate(includesNode, versionNode, requiredVersion))
       {
         replaceAttributeText(includesNode, versionNode, requiredVersion);
-        log.info("Replace version "+versionNode.getTextContent()+" with version "+requiredVersion+" in includes node "+getAttributeText(includesNode, "id")+" of file feature "+xmlFile.getAbsolutePath());
+        update.log.info("Replace version "+versionNode.getTextContent()+" with version "+requiredVersion+" in includes node "+getAttributeText(includesNode, "id")+" of file feature "+xmlFile.getAbsolutePath());
         changed = true;       
       }
     }
@@ -71,7 +71,7 @@ class FeatureXmlFileUpdater extends AbstractProjectAwareXmlFileUpdater
     if (versionNeedsUpdate(versionNode, featureVersion))
     {
       replaceAttributeText(featureNode, versionNode, featureVersion);
-      log.info("Replace feature version "+versionNode.getTextContent()+" with version "+featureVersion+" in feature file "+xmlFile.getAbsolutePath());
+      update.log.info("Replace feature version "+versionNode.getTextContent()+" with version "+featureVersion+" in feature file "+xmlFile.getAbsolutePath());
       return true;      
     }
     return changed;

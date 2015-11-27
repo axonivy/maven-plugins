@@ -3,8 +3,6 @@ package ch.ivyteam.maven;
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.maven.plugin.logging.Log;
 import org.w3c.dom.Node;
 
 abstract class AbstractProjectAwareXmlFileUpdater extends AbstractXmlFileUpdater
@@ -12,25 +10,15 @@ abstract class AbstractProjectAwareXmlFileUpdater extends AbstractXmlFileUpdater
   protected File projectDirectory;
   protected String featureVersion;
   protected String requiredVersion;
-  protected Log log;
-  private String xmlFileName;
+  protected final UpdateRun update;
 
-  AbstractProjectAwareXmlFileUpdater(File projectDirectory, String xmlFileName, String newVersion, Log log)
+  AbstractProjectAwareXmlFileUpdater(File projectDirectory, UpdateRun update)
   {
-    super(new File(projectDirectory, xmlFileName));
+    super(new File(projectDirectory, update.xmlFileName));
+    this.update = update;
     this.projectDirectory = projectDirectory;
-    this.xmlFileName = xmlFileName;
-    if (newVersion.indexOf('-') >= 0)
-    {
-      featureVersion = StringUtils.substringBefore(newVersion, "-");
-    }
-    else
-    {
-      featureVersion = newVersion;
-    }
-    requiredVersion = featureVersion;
-    featureVersion += ".qualifier";    
-    this.log = log;
+    requiredVersion = update.versionNoMavenQualifier();
+    featureVersion = update.versionEclipseQualified();    
   }
 
   void update() throws IOException, Exception
@@ -45,12 +33,12 @@ abstract class AbstractProjectAwareXmlFileUpdater extends AbstractXmlFileUpdater
       }
       else
       {
-        log.info("File "+xmlFile.getAbsolutePath()+" is up to date. Nothing to do.");
+        update.log.info("File "+xmlFile.getAbsolutePath()+" is up to date. Nothing to do.");
       }
     }
     else
     {
-      log.info("No "+xmlFileName+" found in project "+projectDirectory+". Nothing to do");
+      update.log.debug("No "+update.xmlFileName+" found in project "+projectDirectory+". Nothing to do");
     }
   }
 
@@ -63,7 +51,7 @@ abstract class AbstractProjectAwareXmlFileUpdater extends AbstractXmlFileUpdater
   protected boolean versionNeedsUpdate(Node parentNode, Node versionNode, String version)
   {
     String id = getAttributeText(parentNode, "id");
-    return IvyArtifactDetector.isLocallyBuildIvyArtifact(id, version) &&
+    return update.isLocalBuiltArtifact(id) &&
            versionNeedsUpdate(versionNode, version);
   }
   
