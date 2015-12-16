@@ -42,7 +42,13 @@ public class SqlTableColumn extends SqlTableContentDefinition
     fDefaultValue = defaultOpt;
     fReference = reference;
   }
-    
+  
+  public SqlTableColumn changeId(String id)
+  {
+    return new SqlTableColumn(id, fDataType, fCanBeNull, fDefaultValue, fReference, 
+            getDatabaseManagementSystemHints(), getComment());
+  }
+  
   /**
    * Data type 
    * @return data type

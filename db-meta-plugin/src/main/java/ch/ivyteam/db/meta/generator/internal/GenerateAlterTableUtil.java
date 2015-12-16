@@ -156,4 +156,33 @@ public class GenerateAlterTableUtil
     generator.generateColumn(pr, newTable, newColumn, new LinkedHashMap<SqlTable, List<SqlForeignKey>>());
     generator.generateDelimiter(pr);
   }
+
+  public static void dropColumn(PrintWriter pr, SqlScriptGenerator generator, 
+          SqlTable table, SqlTableColumn columnToDrop)
+  {
+    pr.print("ALTER TABLE ");
+    generator.generateIdentifier(pr, table.getId());
+    pr.print(" ");
+    pr.println("DROP COLUMN");
+    pr.print(" ");
+    pr.print(columnToDrop.getId());
+    generator.generateDelimiter(pr);
+    pr.println();
+  }
+
+  public static void renameColumn(PrintWriter pr,
+          SqlScriptGenerator generator, SqlTable table, SqlTableColumn oldColumn,
+          SqlTableColumn newColumn)
+  {
+    pr.print("ALTER TABLE ");
+    generator.generateIdentifier(pr, table.getId());
+    pr.print(" ");
+    pr.println("RENAME COLUMN");
+    pr.print(" ");
+    pr.print(oldColumn.getId());
+    pr.print(" TO ");
+    pr.print(newColumn.getId());
+    generator.generateDelimiter(pr);
+    pr.println();
+  }
 }

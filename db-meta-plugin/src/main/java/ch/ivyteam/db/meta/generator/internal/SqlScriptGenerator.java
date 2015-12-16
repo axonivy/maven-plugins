@@ -1091,10 +1091,13 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
       pr.print('=');
       pr.print(expr.getExpression());
     }
-    pr.println();
-    writeSpaces(pr, insets);
-    pr.print("WHERE ");
-    generateFilterExpression(pr, updateStmt.getFilterExpression());
+    if (updateStmt.getFilterExpression() != null)
+    {
+      pr.println();
+      writeSpaces(pr, insets);
+      pr.print("WHERE ");
+      generateFilterExpression(pr, updateStmt.getFilterExpression());
+    }
   }
 
   /**

@@ -69,6 +69,7 @@ db-meta-plugin/src/main/java/ch/ivyteam/db/meta/model/internal/SqlDmlStatement.j
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/model/internal/SqlForeignKey.java -text
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/model/internal/SqlForeignKeyAction.java -text
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/model/internal/SqlFullQualifiedColumnName.java -text
+db-meta-plugin/src/main/java/ch/ivyteam/db/meta/model/internal/SqlFunction.java -text
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/model/internal/SqlIndex.java -text
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/model/internal/SqlInsert.java -text
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/model/internal/SqlLiteral.java -text

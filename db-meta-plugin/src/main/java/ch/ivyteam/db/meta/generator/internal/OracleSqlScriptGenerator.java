@@ -2,17 +2,24 @@ package ch.ivyteam.db.meta.generator.internal;
 
 import java.io.PrintWriter;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 
 import ch.ivyteam.db.meta.model.internal.MetaException;
+import ch.ivyteam.db.meta.model.internal.SqlDataType;
 import ch.ivyteam.db.meta.model.internal.SqlDataType.DataType;
 import ch.ivyteam.db.meta.model.internal.SqlDelete;
 import ch.ivyteam.db.meta.model.internal.SqlDmlStatement;
+import ch.ivyteam.db.meta.model.internal.SqlFullQualifiedColumnName;
+import ch.ivyteam.db.meta.model.internal.SqlFunction;
 import ch.ivyteam.db.meta.model.internal.SqlIndex;
 import ch.ivyteam.db.meta.model.internal.SqlTable;
 import ch.ivyteam.db.meta.model.internal.SqlTableColumn;
 import ch.ivyteam.db.meta.model.internal.SqlUniqueConstraint;
+import ch.ivyteam.db.meta.model.internal.SqlUpdate;
+import ch.ivyteam.db.meta.model.internal.SqlUpdateColumnExpression;
 
 /**
  * Generates the sql script for Oracle database systems
@@ -227,12 +234,27 @@ public class OracleSqlScriptGenerator extends SqlScriptGenerator
    * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#generateAlterTableAlterColumn(PrintWriter, SqlTableColumn, SqlTable, SqlTableColumn)
    */
   @Override
-  public void generateAlterTableAlterColumn(PrintWriter pr, SqlTableColumn newColumn, SqlTable newTable, SqlTableColumn oldColumn) throws MetaException
+  public void generateAlterTableAlterColumn(PrintWriter pr, SqlTableColumn newColumn, SqlTable table, SqlTableColumn oldColumn) throws MetaException
   {
     boolean changed = false;
     if (!Objects.equals(newColumn.getDataType(), oldColumn.getDataType()))
     {
-      GenerateAlterTableUtil.generateAlterTableAlterColumnType(pr, this, newColumn, newTable, "MODIFY", "");
+      if (EnumSet.of(SqlDataType.DataType.INTEGER, SqlDataType.DataType.NUMBER, SqlDataType.DataType.FLOAT)
+              .contains(oldColumn.getDataType().getDataType()) && 
+          newColumn.getDataType().getDataType() == SqlDataType.DataType.VARCHAR)
+      {
+        SqlTableColumn tmpColumn = newColumn.changeId(newColumn.getId()+"_temp");
+        generateAlterTableAddColumn(pr, tmpColumn, table);
+        pr.println();
+        copyValues(pr, table, oldColumn, tmpColumn);
+        pr.println();
+        GenerateAlterTableUtil.dropColumn(pr, this, table, oldColumn);
+        GenerateAlterTableUtil.renameColumn(pr, this, table, tmpColumn, newColumn);
+      }
+      else
+      {
+        GenerateAlterTableUtil.generateAlterTableAlterColumnType(pr, this, newColumn, table, "MODIFY", "");
+      }
       changed = true;
     }
     
@@ -242,7 +264,7 @@ public class OracleSqlScriptGenerator extends SqlScriptGenerator
       {
         pr.println();
       }
-      GenerateAlterTableUtil.generateAlterTableAlterColumnNotNull(pr, this, newColumn, newTable, "MODIFY", "NOT NULL", "NULL");
+      GenerateAlterTableUtil.generateAlterTableAlterColumnNotNull(pr, this, newColumn, table, "MODIFY", "NOT NULL", "NULL");
       changed = true;
     }
     
@@ -250,6 +272,25 @@ public class OracleSqlScriptGenerator extends SqlScriptGenerator
     {
       throw new IllegalArgumentException("Only changing of the data type is supported");
     }
+  }
+  
+  @Override
+  public boolean isRecreationOfUniqueConstraintsOnAlterTableNeeded()
+  {
+    return true;
+  }
+
+  private void copyValues(PrintWriter pr, SqlTable table, SqlTableColumn numberColumn,
+          SqlTableColumn varcharColumn)
+  {
+    List<SqlUpdateColumnExpression> columnExpressions = Arrays.asList(
+            new SqlUpdateColumnExpression(varcharColumn.getId(), 
+                    new SqlFunction("to_char", new SqlFullQualifiedColumnName(table.getId(), numberColumn.getId())
+    )));
+    SqlUpdate updateStmt = new SqlUpdate(
+            table.getId(), columnExpressions, null, Collections.emptyList(), null);
+    generateUpdateStatement(pr, updateStmt , 0);
+    generateDelimiter(pr);
   }
   
   /**
