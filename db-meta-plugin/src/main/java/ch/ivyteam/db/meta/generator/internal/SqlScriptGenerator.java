@@ -1922,11 +1922,6 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
     }
   }
 
-  /**
-   * Generate default value
-   * @param pr the writer
-   * @param column the column
-   */
   protected void generateDefaultValue(PrintWriter pr, SqlTableColumn column)
   {
     if (column.getDefaultValue() != null)

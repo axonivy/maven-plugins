@@ -96,13 +96,6 @@ public class GenerateAlterTableUtil
   }
 
   
-  /**
-   * @param pr
-   * @param generator
-   * @param newColumn
-   * @param newTable
-   * @param changeColumnTag TODO
-   */
   public static void generateAlterTableAlterColumnWithNullConstraints(PrintWriter pr, SqlScriptGenerator generator, 
           SqlTableColumn newColumn, SqlTable newTable, String changeColumnTag)
   {
@@ -114,6 +107,11 @@ public class GenerateAlterTableUtil
     generator.generateIdentifier(pr, newColumn.getId());
     pr.print(" ");
     generator.generateDataType(pr, newColumn.getDataType(), newColumn);
+    boolean defaultWillBeSetAfterAltering = generator.getRecreateOptions().defaultConstraints;
+    if (!defaultWillBeSetAfterAltering)
+    {
+      generator.generateDefaultValue(pr, newColumn);
+    }
     generator.generateNullConstraint(pr, newColumn.isCanBeNull(), newColumn);
     generator.generateDelimiter(pr);
   }
