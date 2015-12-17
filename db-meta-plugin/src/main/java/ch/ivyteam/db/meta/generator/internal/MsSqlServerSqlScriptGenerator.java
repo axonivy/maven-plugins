@@ -499,6 +499,7 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
     // But we have some customers that had this error. 
     // See issue #23610 for details
     options.uniqueConstraintsOnAlterTable = true;
+    options.allUniqueConstraintsOnAlterTable = true;
     
     return options;
   }

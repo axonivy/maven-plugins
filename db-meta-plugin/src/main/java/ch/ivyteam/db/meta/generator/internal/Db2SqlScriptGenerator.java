@@ -309,6 +309,7 @@ public abstract class Db2SqlScriptGenerator extends SqlScriptGenerator
   {
     RecreateOptions options = super.getRecreateOptions();
     options.uniqueConstraintsOnAlterTable = true;
+    options.allUniqueConstraintsOnAlterTable = true;
     options.triggerOnAlterTable = true;
     return options;
   }

@@ -2132,8 +2132,10 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
     public boolean foreignKeysOnAlterTable = false;
     public boolean primaryKeysOnAlterTable = false;
     public boolean indexesOnAlterTable = false;
-    public boolean uniqueConstraintsOnAlterTable = false;
     public boolean triggerOnAlterTable = false;
+    
+    public boolean uniqueConstraintsOnAlterTable = false;
+    public boolean allUniqueConstraintsOnAlterTable = false;
   }
   
 }

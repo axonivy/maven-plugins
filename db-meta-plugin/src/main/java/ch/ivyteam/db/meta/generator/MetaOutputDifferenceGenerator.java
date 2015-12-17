@@ -7,6 +7,7 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -706,7 +707,14 @@ public class MetaOutputDifferenceGenerator
     Set<SqlUniqueConstraint> changedUniqueConstraints = new LinkedHashSet<SqlUniqueConstraint>();
     if (generator.getRecreateOptions().uniqueConstraintsOnAlterTable)
     {
-      changedUniqueConstraints.addAll(getUniqueConstraintsFromChangedColumns(newTable, oldTable));
+      if (generator.getRecreateOptions().allUniqueConstraintsOnAlterTable)
+      {
+        changedUniqueConstraints.addAll(newTable.getUniqueConstraints());
+      }
+      else
+      {
+        changedUniqueConstraints.addAll(getUniqueConstraintsFromChangedColumns(newTable, oldTable));
+      }
     }
     
     changedUniqueConstraints.addAll(findDeletedUniqueConstraints(newTable, oldTable));
@@ -743,8 +751,17 @@ public class MetaOutputDifferenceGenerator
       return;
     }
     
-    Set<SqlUniqueConstraint> changedUniqueConstraints = getUniqueConstraintsFromChangedColumns(newTable, oldTable);
-    generateCreateUniqueConstraints(pr, newTable, changedUniqueConstraints);
+    Set<SqlUniqueConstraint> uniqueConstraints = new HashSet<>();
+    if (generator.getRecreateOptions().allUniqueConstraintsOnAlterTable)
+    {
+      uniqueConstraints.addAll(newTable.getUniqueConstraints());
+    }
+    else
+    {
+      uniqueConstraints.addAll(getUniqueConstraintsFromChangedColumns(newTable, oldTable));
+    }
+    
+    generateCreateUniqueConstraints(pr, newTable, uniqueConstraints);
   }
   
 
