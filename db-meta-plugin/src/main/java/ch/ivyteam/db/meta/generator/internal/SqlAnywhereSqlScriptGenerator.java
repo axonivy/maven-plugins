@@ -235,20 +235,6 @@ public class SqlAnywhereSqlScriptGenerator extends SqlScriptGenerator
       pr.println();
     }
   }
-    
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#generateAlterTableDropUniqueConstraint(java.io.PrintWriter, ch.ivyteam.db.meta.model.internal.SqlTable, ch.ivyteam.db.meta.model.internal.SqlUniqueConstraint, java.util.List)
-   */
-  @Override
-  protected void generateAlterTableDropUniqueConstraint(PrintWriter pr, SqlTable table,
-          SqlUniqueConstraint unique, List<String> createdTemporaryStoredProcedures)
-  {
-    pr.print("ALTER TABLE ");
-    generateIdentifier(pr, table.getId());
-    pr.print(" DROP UNIQUE (");
-    generateColumnList(pr, unique.getColumns());
-    pr.print(")");
-  }
   
   @Override
   protected void generateDropUniqueIndex(PrintWriter pr, SqlTable table, SqlUniqueConstraint unique,
