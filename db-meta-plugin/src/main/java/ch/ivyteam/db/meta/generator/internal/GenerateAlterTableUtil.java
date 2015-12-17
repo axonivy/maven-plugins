@@ -163,7 +163,7 @@ public class GenerateAlterTableUtil
     pr.print("ALTER TABLE ");
     generator.generateIdentifier(pr, table.getId());
     pr.print(" ");
-    pr.println("DROP COLUMN");
+    pr.print("DROP COLUMN");
     pr.print(" ");
     pr.print(columnToDrop.getId());
     generator.generateDelimiter(pr);
@@ -177,7 +177,7 @@ public class GenerateAlterTableUtil
     pr.print("ALTER TABLE ");
     generator.generateIdentifier(pr, table.getId());
     pr.print(" ");
-    pr.println("RENAME COLUMN");
+    pr.print("RENAME COLUMN");
     pr.print(" ");
     pr.print(oldColumn.getId());
     pr.print(" TO ");

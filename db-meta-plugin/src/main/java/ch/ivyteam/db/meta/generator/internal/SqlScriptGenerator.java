@@ -1569,18 +1569,23 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
   {
     if (isUniqueConstraintInTableSupported(unique))
     {
-      pr.print("ALTER TABLE ");
-      generateIdentifier(pr, table.getId());
-      pr.print(" ADD UNIQUE (");
-      generateColumnList(pr, unique.getColumns());
-      pr.print(")");
-      generateDelimiter(pr);
-      pr.println();
+      generateUniqueContraintInTable(pr, table, unique);
     }
     else if (isUniqueConstraintOutsideTableSupported(unique))
     {
       generateUniqueConstraint(pr, table, unique);
     }
+  }
+
+  protected void generateUniqueContraintInTable(PrintWriter pr, SqlTable table, SqlUniqueConstraint unique)
+  {
+    pr.print("ALTER TABLE ");
+    generateIdentifier(pr, table.getId());
+    pr.print(" ADD UNIQUE (");
+    generateColumnList(pr, unique.getColumns());
+    pr.print(")");
+    generateDelimiter(pr);
+    pr.println();
   }
   
   /**
