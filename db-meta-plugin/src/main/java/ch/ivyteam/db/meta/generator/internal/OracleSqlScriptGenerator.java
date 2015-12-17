@@ -273,12 +273,6 @@ public class OracleSqlScriptGenerator extends SqlScriptGenerator
       throw new IllegalArgumentException("Only changing of the data type is supported");
     }
   }
-  
-  @Override
-  public boolean isRecreationOfUniqueConstraintsOnAlterTableNeeded()
-  {
-    return true;
-  }
 
   private void copyValues(PrintWriter pr, SqlTable table, SqlTableColumn numberColumn,
           SqlTableColumn varcharColumn)
@@ -311,5 +305,13 @@ public class OracleSqlScriptGenerator extends SqlScriptGenerator
   {
     super.generateAlterTableDropUniqueConstraint(pr, table, unique, createdTemporaryStoredProcedures);
     pr.print(" DROP INDEX");
+  }
+  
+  @Override
+  public RecreateOptions getRecreateOptions()
+  {
+    RecreateOptions options = super.getRecreateOptions();
+    options.uniqueConstraintsOnAlterTable = true;
+    return options;
   }
 }

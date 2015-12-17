@@ -150,7 +150,7 @@ public class MetaOutputDifferenceGenerator
 
   private void generateRecreateForeignKeysOfChangedColumns(PrintWriter pr)
   {
-    if (!generator.isRecreationOfForeignKeysOnAlterTableNeeded())
+    if (!generator.getRecreateOptions().foreignKeysOnAlterTable)
     {
       return;
     }
@@ -166,7 +166,7 @@ public class MetaOutputDifferenceGenerator
 
   private void generateDropForeignKeysOfChangedColumns(PrintWriter pr)
   {
-    if (!generator.isRecreationOfForeignKeysOnAlterTableNeeded())
+    if (!generator.getRecreateOptions().foreignKeysOnAlterTable)
     {
       return;
     }
@@ -368,7 +368,7 @@ public class MetaOutputDifferenceGenerator
     }
 
     // if recreation of trigger is needed on table modification check if changed tables have triggers
-    if (generator.isRecreationOfTriggerOnAlterTableNeeded())
+    if (generator.getRecreateOptions().triggerOnAlterTable)
     {
       for (Entry<SqlTable, SqlTable> comonTable : findChangedTables().entrySet())
       {
@@ -463,7 +463,7 @@ public class MetaOutputDifferenceGenerator
 
   private void generateRecreateDefaultConstraints(PrintWriter pr, SqlTable newTable, SqlTable oldTable)
   {
-    if (!generator.isRecreationOfDefaultConstrainsNeeded())
+    if (!generator.getRecreateOptions().defaultConstraints)
     {
       return;
     }
@@ -475,7 +475,7 @@ public class MetaOutputDifferenceGenerator
 
   private void generateDropDefaultConstraints(PrintWriter pr, SqlTable newTable, SqlTable oldTable)
   {
-    if (!generator.isRecreationOfDefaultConstrainsNeeded())
+    if (!generator.getRecreateOptions().defaultConstraints)
     {
       return;
     }
@@ -704,7 +704,7 @@ public class MetaOutputDifferenceGenerator
   private void generateDeleteUniqueConstraints(PrintWriter pr, SqlTable newTable, SqlTable oldTable) throws MetaException
   {
     Set<SqlUniqueConstraint> changedUniqueConstraints = new LinkedHashSet<SqlUniqueConstraint>();
-    if (generator.isRecreationOfUniqueConstraintsOnAlterTableNeeded())
+    if (generator.getRecreateOptions().uniqueConstraintsOnAlterTable)
     {
       changedUniqueConstraints.addAll(getUniqueConstraintsFromChangedColumns(newTable, oldTable));
     }
@@ -738,7 +738,7 @@ public class MetaOutputDifferenceGenerator
 
   private void generateRecreateUniqueConstraints(PrintWriter pr, SqlTable newTable, SqlTable oldTable) throws MetaException
   {
-    if (!generator.isRecreationOfUniqueConstraintsOnAlterTableNeeded())
+    if (!generator.getRecreateOptions().uniqueConstraintsOnAlterTable)
     {
       return;
     }
@@ -804,7 +804,7 @@ public class MetaOutputDifferenceGenerator
   
   private void generateDropIndexes(PrintWriter pr, SqlTable newTable, SqlTable oldTable)
   {
-    if (!generator.isRecreationOfIndexesOnAlterTableNeeded())
+    if (!generator.getRecreateOptions().indexesOnAlterTable)
     {
       return;
     }
@@ -842,7 +842,7 @@ public class MetaOutputDifferenceGenerator
 
   private void generateRecreateIndexes(PrintWriter pr, SqlTable newTable, SqlTable oldTable)
   {
-    if (!generator.isRecreationOfIndexesOnAlterTableNeeded())
+    if (!generator.getRecreateOptions().indexesOnAlterTable)
     {
       return;
     }
@@ -861,7 +861,7 @@ public class MetaOutputDifferenceGenerator
   
   private void generateDropPrimaryKeys(PrintWriter pr, SqlTable newTable, SqlTable oldTable)
   {
-    if (!generator.isRecreationOfPrimaryKeysOnAlterTableNeeded())
+    if (!generator.getRecreateOptions().primaryKeysOnAlterTable)
     {
       return;
     }
@@ -890,7 +890,7 @@ public class MetaOutputDifferenceGenerator
 
   private void generateRecreatePrimaryKeys(PrintWriter pr, SqlTable newTable, SqlTable oldTable)
   {
-    if (!generator.isRecreationOfPrimaryKeysOnAlterTableNeeded())
+    if (!generator.getRecreateOptions().primaryKeysOnAlterTable)
     {
       return;
     }

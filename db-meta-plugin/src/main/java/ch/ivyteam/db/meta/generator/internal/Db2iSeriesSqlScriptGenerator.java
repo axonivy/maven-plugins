@@ -98,12 +98,6 @@ public class Db2iSeriesSqlScriptGenerator extends Db2SqlScriptGenerator
   }
   
   @Override
-  public boolean isRecreationOfForeignKeysOnAlterTableNeeded()
-  {
-    return true;
-  }
-  
-  @Override
   public void generateAlterTableDropForeignKey(PrintWriter pr, SqlTable table, SqlForeignKey foreignKey,
           List<String> createdTemporaryStoredProcedures)
   {
@@ -182,6 +176,14 @@ public class Db2iSeriesSqlScriptGenerator extends Db2SqlScriptGenerator
       pr.println();       
     }
     super.generateNonMetaDiffChangesPre(pr, newVersionId);
+  }
+  
+  @Override
+  public RecreateOptions getRecreateOptions()
+  {
+    RecreateOptions options = super.getRecreateOptions();
+    options.foreignKeysOnAlterTable = true;
+    return options;
   }
 
 }

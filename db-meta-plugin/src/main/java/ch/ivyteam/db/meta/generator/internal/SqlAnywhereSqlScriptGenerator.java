@@ -166,15 +166,6 @@ public class SqlAnywhereSqlScriptGenerator extends SqlScriptGenerator
   }
   
   /**
-   * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#isRecreationOfUniqueConstraintsOnAlterTableNeeded()
-   */
-  @Override
-  public boolean isRecreationOfUniqueConstraintsOnAlterTableNeeded()
-  {
-    return true;
-  }
-  
-  /**
    * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#generateAlterTableAddColumn(java.io.PrintWriter, ch.ivyteam.db.meta.model.internal.SqlTableColumn, ch.ivyteam.db.meta.model.internal.SqlTable)
    */
   @Override
@@ -247,12 +238,6 @@ public class SqlAnywhereSqlScriptGenerator extends SqlScriptGenerator
   }
   
   @Override
-  public boolean isRecreationOfForeignKeysOnAlterTableNeeded()
-  {
-    return true;
-  }
-  
-  @Override
   public void generateAlterTableDropForeignKey(PrintWriter pr, SqlTable table, SqlForeignKey foreignKey, List<String> createdTemporaryStoredProcedures)
   {
     generateDropForeignKeyConstraintStoredProcedure(pr, createdTemporaryStoredProcedures);
@@ -311,20 +296,6 @@ public class SqlAnywhereSqlScriptGenerator extends SqlScriptGenerator
       pr.println();
     }
   }
-
-  @Override
-  public boolean isRecreationOfIndexesOnAlterTableNeeded()
-  {
-    return true;
-  }
-  
-  
-  @Override
-  public boolean isRecreationOfPrimaryKeysOnAlterTableNeeded()
-  {
-    return true;
-  }
-  
   
   @Override
   public void generateDropPrimaryKey(PrintWriter pr, SqlTable table, SqlPrimaryKey primaryKey,
@@ -332,6 +303,17 @@ public class SqlAnywhereSqlScriptGenerator extends SqlScriptGenerator
   {
     pr.print("ALTER TABLE "+table.getId()+" DROP PRIMARY KEY");
     generateDelimiter(pr);
+  }
+  
+  @Override
+  public RecreateOptions getRecreateOptions()
+  {
+    RecreateOptions options = super.getRecreateOptions();
+    options.foreignKeysOnAlterTable = true;
+    options.primaryKeysOnAlterTable = true;
+    options.indexesOnAlterTable = true;
+    options.uniqueConstraintsOnAlterTable = true;
+    return options;
   }
   
 }

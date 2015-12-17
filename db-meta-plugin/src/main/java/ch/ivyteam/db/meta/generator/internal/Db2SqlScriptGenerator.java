@@ -266,12 +266,6 @@ public abstract class Db2SqlScriptGenerator extends SqlScriptGenerator
       throw new IllegalArgumentException("Only changing of the data type and NOT NULL is supported");
     }
   }
-
-  @Override
-  public boolean isRecreationOfUniqueConstraintsOnAlterTableNeeded()
-  {
-    return true;
-  }
   
   @Override
   protected void generateUniqueContraintInTable(PrintWriter pr, SqlTable table, SqlUniqueConstraint unique)
@@ -310,12 +304,12 @@ public abstract class Db2SqlScriptGenerator extends SqlScriptGenerator
     GenerateAlterTableUtil.generateAlterTableAddColumn(pr, this, newColumn, newTable, "ADD");
   }
   
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#isRecreationOfTriggerOnAlterTableNeeded()
-   */
   @Override
-  public boolean isRecreationOfTriggerOnAlterTableNeeded()
+  public RecreateOptions getRecreateOptions()
   {
-    return true;
+    RecreateOptions options = super.getRecreateOptions();
+    options.uniqueConstraintsOnAlterTable = true;
+    options.triggerOnAlterTable = true;
+    return options;
   }
 }

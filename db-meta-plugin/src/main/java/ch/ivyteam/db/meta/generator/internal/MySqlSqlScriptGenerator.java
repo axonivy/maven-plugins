@@ -61,12 +61,6 @@ public class MySqlSqlScriptGenerator extends SqlScriptGenerator
     return false;
   }
   
-  @Override
-  public boolean isRecreationOfForeignKeysOnAlterTableNeeded()
-  {
-    return true;
-  }
-  
   /**
    * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#generateTableStorage(java.io.PrintWriter, ch.ivyteam.db.meta.model.internal.SqlTable)
    */
@@ -461,6 +455,14 @@ public class MySqlSqlScriptGenerator extends SqlScriptGenerator
         return 0x10000;
     }
     return 0;
+  }
+  
+  @Override
+  public RecreateOptions getRecreateOptions()
+  {
+    RecreateOptions options = super.getRecreateOptions();
+    options.foreignKeysOnAlterTable = true;
+    return options;
   }
   
   private static class MemoryInfo

@@ -293,9 +293,11 @@ public class HsqlSqlScriptGenerator extends SqlScriptGenerator
   }
   
   @Override
-  public boolean isRecreationOfForeignKeysOnAlterTableNeeded()
+  public RecreateOptions getRecreateOptions()
   {
-    return true;
+    RecreateOptions options = super.getRecreateOptions();
+    options.foreignKeysOnAlterTable = true;
+    return options;
   }
  
 }

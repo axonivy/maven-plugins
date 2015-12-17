@@ -2028,22 +2028,6 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
   }
 
   /**
-   * @return true, if the triggers must be recreated on a table modification
-   */
-  public boolean isRecreationOfTriggerOnAlterTableNeeded()
-  {
-    return false;
-  }
-
-  /**
-   * @return true, if index has to be recreated
-   */
-  public boolean isRecreationOfUniqueConstraintsOnAlterTableNeeded()
-  {
-    return false;
-  }
-
-  /**
    * Generates the table reorganisation statement, if needed
    * @param pr
    * @param newTable
@@ -2066,13 +2050,8 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
     pr.println();
   }
 
-  public boolean isRecreationOfIndexesOnAlterTableNeeded()
-  {
-    return false;
-  }
-
   /**
-   * Currently only used for Databases returning true for {@link #isRecreationOfIndexesOnAlterTableNeeded()}
+   * Currently only used for Databases returning true for {@link RecreateOptions#indexesOnAlterTable}
    * This is currently {@link MsSqlServerSqlScriptGenerator}
    * @param pr
    * @param table 
@@ -2086,13 +2065,8 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
     pr.println(); 
   }
 
-  public boolean isRecreationOfPrimaryKeysOnAlterTableNeeded()
-  {
-    return false;
-  }
-
   /**
-   * Currently only used for Databases returning true for {@link #isRecreationOfPrimaryKeysOnAlterTableNeeded()}
+   * Currently only used for Databases returning true for {@link RecreateOptions#primaryKeysOnAlterTable}
    * This is currently {@link MsSqlServerSqlScriptGenerator}
    * @param pr
    * @param table 
@@ -2116,16 +2090,6 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
     pr.append(")");
     generateDelimiter(pr); 
     
-  }
-
-  public boolean isRecreationOfForeignKeysOnAlterTableNeeded()
-  {
-    return false;
-  }
-
-  public boolean isRecreationOfDefaultConstrainsNeeded()
-  {
-    return false;
   }
 
   public void generateDropDefaultConstraint(PrintWriter pr, SqlTable table, SqlTableColumn col)
@@ -2156,4 +2120,20 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
     generateDelimiter(pr);
     pr.println();
   }
+  
+  public RecreateOptions getRecreateOptions()
+  {
+    return new RecreateOptions();
+  }
+  
+  public static class RecreateOptions
+  {
+    public boolean defaultConstraints = false;
+    public boolean foreignKeysOnAlterTable = false;
+    public boolean primaryKeysOnAlterTable = false;
+    public boolean indexesOnAlterTable = false;
+    public boolean uniqueConstraintsOnAlterTable = false;
+    public boolean triggerOnAlterTable = false;
+  }
+  
 }

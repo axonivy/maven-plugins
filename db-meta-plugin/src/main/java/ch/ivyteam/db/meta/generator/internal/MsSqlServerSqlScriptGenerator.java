@@ -383,39 +383,6 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
     }
   }
   
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#isRecreationOfUniqueConstraintsOnAlterTableNeeded()
-   */
-  @Override
-  public boolean isRecreationOfUniqueConstraintsOnAlterTableNeeded()
-  {
-    // DO NOT REMOVE THIS METHOD OR CHANGE THE BEHAVIOUR OF IT
-    //
-    // There are some rare cases where altering a column on which a UNIQUE constraint is set can lead to the following error message:
-    // -----
-    // Msg 5074, Level 16, State 1, Line 9
-    // The object 'UniqueConstraintKey' is dependent on column 'ColumnName'.
-    // Msg 4922, Level 16, State 9, Line 9
-    // ALTER TABLE ALTER COLUMN ColumnName failed because one or more objects access this column.
-    // ----
-    // It is not clear when this happens. We never had this problem with our test cases or when testing manually. 
-    // But we have some customers that had this error. 
-    // See issue #23610 for details
-    return true;
-  }
- 
-  @Override
-  public boolean isRecreationOfIndexesOnAlterTableNeeded()
-  {
-    return true;
-  }
-  
-  @Override
-  public boolean isRecreationOfPrimaryKeysOnAlterTableNeeded()
-  {
-    return true;
-  }
-  
   @Override
   public void generateDropPrimaryKey(PrintWriter pr, SqlTable table, SqlPrimaryKey primaryKey,
           List<String> createdTemporaryStoredProcedures)
@@ -458,12 +425,6 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
       pr.println();
       pr.println();
     }
-  }
-  
-  @Override
-  public boolean isRecreationOfForeignKeysOnAlterTableNeeded()
-  {
-    return true;
   }
   
   @Override
@@ -517,9 +478,29 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
   }
   
   @Override
-  public boolean isRecreationOfDefaultConstrainsNeeded()
+  public RecreateOptions getRecreateOptions()
   {
-    return true;
+    RecreateOptions options = super.getRecreateOptions();
+    options.defaultConstraints = true;
+    options.foreignKeysOnAlterTable = true;
+    options.primaryKeysOnAlterTable = true;
+    options.indexesOnAlterTable = true;
+    
+    // DO NOT REMOVE THIS METHOD OR CHANGE THE BEHAVIOUR OF IT
+    //
+    // There are some rare cases where altering a column on which a UNIQUE constraint is set can lead to the following error message:
+    // -----
+    // Msg 5074, Level 16, State 1, Line 9
+    // The object 'UniqueConstraintKey' is dependent on column 'ColumnName'.
+    // Msg 4922, Level 16, State 9, Line 9
+    // ALTER TABLE ALTER COLUMN ColumnName failed because one or more objects access this column.
+    // ----
+    // It is not clear when this happens. We never had this problem with our test cases or when testing manually. 
+    // But we have some customers that had this error. 
+    // See issue #23610 for details
+    options.uniqueConstraintsOnAlterTable = true;
+    
+    return options;
   }
   
   @Override

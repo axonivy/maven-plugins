@@ -21,6 +21,6 @@ public class TestIssue23610
   @Test
   public void testDropUniqueConstraintsBeforeAlterColumn()
   {
-    assertThat(new MsSqlServerSqlScriptGenerator().isRecreationOfUniqueConstraintsOnAlterTableNeeded()).isTrue();
+    assertThat(new MsSqlServerSqlScriptGenerator().getRecreateOptions().uniqueConstraintsOnAlterTable).isTrue();
   }
 }

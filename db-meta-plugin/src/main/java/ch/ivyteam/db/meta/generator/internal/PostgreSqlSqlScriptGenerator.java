@@ -253,12 +253,6 @@ public class PostgreSqlSqlScriptGenerator extends SqlScriptGenerator
   }
   
   @Override
-  public boolean isRecreationOfForeignKeysOnAlterTableNeeded()
-  {
-    return true;
-  }
-  
-  @Override
   public void generateAlterTableDropForeignKey(PrintWriter pr, SqlTable table, SqlForeignKey foreignKey,List<String> createdTemporaryStoredProcedures)
   {
     String foreignKeyName = table.getId()+"_"+StringUtils.removeStart(foreignKey.getId(), "FK_")+"_fkey";
@@ -271,5 +265,13 @@ public class PostgreSqlSqlScriptGenerator extends SqlScriptGenerator
     generateDelimiter(pr);
     pr.println();
     pr.println();
+  }
+  
+  @Override
+  public RecreateOptions getRecreateOptions()
+  {
+    RecreateOptions options = super.getRecreateOptions();
+    options.foreignKeysOnAlterTable = true;
+    return options;
   }
 }
