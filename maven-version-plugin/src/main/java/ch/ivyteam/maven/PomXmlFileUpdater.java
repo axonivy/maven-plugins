@@ -38,7 +38,9 @@ class PomXmlFileUpdater extends AbstractXmlFileUpdater
     changed = updateParentVersion(changed);
     changed = updateDependenciesVersion(changed);
     changed = updateDependenciesVersionInTychoSurefirePlugin(changed);
-    changed = updateIvyVersionProperty(changed);
+    changed = updateIvyMajorVersionProperty(changed);
+    changed = updateIvyMinorVersionProperty(changed);
+    changed = updateIvyServiceVersionProperty(changed);
 
     if (changed)
     {
@@ -92,11 +94,21 @@ class PomXmlFileUpdater extends AbstractXmlFileUpdater
     return changed;
   }
   
-  private boolean updateIvyVersionProperty(boolean changed) throws XPathExpressionException
+  private boolean updateIvyMajorVersionProperty(boolean changed) throws XPathExpressionException
   {
-    return updateVersion(changed, "/project/properties/ivy-version", update.versionNoMavenQualifier());
+    return updateVersion(changed, "/project/properties/ivy-major-version", Integer.toString(update.getArtifactVersion().getMajorVersion()));
   }
   
+  private boolean updateIvyMinorVersionProperty(boolean changed) throws XPathExpressionException
+  {
+    return updateVersion(changed, "/project/properties/ivy-minor-version", Integer.toString(update.getArtifactVersion().getMinorVersion()));
+  }
+
+  private boolean updateIvyServiceVersionProperty(boolean changed) throws XPathExpressionException
+  {
+    return updateVersion(changed, "/project/properties/ivy-service-version", Integer.toString(update.getArtifactVersion().getIncrementalVersion()));
+  }
+
   private boolean pluginDependencyVersionNeedsUpdate(Node dependency)
   {
     return isIvyArtifact(dependency) && versionNodeNeedsUpdate(dependency);

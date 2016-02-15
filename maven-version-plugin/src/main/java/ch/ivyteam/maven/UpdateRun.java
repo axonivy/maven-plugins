@@ -3,6 +3,8 @@ package ch.ivyteam.maven;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.maven.artifact.versioning.ArtifactVersion;
+import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.apache.maven.plugin.logging.Log;
 
 public class UpdateRun
@@ -29,6 +31,11 @@ public class UpdateRun
     return newVersion;
   }
   
+  public ArtifactVersion getArtifactVersion()
+  {
+    return new DefaultArtifactVersion(newVersion);
+  }
+    
   public String versionEclipseQualified()
   {
     String version = versionNoMavenQualifier();

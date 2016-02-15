@@ -71,3 +71,6 @@ Replace version 5.1.0.qualifier with version 5.1.14.qualifier in feature node ch
 Replace version 5.1.0-SNAPSHOT with version 5.1.14-SNAPSHOT in node /project/version of pom file C:\dev\maven-plugin\maven-plugin\testIvy\pom.xml
 Pom file C:\dev\maven-plugin\maven-plugin\testIvy\development\ch.ivyteam.ivy.build.maven\config\pom.xml is up to date. Nothing to do.
 Replace version 5.1.0-SNAPSHOT with version 5.1.14-SNAPSHOT in node /project/version of pom file C:\dev\maven-plugin\maven-plugin\testIvy\development\ch.ivyteam.ivy.build.maven\pom.xml
+Replace version 4 with version 5 in node /project/properties/ivy-major-version of pom file C:\dev\maven-plugin\maven-plugin\testIvy\development\ch.ivyteam.ivy.build.maven\pom.xml
+Replace version 0 with version 14 in node /project/properties/ivy-service-version of pom file C:\dev\maven-plugin\maven-plugin\testIvy\development\ch.ivyteam.ivy.build.maven\pom.xml
+Replace version 0 with version 1 in node /project/properties/ivy-minor-version of pom file C:\dev\maven-plugin\maven-plugin\testIvy\development\ch.ivyteam.ivy.build.maven\pom.xml
