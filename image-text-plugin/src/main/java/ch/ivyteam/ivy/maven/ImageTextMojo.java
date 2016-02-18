@@ -55,6 +55,13 @@ public class ImageTextMojo extends AbstractMojo
   @Parameter(defaultValue="true", property="antialising")
   Boolean antialising;
   
+  /** 
+   * controls whether the positioning of individual character glyphs takes into account the sub-pixel accuracy of the scaled character advances of the font or whether such advance vectors are rounded to an integer number of whole device pixels. This hint only recommends how much accuracy should be used to position the glyphs and does not specify or recommend whether or not the actual rasterization or pixel bounds of the glyph should be modified to match. 
+   * @See {@link RenderingHints#KEY_FRACTIONALMETRICS}
+   */
+  @Parameter(defaultValue="false", property="fractionalMetrics")
+  Boolean fractionalMetrics;
+  
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
   {
@@ -90,6 +97,7 @@ public class ImageTextMojo extends AbstractMojo
       graphic.drawImage(template, 0, 0, null);
       
       graphic.setRenderingHint(RenderingHints.KEY_ANTIALIASING, getAntialisingHint());
+      graphic.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, getFractionalMetricsHint());
       graphic.setPaint(getColor());
       graphic.setFont(getFont());
       int textLength = graphic.getFontMetrics().stringWidth(text);
@@ -110,6 +118,18 @@ public class ImageTextMojo extends AbstractMojo
     else 
     {
       return RenderingHints.VALUE_ANTIALIAS_OFF;
+    }
+  }
+  
+  private Object getFractionalMetricsHint()
+  {
+    if (fractionalMetrics)
+    {
+      return RenderingHints.VALUE_FRACTIONALMETRICS_ON;
+    }
+    else
+    {
+      return RenderingHints.VALUE_FRACTIONALMETRICS_DEFAULT;
     }
   }
   
