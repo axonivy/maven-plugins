@@ -11,3 +11,4 @@ public-api-source-maven-plugin/target
 sample-maven-plugin/target
 /target
 /testProject
+thirdparty-dependency-readme-plugin/target
