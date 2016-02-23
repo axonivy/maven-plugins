@@ -6,6 +6,7 @@ image-text-plugin/target
 maven-version-plugin/target
 maven-version-plugin/testIvy
 maven-version-plugin/testProject
+parser-generator-plugin/target
 public-api-source-maven-plugin/src/test/resources/test-project-template/bin/*
 public-api-source-maven-plugin/target
 sample-maven-plugin/target
