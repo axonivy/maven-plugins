@@ -1,53 +1,46 @@
 package ch.ivyteam.ivy.generator;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.IOUtils;
 
 class JarInfo
 {
-  /** Pattern to extract the Implementation-Title part of a manifest file */
-  private static final Pattern JAR_IMPL_NAME_PATTERN =  Pattern.compile("Implementation-Title:(.*)");
-  /** Pattern to extract the Implementation-Version part of a manifest file */
-  private static final Pattern JAR_IMPL_VERSION_PATTERN =  Pattern.compile("Implementation-Version:(.*)");
-  /** Pattern to extract the Implementation-Vendor part of a manifest file */
-  private static final Pattern JAR_IMPL_VENDOR_PATTERN =  Pattern.compile("Implementation-Vendor:(.*)");
-  /** Pattern to extract the Specification-Title part of a manifest file */
-  private static final Pattern JAR_SPEC_NAME_PATTERN =  Pattern.compile("Specification-Title:(.*)");
-  /** Pattern to extract the Implementation-Version part of a manifest file */
-  private static final Pattern JAR_SPEC_VERSION_PATTERN =  Pattern.compile("Specification-Version:(.*)");
-  /** Pattern to extract the Implementation-Version part of a manifest file */
-  private static final Pattern JAR_SPEC_VENDOR_PATTERN =  Pattern.compile("Specification-Vendor:(.*)");
-
-  private String name;
-  private String version;
-  private String vendor;
+  private final String name;
+  private final String version;
+  private final String vendor;
+  private final String sha1Hash;
+  
+  public JarInfo(String name, String version, String vendor, String sha1Hash)
+  {
+    this.name = name;
+    this.version = version;
+    this.vendor = vendor;
+    this.sha1Hash = sha1Hash;
+  }
+  
+  public static JarInfo from(Manifest manifest, String sha1Hash)
+  {
+    return new JarInfo(manifest.getName(), manifest.getVersion(), manifest.getVendor(), sha1Hash);
+  }
 
   public String getVendor()
   {
     return vendor;
   }
   
-  public void setVendor(String vendor)
-  {
-    this.vendor = vendor;
-  }
-  
   public String getVersion()
   {
     return version;
-  }
-  
-  public void setVersion(String version)
-  {
-    this.version = version;
   }
 
   public String getName()
@@ -55,9 +48,14 @@ class JarInfo
     return name;
   }
   
-  public void setName(String name)
+  public boolean isComplete()
   {
-    this.name = name;
+    return name!=null && version!=null && vendor!=null;
+  }
+  
+  public String getSha1Hash()
+  {
+    return sha1Hash;
   }
   
   public static JarInfo createFor(ZipFile plugin, ZipEntry jarEntry) throws IOException
@@ -66,9 +64,7 @@ class JarInfo
     {
       try (ZipInputStream zis = new ZipInputStream(jarInputStream))
       {
-        ZipEntry entry;
-               
-        entry = zis.getNextEntry();
+        ZipEntry entry = zis.getNextEntry();
         while (entry != null)
         {
           if (entry.getName().equals("META-INF/MANIFEST.MF"))
@@ -84,87 +80,59 @@ class JarInfo
   
   public static JarInfo createFor(File jarFile) throws IOException
   {
-    String manifest = getManifest(jarFile);
-    JarInfo info = fromManifest(manifest);
-    info = MavenCentral.enhanceInfo(info, jarFile);
-    return info;
-  }
-
-  public static String getManifest(ZipFile jarZipFile) throws IOException
-  {
-    ZipEntry metafile = jarZipFile.getEntry("META-INF/MANIFEST.MF");
-    if (metafile == null)
-    {
-      return "";
-    }
-    try (InputStream is = jarZipFile.getInputStream(metafile))
-    {
-      return IOUtils.toString(is);
-    }
+    Manifest manifest = Manifest.forJar(jarFile);
+    return JarInfo.from(manifest, Sha1Hash.forJar(jarFile));
   }
 
   private static JarInfo createFor(ZipFile plugin, ZipEntry jarEntry, ZipInputStream zis) throws IOException
   {
-    String meta = IOUtils.toString(zis);
-    JarInfo info  = fromManifest(meta);
+    Manifest manifest = new Manifest(IOUtils.toString(zis));
     try (InputStream jarInputStream = plugin.getInputStream(jarEntry))
     {
-      return MavenCentral.enhanceInfo(info, jarInputStream);
+      return JarInfo.from(manifest, Sha1Hash.forJar(jarInputStream));
     }
   }
   
-  private static String getManifest(File jarFile) throws IOException
-  {
-    try (ZipFile jarZipFile = new ZipFile(jarFile))
-    {
-      return getManifest(jarZipFile);
-    }
-  }
   
-  private static JarInfo fromManifest(String manifest)
+  public static class Sha1Hash
   {
-    JarInfo info = new JarInfo();
-    Matcher matcher;
-    matcher = JAR_IMPL_NAME_PATTERN.matcher(manifest);    
-    if (matcher.find())
+    public static String forJar(File jar) throws IOException
     {
-      info.setName(matcher.group(1).trim());
-    }
-    else
-    {
-      matcher = JAR_SPEC_NAME_PATTERN.matcher(manifest);    
-      if (matcher.find())
+      try(FileInputStream fis = new FileInputStream(jar))
       {
-        info.setName(matcher.group(1).trim());
+        return build(fis);
       }
     }
-    matcher = JAR_IMPL_VERSION_PATTERN.matcher(manifest);
-    if (matcher.find())
+    
+    public static String forJar(InputStream jarStream) throws IOException
     {
-      info.setVersion(matcher.group(1).trim());
+      return build(jarStream);
     }
-    else
+    
+    public static String build(InputStream inputStream) throws IOException
     {
-      matcher = JAR_SPEC_VERSION_PATTERN.matcher(manifest);    
-      if (matcher.find())
+      try
       {
-        info.setVersion(matcher.group(1).trim());
+        MessageDigest cript = MessageDigest.getInstance("SHA-1");
+        cript.reset();
+        int n = 0;
+        byte[] buffer = new byte[8192];
+        do 
+        {
+          n = inputStream.read(buffer);
+          if (n > 0)
+          {
+            cript.update(buffer, 0, n);
+          }
+        } while (n >= 0);
+        String digest = Hex.encodeHexString(cript.digest());
+        return digest;
+      }
+      catch (NoSuchAlgorithmException ex)
+      {
+        throw new IOException(ex);
       }
     }
-    matcher = JAR_IMPL_VENDOR_PATTERN.matcher(manifest);
-    if (matcher.find())
-    {
-      info.setVendor(matcher.group(1).trim());
-    }
-    else
-    {
-      matcher = JAR_SPEC_VENDOR_PATTERN.matcher(manifest);    
-      if (matcher.find())
-      {
-        info.setVendor(matcher.group(1).trim());
-      }      
-    }
-    return info;
   }
 
 }

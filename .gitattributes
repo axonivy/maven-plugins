@@ -1017,6 +1017,8 @@ thirdparty-dependency-readme-plugin/pom.xml -text
 thirdparty-dependency-readme-plugin/src/main/java/ch/ivyteam/ivy/generator/Eclipse3rdPartyFeatureReadmeGenerator.java -text
 thirdparty-dependency-readme-plugin/src/main/java/ch/ivyteam/ivy/generator/Eclipse3rdPartyJarReadmeGenerator.java -text
 thirdparty-dependency-readme-plugin/src/main/java/ch/ivyteam/ivy/generator/JarInfo.java -text
+thirdparty-dependency-readme-plugin/src/main/java/ch/ivyteam/ivy/generator/LibraryEntry.java -text
+thirdparty-dependency-readme-plugin/src/main/java/ch/ivyteam/ivy/generator/Manifest.java -text
 thirdparty-dependency-readme-plugin/src/main/java/ch/ivyteam/ivy/generator/MavenCentral.java -text
 thirdparty-dependency-readme-plugin/src/main/java/ch/ivyteam/ivy/generator/Server3rdPartyJarReadmeGenerator.java -text
 thirdparty-dependency-readme-plugin/src/main/java/ch/ivyteam/ivy/maven/AbstractReadmeGeneratorMojo.java -text
@@ -1027,6 +1029,7 @@ thirdparty-dependency-readme-plugin/src/main/java/ch/ivyteam/util/FilenameUtils.
 thirdparty-dependency-readme-plugin/src/main/java/ch/ivyteam/xml/IvyEntities.java -text
 thirdparty-dependency-readme-plugin/src/main/java/ch/ivyteam/xml/XmlParserUtil.java -text
 thirdparty-dependency-readme-plugin/src/main/java/ch/ivyteam/xml/XmlUtil.java -text
+thirdparty-dependency-readme-plugin/src/test/java/ch/ivyteam/ivy/generator/TestPluginJarDependencies.java -text
 thirdparty-dependency-readme-plugin/src/test/java/ch/ivyteam/ivy/maven/TestGeneratorMojo.java -text
 thirdparty-dependency-readme-plugin/src/test/resources/eclipseFeatures.html -text
 thirdparty-dependency-readme-plugin/src/test/resources/eclipsePlugins.html -text
@@ -1055,5 +1058,6 @@ thirdparty-dependency-readme-plugin/src/test/resources/myDesigner/plugins/ch.ivy
 thirdparty-dependency-readme-plugin/src/test/resources/myDesigner/plugins/ch.ivyteam.ivy.designer.branding_6.1.0.r51177/plugin.xml -text
 thirdparty-dependency-readme-plugin/src/test/resources/myDesigner/plugins/ch.ivyteam.ivy.designer.branding_6.1.0.r51177/plugin_customization.ini -text
 thirdparty-dependency-readme-plugin/src/test/resources/myDesigner/plugins/ch.ivyteam.ivy.dialog.jsf_6.1.0.r51177.jar -text
+thirdparty-dependency-readme-plugin/src/test/resources/myDesigner/plugins/ch.ivyteam.ivy.webservice.exec.axis2_6.1.0.r51291.jar -text
 thirdparty-dependency-readme-plugin/src/test/resources/myEngine/lib/shared/javax.inject-1.jar -text
 thirdparty-dependency-readme-plugin/src/test/resources/pom.xml -text

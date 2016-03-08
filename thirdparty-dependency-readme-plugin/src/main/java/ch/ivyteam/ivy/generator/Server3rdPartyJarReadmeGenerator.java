@@ -2,7 +2,9 @@ package ch.ivyteam.ivy.generator;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.zip.ZipException;
 
 import org.apache.commons.io.FileUtils;
@@ -20,12 +22,17 @@ public class Server3rdPartyJarReadmeGenerator
 {
   private StringBuilder html = new StringBuilder();
   
-  public String printLibraryTable(File libraryDir) throws IOException, ZipException
+  public String printLibraryTable(File libraryDir) throws Exception
   {
     printTableHeader();
     if (libraryDir.exists() && libraryDir.isDirectory())
     {
-      printJars(libraryDir, FileUtils.listFiles(libraryDir, new String[]{"jar"}, true));
+      List<LibraryEntry> dependencies = printJars(libraryDir, FileUtils.listFiles(libraryDir, new String[]{"jar"}, true));
+      LibraryEntry.enhanceConcurrent(dependencies);
+      for(LibraryEntry dependency : dependencies)
+      {
+        print(dependency.toHtmlRow());
+      }
     }
     else
     {
@@ -51,13 +58,16 @@ public class Server3rdPartyJarReadmeGenerator
     print("  <tbody>");
   }
 
-  private void printJars(File rootDir, Collection<File> files) throws IOException, ZipException
+  private List<LibraryEntry> printJars(File rootDir, Collection<File> files) throws IOException, ZipException
   {
+    List<LibraryEntry> dependencies = new ArrayList<>();
     for (File jar : files)
     {
       JarInfo info = JarInfo.createFor(jar);
-      print(Eclipse3rdPartyJarReadmeGenerator.getJarHtmlRow(null, FilenameUtils.getRelativePath(rootDir, jar), info));
+      LibraryEntry entry = new LibraryEntry(null, FilenameUtils.getRelativePath(rootDir, jar), info);
+      dependencies.add(entry);
     }
+    return dependencies;
   }
   
   private void printTableFooter()

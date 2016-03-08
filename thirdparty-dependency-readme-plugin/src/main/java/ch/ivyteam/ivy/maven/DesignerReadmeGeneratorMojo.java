@@ -29,8 +29,8 @@ public class DesignerReadmeGeneratorMojo extends AbstractReadmeGeneratorMojo
     Map<String, String> htmlTokens = new HashMap<>();
     try
     {
-      htmlTokens.put("eclipsePlugins", new Eclipse3rdPartyJarReadmeGenerator().generate(designerDir));
-      htmlTokens.put("eclipseFeatures", new Eclipse3rdPartyFeatureReadmeGenerator().generate(designerDir));
+      htmlTokens.put("eclipsePlugins", new Eclipse3rdPartyJarReadmeGenerator(getLog()).generate(designerDir));
+      htmlTokens.put("eclipseFeatures", new Eclipse3rdPartyFeatureReadmeGenerator(getLog()).generate(designerDir));
     }
     catch (Exception ex)
     {
