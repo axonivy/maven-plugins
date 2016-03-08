@@ -27,7 +27,7 @@ public class Server3rdPartyJarReadmeGenerator
     printTableHeader();
     if (libraryDir.exists() && libraryDir.isDirectory())
     {
-      List<LibraryEntry> dependencies = printJars(libraryDir, FileUtils.listFiles(libraryDir, new String[]{"jar"}, true));
+      List<LibraryEntry> dependencies = getDependencies(libraryDir, FileUtils.listFiles(libraryDir, new String[]{"jar"}, true));
       LibraryEntry.enhanceConcurrent(dependencies);
       for(LibraryEntry dependency : dependencies)
       {
@@ -58,7 +58,7 @@ public class Server3rdPartyJarReadmeGenerator
     print("  <tbody>");
   }
 
-  private List<LibraryEntry> printJars(File rootDir, Collection<File> files) throws IOException, ZipException
+  private List<LibraryEntry> getDependencies(File rootDir, Collection<File> files) throws IOException, ZipException
   {
     List<LibraryEntry> dependencies = new ArrayList<>();
     for (File jar : files)
