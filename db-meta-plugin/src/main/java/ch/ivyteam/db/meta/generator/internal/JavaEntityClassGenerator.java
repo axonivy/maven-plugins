@@ -381,7 +381,8 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
     {
       for (SqlTableColumn column: associationTable.getColumns())
       {
-        if (column.getReference().getForeignTable().equals(table.getId()))
+        if (column.getReference().getForeignTable().equals(table.getId())
+                && tableColumn == null) // needed if foreignTable is the same as the table
         {
           tableColumn = column.getId();
         }
