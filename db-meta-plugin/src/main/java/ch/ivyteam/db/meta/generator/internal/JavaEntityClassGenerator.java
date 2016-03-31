@@ -374,27 +374,33 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
    */
   private void writeAssociations(PrintWriter pr, SqlTable table, SqlMeta metaDefinition) throws MetaException
   {
+    for (SqlTable associationTable : getAssociationTables(table, metaDefinition))
+    {
+      writeAssociation(pr, table, metaDefinition, associationTable);
+    }
+  }
+
+  private void writeAssociation(PrintWriter pr, SqlTable table, SqlMeta metaDefinition,
+          SqlTable associationTable) throws MetaException
+  {
     SqlTable foreignTable = null;
     String foreignColumn = null;
     String tableColumn = null;
-    for (SqlTable associationTable : getAssociationTables(table, metaDefinition))
+    for (SqlTableColumn column : associationTable.getColumns())
     {
-      for (SqlTableColumn column: associationTable.getColumns())
+      if (column.getReference().getForeignTable().equals(table.getId())
+              && tableColumn == null) // needed if foreignTable is the same as the table
       {
-        if (column.getReference().getForeignTable().equals(table.getId())
-                && tableColumn == null) // needed if foreignTable is the same as the table
-        {
-          tableColumn = column.getId();
-        }
-        else
-        {
-          foreignTable = metaDefinition.findTable(column.getReference().getForeignTable());
-          foreignColumn = column.getId();
-        }  
+        tableColumn = column.getId();
       }
-        
-      writeAssociation(pr, table, foreignTable, associationTable, tableColumn, foreignColumn);
+      else
+      {
+        foreignTable = metaDefinition.findTable(column.getReference().getForeignTable());
+        foreignColumn = column.getId();
+      }  
     }
+      
+    writeAssociation(pr, table, foreignTable, associationTable, tableColumn, foreignColumn);
   }
 
   /**
