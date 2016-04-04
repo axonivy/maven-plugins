@@ -401,19 +401,44 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
     }
       
     writeAssociation(pr, table, foreignTable, associationTable, tableColumn, foreignColumn);
+    if(isSelfAssociation(associationTable))
+    {
+      writeReverseSelfAssociation(pr, table, associationTable);
+    }
   }
 
-  /**
-   * Writes an association constant
-   * @param pr
-   * @param table
-   * @param foreignTable
-   * @param associationTable
-   * @param tableColumn
-   * @param foreignColumn
-   * @throws MetaException 
-   */
   private void writeAssociation(PrintWriter pr, SqlTable table, SqlTable foreignTable, SqlTable associationTable, String tableColumn,
+          String foreignColumn) throws MetaException
+  {
+    writeAssociation(pr, table, foreignTable, associationTable, "", tableColumn, foreignColumn);
+  }
+
+  private void writeReverseSelfAssociation(PrintWriter pr, SqlTable table,SqlTable associationTable)
+  {
+    List<SqlTableColumn> columns = associationTable.getColumns();
+    SqlTableColumn column1 = columns.get(0);
+    SqlTableColumn column2 = columns.get(1);
+
+    SqlTable foreignTable = table;
+    String foreignColumn = column1.getId();
+    String tableColumn = column2.getId();
+    
+    writeAssociation(pr, table, foreignTable, associationTable, "_REVERSE", tableColumn, foreignColumn);
+  }
+
+  private boolean isSelfAssociation(SqlTable associationTable)
+  {
+    List<SqlTableColumn> columns = associationTable.getColumns();
+    if (columns.size() != 2)
+    {
+      return false;
+    }
+    String foreignTable0 = columns.get(0).getReference().getForeignTable();
+    String foreignTable1 = columns.get(1).getReference().getForeignTable();
+    return foreignTable0.equals(foreignTable1);
+  }
+  
+  private void writeAssociation(PrintWriter pr, SqlTable table, SqlTable foreignTable, SqlTable associationTable, String associationPostfix, String tableColumn,
           String foreignColumn) throws MetaException
   {
     String associationTableName;
@@ -440,6 +465,7 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
     writeIndent(pr, 2);
     pr.print("public static final ch.ivyteam.ivy.persistence.Association ");
     pr.print(associationTableName.toUpperCase());
+    pr.print(associationPostfix);
     pr.print(" = new ch.ivyteam.ivy.persistence.Association(\"");
     pr.print(associationTableName);
     pr.print("\", \"");
