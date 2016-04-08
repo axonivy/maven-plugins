@@ -85,7 +85,7 @@ public class TestMetaOutputGeneratorMojo
     sqlFile.setLastModified(RECENT_TIME_STAMP);
     
     mojo.execute();
-    assertThat(getProjectFile("generated/oracle.sql").lastModified()).isEqualTo(RECENT_TIME_STAMP);
+    assertThat(getProjectFile("generated/oracle.sql").lastModified()/1000).isEqualTo(RECENT_TIME_STAMP/1000);
   }
 
   @Test
