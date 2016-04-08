@@ -106,7 +106,7 @@ public class MetaOuputDifferenceGeneratorTask extends Task
       {
         SqlScriptGenerator scriptGenerator = MetaOutputDifferenceGenerator.findGeneratorClass(generator);
         int newVersionId = Integer.parseInt(oldVersionId) +1;
-        MetaOutputDifferenceGenerator differenceGenerator = new MetaOutputDifferenceGenerator(metaFrom, metaTo, scriptGenerator, newVersionId);
+        MetaOutputDifferenceGenerator differenceGenerator = new MetaOutputDifferenceGenerator(metaFrom, metaTo, null, scriptGenerator, newVersionId);
         differenceGenerator.generate(pr);
       }
       finally

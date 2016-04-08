@@ -23,7 +23,7 @@ import ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator;
 import ch.ivyteam.db.meta.model.internal.MetaException;
 import ch.ivyteam.db.meta.model.internal.SqlForeignKey;
 import ch.ivyteam.db.meta.model.internal.SqlIndex;
-import ch.ivyteam.db.meta.model.internal.SqlInsert;
+import ch.ivyteam.db.meta.model.internal.SqlInsertWithValues;
 import ch.ivyteam.db.meta.model.internal.SqlMeta;
 import ch.ivyteam.db.meta.model.internal.SqlPrimaryKey;
 import ch.ivyteam.db.meta.model.internal.SqlTable;
@@ -49,6 +49,7 @@ public class MetaOutputDifferenceGenerator
   private final SqlMeta metaDefinitionFrom;
   private final SqlMeta metaDefinitionTo;   
   private List<String> createdTemporaryStoredProcedures = new ArrayList<String>();
+  private SqlMeta additionalConversionMeta;
 
   /**
    * @param generatorClassName
@@ -87,6 +88,10 @@ public class MetaOutputDifferenceGenerator
    */
   public static SqlMeta parseMetaDefinition(File file) throws Exception
   {
+    if (file == null || !file.exists())
+    {
+      return null;
+    }
     FileReader fr = new FileReader(file);
     try
     {
@@ -103,13 +108,15 @@ public class MetaOutputDifferenceGenerator
    * Constructor
    * @param metaDefinitionFrom 
    * @param metaDefinitionTo 
+   * @param additionalConversionMeta 
    * @param generator 
    * @param newVersionId 
    */
-  public MetaOutputDifferenceGenerator(SqlMeta metaDefinitionFrom, SqlMeta metaDefinitionTo, SqlScriptGenerator generator, int newVersionId)
+  public MetaOutputDifferenceGenerator(SqlMeta metaDefinitionFrom, SqlMeta metaDefinitionTo, SqlMeta additionalConversionMeta, SqlScriptGenerator generator, int newVersionId)
   {
     this.metaDefinitionFrom = metaDefinitionFrom;
     this.metaDefinitionTo = metaDefinitionTo;
+    this.additionalConversionMeta = additionalConversionMeta;
     this.generator = generator;
     this.newVersionId = newVersionId;
     generator.setComment("Converts the ivy system database from version " + (newVersionId-1) + " to version " + newVersionId);
@@ -143,6 +150,11 @@ public class MetaOutputDifferenceGenerator
     generateCreateViewOfAddedViews(pr);
     generateDeletesOfRemovedInserts(pr);
     generateInsertsOfNewAddedInserts(pr);
+    
+    if (additionalConversionMeta != null)
+    {
+      generator.generateMetaOutputStatements(pr, additionalConversionMeta);
+    }
     
     generator.generateNonMetaDiffChangesPost(pr, newVersionId);
     generateDropTemporaryStoredProcedures(pr);
@@ -217,12 +229,12 @@ public class MetaOutputDifferenceGenerator
 
   private void generateDeletesOfRemovedInserts(PrintWriter pr)
   {
-    List<SqlInsert> fromSqlInserts = metaDefinitionFrom.getArtifacts(SqlInsert.class);
-    List<SqlInsert> toSqlInserts = metaDefinitionTo.getArtifacts(SqlInsert.class);
+    List<SqlInsertWithValues> fromSqlInserts = metaDefinitionFrom.getArtifacts(SqlInsertWithValues.class);
+    List<SqlInsertWithValues> toSqlInserts = metaDefinitionTo.getArtifacts(SqlInsertWithValues.class);
     List<String> toInsertStmts = getInsertStmts(toSqlInserts);
     
     boolean first = true;
-    for (SqlInsert fromSqlInsert : fromSqlInserts)
+    for (SqlInsertWithValues fromSqlInsert : fromSqlInserts)
     {
       String fromInsertStmt = getInsertStmt(fromSqlInsert);
       if (!toInsertStmts.contains(fromInsertStmt))
@@ -238,9 +250,9 @@ public class MetaOutputDifferenceGenerator
   }
   private void generateInsertsOfNewAddedInserts(PrintWriter pr)
   {
-    List<SqlInsert> fromSqlInserts = metaDefinitionFrom.getArtifacts(SqlInsert.class);
+    List<SqlInsertWithValues> fromSqlInserts = metaDefinitionFrom.getArtifacts(SqlInsertWithValues.class);
     List<String> fromInsertStmts = getInsertStmts(fromSqlInserts);
-    List<SqlInsert> toSqlInserts = metaDefinitionTo.getArtifacts(SqlInsert.class);
+    List<SqlInsertWithValues> toSqlInserts = metaDefinitionTo.getArtifacts(SqlInsertWithValues.class);
     List<String> toInsertStmts = getInsertStmts(toSqlInserts);
 
     boolean first = true;
@@ -258,11 +270,11 @@ public class MetaOutputDifferenceGenerator
     }    
   }
 
-  private List<String> getInsertStmts(List<SqlInsert> sqlInserts)
+  private List<String> getInsertStmts(List<SqlInsertWithValues> sqlInserts)
   {
     List<String> insterts = new ArrayList<String>(sqlInserts.size());
     
-    for(SqlInsert sqlInsert : sqlInserts)
+    for(SqlInsertWithValues sqlInsert : sqlInserts)
     {
       String insertStmt = getInsertStmt(sqlInsert);
       insterts.add(insertStmt);      
@@ -270,7 +282,7 @@ public class MetaOutputDifferenceGenerator
     return insterts;
   }
 
-  private String getInsertStmt(SqlInsert sqlInsert)
+  private String getInsertStmt(SqlInsertWithValues sqlInsert)
   {
     StringWriter output = new StringWriter();
     generator.generateInsert(new PrintWriter(output), sqlInsert);

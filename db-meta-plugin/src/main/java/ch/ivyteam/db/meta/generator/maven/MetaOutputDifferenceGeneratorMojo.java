@@ -6,7 +6,6 @@ import java.io.PrintWriter;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -40,6 +39,9 @@ public class MetaOutputDifferenceGeneratorMojo extends AbstractMojo
   @Parameter
   private String oldVersionId;
   
+  @Parameter
+  private File additionalConversion;
+  
   @Component
   private BuildContext buildContext;
   
@@ -59,12 +61,15 @@ public class MetaOutputDifferenceGeneratorMojo extends AbstractMojo
       logGenerating();
       generate();
       logSuccess();
-      refresh();
     }
     catch(Exception ex)
     {
       getLog().error(ex);
       throw new MojoExecutionException("Could not generate meta output difference", ex);
+    }
+    finally
+    {
+      refresh();
     }
   }
 
@@ -72,17 +77,14 @@ public class MetaOutputDifferenceGeneratorMojo extends AbstractMojo
   {
     SqlMeta metaFrom = MetaOutputDifferenceGenerator.parseMetaDefinition(inputFrom);
     SqlMeta metaTo = MetaOutputDifferenceGenerator.parseMetaDefinition(inputTo);
-    PrintWriter pr = new NewLinePrintWriter(output);
-    try
+    SqlMeta additionalConversionMeta = MetaOutputDifferenceGenerator.parseMetaDefinition(additionalConversion);
+    
+    try (PrintWriter pr = new NewLinePrintWriter(output))
     {
       SqlScriptGenerator scriptGenerator = MetaOutputDifferenceGenerator.findGeneratorClass(generatorClass);
       int newVersionId = Integer.parseInt(oldVersionId) +1;
-      MetaOutputDifferenceGenerator differenceGenerator = new MetaOutputDifferenceGenerator(metaFrom, metaTo, scriptGenerator, newVersionId);
+      MetaOutputDifferenceGenerator differenceGenerator = new MetaOutputDifferenceGenerator(metaFrom, metaTo, additionalConversionMeta, scriptGenerator, newVersionId);
       differenceGenerator.generate(pr);
-    }
-    finally
-    {
-      IOUtils.closeQuietly(pr);
     }
   }
 

@@ -72,6 +72,8 @@ db-meta-plugin/src/main/java/ch/ivyteam/db/meta/model/internal/SqlFullQualifiedC
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/model/internal/SqlFunction.java -text
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/model/internal/SqlIndex.java -text
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/model/internal/SqlInsert.java -text
+db-meta-plugin/src/main/java/ch/ivyteam/db/meta/model/internal/SqlInsertWithSelect.java -text
+db-meta-plugin/src/main/java/ch/ivyteam/db/meta/model/internal/SqlInsertWithValues.java -text
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/model/internal/SqlLiteral.java -text
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/model/internal/SqlLogicalExpression.java -text
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/model/internal/SqlMeta.java -text
@@ -103,6 +105,7 @@ db-meta-plugin/src/main/resources/ch/ivyteam/db/meta/generator/internal/persiste
 db-meta-plugin/src/test/java/ch/ivyteam/db/meta/generator/internal/TestIssue23610.java -text
 db-meta-plugin/src/test/java/ch/ivyteam/db/meta/generator/maven/ProjectMojoRule.java -text
 db-meta-plugin/src/test/java/ch/ivyteam/db/meta/generator/maven/TestMetaOutputGeneratorMojo.java -text
+db-meta-plugin/src/test/java/ch/ivyteam/db/meta/generator/maven/TestMetaOutputGeneratorMojoContent.java -text
 db-meta-plugin/src/test/resources/base/meta/simpleTest.meta -text
 db-meta-plugin/src/test/resources/base/pom.xml -text
 db-meta-plugin/techdoc/default.html -text svneol=unset#text/html

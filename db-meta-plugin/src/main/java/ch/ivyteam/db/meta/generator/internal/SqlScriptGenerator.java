@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -32,6 +32,8 @@ import ch.ivyteam.db.meta.model.internal.SqlForeignKeyAction;
 import ch.ivyteam.db.meta.model.internal.SqlFullQualifiedColumnName;
 import ch.ivyteam.db.meta.model.internal.SqlIndex;
 import ch.ivyteam.db.meta.model.internal.SqlInsert;
+import ch.ivyteam.db.meta.model.internal.SqlInsertWithSelect;
+import ch.ivyteam.db.meta.model.internal.SqlInsertWithValues;
 import ch.ivyteam.db.meta.model.internal.SqlLiteral;
 import ch.ivyteam.db.meta.model.internal.SqlLogicalExpression;
 import ch.ivyteam.db.meta.model.internal.SqlMeta;
@@ -215,31 +217,35 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
   @Override
   public void generateMetaOutput(SqlMeta metaDefinition) throws Exception
   {
-    PrintWriter pr = new NewLinePrintWriter(fOutputFile);
-    try
+    try (PrintWriter pr = new NewLinePrintWriter(fOutputFile))
     {
       generateHeader(pr);
       generatePrefix(pr);
-      
-      List<SqlTable> tables = metaDefinition.getArtifacts(SqlTable.class);
-      generateTables(pr, tables);
-      
-      for (SqlView view : metaDefinition.getArtifacts(SqlView.class))
-      {
-        generateView(pr, view);
-      }
-      
-      generateTriggers(pr, metaDefinition);
-      
-      for (SqlInsert insert : metaDefinition.getArtifacts(SqlInsert.class))
-      {
-        generateInsert(pr, insert);
-      }
+      generateMetaOutputStatements(pr, metaDefinition);
       generatePostfix(pr);
     }
-    finally
+  }
+  
+  public void generateMetaOutputStatements(PrintWriter pr, SqlMeta metaDefinition) throws Exception
+  {
+    List<SqlTable> tables = metaDefinition.getArtifacts(SqlTable.class);
+    generateTables(pr, tables);
+
+    for (SqlView view : metaDefinition.getArtifacts(SqlView.class))
     {
-      IOUtils.closeQuietly(pr);
+      generateView(pr, view);
+    }
+
+    generateTriggers(pr, metaDefinition);
+
+    for (SqlInsertWithValues insert : metaDefinition.getArtifacts(SqlInsertWithValues.class))
+    {
+      generateInsert(pr, insert);
+    }
+
+    for (SqlInsertWithSelect insert : metaDefinition.getArtifacts(SqlInsertWithSelect.class))
+    {
+      generateInsertWithSelect(pr, insert);
     }
   }
 
@@ -543,7 +549,7 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
     generateCommentLine(pr,
             "---------------------------------------------------------------------------------");
     generateCommentLine(pr, "Copyright:");
-    generateCommentLine(pr, "ivyTeam AG, Alpenstrasse 9, 6304 Zug");
+    generateCommentLine(pr, "AXON IVY AG, Baarerstrasse 12, 6300 Zug");
     generateCommentLine(pr,
             "---------------------------------------------------------------------------------");
     pr.append('\n');
@@ -696,23 +702,11 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
    * @param pr the writer to write to
    * @param insert the insert statement
    */
-  public void generateInsert(PrintWriter pr, SqlInsert insert)
+  public void generateInsert(PrintWriter pr, SqlInsertWithValues insert)
   {
+    generateInsertInto(pr, insert);
+    pr.append(" VALUES (");
     boolean first = true;
-    pr.append("INSERT INTO ");
-    pr.append(insert.getTable());
-    pr.append(" (");
-    for (String column : insert.getColumns())
-    {
-      if (!first)
-      {
-        pr.append(", ");
-      }
-      first = false;
-      pr.append(column);
-    }
-    pr.append(") VALUES (");
-    first = true;
     for (SqlLiteral value : insert.getValues())
     {
       if (!first)
@@ -726,8 +720,27 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
     generateDelimiter(pr);
     pr.append("\n\n");
   }
+
+  private void generateInsertInto(PrintWriter pr, SqlInsert insert)
+  {
+    pr.append("INSERT INTO ");
+    pr.append(insert.getTable());
+    pr.append(" (");
+    pr.append(StringUtils.join(insert.getColumns(), ", "));
+    pr.append(")");
+  }
   
-  public void generateDelete(PrintWriter pr, SqlInsert insert)
+
+  public void generateInsertWithSelect(PrintWriter pr, SqlInsertWithSelect insert)
+  {
+    generateInsertInto(pr, insert);
+    pr.append("\n");
+    generateSelect(pr, insert.getSelect(), 0);
+    generateDelimiter(pr);
+    pr.append("\n\n");
+  }
+  
+  public void generateDelete(PrintWriter pr, SqlInsertWithValues insert)
   {
     pr.append("DELETE FROM ");
     pr.append(insert.getTable());

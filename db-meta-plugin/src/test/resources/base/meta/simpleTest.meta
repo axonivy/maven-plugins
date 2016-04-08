@@ -258,3 +258,9 @@ CREATE TABLE IWA_ExternalDatabaseProperty
   FOREIGN KEY (ExternalDatabaseId) REFERENCES IWA_ExternalDatabase(ExternalDatabaseId) ON DELETE CASCADE
 );
 
+INSERT INTO IWA_RoleRoleMember (RoleId, RoleMemberId) VALUES (1, 1);
+
+INSERT INTO IWA_RoleRoleMember (RoleId, RoleMemberId)
+SELECT IWA_Role.ParentRoleId, IWA_Role.RoleId FROM IWA_Role
+WHERE IWA_Role.ParentRoleId IS NOT NULL;
+

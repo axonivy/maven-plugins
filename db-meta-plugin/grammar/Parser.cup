@@ -20,6 +20,8 @@ import ch.ivyteam.db.meta.model.internal.SqlForeignKeyAction;
 import ch.ivyteam.db.meta.model.internal.SqlFullQualifiedColumnName;
 import ch.ivyteam.db.meta.model.internal.SqlIndex;
 import ch.ivyteam.db.meta.model.internal.SqlInsert;
+import ch.ivyteam.db.meta.model.internal.SqlInsertWithValues;
+import ch.ivyteam.db.meta.model.internal.SqlInsertWithSelect;
 import ch.ivyteam.db.meta.model.internal.SqlLiteral;
 import ch.ivyteam.db.meta.model.internal.SqlLogicalExpression;
 import ch.ivyteam.db.meta.model.internal.SqlMeta;
@@ -154,6 +156,8 @@ non terminal SqlArtifact Artifact;
 non terminal SqlTable Table;
 non terminal SqlView View;
 non terminal SqlInsert Insert;
+non terminal SqlInsertWithValues InsertWithValues;
+non terminal SqlInsertWithSelect InsertWithSelect;
 non terminal List<SqlTableContentDefinition> TableContentDefinitions;
 non terminal SqlTableContentDefinition TableContentDefinition;
 non terminal SqlTableColumn TableColumn;
@@ -805,11 +809,29 @@ DataType ::=
 		;		  
 		
 Insert ::=
+       InsertWithSelect:insertWithSelect
+        {:
+          RESULT = insertWithSelect;
+        :}
+       | InsertWithValues:insertWithValues
+        {:
+          RESULT = insertWithValues;
+        :}
+      ;
+      
+InsertWithValues ::=
       CommentsOpt:comment INSERT INTO IDENTIFIER:table L_PARENT TableColumnNames:columns R_PARENT VALUES L_PARENT LiteralList:values R_PARENT SEMICOLON 
         {:
-          RESULT = new SqlInsert(table, columns, values, null, comment);
+          RESULT = new SqlInsertWithValues(table, columns, values, null, comment);
         :}
       ;  
+
+InsertWithSelect ::=
+      CommentsOpt:comment INSERT INTO IDENTIFIER:table L_PARENT TableColumnNames:columns R_PARENT Select:select SEMICOLON
+        {:
+          RESULT = new SqlInsertWithSelect(table, columns, select, null, comment);
+        :}
+      ;  	  
       
 Update ::=
 		  CommentsOpt:comment UPDATE IdentifierOpt:id SET UpdateColumnExpressionList:columnExpressions WhereOpt:filterExpr SEMICOLON 
