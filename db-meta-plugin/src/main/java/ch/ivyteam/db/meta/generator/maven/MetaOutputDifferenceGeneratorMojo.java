@@ -3,8 +3,6 @@ package ch.ivyteam.db.meta.generator.maven;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -51,13 +49,13 @@ public class MetaOutputDifferenceGeneratorMojo extends AbstractMojo
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
   {    
+    if (fileIsUpToDate())
+    {
+      getLog().info("Output file "+getAbsolutePath(output)+" is up to date. Nothing to do.");
+      return;
+    }
     try
     {
-      if (fileIsUpToDate())
-      {
-        getLog().info("Output file "+getProjectRelativePath(output)+" is up to date. Nothing to do.");
-        return;
-      }
       logGenerating();
       generate();
       logSuccess();
@@ -98,7 +96,7 @@ public class MetaOutputDifferenceGeneratorMojo extends AbstractMojo
     long latestInputFileChange = getLatestInputFileChangeTimestamp();
     if (output.lastModified() < latestInputFileChange)
     {
-      getLog().debug("Output file "+ getProjectRelativePath(output) +" is not up to date. Build needed.");
+      getLog().debug("Output file "+ getAbsolutePath(output) +" is not up to date. Build needed.");
       return false;
     }
     return true;
@@ -109,29 +107,29 @@ public class MetaOutputDifferenceGeneratorMojo extends AbstractMojo
     long latestInputFileChange = Math.max(inputFrom.lastModified(), inputTo.lastModified());
     return latestInputFileChange;
   }
-  
-  private String getProjectRelativePath(File targetDirectoryOrFile)
-  { 
-    Path base = Paths.get(project.getBasedir().getAbsolutePath());
-    Path path = Paths.get(targetDirectoryOrFile.getAbsolutePath());
-    Path relativePath = base.relativize(path);
-    return relativePath.toString();
-  }
 
   private void refresh()
   {
+    getLog().debug("Refresh '" + getAbsolutePath(output) + "'");
     buildContext.refresh(output);
   }
   
   private void logGenerating()
   {
-    getLog().info("Generating meta output difference "+getProjectRelativePath(output)+" using generator class "+ generatorClass +" ...");
+    getLog().info("Generating meta output difference " + getAbsolutePath(output) + " using generator class "+ generatorClass +" ...");
   }
 
   private void logSuccess()
   {
-    getLog().info("Meta output difference "+getProjectRelativePath(output)+" sucessful generated.");
+    getLog().info("Meta output difference " + getAbsolutePath(output) + " sucessful generated.");
   }
 
-
+  private String getAbsolutePath(File file)
+  {
+    if (file == null)
+    {
+      return "";
+    }
+    return file.getAbsolutePath();
+  }
 }
