@@ -3,8 +3,6 @@ package ch.ivyteam.db.meta.generator.maven;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -233,7 +231,7 @@ public class MetaOutputGeneratorMojo extends AbstractMojo
   {
     if (targetDirectoryOrFile.lastModified() < latestInputFileChange)
     {
-      getLog().debug("Target file "+ getProjectRelativePath(targetDirectoryOrFile) +" is not up to date. Build needed.");
+      getLog().debug("Target file "+ getAbsolutePath(targetDirectoryOrFile) +" is not up to date. Build needed.");
       return true;
     }
     return false;
@@ -302,27 +300,28 @@ public class MetaOutputGeneratorMojo extends AbstractMojo
   {
     if (target.isSingleTargetFile())
     {
-      return "file "+getProjectRelativePath(target.getSingleTargetFile());
+      return "file "+getAbsolutePath(target.getSingleTargetFile());
     }
     else
     {
       if (target.numberOfTargetFiles() > 0)
       {
-        return "files ("+Integer.toString(target.numberOfTargetFiles())+") in directory "+getProjectRelativePath(target.getTargetDirectory());
+        return "files ("+Integer.toString(target.numberOfTargetFiles())+") in directory "+getAbsolutePath(target.getTargetDirectory());
       }
       else
       {
-        return "files in directory "+getProjectRelativePath(target.getTargetDirectory());
+        return "files in directory "+getAbsolutePath(target.getTargetDirectory());
       }
     }
   }
 
-  private String getProjectRelativePath(File targetDirectoryOrFile)
+  private String getAbsolutePath(File targetDirectoryOrFile)
   { 
-    Path base = Paths.get(project.getBasedir().getAbsolutePath());
-    Path path = Paths.get(targetDirectoryOrFile.getAbsolutePath());
-    Path relativePath = base.relativize(path);
-    return relativePath.toString();
+    if (targetDirectoryOrFile == null)
+    {
+      return "";
+    }
+    return targetDirectoryOrFile.getAbsolutePath();
   }
 
 }
