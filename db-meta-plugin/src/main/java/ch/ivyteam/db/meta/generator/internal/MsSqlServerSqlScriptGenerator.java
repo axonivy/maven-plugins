@@ -210,6 +210,9 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
       generateAlterDatabaseForSnapshotIsolation(pr);
       pr.println();
       pr.println();
+      generateAlterDatabaseForRecursiveTriggers(pr);
+      pr.println();
+      pr.println();
       pr.print("SET IMPLICIT_TRANSACTIONS ON");
       generateDelimiter(pr);
       pr.println();
@@ -234,6 +237,19 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
   }
   
   /**
+   * @param pr
+   */
+  private void generateAlterDatabaseForRecursiveTriggers(PrintWriter pr)
+  {
+    generateCommentLine(pr, "");
+    generateCommentLine(pr, "Alter database so that recursive triggers work.");
+    generateCommentLine(pr, "");
+    pr.print("ALTER DATABASE [{0}] SET RECURSIVE_TRIGGERS ON");
+    generateDelimiter(pr);
+    pr.println();
+  }
+  
+  /**
    * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#generateNonMetaDiffChangesPost(java.io.PrintWriter, int)
    */
   @Override
@@ -246,6 +262,15 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
       generateDelimiter(pr);
       pr.println(); 
       generateAlterDatabaseForSnapshotIsolation(pr);
+      pr.println();
+    }
+    if (newVersionId == 39)
+    {
+      pr.print("COMMIT TRANSACTION");
+      generateDelimiter(pr);
+      pr.println(); 
+      pr.println(); 
+      generateAlterDatabaseForRecursiveTriggers(pr);
       pr.println();
     }
   }
