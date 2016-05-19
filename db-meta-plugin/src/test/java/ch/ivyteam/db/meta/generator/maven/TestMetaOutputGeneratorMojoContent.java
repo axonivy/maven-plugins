@@ -38,8 +38,8 @@ public class TestMetaOutputGeneratorMojoContent
     mojoRule.setVariableValueToObject(mojo, "generatorClass", OracleSqlScriptGenerator.class.getName());
     mojoRule.setVariableValueToObject(mojo, "outputFile", getProjectFile(GENERATED_ORACLE_SQL));
     mojo.execute();
-    String oracleSqlContent = getProjectFileContent(GENERATED_ORACLE_SQL);
-    assertThat(oracleSqlContent)
+    String sqlContent = getProjectFileContent(GENERATED_ORACLE_SQL);
+    assertThat(sqlContent)
             .containsIgnoringCase("INSERT INTO IWA_RoleRoleMember (RoleId, RoleMemberId) VALUES (1, 1)");
   }
 
@@ -49,8 +49,8 @@ public class TestMetaOutputGeneratorMojoContent
     mojoRule.setVariableValueToObject(mojo, "generatorClass", OracleSqlScriptGenerator.class.getName());
     mojoRule.setVariableValueToObject(mojo, "outputFile", getProjectFile(GENERATED_ORACLE_SQL));
     mojo.execute();
-    String oracleSqlContent = getProjectFileContent(GENERATED_ORACLE_SQL);
-    assertThat(oracleSqlContent)
+    String sqlContent = getProjectFileContent(GENERATED_ORACLE_SQL);
+    assertThat(sqlContent)
             .containsIgnoringCase("INSERT INTO IWA_RoleRoleMember (RoleId, RoleMemberId)\nSELECT");
   }
 
@@ -60,10 +60,10 @@ public class TestMetaOutputGeneratorMojoContent
     mojoRule.setVariableValueToObject(mojo, "generatorClass", MsSqlServerSqlScriptGenerator.class.getName());
     mojoRule.setVariableValueToObject(mojo, "outputFile", getProjectFile(GENERATED_MSSQL_SQL));
     mojo.execute();
-    String oracleSqlContent = getProjectFileContent(GENERATED_MSSQL_SQL);
-    assertThat(oracleSqlContent)
+    String sqlContent = getProjectFileContent(GENERATED_MSSQL_SQL);
+    assertThat(sqlContent)
             .containsIgnoringCase("INSERT INTO IWA_RoleRoleMember (RoleId, RoleMemberId) VALUES (1, 1)");
-    assertThat(oracleSqlContent).contains("\nGO");
+    assertThat(sqlContent).contains("\nGO");
   }
 
   @Test
@@ -72,12 +72,12 @@ public class TestMetaOutputGeneratorMojoContent
     mojoRule.setVariableValueToObject(mojo, "generatorClass", MsSqlServerSqlScriptGenerator.class.getName());
     mojoRule.setVariableValueToObject(mojo, "outputFile", getProjectFile(GENERATED_MSSQL_SQL));
     mojo.execute();
-    String oracleSqlContent = getProjectFileContent(GENERATED_MSSQL_SQL);
-    assertThat(oracleSqlContent)
+    String sqlContent = getProjectFileContent(GENERATED_MSSQL_SQL);
+    assertThat(sqlContent)
             .containsIgnoringCase("INSERT INTO IWA_RoleRoleMember (RoleId, RoleMemberId)\nSELECT");
-    assertThat(oracleSqlContent).contains("\nGO");
+    assertThat(sqlContent).contains("\nGO");
   }
-
+  
   private File getProjectFile(String path)
   {
     return new File(mojoRule.getProject().getBasedir(), path);

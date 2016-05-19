@@ -142,6 +142,7 @@ public class MetaOutputDifferenceGenerator
     
     generateTableModifications(pr);
     generateCreateIndexOfAddedIndexes(pr);
+    generateCreateUniqueOfAddedUniqueConstraints(pr);
     
     generateCreateTriggersOfAddedTriggers(pr);
     generateRecreateForeignKeysOfChangedColumns(pr);
@@ -316,6 +317,61 @@ public class MetaOutputDifferenceGenerator
     return tables;
   }
 
+  private void generateCreateUniqueOfAddedUniqueConstraints(PrintWriter pr)
+  {
+    for (Entry<SqlTable, SqlTable> changedTable : findTablesWithAddedUniqueConstraints().entrySet())
+    {
+      SqlTable newTable = changedTable.getKey();
+      SqlTable oldTable = changedTable.getValue();
+      generateCreateUniqueConstraint(pr, newTable, oldTable);    
+    }
+  }
+
+  private Map<SqlTable, SqlTable> findTablesWithAddedUniqueConstraints()
+  {
+    Map<SqlTable, SqlTable> tables = new LinkedHashMap<SqlTable, SqlTable>();
+    for (Entry<SqlTable, SqlTable> comonTable : findCommonTables().entrySet())
+    {
+      SqlTable newTable = comonTable.getKey();
+      SqlTable oldTable = comonTable.getValue();
+  
+      boolean hasAddedIndexes = findAddedUniqueConstraints(newTable, oldTable).size() > 0;
+      if (hasAddedIndexes)
+      {
+        tables.put(newTable, oldTable);
+      }      
+    }
+    return tables;
+  }  
+  
+  private void generateCreateUniqueConstraint(PrintWriter pr, SqlTable newTable, SqlTable oldTable)
+  {
+    List<SqlUniqueConstraint> addedUniques = findAddedUniqueConstraints(newTable, oldTable);
+    if (addedUniques.size() > 0)
+    {
+      pr.println();
+      generator.generateCommentLine(pr, "Create new unique constraint of table " + newTable.getId());
+      for (SqlUniqueConstraint addedUnique : addedUniques)
+      {
+        generator.generateUniqueConstraint(pr, newTable, addedUnique);
+      }
+    }
+  }
+  
+  private List<SqlUniqueConstraint> findAddedUniqueConstraints(SqlTable newTable, SqlTable oldTable)
+  {
+    List<SqlUniqueConstraint> addedUniques = new ArrayList<SqlUniqueConstraint>();
+    for (SqlUniqueConstraint newUnique : newTable.getUniqueConstraints())
+    {
+      SqlUniqueConstraint oldIndex = oldTable.findUniqueConstraint(newUnique.getId());
+      if (oldIndex == null)
+      {
+        addedUniques.add(newUnique);
+      }
+    }
+    return addedUniques;
+  }
+  
   private void generateDropTriggersOfChangedTables(PrintWriter pr) throws MetaException
   {
     Map<SqlTable, SqlTable> tablesWithChangedTriggers = findTablesWithChangedTriggers();
