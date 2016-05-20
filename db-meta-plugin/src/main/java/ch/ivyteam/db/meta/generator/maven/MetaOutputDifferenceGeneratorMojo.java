@@ -22,6 +22,8 @@ import ch.ivyteam.db.meta.model.internal.SqlMeta;
 @Mojo(name="generate-meta-output-difference", defaultPhase=LifecyclePhase.GENERATE_SOURCES)
 public class MetaOutputDifferenceGeneratorMojo extends AbstractMojo
 {    
+  static final String GOAL = "generate-meta-output-difference";
+  
   @Parameter(required = true)
   private String generatorClass;
   

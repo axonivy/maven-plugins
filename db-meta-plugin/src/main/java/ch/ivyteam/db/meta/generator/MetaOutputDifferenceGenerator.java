@@ -353,7 +353,7 @@ public class MetaOutputDifferenceGenerator
       generator.generateCommentLine(pr, "Create new unique constraint of table " + newTable.getId());
       for (SqlUniqueConstraint addedUnique : addedUniques)
       {
-        generator.generateUniqueConstraint(pr, newTable, addedUnique);
+        generator.generateAddUniqueConstraint(pr, newTable, addedUnique);
       }
     }
   }

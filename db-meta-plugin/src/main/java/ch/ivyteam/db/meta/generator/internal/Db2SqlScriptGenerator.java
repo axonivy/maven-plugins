@@ -268,7 +268,7 @@ public abstract class Db2SqlScriptGenerator extends SqlScriptGenerator
   }
   
   @Override
-  protected void generateUniqueContraintInTable(PrintWriter pr, SqlTable table, SqlUniqueConstraint unique)
+  protected void generateUniqueConstraintInTable(PrintWriter pr, SqlTable table, SqlUniqueConstraint unique)
   {
     generateTableReorganisation(pr, table);
     

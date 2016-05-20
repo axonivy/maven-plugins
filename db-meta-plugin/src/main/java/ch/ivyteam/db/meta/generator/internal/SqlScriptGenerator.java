@@ -1582,7 +1582,7 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
   {
     if (isUniqueConstraintInTableSupported(unique))
     {
-      generateUniqueContraintInTable(pr, table, unique);
+      generateUniqueConstraintInTable(pr, table, unique);
     }
     else if (isUniqueConstraintOutsideTableSupported(unique))
     {
@@ -1590,7 +1590,7 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
     }
   }
 
-  protected void generateUniqueContraintInTable(PrintWriter pr, SqlTable table, SqlUniqueConstraint unique)
+  protected void generateUniqueConstraintInTable(PrintWriter pr, SqlTable table, SqlUniqueConstraint unique)
   {
     pr.print("ALTER TABLE ");
     generateIdentifier(pr, table.getId());
