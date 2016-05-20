@@ -777,7 +777,7 @@ public class MetaOutputDifferenceGenerator
     {
       if (generator.getRecreateOptions().allUniqueConstraintsOnAlterTable)
       {
-        changedUniqueConstraints.addAll(newTable.getUniqueConstraints());
+        changedUniqueConstraints.addAll(oldTable.getUniqueConstraints());
       }
       else
       {

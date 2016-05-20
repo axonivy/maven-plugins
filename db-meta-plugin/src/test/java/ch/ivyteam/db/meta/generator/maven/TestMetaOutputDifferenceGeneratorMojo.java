@@ -10,11 +10,13 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
+import ch.ivyteam.db.meta.generator.internal.MsSqlServerSqlScriptGenerator;
 import ch.ivyteam.db.meta.generator.internal.OracleSqlScriptGenerator;
 
 public class TestMetaOutputDifferenceGeneratorMojo
 {
   private static final String GENERATED_ORACLE_SQL = "generated/ConvertOracle.sql";
+  private static final String GENERATED_MSSQL_SQL = "generated/ConvertMssql.sql";
   @Rule
   public ProjectMojoRule<MetaOutputDifferenceGeneratorMojo> mojoRule = new ProjectMojoRule<>(
           new File("src/test/resources/base"), MetaOutputDifferenceGeneratorMojo.GOAL);
@@ -42,13 +44,27 @@ public class TestMetaOutputDifferenceGeneratorMojo
   }
   
   @Test
-  public void testUniqueConstraintIsAdded() throws Exception
+  public void testUniqueConstraintIsAddedOracle() throws Exception
   {
     mojoRule.setVariableValueToObject(mojo, "generatorClass", OracleSqlScriptGenerator.class.getName());
     mojoRule.setVariableValueToObject(mojo, "output", getProjectFile(GENERATED_ORACLE_SQL));
     mojo.execute();
     String sqlContent = getProjectFileContent(GENERATED_ORACLE_SQL);
     assertThat(sqlContent).containsIgnoringCase("ALTER TABLE IWA_ExternalDatabaseProperty ADD UNIQUE (ExternalDatabaseId, PropertyName);");
+  }
+  
+  @Test
+  public void testUniqueConstraintIsAddedMssql() throws Exception
+  {
+    mojoRule.setVariableValueToObject(mojo, "generatorClass", MsSqlServerSqlScriptGenerator.class.getName());
+    mojoRule.setVariableValueToObject(mojo, "output", getProjectFile(GENERATED_MSSQL_SQL));
+    mojo.execute();
+    String sqlContent = getProjectFileContent(GENERATED_MSSQL_SQL);
+    assertThat(sqlContent)
+      .containsIgnoringCase("ALTER TABLE IWA_ExternalDatabaseProperty ADD UNIQUE (ExternalDatabaseId, PropertyName)");
+    assertThat(sqlContent)
+      .as("When in old table were no unique constraints, executing the procedure would fail.")
+      .doesNotContain("EXECUTE IWA_Drop_Unique 'IWA_ExternalDatabaseProperty'");
   }
   
   private File getProjectFile(String path)

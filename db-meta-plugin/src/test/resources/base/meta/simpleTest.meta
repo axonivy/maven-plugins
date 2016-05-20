@@ -247,6 +247,9 @@ CREATE TABLE IWA_ExternalDatabaseProperty
   -- References the external database this property belongs to
   ExternalDatabaseId INTEGER NOT NULL,
   
+  -- Some comment regarding the property
+  Comment VARCHAR(50),
+
   -- Name that identifies the property
   PropertyName VARCHAR(50) NOT NULL,
   
