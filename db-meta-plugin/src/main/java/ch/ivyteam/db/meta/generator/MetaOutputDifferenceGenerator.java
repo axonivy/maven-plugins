@@ -349,12 +349,23 @@ public class MetaOutputDifferenceGenerator
     List<SqlUniqueConstraint> addedUniques = findAddedUniqueConstraints(newTable, oldTable);
     if (addedUniques.size() > 0)
     {
+      Set<SqlUniqueConstraint> alreadyRecreatedUniqueConstraints = getUniqueConstraintsToRecreate(newTable, oldTable);
+      
       pr.println();
       generator.generateCommentLine(pr, "Create new unique constraint of table " + newTable.getId());
       for (SqlUniqueConstraint addedUnique : addedUniques)
       {
-        generator.generateAddUniqueConstraint(pr, newTable, addedUnique);
+        if (alreadyRecreatedUniqueConstraints.contains(addedUnique))
+        {
+          generator.generateCommentLine(pr, "Skipping generation of constraint '" + addedUnique + "'."
+                  + " It was already re-generated in this script.");
+        }
+        else
+        {
+          generator.generateAddUniqueConstraint(pr, newTable, addedUnique);
+        }
       }
+      pr.println();
     }
   }
   
@@ -814,11 +825,18 @@ public class MetaOutputDifferenceGenerator
 
   private void generateRecreateUniqueConstraints(PrintWriter pr, SqlTable newTable, SqlTable oldTable) throws MetaException
   {
+    
+    Set<SqlUniqueConstraint> uniqueConstraints = getUniqueConstraintsToRecreate(newTable, oldTable);
+    generateCreateUniqueConstraints(pr, newTable, uniqueConstraints);
+  }
+
+  private Set<SqlUniqueConstraint> getUniqueConstraintsToRecreate(SqlTable newTable, SqlTable oldTable)
+  {
     if (!generator.getRecreateOptions().uniqueConstraintsOnAlterTable)
     {
-      return;
+      return Collections.emptySet();
     }
-    
+
     Set<SqlUniqueConstraint> uniqueConstraints = new HashSet<>();
     if (generator.getRecreateOptions().allUniqueConstraintsOnAlterTable)
     {
@@ -828,8 +846,7 @@ public class MetaOutputDifferenceGenerator
     {
       uniqueConstraints.addAll(getUniqueConstraintsFromChangedColumns(newTable, oldTable));
     }
-    
-    generateCreateUniqueConstraints(pr, newTable, uniqueConstraints);
+    return uniqueConstraints;
   }
   
 

@@ -50,7 +50,8 @@ public class TestMetaOutputDifferenceGeneratorMojo
     mojoRule.setVariableValueToObject(mojo, "output", getProjectFile(GENERATED_ORACLE_SQL));
     mojo.execute();
     String sqlContent = getProjectFileContent(GENERATED_ORACLE_SQL);
-    assertThat(sqlContent).containsIgnoringCase("ALTER TABLE IWA_ExternalDatabaseProperty ADD UNIQUE (ExternalDatabaseId, PropertyName);");
+    assertThat(sqlContent)
+      .containsIgnoringCase("ALTER TABLE IWA_ExternalDatabaseProperty ADD UNIQUE (ExternalDatabaseId, PropertyName);");
   }
   
   @Test
@@ -62,9 +63,31 @@ public class TestMetaOutputDifferenceGeneratorMojo
     String sqlContent = getProjectFileContent(GENERATED_MSSQL_SQL);
     assertThat(sqlContent)
       .containsIgnoringCase("ALTER TABLE IWA_ExternalDatabaseProperty ADD UNIQUE (ExternalDatabaseId, PropertyName)");
+  }
+  
+  @Test
+  public void testDropUniqueConstraintProcMssql() throws Exception
+  {
+    mojoRule.setVariableValueToObject(mojo, "generatorClass", MsSqlServerSqlScriptGenerator.class.getName());
+    mojoRule.setVariableValueToObject(mojo, "output", getProjectFile(GENERATED_MSSQL_SQL));
+    mojo.execute();
+    String sqlContent = getProjectFileContent(GENERATED_MSSQL_SQL);
     assertThat(sqlContent)
-      .as("When in old table were no unique constraints, executing the procedure would fail.")
+      .as("When in old table were no unique constraints, executing the procedure would fail. So, don't add it.")
       .doesNotContain("EXECUTE IWA_Drop_Unique 'IWA_ExternalDatabaseProperty'");
+  }
+  
+  @Test
+  public void testUniqueConstraintIsAddedOnlyOnceMssql() throws Exception
+  {
+    mojoRule.setVariableValueToObject(mojo, "generatorClass", MsSqlServerSqlScriptGenerator.class.getName());
+    mojoRule.setVariableValueToObject(mojo, "output", getProjectFile(GENERATED_MSSQL_SQL));
+    mojo.execute();
+    String sqlContent = getProjectFileContent(GENERATED_MSSQL_SQL);
+    assertThat(sqlContent)
+      .as("Unique constraints are recreated for changed columns and also new unique constraints are added." + 
+              "Even though, same constraint should be only added once.")
+      .containsOnlyOnce("ALTER TABLE IWA_ExternalDatabaseProperty ADD UNIQUE (ExternalDatabaseId, PropertyName)");
   }
   
   private File getProjectFile(String path)

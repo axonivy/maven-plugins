@@ -193,7 +193,7 @@ CREATE TABLE IWA_ExternalNamingAndDirectory
   DefaultContext VARCHAR(200) NOT NULL,
   
   PRIMARY KEY(ExternalNamingAndDirectoryId),
-  UNIQUE ApplicationIdUserFriendlyName (ApplicationId, UserFriendlyName),
+  
   FOREIGN KEY (ApplicationId) REFERENCES IWA_Application(ApplicationId) ON DELETE CASCADE
 );
 
@@ -234,7 +234,10 @@ CREATE TABLE IWA_ExternalDatabase
   AutoCommitEnabled BIT NOT NULL DEFAULT 1,
   
   PRIMARY KEY (ExternalDatabaseId),
+  
+  -- Existing Unique Constraint
   UNIQUE ApplicationIdUserFriendlyName (ApplicationId, UserFriendlyName),
+
   FOREIGN KEY (ApplicationId) REFERENCES IWA_Application(ApplicationId) ON DELETE CASCADE
 );
 
@@ -254,6 +257,7 @@ CREATE TABLE IWA_ExternalDatabaseProperty
   PropertyValue CLOB NOT NULL,
   
   PRIMARY KEY (ExternalDatabasePropertyId),
+  
   FOREIGN KEY (ExternalDatabaseId) REFERENCES IWA_ExternalDatabase(ExternalDatabaseId) ON DELETE CASCADE
 );
 

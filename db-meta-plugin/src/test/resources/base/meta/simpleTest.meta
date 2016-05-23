@@ -193,7 +193,10 @@ CREATE TABLE IWA_ExternalNamingAndDirectory
   DefaultContext VARCHAR(200) NOT NULL,
   
   PRIMARY KEY(ExternalNamingAndDirectoryId),
+  
+  -- New unique constraint without any other table changes
   UNIQUE ApplicationIdUserFriendlyName (ApplicationId, UserFriendlyName),
+  
   FOREIGN KEY (ApplicationId) REFERENCES IWA_Application(ApplicationId) ON DELETE CASCADE
 );
 
@@ -233,8 +236,14 @@ CREATE TABLE IWA_ExternalDatabase
   -- Is auto commit enabled on the connections to the database.
   AutoCommitEnabled BIT NOT NULL DEFAULT 1,
   
+  -- Adding some column to have any table-changes
+  SomeComment VARCHAR(50) NOT NULL,
+    
   PRIMARY KEY (ExternalDatabaseId),
+  
+  -- Existing Unique Constraint
   UNIQUE ApplicationIdUserFriendlyName (ApplicationId, UserFriendlyName),
+
   FOREIGN KEY (ApplicationId) REFERENCES IWA_Application(ApplicationId) ON DELETE CASCADE
 );
 
@@ -257,7 +266,10 @@ CREATE TABLE IWA_ExternalDatabaseProperty
   PropertyValue CLOB NOT NULL,
   
   PRIMARY KEY (ExternalDatabasePropertyId),
+  
+  -- New Unique Constraints (with table changes)
   UNIQUE ExternalDatabaseIdPropertyName (ExternalDatabaseId, PropertyName),
+  UNIQUE ExternalDatabaseIdPropertyName (ExternalDatabaseId, Comment),
   FOREIGN KEY (ExternalDatabaseId) REFERENCES IWA_ExternalDatabase(ExternalDatabaseId) ON DELETE CASCADE
 );
 
