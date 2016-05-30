@@ -7,16 +7,19 @@ import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
 import ch.ivyteam.db.meta.generator.internal.MsSqlServerSqlScriptGenerator;
+import ch.ivyteam.db.meta.generator.internal.MySqlSqlScriptGenerator;
 import ch.ivyteam.db.meta.generator.internal.OracleSqlScriptGenerator;
 
 public class TestMetaOutputDifferenceGeneratorMojo
 {
   private static final String GENERATED_ORACLE_SQL = "generated/ConvertOracle.sql";
   private static final String GENERATED_MSSQL_SQL = "generated/ConvertMssql.sql";
+  private static final String GENERATED_MYSQL_SQL = "generated/ConvertMysql.sql";
   @Rule
   public ProjectMojoRule<MetaOutputDifferenceGeneratorMojo> mojoRule = new ProjectMojoRule<>(
           new File("src/test/resources/base"), MetaOutputDifferenceGeneratorMojo.GOAL);
@@ -88,6 +91,21 @@ public class TestMetaOutputDifferenceGeneratorMojo
       .as("Unique constraints are recreated for changed columns and also new unique constraints are added." + 
               "Even though, same constraint should be only added once.")
       .containsOnlyOnce("ALTER TABLE IWA_ExternalDatabaseProperty ADD UNIQUE (ExternalDatabaseId, PropertyName)");
+  }
+  
+  @Test
+  @Ignore("Might be fixed in issue XIVY-1114")
+  public void testForeignKeyAsTriggerRemovedMysql() throws Exception
+  {
+    mojoRule.setVariableValueToObject(mojo, "generatorClass", MySqlSqlScriptGenerator.class.getName());
+    mojoRule.setVariableValueToObject(mojo, "output", getProjectFile(GENERATED_MYSQL_SQL));
+    mojo.execute();
+    String sqlContent = getProjectFileContent(GENERATED_MYSQL_SQL);
+    assertThat(sqlContent)
+      .as("In new version, foreign key is used as reference instead of trigger. "
+              + "So the existing trigger must be dropped and the new foreign key must be created.")
+      .contains("DROP TRIGGER ApplicationDeleteTrigger")
+      .contains("ALTER TABLE IWA_RestClient ADD\n(\n FOREIGN KEY");
   }
   
   private File getProjectFile(String path)

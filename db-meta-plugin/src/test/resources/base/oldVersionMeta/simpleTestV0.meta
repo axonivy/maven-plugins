@@ -261,6 +261,21 @@ CREATE TABLE IWA_ExternalDatabaseProperty
   FOREIGN KEY (ExternalDatabaseId) REFERENCES IWA_ExternalDatabase(ExternalDatabaseId) ON DELETE CASCADE
 );
 
+CREATE TABLE IWA_RestClient
+(
+  RestClientId BIGINT NOT NULL,
+  UUID VARCHAR(36) NOT NULL,
+  ApplicationId BIGINT NOT NULL,
+  Name VARCHAR(200) NOT NULL,
+  URI VARCHAR(1024) NULL,
+  PRIMARY KEY (RestClientId),
+  FOREIGN KEY (ApplicationId) REFERENCES IWA_Application(ApplicationId) ON DELETE CASCADE
+    FOR MySqlServer USE (NoReferenceUseTrigger)
+    FOR MsSqlServer USE (NoReferenceUseTrigger)
+    FOR Db2iSeries USE (NoReferenceUseTrigger)
+    FOR Java USE (AsParent)
+) FOR Db2zOs USE (Tablespace='SRESTCLI');
+
 INSERT INTO IWA_RoleRoleMember (RoleId, RoleMemberId) VALUES (1, 1);
 
 INSERT INTO IWA_RoleRoleMember (RoleId, RoleMemberId)
