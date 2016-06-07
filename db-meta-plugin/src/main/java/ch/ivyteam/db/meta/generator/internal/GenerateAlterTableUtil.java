@@ -155,7 +155,7 @@ public class GenerateAlterTableUtil
     generator.generateDelimiter(pr);
   }
 
-  public static void dropColumn(PrintWriter pr, SqlScriptGenerator generator, 
+  public static void generateAlterTableDropColumn(PrintWriter pr, SqlScriptGenerator generator, 
           SqlTable table, SqlTableColumn columnToDrop)
   {
     pr.print("ALTER TABLE ");

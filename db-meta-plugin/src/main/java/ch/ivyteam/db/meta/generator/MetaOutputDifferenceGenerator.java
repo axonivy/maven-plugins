@@ -618,10 +618,26 @@ public class MetaOutputDifferenceGenerator
 
   private void generateAlterTable(PrintWriter pr, SqlTable newTable, SqlTable oldTable) throws MetaException
   {
+    generateAlterTableDropColumns(pr, newTable, oldTable);
     generateAlterTableAlterColumns(pr, newTable, oldTable);
     generateAlterTableAddColumns(pr, newTable, oldTable);
   }
-  
+
+  private void generateAlterTableDropColumns(PrintWriter pr, SqlTable newTable, SqlTable oldTable)
+  {
+    List<SqlTableColumn> droppedColumns = findDroppedColumns(newTable, oldTable);
+    if (droppedColumns.size() > 0)
+    {
+      pr.println();
+      generator.generateCommentLine(pr, "Dropped columns of table " + newTable.getId());
+      for (SqlTableColumn droppedColumn : droppedColumns)
+      {
+        generator.generateAlterTableDropColumn(pr, droppedColumn, newTable);
+        pr.println();
+      }
+    }
+  }
+
   private void generateAlterTableAlterColumns(PrintWriter pr, SqlTable newTable, SqlTable oldTable) throws MetaException
   {
     Map<SqlTableColumn, SqlTableColumn> changedColumns = findChangedColumns(newTable, oldTable);
@@ -653,7 +669,7 @@ public class MetaOutputDifferenceGenerator
       }
     }
   }
-
+  
   private void generateDropViewOfChangedTables(PrintWriter pr) throws MetaException
   {
     Set<SqlView> changedViews = findChangedViews();
@@ -1163,6 +1179,20 @@ public class MetaOutputDifferenceGenerator
       }
     }
     return addedColumns;
+  }
+
+  private List<SqlTableColumn> findDroppedColumns(SqlTable newTable, SqlTable oldTable) throws MetaException
+  {
+    List<SqlTableColumn> droppedColumns = new ArrayList<SqlTableColumn>();
+    for (SqlTableColumn oldColumn : oldTable.getColumns())
+    {
+      SqlTableColumn newColumn = newTable.findColumn(oldColumn.getId());
+      if (newColumn == null)
+      {
+        droppedColumns.add(oldColumn);
+      }
+    }
+    return droppedColumns;
   }
 
   private boolean hasColumnChanged(SqlTable newTable, SqlTableColumn newColumn, SqlTableColumn oldColumn) throws MetaException

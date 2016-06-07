@@ -326,6 +326,11 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
    */
   public abstract void generateAlterTableAddColumn(PrintWriter pr, SqlTableColumn newColumn, SqlTable newTable);
   
+  public void generateAlterTableDropColumn(PrintWriter pr, SqlTableColumn droppedColumn, SqlTable newTable)
+  {
+    GenerateAlterTableUtil.generateAlterTableDropColumn(pr, this, newTable, droppedColumn);    
+  }
+  
   /**
    * @param pr
    * @param view
@@ -2145,5 +2150,4 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
     public boolean uniqueConstraintsOnAlterTable = false;
     public boolean allUniqueConstraintsOnAlterTable = false;
   }
-  
 }

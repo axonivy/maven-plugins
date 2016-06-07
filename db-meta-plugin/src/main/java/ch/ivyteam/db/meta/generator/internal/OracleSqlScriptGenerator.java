@@ -248,7 +248,7 @@ public class OracleSqlScriptGenerator extends SqlScriptGenerator
         pr.println();
         copyValues(pr, table, oldColumn, tmpColumn);
         pr.println();
-        GenerateAlterTableUtil.dropColumn(pr, this, table, oldColumn);
+        GenerateAlterTableUtil.generateAlterTableDropColumn(pr, this, table, oldColumn);
         GenerateAlterTableUtil.renameColumn(pr, this, table, tmpColumn, newColumn);
       }
       else
