@@ -1133,8 +1133,9 @@ public class MetaOutputDifferenceGenerator
 
       boolean hasChangedColumns = findChangedColumns(newTable, oldTable).size() > 0;
       boolean hasAddedColumns = findAddedColumns(newTable, oldTable).size() > 0;
+      boolean hasDroppedColumns = findDroppedColumns(newTable, oldTable).size() > 0;
       boolean hasDeletedUniqueConstraints = findDeletedUniqueConstraints(newTable, oldTable).size() > 0;
-      if (hasChangedColumns || hasAddedColumns || hasDeletedUniqueConstraints)
+      if (hasChangedColumns || hasAddedColumns || hasDroppedColumns || hasDeletedUniqueConstraints)
       {
         tables.put(newTable, oldTable);
       }

@@ -158,15 +158,23 @@ public class GenerateAlterTableUtil
   public static void generateAlterTableDropColumn(PrintWriter pr, SqlScriptGenerator generator, 
           SqlTable table, SqlTableColumn columnToDrop)
   {
+    generateAlterTableDropColumn(pr, generator, table, columnToDrop, "DROP COLUMN");
+  }
+  
+  public static void generateAlterTableDropColumn(PrintWriter pr,
+          SqlScriptGenerator generator, SqlTable table,
+          SqlTableColumn columnToDrop, String dropTag)
+  {
     pr.print("ALTER TABLE ");
     generator.generateIdentifier(pr, table.getId());
     pr.print(" ");
-    pr.print("DROP COLUMN");
+    pr.print(dropTag);
     pr.print(" ");
     pr.print(columnToDrop.getId());
     generator.generateDelimiter(pr);
     pr.println();
   }
+
 
   public static void renameColumn(PrintWriter pr,
           SqlScriptGenerator generator, SqlTable table, SqlTableColumn oldColumn,

@@ -108,6 +108,18 @@ public class TestMetaOutputDifferenceGeneratorMojo
       .contains("ALTER TABLE IWA_RestClient ADD\n(\n FOREIGN KEY");
   }
   
+  @Test
+  public void testDropColumnMySql() throws Exception
+  {
+    mojoRule.setVariableValueToObject(mojo, "generatorClass", MySqlSqlScriptGenerator.class.getName());
+    mojoRule.setVariableValueToObject(mojo, "output", getProjectFile(GENERATED_MYSQL_SQL));
+    mojo.execute();
+    String sqlContent = getProjectFileContent(GENERATED_MYSQL_SQL);
+    assertThat(sqlContent)
+      .as("In new version column OwnerPassword is dropped.")
+      .contains("ALTER TABLE IWA_Application DROP COLUMN OwnerPassword;");
+  }
+
   private File getProjectFile(String path)
   {
     return new File(mojoRule.getProject().getBasedir(), path);

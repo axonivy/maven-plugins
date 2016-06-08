@@ -174,6 +174,12 @@ public class SqlAnywhereSqlScriptGenerator extends SqlScriptGenerator
     GenerateAlterTableUtil.generateAlterTableAddColumn(pr, this, newColumn, newTable, "ADD");
   }
   
+  @Override
+  public void generateAlterTableDropColumn(PrintWriter pr, SqlTableColumn droppedColumn, SqlTable newTable)
+  {
+    GenerateAlterTableUtil.generateAlterTableDropColumn(pr, this, newTable, droppedColumn, "DROP");
+  }
+  
   /**
    * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#generatePrefix(java.io.PrintWriter)
    */
