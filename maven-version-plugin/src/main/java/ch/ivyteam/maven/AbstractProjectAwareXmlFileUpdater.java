@@ -8,8 +8,7 @@ import org.w3c.dom.Node;
 abstract class AbstractProjectAwareXmlFileUpdater extends AbstractXmlFileUpdater
 {
   protected File projectDirectory;
-  protected String featureVersion;
-  protected String requiredVersion;
+  protected final String featureVersion;
   protected final UpdateRun update;
 
   AbstractProjectAwareXmlFileUpdater(File projectDirectory, UpdateRun update)
@@ -17,8 +16,7 @@ abstract class AbstractProjectAwareXmlFileUpdater extends AbstractXmlFileUpdater
     super(new File(projectDirectory, update.xmlFileName));
     this.update = update;
     this.projectDirectory = projectDirectory;
-    requiredVersion = update.versionNoMavenQualifier();
-    featureVersion = update.versionEclipseQualified();    
+    this.featureVersion = update.versionEclipseQualified();    
   }
 
   void update() throws IOException, Exception

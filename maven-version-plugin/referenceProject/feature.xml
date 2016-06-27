@@ -21,11 +21,11 @@
 
    <includes
          id="ch.ivyteam.gefjem"
-         version="5.1.14"/>
+         version="5.1.14.qualifier"/>
 
    <includes
          id="ch.ivyteam.ivy.thirdparty"
-         version="5.1.14"/>
+         version="5.1.14.qualifier"/>
 
    <includes
          id="org.eclipse.ve"
@@ -71,161 +71,161 @@
          id="ch.ivyteam.test"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.util"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.designer.branding"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.eclipse.util"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.tomcat"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.awt2swt"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.awtExt"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.base"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.db"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.db.meta"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.icons"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.application"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.guiComponents"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.build"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.cm"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.components"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.config"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.config.ui"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.data.cache"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.database"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.database.configuration"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.datawrapper"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.deployment"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
@@ -239,203 +239,203 @@
          id="ch.ivyteam.ivy.designer.dataClasses.ui"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.designer.engine.ui"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.designer.help"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.designer.ide"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.designer.java"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.designer.process.data.persistence.ui"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.designer.process.ui"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.designer.project.ui"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.designer.richdialog.ui"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.enginemanagerbase"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.extension"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.htmldialog"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.java"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.job"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.library"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.macro"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.macroexpandbridge"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.page.engine"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.persistence"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.process.data.persistence"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.process.data.persistence.config"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.process.engine"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.process.event"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.project"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.reference.base"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.reference.ui"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.renderer"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.request"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.resource.datamodel"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
@@ -449,182 +449,182 @@
          id="ch.ivyteam.ivy.richdialog.config"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.richdialog.exec"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.richdialog.visualeditor"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.rmiinterface"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.rmiinterface.base"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.scripting"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.scripting.dataclass"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.scripting.objects"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.security"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.server"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.server.configuration"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.server.control.center"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.server.exec"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.server.richdialog.application.launcher"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.service"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.user.role"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.webserver"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.webservice.configuration"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.webservice.exec.axis1"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.webservice.exec.axis2"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.webservice.execution"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.webservice.process"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.workflow"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.management"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.parserGenerator"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.swt"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
@@ -652,49 +652,49 @@
          id="ch.ivyteam.hibernate"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.cluster"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.reporting.base"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.utility.facade"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.developmenttools.facade"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.ivy39"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.projectconfiguration.facade"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
@@ -855,21 +855,21 @@
          id="ch.ivyteam.ivy.dialog.jsf"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.dialog.jsf.ui"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.commons.lib"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
@@ -1030,14 +1030,14 @@
          id="ch.ivyteam.ivy.pagedesigner.extensions"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin
          id="ch.ivyteam.ivy.designer.configuration"
          download-size="0"
          install-size="0"
-         version="5.1.14"
+         version="5.1.14.qualifier"
          unpack="false"/>
 
    <plugin

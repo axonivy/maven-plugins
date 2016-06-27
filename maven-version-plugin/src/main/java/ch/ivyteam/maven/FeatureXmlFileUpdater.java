@@ -36,10 +36,10 @@ class FeatureXmlFileUpdater extends AbstractProjectAwareXmlFileUpdater
     for (Node pluginNode : pluginNodes)
     {
       Node versionNode = getVersionAttributeNode(pluginNode);
-      if (versionNeedsUpdate(pluginNode, versionNode, requiredVersion))
+      if (versionNeedsUpdate(pluginNode, versionNode, featureVersion))
       {
-        replaceAttributeText(pluginNode, versionNode, requiredVersion);
-        update.log.info("Replace version "+versionNode.getTextContent()+" with version "+requiredVersion+" in plugin node "+getAttributeText(pluginNode, "id")+" of feature file "+xmlFile.getAbsolutePath());
+        replaceAttributeText(pluginNode, versionNode, featureVersion);
+        update.log.info("Replace version "+versionNode.getTextContent()+" with version "+featureVersion+" in plugin node "+getAttributeText(pluginNode, "id")+" of feature file "+xmlFile.getAbsolutePath());
         changed = true;       
       }
     }
@@ -53,10 +53,10 @@ class FeatureXmlFileUpdater extends AbstractProjectAwareXmlFileUpdater
     for (Node includesNode : includesNodes)
     {
       Node versionNode = getVersionAttributeNode(includesNode);
-      if (versionNeedsUpdate(includesNode, versionNode, requiredVersion))
+      if (versionNeedsUpdate(includesNode, versionNode, featureVersion))
       {
-        replaceAttributeText(includesNode, versionNode, requiredVersion);
-        update.log.info("Replace version "+versionNode.getTextContent()+" with version "+requiredVersion+" in includes node "+getAttributeText(includesNode, "id")+" of file feature "+xmlFile.getAbsolutePath());
+        replaceAttributeText(includesNode, versionNode, featureVersion);
+        update.log.info("Replace version "+versionNode.getTextContent()+" with version "+featureVersion+" in includes node "+getAttributeText(includesNode, "id")+" of file feature "+xmlFile.getAbsolutePath());
         changed = true;       
       }
     }
