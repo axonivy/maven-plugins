@@ -95,7 +95,10 @@ public abstract class JavaClassGenerator implements IMetaOutputGenerator
    * <p>Most often used to keep the old filter query data type when a data type of a column changes 
    * so that the query interface is still compatible with older versions.</p>  
    */ 
-  public static final String FILTER_QUERY_DATA_TYPE = "FilterQueryDataType";                                                 
+  public static final String FILTER_QUERY_DATA_TYPE = "FilterQueryDataType";
+  
+  /** Field used for optimistic locking (e.g. Versioning of a row) **/
+  public static final String FIELD_FOR_OPTIMISTIC_LOCKING = "FieldForOptimisticLocking";                                                 
 
   /**
    * @see ch.ivyteam.db.meta.generator.internal.IMetaOutputGenerator#analyseArgs(java.lang.String[])

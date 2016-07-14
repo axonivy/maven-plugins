@@ -104,7 +104,19 @@ public class ColumnInfo
     return columns;
   }
   
-  /**
+  static ColumnInfo getOptimisticLockingColumn(SqlTable table) 
+  {
+    for (SqlTableColumn column : table.getColumns())
+    {
+    	if (column.getDatabaseManagementSystemHints(JavaClassGenerator.JAVA).isHintSet(JavaClassGenerator.FIELD_FOR_OPTIMISTIC_LOCKING))
+    	{
+    		return ColumnInfo.create(table, column);
+    	}
+    }
+    return null;
+  }
+
+/**
    * @return name
    */
   public String getName()

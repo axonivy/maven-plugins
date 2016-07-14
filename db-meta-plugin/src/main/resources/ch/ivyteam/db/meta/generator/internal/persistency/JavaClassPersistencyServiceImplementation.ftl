@@ -49,6 +49,12 @@ public class Db${table.simpleEntityClass} extends DatabaseTableClassPersistencyS
   /** Full qualified name of the parent key column  */
   public static final ColumnName PARENT_FOREIGN_KEY_COLUMN = new ColumnName(TABLENAME, PARENT_FOREIGN_KEY_COLUMN_NAME);
 </#if>
+<#if table.fieldForOptimisticLocking??>  
+  /** Name of the optimistic locking column */
+  private static final String OPTIMISTIC_LOCKING_COLUMN_NAME = "${table.fieldForOptimisticLocking.name}";
+  /** Full qualified name of the optimistic locking column  */
+  public static final ColumnName OPTIMISTIC_LOCKING_COLUMN = new ColumnName(TABLENAME, OPTIMISTIC_LOCKING_COLUMN_NAME);
+</#if>
 <#list columns as column>  
   /** Name of the column ${column.name} */
   private static final String COLUMN_NAME_${column.constant} = "${column.name}";
@@ -113,10 +119,15 @@ public class Db${table.simpleEntityClass} extends DatabaseTableClassPersistencyS
         null<#if column_has_next>,</#if>
     </#if>
   </#list>
-      });    
+      },
 <#else>
       null, // view columns
-      null); // view column aliases
+      null, // view column aliases
+</#if>
+<#if table.fieldForOptimisticLocking??>  
+      OPTIMISTIC_LOCKING_COLUMN_NAME);
+<#else>
+      null); // optimistic locking column
 </#if>            
   }
 
@@ -200,4 +211,20 @@ public class Db${table.simpleEntityClass} extends DatabaseTableClassPersistencyS
 </#list>  
   }
 </#if>  
+
+<#if table.fieldForOptimisticLocking??>
+  @Override
+  protected void writeDataToOptimisticUpdateStatement(IPersistentTransaction transaction, ${table.simpleEntityClass} data, PreparedStatement stmt)
+  {
+    database.set${table.fieldForOptimisticLocking.method}(stmt, ${numberOfColumns + 1}, data.get${table.fieldForOptimisticLocking.name}(), "${table.fieldForOptimisticLocking.fullName}");
+  }
+</#if>  
+  
+<#if table.fieldForOptimisticLocking??>  
+  @Override
+  protected ${table.simpleEntityClass} increaseOptimisticLockField(${table.simpleEntityClass} data)
+  {
+    return data.set${table.fieldForOptimisticLocking.name}(data.get${table.fieldForOptimisticLocking.name}() + 1);
+  }
+ </#if>
 }

@@ -84,6 +84,16 @@ public class TableInfo
     return ColumnInfo.create(table, table.findColumn(parentKey));
   }
   
+  public ColumnInfo getFieldForOptimisticLocking()
+  {
+    String fieldForOptimisticLocking = JavaClassGeneratorUtil.getFieldForOptimisticLocking(table);
+    if (fieldForOptimisticLocking == null)
+    {
+      return null;
+    }
+    return ColumnInfo.create(table, table.findColumn(fieldForOptimisticLocking));
+  }
+  
   /**
    * @return key type
    */

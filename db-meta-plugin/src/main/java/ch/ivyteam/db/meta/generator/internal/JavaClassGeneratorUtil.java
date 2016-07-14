@@ -260,6 +260,18 @@ public final class JavaClassGeneratorUtil
     }
     return null;
   }
+  
+  public static String getFieldForOptimisticLocking(SqlTable table)
+  {
+    for (SqlTableColumn col : table.getColumns())
+    {
+      if (col.getDatabaseManagementSystemHints(JavaClassGenerator.JAVA).isHintSet(JavaClassGenerator.FIELD_FOR_OPTIMISTIC_LOCKING))
+      {
+        return col.getId();
+      }
+    }
+    return null;
+  }
 
   /**
    * Gets the parent key column of the given talbe

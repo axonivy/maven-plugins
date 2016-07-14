@@ -68,6 +68,7 @@ public class SqlDatabaseSystemHintValidator
     registerHint(JavaClassGenerator.JAVA, JavaClassGenerator.FILTER_QUERY_DATA_TYPE);
     registerHint(JavaClassGenerator.JAVA, JavaClassGenerator.SECONDARY_KEYS);
     registerHint(JavaClassGenerator.JAVA, JavaClassGenerator.TRUNCATE);
+    registerHint(JavaClassGenerator.JAVA, JavaClassGenerator.FIELD_FOR_OPTIMISTIC_LOCKING);
     registerHint(JavaClassGenerator.JAVA, TableInfo.BUSINESS_CLASS);
 
     registerType(JavaEntityClassGenerator.CACHE);

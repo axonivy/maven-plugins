@@ -282,6 +282,16 @@ CREATE TABLE IWA_RestClient
     FOR Java USE (AsParent)
 ) FOR Db2zOs USE (Tablespace='SRESTCLI');
 
+-- Stores Business Data objects (as json)
+CREATE TABLE IWA_BusinessData
+(
+  BusinessDataId BIGINT NOT NULL,
+  Version BIGINT NOT NULL
+    FOR Java USE (FieldForOptimisticLocking),
+  PRIMARY KEY (BusinessDataId)
+);
+
+
 INSERT INTO IWA_RoleRoleMember (RoleId, RoleMemberId) VALUES (1, 1);
 
 INSERT INTO IWA_RoleRoleMember (RoleId, RoleMemberId)
