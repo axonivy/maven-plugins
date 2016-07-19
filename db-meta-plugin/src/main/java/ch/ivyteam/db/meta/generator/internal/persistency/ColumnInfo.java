@@ -448,6 +448,11 @@ public class ColumnInfo
   {
     return JavaClassGeneratorUtil.isPasswordColumn(column);
   }
+  
+  public boolean isOptimisticLockingColumn()
+  {
+    return JavaClassGeneratorUtil.isOptimisticLockingColumn(column);
+  }
 
   /**
    * @return true if this is a blob or clob column

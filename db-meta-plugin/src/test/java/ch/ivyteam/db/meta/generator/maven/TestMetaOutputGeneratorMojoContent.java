@@ -116,8 +116,6 @@ public class TestMetaOutputGeneratorMojoContent
     .contains("protected void writeDataToInsertStatement(IPersistentTransaction transaction");
     assertThat(dbContent)
     .contains("protected void writeDataToOptimisticUpdateStatement(IPersistentTransaction transaction");
-    assertThat(dbContent)
-    .contains("protected BusinessDataData increaseOptimisticLockField(");
   }
   
   private File getProjectFile(String path)

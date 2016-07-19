@@ -169,8 +169,12 @@ public class Db${table.simpleEntityClass} extends DatabaseTableClassPersistencyS
 </#if>
 <#list columnsWithoutPrimaryParentAndLob as column>
     // ${column.sql}
+  <#if column.isOptimisticLockingColumn()>
+    // optimistic locking value is already in the update query
+  <#else>
     database.set${column.method}(stmt, ${row}, ${column.additionalWriteArgs}, "${column.fullName}");
-  <#assign row=row+1>
+    <#assign row=row+1>
+  </#if>
 </#list>
     // ${table.primaryKey.sql}
     database.set${table.primaryKey.method}(stmt, ${row}, ${table.primaryKey.additionalWriteArgs}, "${table.primaryKey.fullName}");
@@ -216,15 +220,8 @@ public class Db${table.simpleEntityClass} extends DatabaseTableClassPersistencyS
   @Override
   protected void writeDataToOptimisticUpdateStatement(IPersistentTransaction transaction, ${table.simpleEntityClass} data, PreparedStatement stmt)
   {
-    database.set${table.fieldForOptimisticLocking.method}(stmt, ${numberOfColumns + 1}, data.get${table.fieldForOptimisticLocking.name}(), "${table.fieldForOptimisticLocking.fullName}");
+    database.set${table.fieldForOptimisticLocking.method}(stmt, ${numberOfColumns}, data.get${table.fieldForOptimisticLocking.name}(), "${table.fieldForOptimisticLocking.fullName}");
   }
 </#if>  
   
-<#if table.fieldForOptimisticLocking??>  
-  @Override
-  protected ${table.simpleEntityClass} increaseOptimisticLockField(${table.simpleEntityClass} data)
-  {
-    return data.set${table.fieldForOptimisticLocking.name}(data.get${table.fieldForOptimisticLocking.name}() + 1);
-  }
- </#if>
 }

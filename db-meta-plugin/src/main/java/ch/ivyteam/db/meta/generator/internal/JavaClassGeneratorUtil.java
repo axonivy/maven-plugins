@@ -406,6 +406,11 @@ public final class JavaClassGeneratorUtil
   {
    return column.getDatabaseManagementSystemHints(JavaClassGenerator.JAVA).isHintSet(JavaClassGenerator.PASSWORD);
   }
+  
+  public static boolean isOptimisticLockingColumn(SqlTableColumn column)
+  {
+   return column.getDatabaseManagementSystemHints(JavaClassGenerator.JAVA).isHintSet(JavaClassGenerator.FIELD_FOR_OPTIMISTIC_LOCKING);
+  }
 
   /**
    * Gets the primary key columns
