@@ -11,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import ch.ivyteam.db.meta.model.internal.MetaException;
 import ch.ivyteam.db.meta.model.internal.SqlArtifact;
+import ch.ivyteam.db.meta.model.internal.SqlAtom;
 import ch.ivyteam.db.meta.model.internal.SqlDataType;
 import ch.ivyteam.db.meta.model.internal.SqlDataType.DataType;
 import ch.ivyteam.db.meta.model.internal.SqlDmlStatement;
@@ -237,13 +238,7 @@ public abstract class Db2SqlScriptGenerator extends SqlScriptGenerator
               .contains(oldColumn.getDataType().getDataType()) && 
           newColumn.getDataType().getDataType() == SqlDataType.DataType.VARCHAR)
       {
-        SqlTableColumn tmpColumn = newColumn.changeId(newColumn.getId()+"_temp");
-        generateAlterTableAddColumn(pr, tmpColumn, table);
-        pr.println();
-        copyValues(pr, table, oldColumn, tmpColumn);
-        pr.println();
-        GenerateAlterTableUtil.generateAlterTableDropColumn(pr, this, table, oldColumn);
-        GenerateAlterTableUtil.renameColumn(pr, this, table, tmpColumn, newColumn);
+        generateAlterTableAlterColumnIncompatibleDataTypes(pr, newColumn, table, oldColumn);
       }
       else
       {
@@ -266,6 +261,18 @@ public abstract class Db2SqlScriptGenerator extends SqlScriptGenerator
       throw new IllegalArgumentException("Only changing of the data type and NOT NULL is supported");
     }
   }
+
+  protected void generateAlterTableAlterColumnIncompatibleDataTypes(PrintWriter pr, SqlTableColumn newColumn,
+          SqlTable table, SqlTableColumn oldColumn)
+  {
+    SqlTableColumn tmpColumn = newColumn.changeId(newColumn.getId()+"_temp");
+    generateAlterTableAddColumn(pr, tmpColumn, table);
+    pr.println();
+    copyValues(pr, table, oldColumn, tmpColumn, "TO_CHAR");
+    pr.println();
+    GenerateAlterTableUtil.generateAlterTableDropColumn(pr, this, table, oldColumn);
+    GenerateAlterTableUtil.renameColumn(pr, this, table, tmpColumn, newColumn);
+  }
   
   @Override
   protected void generateUniqueConstraintInTable(PrintWriter pr, SqlTable table, SqlUniqueConstraint unique)
@@ -282,13 +289,17 @@ public abstract class Db2SqlScriptGenerator extends SqlScriptGenerator
     pr.println();
   }
   
-  private void copyValues(PrintWriter pr, SqlTable table, SqlTableColumn numberColumn,
-          SqlTableColumn varcharColumn)
+  protected void copyValues(PrintWriter pr, SqlTable table, SqlTableColumn numberColumn,
+          SqlTableColumn varcharColumn, String conversionFunction)
   {
+    SqlAtom expr = new SqlFullQualifiedColumnName(table.getId(), numberColumn.getId());
+    if (conversionFunction != null)
+    {
+      expr = new SqlFunction(conversionFunction, expr);
+    }
     List<SqlUpdateColumnExpression> columnExpressions = Arrays.asList(
-            new SqlUpdateColumnExpression(varcharColumn.getId(), 
-                    new SqlFunction("TO_CHAR", new SqlFullQualifiedColumnName(table.getId(), numberColumn.getId())
-    )));
+            new SqlUpdateColumnExpression(varcharColumn.getId(), expr)  
+    );
     SqlUpdate updateStmt = new SqlUpdate(
             table.getId(), columnExpressions, null, Collections.emptyList(), null);
     generateUpdateStatement(pr, updateStmt , 0);

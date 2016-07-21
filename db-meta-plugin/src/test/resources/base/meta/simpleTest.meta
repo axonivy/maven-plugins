@@ -288,7 +288,15 @@ CREATE TABLE IWA_BusinessData
   BusinessDataId BIGINT NOT NULL,
   Version BIGINT NOT NULL
     FOR Java USE (FieldForOptimisticLocking),
+  ObjectType VARCHAR(50) NOT NULL DEFAULT '',
   PRIMARY KEY (BusinessDataId)
+);
+
+CREATE TABLE IWA_Library
+(
+  LibraryId BIGINT NOT NULL,
+  Version VARCHAR(50) NOT NULL DEFAULT '',
+  PRIMARY KEY (LibraryId)
 );
 
 

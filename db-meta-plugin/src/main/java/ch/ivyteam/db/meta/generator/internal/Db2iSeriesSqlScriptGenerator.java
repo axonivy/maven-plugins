@@ -6,6 +6,7 @@ import java.util.List;
 
 import ch.ivyteam.db.meta.model.internal.SqlForeignKey;
 import ch.ivyteam.db.meta.model.internal.SqlTable;
+import ch.ivyteam.db.meta.model.internal.SqlTableColumn;
 import ch.ivyteam.db.meta.model.internal.SqlUniqueConstraint;
 
 /**
@@ -160,9 +161,7 @@ public class Db2iSeriesSqlScriptGenerator extends Db2SqlScriptGenerator
   {
     if (newVersionId==33)
     {
-      // Commit previous changes (INSERT). Otherwise the alter table commands will fail because of uncommited data. 
-      pr.print("COMMIT");
-      generateDelimiter(pr);
+      commit(pr);
       pr.println();
       pr.println();
       generateCommentLine(pr, "This reconfigures the current AS400 job (jdbc connection) so that answers to system messages is not requested (RQST) by the user (jdbc)");
@@ -185,5 +184,45 @@ public class Db2iSeriesSqlScriptGenerator extends Db2SqlScriptGenerator
     options.foreignKeysOnAlterTable = true;
     return options;
   }
+  
+  @Override
+  protected void generateAlterTableAlterColumnIncompatibleDataTypes(PrintWriter pr, SqlTableColumn newColumn,
+          SqlTable table, SqlTableColumn oldColumn)
+  {
+    SqlTableColumn tmpColumn = newColumn.changeId(newColumn.getId()+"_temp");
+    generateAlterTableAddColumn(pr, tmpColumn, table);
+    pr.println();
+    copyValues(pr, table, oldColumn, tmpColumn, "CHAR");
+    pr.println();
+    commit(pr);
+    pr.println();
+    GenerateAlterTableUtil.generateAlterTableDropColumn(pr, this, table, oldColumn);
+    generateAlterTableAddColumn(pr, newColumn, table);
+    pr.println();
+    copyValues(pr, table, tmpColumn, newColumn, null);
+    pr.println();
+    commit(pr);
+    pr.println();
+    GenerateAlterTableUtil.generateAlterTableDropColumn(pr, this, table, tmpColumn);
+  }
+
+  /**
+   * @param pr
+   */
+  private void commit(PrintWriter pr)
+  {
+    pr.print("COMMIT");
+    generateDelimiter(pr);
+  }
+  
+  /**
+   * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#generateAlterTableAddColumn(java.io.PrintWriter, ch.ivyteam.db.meta.model.internal.SqlTableColumn, ch.ivyteam.db.meta.model.internal.SqlTable)
+   */
+  @Override
+  public void generateAlterTableAddColumn(PrintWriter pr, SqlTableColumn newColumn, SqlTable newTable)
+  {
+    GenerateAlterTableUtil.generateAlterTableAddColumn(pr, this, newColumn, newTable, "ADD COLUMN");
+  }
+
 
 }

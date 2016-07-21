@@ -37,6 +37,8 @@ public class OracleSqlScriptGenerator extends SqlScriptGenerator
    * Persistency layer will read NULL values as "". 
    */
   public static final String CONVERT_EMPTY_STRING_TO_NULL = "ConvertEmptyStringToNull";
+
+  private boolean alterTable;
   
   /**
    * @see SqlScriptGenerator#generateDataType(PrintWriter, DataType)
@@ -293,7 +295,30 @@ public class OracleSqlScriptGenerator extends SqlScriptGenerator
   @Override
   public void generateAlterTableAddColumn(PrintWriter pr, SqlTableColumn newColumn, SqlTable newTable)
   {
-    GenerateAlterTableUtil.generateAlterTableAddColumn(pr, this, newColumn, newTable, "ADD");
+    alterTable=true;
+    try
+    {
+      GenerateAlterTableUtil.generateAlterTableAddColumn(pr, this, newColumn, newTable, "ADD");
+    }
+    finally
+    {
+      alterTable=false;
+    }
+  }
+  
+  @Override
+  protected void generateDefaultValue(PrintWriter pr, SqlTableColumn column)
+  {
+    if (alterTable)
+    {
+      if (column.getDefaultValue() != null && "".equals(column.getDefaultValue().getValue()) && !column.isCanBeNull())
+      {
+        pr.append(" DEFAULT ");
+        generateValue(pr, " ");
+        return;
+      }
+    }
+    super.generateDefaultValue(pr, column);
   }
   
   /**

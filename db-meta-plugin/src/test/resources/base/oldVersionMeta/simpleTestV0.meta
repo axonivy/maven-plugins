@@ -276,6 +276,13 @@ CREATE TABLE IWA_RestClient
     FOR Java USE (AsParent)
 ) FOR Db2zOs USE (Tablespace='SRESTCLI');
 
+CREATE TABLE IWA_Library
+(
+  LibraryId BIGINT NOT NULL,
+  Version INTEGER NOT NULL,
+  PRIMARY KEY (LibraryId)
+);
+
 INSERT INTO IWA_RoleRoleMember (RoleId, RoleMemberId) VALUES (1, 1);
 
 INSERT INTO IWA_RoleRoleMember (RoleId, RoleMemberId)
