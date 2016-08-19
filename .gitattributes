@@ -907,6 +907,16 @@ eclipse-help-plugin/src/test/resources/DesignerGuide/index.xml -text
 eclipse-help-plugin/src/test/resources/context.xml -text
 eclipse-help-plugin/src/test/resources/expectedContext.xml -text
 eclipse-help-plugin/src/test/resources/pom.xml -text
+image-dpi-plugin/.classpath -text
+image-dpi-plugin/.project -text
+image-dpi-plugin/.settings/org.eclipse.jdt.core.prefs -text
+image-dpi-plugin/.settings/org.eclipse.m2e.core.prefs -text
+image-dpi-plugin/.settings/org.eclipse.wst.validation.prefs -text
+image-dpi-plugin/pom.xml -text
+image-dpi-plugin/src/main/java/ch/ivyteam/ivy/maven/DpiConverter.java -text
+image-dpi-plugin/src/main/java/ch/ivyteam/ivy/maven/PngDpiMojo.java -text
+image-dpi-plugin/src/test/java/ch/ivyteam/ivy/maven/TestDpiConverter.java -text
+image-dpi-plugin/src/test/resources/workbench.png -text
 image-text-plugin/.classpath -text
 image-text-plugin/.project -text
 image-text-plugin/.settings/org.eclipse.jdt.core.prefs -text

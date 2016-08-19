@@ -2,6 +2,7 @@ db-meta-plugin/target
 eclipse-help-plugin/target
 /eclipseWorkspace
 /eclipse_workspace
+image-dpi-plugin/target
 image-text-plugin/target
 maven-version-plugin/target
 maven-version-plugin/testIvy
