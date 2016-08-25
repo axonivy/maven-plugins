@@ -79,9 +79,18 @@ public class SetMavenAndEclipseVersion extends AbstractMojo
   @Parameter
   boolean stripBundleVersionOfDependencies;
   
+  @Parameter
+  boolean skip;
+  
   @Override
   public void execute() throws MojoExecutionException
   {
+    if (skip)
+    {
+      getLog().info("Skipping MavenAndEclipseVersion update");
+      return;
+    }
+    
     try
     {
       checkParameters();
