@@ -5,10 +5,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import ch.ivyteam.db.meta.generator.internal.Db2LuwSqlScriptGenerator;
 import ch.ivyteam.db.meta.generator.internal.Db2SqlScriptGenerator;
 import ch.ivyteam.db.meta.generator.internal.Db2iSeriesSqlScriptGenerator;
-import ch.ivyteam.db.meta.generator.internal.Db2zOsSqlScriptGenerator;
 import ch.ivyteam.db.meta.generator.internal.HsqlSqlScriptGenerator;
 import ch.ivyteam.db.meta.generator.internal.JavaClassGenerator;
 import ch.ivyteam.db.meta.generator.internal.JavaEntityClassGenerator;
@@ -16,7 +14,6 @@ import ch.ivyteam.db.meta.generator.internal.MsSqlServerSqlScriptGenerator;
 import ch.ivyteam.db.meta.generator.internal.MySqlSqlScriptGenerator;
 import ch.ivyteam.db.meta.generator.internal.OracleSqlScriptGenerator;
 import ch.ivyteam.db.meta.generator.internal.PostgreSqlSqlScriptGenerator;
-import ch.ivyteam.db.meta.generator.internal.SqlAnywhereSqlScriptGenerator;
 import ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator;
 import ch.ivyteam.db.meta.generator.internal.query.TableInfo;
 
@@ -76,15 +73,7 @@ public class SqlDatabaseSystemHintValidator
     registerHint(JavaEntityClassGenerator.CACHE, JavaEntityClassGenerator.COUNT_LIMIT);
     registerHint(JavaEntityClassGenerator.CACHE, JavaEntityClassGenerator.USAGE_LIMIT);
 
-    registerType(Db2zOsSqlScriptGenerator.DB2_ZOS);
-    registerHint(Db2zOsSqlScriptGenerator.DB2_ZOS, Db2zOsSqlScriptGenerator.TABLESPACE);
-    registerHint(Db2zOsSqlScriptGenerator.DB2_ZOS, Db2zOsSqlScriptGenerator.CREATE_INDEX);
-    registerHint(Db2zOsSqlScriptGenerator.DB2_ZOS, Db2zOsSqlScriptGenerator.PRIQTY);
-    registerHint(Db2zOsSqlScriptGenerator.DB2_ZOS, Db2zOsSqlScriptGenerator.BUFFERPOOL);
-    registerHint(Db2zOsSqlScriptGenerator.DB2_ZOS, Db2zOsSqlScriptGenerator.SEG_SIZE);
-    
     registerType(Db2iSeriesSqlScriptGenerator.DB2_ISERIES);
-    registerType(Db2LuwSqlScriptGenerator.DB2_LUW);
 
     registerType(Db2SqlScriptGenerator.DB2);
 
@@ -101,8 +90,6 @@ public class SqlDatabaseSystemHintValidator
     registerHint(OracleSqlScriptGenerator.ORACLE, OracleSqlScriptGenerator.CONVERT_EMPTY_STRING_TO_NULL);
 
     registerType(PostgreSqlSqlScriptGenerator.POSTGRESQL);
-
-    registerType(SqlAnywhereSqlScriptGenerator.SQL_ANYWHERE);
   }
   
   private static void registerHint(String type, String hint)

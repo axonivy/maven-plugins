@@ -15,16 +15,13 @@ import org.apache.tools.ant.Project;
 import org.apache.tools.ant.Task;
 
 import ch.ivyteam.db.meta.generator.MetaOutputDifferenceGenerator;
-import ch.ivyteam.db.meta.generator.internal.Db2LuwSqlScriptGenerator;
 import ch.ivyteam.db.meta.generator.internal.Db2iSeriesSqlScriptGenerator;
-import ch.ivyteam.db.meta.generator.internal.Db2zOsSqlScriptGenerator;
 import ch.ivyteam.db.meta.generator.internal.HsqlSqlScriptGenerator;
 import ch.ivyteam.db.meta.generator.internal.MsSqlServerSqlScriptGenerator;
 import ch.ivyteam.db.meta.generator.internal.MySqlSqlScriptGenerator;
 import ch.ivyteam.db.meta.generator.internal.NewLinePrintWriter;
 import ch.ivyteam.db.meta.generator.internal.OracleSqlScriptGenerator;
 import ch.ivyteam.db.meta.generator.internal.PostgreSqlSqlScriptGenerator;
-import ch.ivyteam.db.meta.generator.internal.SqlAnywhereSqlScriptGenerator;
 import ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator;
 import ch.ivyteam.db.meta.model.internal.SqlMeta;
 
@@ -61,13 +58,10 @@ public class MetaOuputDifferenceGeneratorTask extends Task
     Map<String, Class<?>> generators = new LinkedHashMap<String, Class<?>>();
     generators.put("Hsql", HsqlSqlScriptGenerator.class);
     generators.put("PostgreSql", PostgreSqlSqlScriptGenerator.class);
-    generators.put("SqlAnywhere", SqlAnywhereSqlScriptGenerator.class);
     generators.put("MsSqlServer", MsSqlServerSqlScriptGenerator.class);
     generators.put("MySql", MySqlSqlScriptGenerator.class);
     generators.put("Oracle", OracleSqlScriptGenerator.class);
     generators.put("Db2iSeries", Db2iSeriesSqlScriptGenerator.class);
-    generators.put("Db2Luw", Db2LuwSqlScriptGenerator.class);
-    generators.put("Db2zOs", Db2zOsSqlScriptGenerator.class);
     
     for (Entry<String, Class<?>> entry : generators.entrySet())
     {

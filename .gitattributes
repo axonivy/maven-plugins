@@ -17,10 +17,8 @@ db-meta-plugin/src/main/java/ch/ivyteam/db/meta/generator/ant/MetaOuputDifferenc
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/generator/ant/MetaOutputGeneratorTask.java -text
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/generator/internal/AbstractSortedTableContentListGenerator.java -text
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/generator/internal/ConstantBuilder.java -text
-db-meta-plugin/src/main/java/ch/ivyteam/db/meta/generator/internal/Db2LuwSqlScriptGenerator.java -text
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/generator/internal/Db2SqlScriptGenerator.java -text
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/generator/internal/Db2iSeriesSqlScriptGenerator.java -text
-db-meta-plugin/src/main/java/ch/ivyteam/db/meta/generator/internal/Db2zOsSqlScriptGenerator.java -text
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/generator/internal/GenerateAlterTableUtil.java -text
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/generator/internal/HsqlSqlScriptGenerator.java -text
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/generator/internal/HtmlDocGenerator.java -text
@@ -37,7 +35,6 @@ db-meta-plugin/src/main/java/ch/ivyteam/db/meta/generator/internal/PostgreSqlSql
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/generator/internal/ReservedSqlKeywords.java -text
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/generator/internal/SortedTableContentDeleteListGenerator.java -text
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/generator/internal/SortedTableContentDumpListGenerator.java -text
-db-meta-plugin/src/main/java/ch/ivyteam/db/meta/generator/internal/SqlAnywhereSqlScriptGenerator.java -text
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/generator/internal/SqlScriptGenerator.java -text
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/generator/internal/SqlScriptUtil.java -text
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/generator/internal/persistency/AbstractJavaClassPersistencyServiceImplementationTemplateWriter.java -text

@@ -121,14 +121,6 @@ CREATE TABLE IWA_Application<br>
 (DefaultValue='ivyteam.webapp.workflow.InternalAuthenticationAndAuthorizationSystem')<br>
 
 
-&nbsp;&nbsp;&nbsp; FOR SqlAnywhere USE
-(DefaultValue='ivyteam.webapp.workflow.InternalAuthenticationAndAuthorizationSystem')<br>
-
-
-&nbsp;&nbsp;&nbsp; FOR Db2Luw USE
-(DefaultValue='ivyteam.webapp.workflow.InternalAuthenticationAndAuthorizationSystem'),<br>
-
-
 &nbsp; SecurityDescriptorId INTEGER DEFAULT NULL REFERENCES
 IWA_SecurityDescriptor(SecurityDescriptorId) ON DELETE THIS CASCADE<br>
 
@@ -144,14 +136,6 @@ IWA_SecurityDescriptor(SecurityDescriptorId) ON DELETE THIS CASCADE<br>
 
 
 &nbsp;&nbsp;&nbsp; FOR Oracle USE (NoReferenceUseTrigger)<br>
-
-
-&nbsp;&nbsp;&nbsp; FOR Db2Luw USE (NoReferenceUseTrigger)<br>
-
-
-&nbsp;&nbsp;&nbsp; FOR SqlAnywhere USE
-(NoReferenceUseTrigger),<br>
-
 
 &nbsp; State INTEGER NOT NULL,<br>
 
@@ -172,16 +156,7 @@ IWA_SecurityDescriptor(SecurityDescriptorId) ON DELETE THIS CASCADE<br>
 ) <br>
 
 
-FOR Db2zOs USE (Tablespace='SAPPLICN')<br>
-
-
 FOR Oracle USE (DeleteTriggerName='IWA_ApplicationDeleteTrg')<br>
-
-
-FOR Db2Luw USE (DeleteTriggerName='IWA_ApplicationDeleteTrg')<br>
-
-
-FOR SqlAnywhere USE (DeleteTriggerName='IWA_ApplicationDeleteTrg');<br>
 
 
 <br>
@@ -212,33 +187,11 @@ Script generator has eight subtypes:<br>
 
   
   <ul>
-
-
-    <li>DB2 for LUW</li>
-
-
-    <li>DB2 for z/OS</li>
-
-
     <li>mySql</li>
-
-
     <li>Oracle</li>
-
-
     <li>Microsoft SQL Server</li>
-
-
-    <li>Sybase SQL Anywhere</li>
-
-
     <li>Postgre SQL</li>
-
-
     <li>HSQL DB</li>
-
-
-  
   </ul>
 
 
@@ -634,192 +587,8 @@ each row a trigger is generated that is executed for each statement.</td>
 </table>
 
 
-<h3>Db2 for LUW </h3>
+<br/>
 
-
-Generates SQL Script for Db2 (LUW) for&nbsp;defining the schema
-of&nbsp;a database. This&nbsp;generator supports
-also&nbsp;all&nbsp;generator arguments and generator hints of
-the SQL Script generator.<br>
-
-
-<br>
-
-
-<table style="text-align: left; width: 100%;" border="1" cellpadding="2" cellspacing="2">
-
-
-  <tbody>
-
-
-    <tr>
-
-
-      <th>Generator Class Name</th>
-
-
-      <td>ch.ivyteam.db.meta.generator.internal.Db2LuwSqlScriptGenerator</td>
-
-
-    </tr>
-
-
-    <tr>
-
-
-      <th>Database System Name</th>
-
-
-      <td>Db2Luw</td>
-
-
-    </tr>
-
-
-  
-  </tbody>
-</table>
-
-
-<br>
-
-
-<h3>Db2 for z/OS </h3>
-
-
-Generates SQL Script for Db2 (z/OS) for&nbsp;defining
-the schema of&nbsp;a database. This&nbsp;generator supports
-also&nbsp;all&nbsp;generator
-arguments and generator hints of the SQL Script generator.<br>
-
-
-<br>
-
-
-<table style="text-align: left; width: 100%;" border="1" cellpadding="2" cellspacing="2">
-
-
-  <tbody>
-
-
-    <tr>
-
-
-      <th>Generator Class Name</th>
-
-
-      <td>ch.ivyteam.db.meta.generator.internal.Db2zOsSqlScriptGenerator</td>
-
-
-    </tr>
-
-
-    <tr>
-
-
-      <th>Database System Name</th>
-
-
-      <td>Db2zOs</td>
-
-
-    </tr>
-
-
-  
-  </tbody>
-</table>
-
-
-<br>
-
-
-<table style="text-align: left; width: 100%;" border="1" cellpadding="2" cellspacing="2">
-
-
-  <tbody>
-
-
-    <tr>
-
-
-      <th>Generator Hint</th>
-
-
-      <th>Mandatory</th>
-
-      <th>Value Mandatory</th>
-
-
-      <th>Description</th>
-
-
-    </tr>
-
-    <tr>
-
-      <td><code>CreateIndex</code></td>
-
-      <td>no</td>
-
-      <td>yes</td>
-
-      <td>Creates an index with the given index name for foreign keys.</td>
-
-    </tr>
-
-    <tr>
-
-      <td><code>PRIQTY</code></td>
-
-      <td>no</td>
-
-      <td>yes</td>
-
-      <td>Defines the primary quantity of the tablespace of a table</td>
-
-    </tr>
-
-    <tr>
-
-      <td><code>TABLESPACE</code></td>
-
-      <td>yes</td>
-
-      <td>yes</td>
-
-      <td>The name of the tablespace to create for a table</td>
-
-    </tr>
-
-    <tr>
-
-      <td><code>BUFFERPOOL</code></td>
-
-      <td>no</td>
-
-      <td>yes</td>
-
-      <td>The name of the buffer pool to use by the tablespace to create for a table</td>
-
-    </tr>
-
-    <tr>
-
-      <td><code>SEG_SIZE</code></td>
-
-      <td>no</td>
-
-      <td>yes</td>
-
-      <td>The seg size of the&nbsp;tablespace to create for a table</td>
-
-    </tr>
-
-
-  
-  </tbody>
-</table>
 
 
 <h3>HSQL Db </h3>
@@ -1151,50 +920,6 @@ arguments and generator hints of the SQL Script generator.<br>
 
 
       <td>PostgreSql</td>
-
-    </tr>
-
-  
-  </tbody>
-</table>
-
-<h3>Sybase SQL Anywhere </h3>
-
-
-Generates SQL Script for Postgre SQL for&nbsp;defining
-the schema of&nbsp;a database. This&nbsp;generator supports
-also&nbsp;all&nbsp;generator
-arguments and generator hints of the SQL Script generator.<br>
-
-
-<br>
-
-
-
-
-<table style="text-align: left; width: 100%;" border="1" cellpadding="2" cellspacing="2">
-
-  <tbody>
-
-    <tr>
-
-
-      <th>Generator Class Name</th>
-
-
-      <td>ch.ivyteam.db.meta.generator.internal.SqlAnywhereSqlScriptGenerator</td>
-
-
-    </tr>
-
-
-    <tr>
-
-
-      <th>Database System Name</th>
-
-
-      <td>SqlAnywhere</td>
 
     </tr>
 

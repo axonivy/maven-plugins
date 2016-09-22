@@ -13,14 +13,12 @@ import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
-import ch.ivyteam.db.meta.generator.internal.Db2LuwSqlScriptGenerator;
 import ch.ivyteam.db.meta.generator.internal.Db2iSeriesSqlScriptGenerator;
 import ch.ivyteam.db.meta.generator.internal.HsqlSqlScriptGenerator;
 import ch.ivyteam.db.meta.generator.internal.MsSqlServerSqlScriptGenerator;
 import ch.ivyteam.db.meta.generator.internal.MySqlSqlScriptGenerator;
 import ch.ivyteam.db.meta.generator.internal.OracleSqlScriptGenerator;
 import ch.ivyteam.db.meta.generator.internal.PostgreSqlSqlScriptGenerator;
-import ch.ivyteam.db.meta.generator.internal.SqlAnywhereSqlScriptGenerator;
 import ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator;
 
 public class TestMetaOutputDifferenceGeneratorMojo
@@ -126,21 +124,6 @@ public class TestMetaOutputDifferenceGeneratorMojo
   }
 
   @Test
-  public void testAlterColumnIntegerToVarcharDb2iLuw() throws Exception
-  {
-    String sqlContent = execute(Db2LuwSqlScriptGenerator.class);
-    assertThat(sqlContent).contains(
-            "-- Changed columns of table IWA_Library\n"+
-            "ALTER TABLE IWA_Library ADD\n"+
-            "  Version_temp VARCHAR(50) DEFAULT '' NOT NULL;\n"+
-            "UPDATE IWA_Library\n"+
-            "SET IWA_Library.Version_temp=TO_CHAR(IWA_Library.Version);\n"+
-            "ALTER TABLE IWA_Library DROP COLUMN Version;\n"+
-            "ALTER TABLE IWA_Library RENAME COLUMN Version_temp TO Version;"
-    );
-  }
-  
-  @Test
   public void testAlterColumnIntegerToVarcharHsql() throws Exception
   {
     String sqlContent = execute(HsqlSqlScriptGenerator.class);
@@ -173,16 +156,6 @@ public class TestMetaOutputDifferenceGeneratorMojo
     );
   }
   
-  @Test
-  public void testAlterColumnIntegerToVarcharSqlAnywhere() throws Exception
-  {
-    String sqlContent = execute(SqlAnywhereSqlScriptGenerator.class);
-    assertThat(sqlContent).contains(
-            "-- Changed columns of table IWA_Library\n"+
-            "ALTER TABLE IWA_Library MODIFY Version VARCHAR(50) DEFAULT '' NOT NULL;"
-    );
-  }
-
   @Test
   public void testAlterColumnIntegerToVarcharMsSqlServer() throws Exception
   {

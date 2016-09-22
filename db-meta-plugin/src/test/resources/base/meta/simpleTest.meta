@@ -74,8 +74,7 @@ CREATE TABLE IWA_Application
   
   PRIMARY KEY (ApplicationId),
   UNIQUE Name (Name)
-)
-FOR Db2zOs USE (Tablespace='SAPPLICN');
+);
 
 
 --
@@ -98,8 +97,7 @@ CREATE TABLE IWA_ApplicationProperty
   
   PRIMARY KEY (ApplicationPropertyId),
   INDEX ApplicationId (ApplicationId)
-) 
-FOR Db2zOs USE (Tablespace='SAPPLPRO');
+);
 
 -- This table stores at which days the users do not work. There are three kind of exception days:
 -- <ul>
@@ -280,7 +278,7 @@ CREATE TABLE IWA_RestClient
     FOR MsSqlServer USE (NoReferenceUseTrigger)
     FOR Db2iSeries USE (NoReferenceUseTrigger)
     FOR Java USE (AsParent)
-) FOR Db2zOs USE (Tablespace='SRESTCLI');
+);
 
 -- Stores Business Data objects (as json)
 CREATE TABLE IWA_BusinessData
