@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -44,6 +45,7 @@ import ch.ivyteam.db.meta.parser.internal.Scanner;
  */
 public class MetaOutputDifferenceGenerator
 {  
+  private static final String VERSION_TABLE = "IWA_Version";
   private final SqlScriptGenerator generator;
   private final int newVersionId;
   private final SqlMeta metaDefinitionFrom;
@@ -248,8 +250,8 @@ public class MetaOutputDifferenceGenerator
 
   private void generateDeletesOfRemovedInserts(PrintWriter pr)
   {
-    List<SqlInsertWithValues> fromSqlInserts = metaDefinitionFrom.getArtifacts(SqlInsertWithValues.class);
-    List<SqlInsertWithValues> toSqlInserts = metaDefinitionTo.getArtifacts(SqlInsertWithValues.class);
+    List<SqlInsertWithValues> fromSqlInserts = removeInsertsToVersionTable(metaDefinitionFrom.getArtifacts(SqlInsertWithValues.class));
+    List<SqlInsertWithValues> toSqlInserts = removeInsertsToVersionTable(metaDefinitionTo.getArtifacts(SqlInsertWithValues.class));
     List<String> toInsertStmts = getInsertStmts(toSqlInserts);
     
     boolean first = true;
@@ -267,11 +269,12 @@ public class MetaOutputDifferenceGenerator
       }
     }    
   }
+  
   private void generateInsertsOfNewAddedInserts(PrintWriter pr)
   {
-    List<SqlInsertWithValues> fromSqlInserts = metaDefinitionFrom.getArtifacts(SqlInsertWithValues.class);
+    List<SqlInsertWithValues> fromSqlInserts = removeInsertsToVersionTable(metaDefinitionFrom.getArtifacts(SqlInsertWithValues.class));
     List<String> fromInsertStmts = getInsertStmts(fromSqlInserts);
-    List<SqlInsertWithValues> toSqlInserts = metaDefinitionTo.getArtifacts(SqlInsertWithValues.class);
+    List<SqlInsertWithValues> toSqlInserts = removeInsertsToVersionTable(metaDefinitionTo.getArtifacts(SqlInsertWithValues.class));
     List<String> toInsertStmts = getInsertStmts(toSqlInserts);
 
     boolean first = true;
@@ -289,6 +292,11 @@ public class MetaOutputDifferenceGenerator
     }    
   }
 
+  private List<SqlInsertWithValues> removeInsertsToVersionTable(List<SqlInsertWithValues> inserts)
+  {
+    return inserts.stream().filter(insert -> !insert.getTable().equalsIgnoreCase(VERSION_TABLE)).collect(Collectors.toList());
+  }
+  
   private List<String> getInsertStmts(List<SqlInsertWithValues> sqlInserts)
   {
     List<String> insterts = new ArrayList<String>(sqlInserts.size());
