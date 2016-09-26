@@ -15,7 +15,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.shared.model.fileset.FileSet;
-import org.apache.maven.shared.model.fileset.util.FileSetManager;
+import org.codehaus.plexus.util.Scanner;
 import org.sonatype.plexus.build.incremental.BuildContext;
 
 import ch.ivyteam.db.meta.generator.MetaOutputDifferenceGenerator;
@@ -104,12 +104,28 @@ public class MetaOutputDifferenceGeneratorMojo extends AbstractMojo
   
   private File[] getIncludedFiles(FileSet fileSet)
   {
-    File baseDir = new File(fileSet.getDirectory());
-    List<String> includedFilePaths = Arrays.asList(new FileSetManager().getIncludedFiles(fileSet));
+    File baseDir = getBaseDir(fileSet);
+
+    Scanner inputScanner = buildContext.newScanner(baseDir, true);
+    inputScanner.setIncludes(fileSet.getIncludesArray());
+    inputScanner.setExcludes(fileSet.getExcludesArray());
+    inputScanner.scan();
+    String[] includedFiles = inputScanner.getIncludedFiles();
+    List<String> includedFilePaths = Arrays.asList(includedFiles);
     
     return includedFilePaths.stream()
             .map(filePath -> new File(baseDir, filePath))
             .toArray(File[]::new);
+  }
+
+  private File getBaseDir(FileSet fileSet)
+  {
+    File baseDir = new File(fileSet.getDirectory());
+    if (!baseDir.isAbsolute())
+    {
+      baseDir = new File(project.getBasedir(), fileSet.getDirectory());
+    }    
+    return baseDir;
   }
 
   private boolean fileIsUpToDate()
