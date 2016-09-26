@@ -4,10 +4,12 @@ import static org.fest.assertions.api.Assertions.assertThat;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.shared.model.fileset.FileSet;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -32,10 +34,15 @@ public class TestMetaOutputDifferenceGeneratorMojo
   public void before() throws Exception
   {
     mojo = mojoRule.getMojo();
-    mojoRule.setVariableValueToObject(mojo, "inputFrom", 
-            new File(mojoRule.getProject().getBasedir(), "oldVersionMeta/simpleTestV0.meta"));
-    mojoRule.setVariableValueToObject(mojo, "inputTo", 
-            new File(mojoRule.getProject().getBasedir(), "meta/simpleTest.meta"));
+    FileSet inputFrom = new FileSet();
+    inputFrom.setDirectory(mojoRule.getProject().getBasedir().getAbsolutePath());
+    inputFrom.setIncludes(Arrays.asList("oldVersionMeta/simpleTestV0.meta"));
+    mojoRule.setVariableValueToObject(mojo, "inputFrom", inputFrom);
+    FileSet inputTo = new FileSet();
+    inputTo.setDirectory(mojoRule.getProject().getBasedir().getAbsolutePath());
+    inputTo.setIncludes(Arrays.asList("meta/simpleTest.meta"));
+
+    mojoRule.setVariableValueToObject(mojo, "inputTo", inputTo); 
     mojoRule.setVariableValueToObject(mojo, "oldVersionId", "0"); 
   }
 

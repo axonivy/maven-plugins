@@ -93,8 +93,8 @@ public class MetaOuputDifferenceGeneratorTask extends Task
     
     try
     {
-      SqlMeta metaFrom = MetaOutputDifferenceGenerator.parseMetaDefinition(inputFrom);
-      SqlMeta metaTo = MetaOutputDifferenceGenerator.parseMetaDefinition(inputTo);
+      SqlMeta metaFrom = MetaOutputDifferenceGenerator.parseMetaDefinitions(inputFrom);
+      SqlMeta metaTo = MetaOutputDifferenceGenerator.parseMetaDefinitions(inputTo);
       PrintWriter pr = new NewLinePrintWriter(output);
       try
       {

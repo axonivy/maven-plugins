@@ -3,6 +3,8 @@ package ch.ivyteam.db.meta.generator.maven;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.util.Arrays;
+import java.util.List;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -12,6 +14,8 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.shared.model.fileset.FileSet;
+import org.apache.maven.shared.model.fileset.util.FileSetManager;
 import org.sonatype.plexus.build.incremental.BuildContext;
 
 import ch.ivyteam.db.meta.generator.MetaOutputDifferenceGenerator;
@@ -31,10 +35,10 @@ public class MetaOutputDifferenceGeneratorMojo extends AbstractMojo
   private File output;
 
   @Parameter
-  private File inputFrom;
+  private FileSet inputFrom;
   
   @Parameter
-  private File inputTo;
+  private FileSet inputTo;
   
   @Parameter
   private String oldVersionId;
@@ -74,10 +78,10 @@ public class MetaOutputDifferenceGeneratorMojo extends AbstractMojo
   }
 
   private void generate() throws Exception, FileNotFoundException
-  {
-    SqlMeta metaFrom = MetaOutputDifferenceGenerator.parseMetaDefinition(inputFrom);
-    SqlMeta metaTo = MetaOutputDifferenceGenerator.parseMetaDefinition(inputTo);
-    SqlMeta additionalConversionMeta = MetaOutputDifferenceGenerator.parseMetaDefinition(additionalConversion);
+  {    
+    SqlMeta metaFrom = MetaOutputDifferenceGenerator.parseMetaDefinitions(getInputFromFiles());
+    SqlMeta metaTo = MetaOutputDifferenceGenerator.parseMetaDefinitions(getInputToFiles());
+    SqlMeta additionalConversionMeta = MetaOutputDifferenceGenerator.parseMetaDefinitions(additionalConversion);
     
     try (PrintWriter pr = new NewLinePrintWriter(output))
     {
@@ -86,6 +90,26 @@ public class MetaOutputDifferenceGeneratorMojo extends AbstractMojo
       MetaOutputDifferenceGenerator differenceGenerator = new MetaOutputDifferenceGenerator(metaFrom, metaTo, additionalConversionMeta, scriptGenerator, newVersionId);
       differenceGenerator.generate(pr);
     }
+  }
+
+  private File[] getInputFromFiles()
+  {
+    return getIncludedFiles(inputFrom);
+  }
+
+  private File[] getInputToFiles()
+  {
+    return getIncludedFiles(inputTo);
+  }
+  
+  private File[] getIncludedFiles(FileSet fileSet)
+  {
+    File baseDir = new File(fileSet.getDirectory());
+    List<String> includedFilePaths = Arrays.asList(new FileSetManager().getIncludedFiles(fileSet));
+    
+    return includedFilePaths.stream()
+            .map(filePath -> new File(baseDir, filePath))
+            .toArray(File[]::new);
   }
 
   private boolean fileIsUpToDate()
@@ -106,7 +130,15 @@ public class MetaOutputDifferenceGeneratorMojo extends AbstractMojo
 
   private long getLatestInputFileChangeTimestamp()
   {
-    long latestInputFileChange = Math.max(inputFrom.lastModified(), inputTo.lastModified());
+    long latestInputFileChange = Long.MIN_VALUE;
+    for (File file : getInputToFiles())
+    {
+      latestInputFileChange = Math.max(file.lastModified(), latestInputFileChange);
+    }
+    for (File file : getInputFromFiles())
+    {
+      latestInputFileChange = Math.max(file.lastModified(), latestInputFileChange);
+    }
     return latestInputFileChange;
   }
 

@@ -11,7 +11,7 @@
 			<plugin>
 				<groupId>ch.ivyteam</groupId>
 				<artifactId>db-meta-plugin</artifactId>
-				<version>0.0.1-SNAPSHOT</version>
+				<version>6.4.42-SNAPSHOT</version>
 			</plugin>
 		</plugins>
 	</build>

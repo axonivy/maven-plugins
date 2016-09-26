@@ -81,12 +81,30 @@ public class MetaOutputDifferenceGenerator
   }
 
   /** 
-   * Parses the old meta definition
-   * @param file 
-   * @return old meta definition
+   * Parses the meta definitions
+   * @param files 
+   * @return meta definition
    * @throws Exception 
    */
-  public static SqlMeta parseMetaDefinition(File file) throws Exception
+  public static SqlMeta parseMetaDefinitions(File... files) throws Exception
+  {
+    SqlMeta overallMeta = null;
+    for (File file: files)
+    {
+      SqlMeta meta = parseMetaDefinition(file);
+      if (overallMeta == null)
+      {
+        overallMeta = meta;
+      }
+      else
+      {
+        overallMeta.merge(meta);
+      }
+    }
+    return overallMeta;
+  }
+
+  private static SqlMeta parseMetaDefinition(File file) throws Exception
   {
     if (file == null || !file.exists())
     {
