@@ -147,7 +147,11 @@ public class Db${table.simpleEntityClass} extends DatabaseTableClassPersistencyS
 </#if>            
 <#list columnsWithoutPrimaryParentAndLob as column>
   <#if column.isPassword()>
+    <#if column.optionalPasswordColumn??>
+      database.optionalDecode(transaction, database.get${column.optionalPasswordColumn.method}(result, ${column.optionalPasswordColumn.resultSetRowNumber}${column.optionalPasswordColumn.additionalReadArgs}), database.get${column.method}(result, ${row}${column.additionalReadArgs}))<#if column_has_next>,</#if> // ${column.sql}
+    <#else> 
       database.decode(transaction, database.get${column.method}(result, ${row}${column.additionalReadArgs}))<#if column_has_next>,</#if> // ${column.sql}
+    </#if>
   <#else>
       database.get${column.method}(result, ${row}${column.additionalReadArgs})<#if column_has_next>,</#if> // ${column.sql}
   </#if>

@@ -407,6 +407,22 @@ public final class JavaClassGeneratorUtil
    return column.getDatabaseManagementSystemHints(JavaClassGenerator.JAVA).isHintSet(JavaClassGenerator.PASSWORD);
   }
   
+  public static SqlTableColumn getOptionalPasswordColumnFor(SqlTable table, SqlTableColumn column)
+  {
+    String optionalPasswordColumnName = column.getDatabaseManagementSystemHints(JavaClassGenerator.JAVA).getHintValue(JavaClassGenerator.PASSWORD);
+    if (optionalPasswordColumnName == null)
+    {
+      return null;
+    }
+    SqlTableColumn optionalPasswordColumn = table.findColumn(optionalPasswordColumnName);
+    if (optionalPasswordColumn == null)
+    {
+      throw new MetaException("Optional password control column "+optionalPasswordColumnName+" defined on column "+column.getId()+" not found in table "+table.getId());
+    }
+    return optionalPasswordColumn;
+  }
+
+  
   public static boolean isOptimisticLockingColumn(SqlTableColumn column)
   {
    return column.getDatabaseManagementSystemHints(JavaClassGenerator.JAVA).isHintSet(JavaClassGenerator.FIELD_FOR_OPTIMISTIC_LOCKING);

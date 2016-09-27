@@ -379,7 +379,17 @@ public class ColumnInfo
   {
     if (isPassword())
     {
-      additionalArgs.append("database.encode(transaction, ");
+      if (isOptionalPassword())
+      {
+        additionalArgs.append("database.optionalEncode(transaction, ");
+        additionalArgs.append("data.get");
+        additionalArgs.append(StringUtils.capitalise(JavaClassGeneratorUtil.generateJavaIdentifier(getOptionalPasswordColumn().column)));
+        additionalArgs.append("(), ");
+      }
+      else
+      {
+        additionalArgs.append("database.encode(transaction, ");
+      }
     }
     if (isObjectKey())
     {
@@ -448,6 +458,40 @@ public class ColumnInfo
   {
     return JavaClassGeneratorUtil.isPasswordColumn(column);
   }
+  
+  private boolean isOptionalPassword()
+  {
+    return getOptionalPasswordColumn() != null;
+  }
+                        
+  public ColumnInfo getOptionalPasswordColumn()
+  {
+    SqlTableColumn optionalPasswordColumn = JavaClassGeneratorUtil.getOptionalPasswordColumnFor(table, column);
+    if (optionalPasswordColumn == null)
+    {
+      return null;
+    }
+    return new ColumnInfo(table, optionalPasswordColumn);
+  }
+  
+  public int getResultSetRowNumber()
+  {
+    int row=1;
+    if (JavaClassGeneratorUtil.getParentKey(table) != null)
+    {
+      row++;
+    }
+    for (ColumnInfo col : getColumnsWithoutPrimaryParentAndLob(table))
+    {
+      row++;
+      if (col.getName().equals(getName()))
+      {
+        return row;
+      }
+    }
+    return -1;
+  }
+
   
   public boolean isOptimisticLockingColumn()
   {
