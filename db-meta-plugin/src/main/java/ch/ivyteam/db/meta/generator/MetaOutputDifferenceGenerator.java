@@ -435,7 +435,7 @@ public class MetaOutputDifferenceGenerator
   class ConstraintGenerator
   {
 
-    private void generateRecreateDefaultConstraints(PrintWriter pr, SqlTable newTable, SqlTable oldTable)
+    void generateRecreateDefaultConstraints(PrintWriter pr, SqlTable newTable, SqlTable oldTable)
     {
       if (!generator.getRecreateOptions().defaultConstraints)
       {
@@ -447,7 +447,7 @@ public class MetaOutputDifferenceGenerator
       }
     }
 
-    private void generateDropDefaultConstraints(PrintWriter pr, SqlTable newTable, SqlTable oldTable)
+    void generateDropDefaultConstraints(PrintWriter pr, SqlTable newTable, SqlTable oldTable)
     {
       if (!generator.getRecreateOptions().defaultConstraints)
       {
@@ -473,7 +473,7 @@ public class MetaOutputDifferenceGenerator
       return result;
     }
 
-    private void generateCreateUniqueOfAddedUniqueConstraints(PrintWriter pr)
+    void generateCreateUniqueOfAddedUniqueConstraints(PrintWriter pr)
     {
       for (Entry<SqlTable, SqlTable> changedTable : findTablesWithAddedUniqueConstraints().entrySet())
       {
@@ -539,7 +539,7 @@ public class MetaOutputDifferenceGenerator
       return addedUniques;
     }
 
-    private void generateDeleteUniqueConstraints(PrintWriter pr, SqlTable newTable, SqlTable oldTable) throws MetaException
+    void generateDeleteUniqueConstraints(PrintWriter pr, SqlTable newTable, SqlTable oldTable) throws MetaException
     {
       Set<SqlUniqueConstraint> changedUniqueConstraints = new LinkedHashSet<SqlUniqueConstraint>();
       if (generator.getRecreateOptions().uniqueConstraintsOnAlterTable)
@@ -581,9 +581,8 @@ public class MetaOutputDifferenceGenerator
       return deletedUniqueConstraints;
     }
 
-    private void generateRecreateUniqueConstraints(PrintWriter pr, SqlTable newTable, SqlTable oldTable) throws MetaException
+    void generateRecreateUniqueConstraints(PrintWriter pr, SqlTable newTable, SqlTable oldTable) throws MetaException
     {
-      
       Set<SqlUniqueConstraint> uniqueConstraints = getUniqueConstraintsToRecreate(newTable, oldTable);
       generateCreateUniqueConstraints(pr, newTable, uniqueConstraints);
     }
@@ -660,7 +659,6 @@ public class MetaOutputDifferenceGenerator
       }
       return dependentUniqueConstraints;
     }
-    
   }
   
   class TriggerGenerator
