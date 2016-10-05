@@ -36,10 +36,6 @@ import ch.ivyteam.db.meta.parser.internal.Scanner;
 
 /**
  * Generates a SQL script to convert from one meta-model to the other meta-model.<br>
- * Supported conversion:
- * <ul>
- *   <li>Column length definition change (fields could be used in trigger, views and indexes) </li>
- * </ul>
  * @author fs
  * @since 30.11.2011
  */
@@ -52,6 +48,10 @@ public class MetaOutputDifferenceGenerator
   private final SqlMeta metaDefinitionTo;   
   private List<String> createdTemporaryStoredProcedures = new ArrayList<String>();
   private SqlMeta additionalConversionMeta;
+  
+  private final IndexGenerator indexGenerator = new IndexGenerator();
+  private final TriggerGenerator triggerGenerator = new TriggerGenerator();
+  private final ConstraintGenerator constraintGenerator = new ConstraintGenerator();
 
   /**
    * @param generatorClassName
@@ -154,19 +154,19 @@ public class MetaOutputDifferenceGenerator
     generator.generateNonMetaDiffChangesPre(pr, newVersionId);
     
     generateDropViewOfChangedTables(pr);
-    generateDropTriggersOfChangedTables(pr);
+    triggerGenerator.generateDropTriggersOfChangedTables(pr);
     generateDropForeignKeysOfChangedColumns(pr);
     
     generateDropTableOfDeletedTables(pr);
     generateCreateTablesOfAddedTables(pr);
     
     generateTableModifications(pr);
-    generateCreateIndexOfAddedIndexes(pr);
-    generateCreateUniqueOfAddedUniqueConstraints(pr);
+    indexGenerator.generateCreateIndexOfAddedIndexes(pr);
+    constraintGenerator.generateCreateUniqueOfAddedUniqueConstraints(pr);
     
-    generateCreateTriggersOfAddedTriggers(pr);
+    triggerGenerator.generateCreateTriggersOfAddedTriggers(pr);
     generateRecreateForeignKeysOfChangedColumns(pr);
-    generateRecreateTriggersOfChangedTables(pr);
+    triggerGenerator.generateRecreateTriggersOfChangedTables(pr);
     generateCreateViewOfChangedTables(pr);
     generateCreateViewOfAddedViews(pr);
     generateDeletesOfRemovedInserts(pr);
@@ -316,178 +316,484 @@ public class MetaOutputDifferenceGenerator
     return output.toString();
   }
 
-  private void generateCreateIndexOfAddedIndexes(PrintWriter pr)
+  class IndexGenerator
   {
-    for (Entry<SqlTable, SqlTable> changedTable : findTablesWithAddedIndexes().entrySet())
-    {
-      SqlTable newTable = changedTable.getKey();
-      SqlTable oldTable = changedTable.getValue();
-      generateCreateIndexes(pr, newTable, oldTable);    
-    }
-  }
 
-  private Map<SqlTable, SqlTable> findTablesWithAddedIndexes()
-  {
-    Map<SqlTable, SqlTable> tables = new LinkedHashMap<SqlTable, SqlTable>();
-    for (Entry<SqlTable, SqlTable> comonTable : findCommonTables().entrySet())
+    void generateCreateIndexOfAddedIndexes(PrintWriter pr)
     {
-      SqlTable newTable = comonTable.getKey();
-      SqlTable oldTable = comonTable.getValue();
-
-      boolean hasAddedIndexes = findAddedIndexes(newTable, oldTable).size() > 0;
-      if (hasAddedIndexes)
+      for (Entry<SqlTable, SqlTable> changedTable : findTablesWithAddedIndexes().entrySet())
       {
-        tables.put(newTable, oldTable);
-      }      
-    }
-    return tables;
-  }
-
-  private void generateCreateUniqueOfAddedUniqueConstraints(PrintWriter pr)
-  {
-    for (Entry<SqlTable, SqlTable> changedTable : findTablesWithAddedUniqueConstraints().entrySet())
-    {
-      SqlTable newTable = changedTable.getKey();
-      SqlTable oldTable = changedTable.getValue();
-      generateCreateUniqueConstraint(pr, newTable, oldTable);    
-    }
-  }
-
-  private Map<SqlTable, SqlTable> findTablesWithAddedUniqueConstraints()
-  {
-    Map<SqlTable, SqlTable> tables = new LinkedHashMap<SqlTable, SqlTable>();
-    for (Entry<SqlTable, SqlTable> comonTable : findCommonTables().entrySet())
-    {
-      SqlTable newTable = comonTable.getKey();
-      SqlTable oldTable = comonTable.getValue();
-  
-      boolean hasAddedIndexes = findAddedUniqueConstraints(newTable, oldTable).size() > 0;
-      if (hasAddedIndexes)
-      {
-        tables.put(newTable, oldTable);
-      }      
-    }
-    return tables;
-  }  
-  
-  private void generateCreateUniqueConstraint(PrintWriter pr, SqlTable newTable, SqlTable oldTable)
-  {
-    List<SqlUniqueConstraint> addedUniques = findAddedUniqueConstraints(newTable, oldTable);
-    if (addedUniques.size() > 0)
-    {
-      Set<SqlUniqueConstraint> alreadyRecreatedUniqueConstraints = getUniqueConstraintsToRecreate(newTable, oldTable);
-      
-      pr.println();
-      generator.generateCommentLine(pr, "Create new unique constraint of table " + newTable.getId());
-      for (SqlUniqueConstraint addedUnique : addedUniques)
-      {
-        if (alreadyRecreatedUniqueConstraints.contains(addedUnique))
-        {
-          generator.generateCommentLine(pr, "Skipping generation of constraint '" + addedUnique + "'."
-                  + " It was already re-generated in this script.");
-        }
-        else
-        {
-          generator.generateAddUniqueConstraint(pr, newTable, addedUnique);
-        }
-      }
-      pr.println();
-    }
-  }
-  
-  private List<SqlUniqueConstraint> findAddedUniqueConstraints(SqlTable newTable, SqlTable oldTable)
-  {
-    List<SqlUniqueConstraint> addedUniques = new ArrayList<SqlUniqueConstraint>();
-    for (SqlUniqueConstraint newUnique : newTable.getUniqueConstraints())
-    {
-      SqlUniqueConstraint oldIndex = oldTable.findUniqueConstraint(newUnique.getId());
-      if (oldIndex == null)
-      {
-        addedUniques.add(newUnique);
-      }
-    }
-    return addedUniques;
-  }
-  
-  private void generateDropTriggersOfChangedTables(PrintWriter pr) throws MetaException
-  {
-    Map<SqlTable, SqlTable> tablesWithChangedTriggers = findTablesWithChangedTriggers();
-    
-    for (SqlTable oldTableWithTrigger : tablesWithChangedTriggers.values())
-    {
-      pr.println();
-      generator.generateCommentLine(pr, "Drop trigger which depend on changed table(s)");
-      generator.generateDropTrigger(pr, oldTableWithTrigger);
-    }
-  }
-  
-  private void generateCreateTriggersOfAddedTriggers(PrintWriter pr) throws MetaException
-  {
-    Map<SqlTable, SqlTable> tablesWithAddedTriggers = findTablesWithAddedTriggers();
-    for (SqlTable newTableWithTrigger : tablesWithAddedTriggers.keySet())
-    {
-      pr.println();
-      generator.generateCommentLine(pr, "Create new triggers on existing table(s)");
-      generateTrigger(pr, newTableWithTrigger, metaDefinitionTo);
-    }
-  }
-  
-  private void generateRecreateTriggersOfChangedTables(PrintWriter pr) throws MetaException
-  {
-    Map<SqlTable, SqlTable> tablesWithChangedTriggers = findTablesWithChangedTriggers();
-
-    for (SqlTable newTableWithTrigger : tablesWithChangedTriggers.keySet())
-    {
-      pr.println();
-      generator.generateCommentLine(pr, "Recreate trigger which depend on changed table(s)");
-      generateTrigger(pr, newTableWithTrigger, metaDefinitionTo);
-    }
-  }
-  
-  private Map<SqlTable, SqlTable> findTablesWithAddedTriggers() throws MetaException
-  {
-    Map<SqlTable, SqlTable> tablesOfAddedTriggers = new LinkedHashMap<SqlTable, SqlTable>();
-    for (Entry<SqlTable, SqlTable> comonTable : findCommonTables().entrySet())
-    {
-      SqlTable newTable = comonTable.getKey();
-      SqlTable oldTable = comonTable.getValue();
-      if (hasAddedTrigger(newTable, oldTable))
-      {
-        tablesOfAddedTriggers.put(newTable, oldTable);
-      }
-    }
-    return tablesOfAddedTriggers;
-  }
-
-  private Map<SqlTable, SqlTable> findTablesWithChangedTriggers() throws MetaException
-  {
-    Map<SqlTable, SqlTable> tablesOfChangedTriggers = new LinkedHashMap<SqlTable, SqlTable>();
-    // fist check all common tables if they have a trigger which has changed
-    for (Entry<SqlTable, SqlTable> comonTable : findCommonTables().entrySet())
-    {
-      SqlTable newTable = comonTable.getKey();
-      SqlTable oldTable = comonTable.getValue();
-      if (hasTriggerChanged(newTable, oldTable))
-      {
-        tablesOfChangedTriggers.put(newTable, oldTable);
+        SqlTable newTable = changedTable.getKey();
+        SqlTable oldTable = changedTable.getValue();
+        generateCreateIndexes(pr, newTable, oldTable);    
       }
     }
 
-    // if recreation of trigger is needed on table modification check if changed tables have triggers
-    if (generator.getRecreateOptions().triggerOnAlterTable)
+    private Map<SqlTable, SqlTable> findTablesWithAddedIndexes()
     {
-      for (Entry<SqlTable, SqlTable> comonTable : findChangedTables().entrySet())
+      Map<SqlTable, SqlTable> tables = new LinkedHashMap<SqlTable, SqlTable>();
+      for (Entry<SqlTable, SqlTable> comonTable : findCommonTables().entrySet())
       {
         SqlTable newTable = comonTable.getKey();
         SqlTable oldTable = comonTable.getValue();
-        if (generator.hasTrigger(metaDefinitionTo, newTable))
+    
+        boolean hasAddedIndexes = findAddedIndexes(newTable, oldTable).size() > 0;
+        if (hasAddedIndexes)
+        {
+          tables.put(newTable, oldTable);
+        }      
+      }
+      return tables;
+    }
+
+    private void generateCreateIndexes(PrintWriter pr, SqlTable newTable, SqlTable oldTable)
+    {
+      List<SqlIndex> addedIndexes = findAddedIndexes(newTable, oldTable);
+      if (addedIndexes.size() > 0)
+      {
+        pr.println();
+        generator.generateCommentLine(pr, "Create new indexes of table " + newTable.getId());
+        for (SqlIndex addedIndex : addedIndexes)
+        {
+          generator.generateIndex(pr, newTable, addedIndex);
+        }
+      }
+    }
+
+    private List<SqlIndex> findAddedIndexes(SqlTable newTable, SqlTable oldTable)
+    {
+      List<SqlIndex> addedIndexes = new ArrayList<SqlIndex>();
+      for (SqlIndex newIndex : newTable.getIndexes())
+      {
+        SqlIndex oldIndex = oldTable.findIndex(newIndex.getId());
+        if (oldIndex == null)
+        {
+          addedIndexes.add(newIndex);
+        }
+      }
+      return addedIndexes;
+    }
+
+    void generateDropIndexes(PrintWriter pr, SqlTable newTable, SqlTable oldTable)
+    {
+      if (!generator.getRecreateOptions().indexesOnAlterTable)
+      {
+        return;
+      }
+      
+      Set<SqlIndex> changedIndexes = getIndexesFromChangedColumns(newTable, oldTable);
+      if (changedIndexes.size() > 0)
+      {
+        pr.println();
+        generator.generateCommentLine(pr, "Drop indexes which depend on changed columns");
+        for (SqlIndex index : changedIndexes)
+        {
+          generator.generateDropIndex(pr, oldTable, index);
+        }
+      }
+    }
+
+    private Set<SqlIndex> getIndexesFromChangedColumns(SqlTable newTable, SqlTable oldTable)
+    {
+      Set<SqlIndex> result = new LinkedHashSet<SqlIndex>();
+      List<SqlIndex> indexes = generator.getIndexes(oldTable);
+      Map<SqlTableColumn, SqlTableColumn> changedColumns = findChangedColumns(newTable, oldTable);
+      for (SqlTableColumn changedColumn : changedColumns.keySet())
+      {
+        for (SqlIndex index : indexes)
+        {
+          if (index.getColumns().contains(changedColumn.getId()))
+          {
+            result.add(index);
+          }
+        }
+      }
+      return result;
+    }
+
+    void generateRecreateIndexes(PrintWriter pr, SqlTable newTable, SqlTable oldTable)
+    {
+      if (!generator.getRecreateOptions().indexesOnAlterTable)
+      {
+        return;
+      }
+      
+      Set<SqlIndex> changedIndexes = getIndexesFromChangedColumns(newTable, oldTable);
+      if (changedIndexes.size() > 0)
+      {
+        pr.println();
+        generator.generateCommentLine(pr, "Create index which depend on changed columns");
+        for (SqlIndex index : changedIndexes)
+        {
+          generator.generateIndex(pr, newTable, index);
+        }
+      }
+    }
+    
+  }
+  
+  class ConstraintGenerator
+  {
+
+    private void generateRecreateDefaultConstraints(PrintWriter pr, SqlTable newTable, SqlTable oldTable)
+    {
+      if (!generator.getRecreateOptions().defaultConstraints)
+      {
+        return;
+      }
+      for (SqlTableColumn col : getChangedColumnsWithDefaultConstraint(newTable, oldTable))
+      {
+        generator.generateRecreateDefaultConstraint(pr, oldTable, col);
+      }
+    }
+
+    private void generateDropDefaultConstraints(PrintWriter pr, SqlTable newTable, SqlTable oldTable)
+    {
+      if (!generator.getRecreateOptions().defaultConstraints)
+      {
+        return;
+      }
+      for (SqlTableColumn col : getChangedColumnsWithDefaultConstraint(newTable, oldTable))
+      {
+        generator.generateDropDefaultConstraint(pr, oldTable, col);
+      }
+    }
+
+    private List<SqlTableColumn> getChangedColumnsWithDefaultConstraint(SqlTable newTable, SqlTable oldTable)
+    {
+      List<SqlTableColumn> result = new ArrayList<SqlTableColumn>();
+      Map<SqlTableColumn, SqlTableColumn> changedColumns = findChangedColumns(newTable, oldTable);
+      for (SqlTableColumn changedColumn : changedColumns.keySet())
+      {
+        if (changedColumn.getDefaultValue() != null)
+        {
+          result.add(changedColumn);
+        }
+      }
+      return result;
+    }
+
+    private void generateCreateUniqueOfAddedUniqueConstraints(PrintWriter pr)
+    {
+      for (Entry<SqlTable, SqlTable> changedTable : findTablesWithAddedUniqueConstraints().entrySet())
+      {
+        SqlTable newTable = changedTable.getKey();
+        SqlTable oldTable = changedTable.getValue();
+        generateCreateUniqueConstraint(pr, newTable, oldTable);    
+      }
+    }
+
+    private Map<SqlTable, SqlTable> findTablesWithAddedUniqueConstraints()
+    {
+      Map<SqlTable, SqlTable> tables = new LinkedHashMap<SqlTable, SqlTable>();
+      for (Entry<SqlTable, SqlTable> comonTable : findCommonTables().entrySet())
+      {
+        SqlTable newTable = comonTable.getKey();
+        SqlTable oldTable = comonTable.getValue();
+    
+        boolean hasAddedIndexes = findAddedUniqueConstraints(newTable, oldTable).size() > 0;
+        if (hasAddedIndexes)
+        {
+          tables.put(newTable, oldTable);
+        }      
+      }
+      return tables;
+    }
+
+    private void generateCreateUniqueConstraint(PrintWriter pr, SqlTable newTable, SqlTable oldTable)
+    {
+      List<SqlUniqueConstraint> addedUniques = findAddedUniqueConstraints(newTable, oldTable);
+      if (addedUniques.size() > 0)
+      {
+        Set<SqlUniqueConstraint> alreadyRecreatedUniqueConstraints = getUniqueConstraintsToRecreate(newTable, oldTable);
+        
+        pr.println();
+        generator.generateCommentLine(pr, "Create new unique constraint of table " + newTable.getId());
+        for (SqlUniqueConstraint addedUnique : addedUniques)
+        {
+          if (alreadyRecreatedUniqueConstraints.contains(addedUnique))
+          {
+            generator.generateCommentLine(pr, "Skipping generation of constraint '" + addedUnique + "'."
+                    + " It was already re-generated in this script.");
+          }
+          else
+          {
+            generator.generateAddUniqueConstraint(pr, newTable, addedUnique);
+          }
+        }
+        pr.println();
+      }
+    }
+
+    private List<SqlUniqueConstraint> findAddedUniqueConstraints(SqlTable newTable, SqlTable oldTable)
+    {
+      List<SqlUniqueConstraint> addedUniques = new ArrayList<SqlUniqueConstraint>();
+      for (SqlUniqueConstraint newUnique : newTable.getUniqueConstraints())
+      {
+        SqlUniqueConstraint oldIndex = oldTable.findUniqueConstraint(newUnique.getId());
+        if (oldIndex == null)
+        {
+          addedUniques.add(newUnique);
+        }
+      }
+      return addedUniques;
+    }
+
+    private void generateDeleteUniqueConstraints(PrintWriter pr, SqlTable newTable, SqlTable oldTable) throws MetaException
+    {
+      Set<SqlUniqueConstraint> changedUniqueConstraints = new LinkedHashSet<SqlUniqueConstraint>();
+      if (generator.getRecreateOptions().uniqueConstraintsOnAlterTable)
+      {
+        if (generator.getRecreateOptions().allUniqueConstraintsOnAlterTable)
+        {
+          changedUniqueConstraints.addAll(oldTable.getUniqueConstraints());
+        }
+        else
+        {
+          changedUniqueConstraints.addAll(getUniqueConstraintsFromChangedColumns(newTable, oldTable));
+        }
+      }
+      
+      changedUniqueConstraints.addAll(findDeletedUniqueConstraints(newTable, oldTable));
+      if (changedUniqueConstraints.size() > 0)
+      {
+        pr.println();
+        generator.generateCommentLine(pr, "Drop unique constraint which depend on changed columns or was deleted");
+        for (SqlUniqueConstraint uniqueConstraint : changedUniqueConstraints)
+        {
+          generator.generateDropUniqueConstraint(pr, oldTable, uniqueConstraint, createdTemporaryStoredProcedures);
+        }
+      }
+    }
+
+    private Set<SqlUniqueConstraint> findDeletedUniqueConstraints(SqlTable newTable,
+            SqlTable oldTable)
+    {
+      Set<SqlUniqueConstraint> deletedUniqueConstraints = new LinkedHashSet<SqlUniqueConstraint>();
+      for (SqlUniqueConstraint oldConstraint : oldTable.getUniqueConstraints())
+      {
+        SqlUniqueConstraint newConstraint = newTable.findUniqueConstraint(oldConstraint.getId());
+        if (newConstraint == null)
+        {
+          deletedUniqueConstraints.add(oldConstraint);
+        }      
+      }
+      return deletedUniqueConstraints;
+    }
+
+    private void generateRecreateUniqueConstraints(PrintWriter pr, SqlTable newTable, SqlTable oldTable) throws MetaException
+    {
+      
+      Set<SqlUniqueConstraint> uniqueConstraints = getUniqueConstraintsToRecreate(newTable, oldTable);
+      generateCreateUniqueConstraints(pr, newTable, uniqueConstraints);
+    }
+
+    private Set<SqlUniqueConstraint> getUniqueConstraintsToRecreate(SqlTable newTable, SqlTable oldTable)
+    {
+      if (!generator.getRecreateOptions().uniqueConstraintsOnAlterTable)
+      {
+        return Collections.emptySet();
+      }
+    
+      Set<SqlUniqueConstraint> uniqueConstraints = new HashSet<>();
+      if (generator.getRecreateOptions().allUniqueConstraintsOnAlterTable)
+      {
+        uniqueConstraints.addAll(newTable.getUniqueConstraints());
+      }
+      else
+      {
+        uniqueConstraints.addAll(getUniqueConstraintsFromChangedColumns(newTable, oldTable));
+      }
+      return uniqueConstraints;
+    }
+
+    private void generateCreateUniqueConstraints(PrintWriter pr, SqlTable newTable, Collection<SqlUniqueConstraint> uniqueConstraints)
+    {
+      if (uniqueConstraints.size() > 0)
+      {
+        pr.println();
+        generator.generateCommentLine(pr, "Create unique constraints which depend on changed columns");
+        for (SqlUniqueConstraint uniqueConstraint : uniqueConstraints)
+        {
+          generator.generateAddUniqueConstraint(pr, newTable, uniqueConstraint);
+        }
+      }
+    }
+
+    private Set<SqlUniqueConstraint> getUniqueConstraintsFromChangedColumns(SqlTable newTable, SqlTable oldTable) throws MetaException
+    {
+      List<String> changedColumNames = new ArrayList<String>();
+      for (Entry<SqlTableColumn, SqlTableColumn> changedColumn : findChangedColumns(newTable, oldTable).entrySet())
+      {
+        SqlTableColumn newColumn = changedColumn.getKey();
+        SqlTableColumn oldColumn = changedColumn.getValue();
+        if (oldColumn != null)  // null if column not exists in old version!
+        {
+          changedColumNames.add(newColumn.getId());
+        }
+      }
+    
+      return getUniqeConstraints(newTable, changedColumNames);
+    }
+
+    /**
+     * @return unique constraints form the given table depending on the given column names
+     */
+    private Set<SqlUniqueConstraint> getUniqeConstraints(SqlTable tables, List<String> columNames)
+    {
+      if (columNames.isEmpty())
+      {
+        return Collections.emptySet();
+      }
+    
+      Set<SqlUniqueConstraint> dependentUniqueConstraints = new LinkedHashSet<SqlUniqueConstraint>(); 
+      for (SqlUniqueConstraint uniqueConstraint : tables.getUniqueConstraints())
+      {
+        for (String constraintColumn : uniqueConstraint.getColumns())
+        {
+          if (columNames.contains(constraintColumn))
+          {
+            dependentUniqueConstraints.add(uniqueConstraint);
+            break;
+          }
+        }
+      }
+      return dependentUniqueConstraints;
+    }
+    
+  }
+  
+  class TriggerGenerator
+  {
+    void generateTrigger(PrintWriter pr, SqlTable table, SqlMeta metaDefinition) throws MetaException
+    {
+      generator.genrateForEachStatementDeleteTrigger(pr, table, metaDefinition);
+      generator.generateForEachRowDeleteTrigger(pr, table, metaDefinition);
+    }
+
+    void generateDropTriggersOfChangedTables(PrintWriter pr) throws MetaException
+    {
+      Map<SqlTable, SqlTable> tablesWithChangedTriggers = findTablesWithChangedTriggers();
+      
+      for (SqlTable oldTableWithTrigger : tablesWithChangedTriggers.values())
+      {
+        pr.println();
+        generator.generateCommentLine(pr, "Drop trigger which depend on changed table(s)");
+        generator.generateDropTrigger(pr, oldTableWithTrigger);
+      }
+    }
+    
+    void generateCreateTriggersOfAddedTriggers(PrintWriter pr) throws MetaException
+    {
+      Map<SqlTable, SqlTable> tablesWithAddedTriggers = findTablesWithAddedTriggers();
+      for (SqlTable newTableWithTrigger : tablesWithAddedTriggers.keySet())
+      {
+        pr.println();
+        generator.generateCommentLine(pr, "Create new triggers on existing table(s)");
+        generateTrigger(pr, newTableWithTrigger, metaDefinitionTo);
+      }
+    }
+    
+    void generateRecreateTriggersOfChangedTables(PrintWriter pr) throws MetaException
+    {
+      Map<SqlTable, SqlTable> tablesWithChangedTriggers = findTablesWithChangedTriggers();
+      
+      for (SqlTable newTableWithTrigger : tablesWithChangedTriggers.keySet())
+      {
+        pr.println();
+        generator.generateCommentLine(pr, "Recreate trigger which depend on changed table(s)");
+        generateTrigger(pr, newTableWithTrigger, metaDefinitionTo);
+      }
+    }
+    
+    private Map<SqlTable, SqlTable> findTablesWithAddedTriggers() throws MetaException
+    {
+      Map<SqlTable, SqlTable> tablesOfAddedTriggers = new LinkedHashMap<SqlTable, SqlTable>();
+      for (Entry<SqlTable, SqlTable> comonTable : findCommonTables().entrySet())
+      {
+        SqlTable newTable = comonTable.getKey();
+        SqlTable oldTable = comonTable.getValue();
+        if (hasAddedTrigger(newTable, oldTable))
+        {
+          tablesOfAddedTriggers.put(newTable, oldTable);
+        }
+      }
+      return tablesOfAddedTriggers;
+    }
+
+    private Map<SqlTable, SqlTable> findTablesWithChangedTriggers() throws MetaException
+    {
+      Map<SqlTable, SqlTable> tablesOfChangedTriggers = new LinkedHashMap<SqlTable, SqlTable>();
+      // fist check all common tables if they have a trigger which has changed
+      for (Entry<SqlTable, SqlTable> comonTable : findCommonTables().entrySet())
+      {
+        SqlTable newTable = comonTable.getKey();
+        SqlTable oldTable = comonTable.getValue();
+        if (hasTriggerChanged(newTable, oldTable))
         {
           tablesOfChangedTriggers.put(newTable, oldTable);
         }
       }
+
+      // if recreation of trigger is needed on table modification check if changed tables have triggers
+      if (generator.getRecreateOptions().triggerOnAlterTable)
+      {
+        for (Entry<SqlTable, SqlTable> comonTable : findChangedTables().entrySet())
+        {
+          SqlTable newTable = comonTable.getKey();
+          SqlTable oldTable = comonTable.getValue();
+          if (generator.hasTrigger(metaDefinitionTo, newTable))
+          {
+            tablesOfChangedTriggers.put(newTable, oldTable);
+          }
+        }
+      }
+      return tablesOfChangedTriggers;
     }
-    return tablesOfChangedTriggers;
+    
+    private boolean hasTriggerChanged(SqlTable newTable, SqlTable oldTable) throws MetaException
+    {
+      if (newTable == null || oldTable == null)
+      {
+        return true;
+      }
+      
+      StringWriter fromOut = new StringWriter();
+      StringWriter toOut = new StringWriter();
+
+      generateTrigger(new PrintWriter(fromOut), newTable, metaDefinitionFrom);
+      generateTrigger(new PrintWriter(toOut), oldTable, metaDefinitionTo);
+      
+      if (StringUtils.isBlank(toOut.toString()) || StringUtils.isBlank(fromOut.toString()))
+      {
+        // trigger was deleted or added (not changed)
+        return false;
+      }
+      return !toOut.toString().equals(fromOut.toString()); 
+    }
+    
+    private boolean hasAddedTrigger(SqlTable newTable, SqlTable oldTable) throws MetaException
+    {
+      if (newTable == null || oldTable == null)
+      {
+        return true;
+      }
+
+      StringWriter fromOut = new StringWriter();
+      StringWriter toOut = new StringWriter();
+
+      generateTrigger(new PrintWriter(fromOut), newTable, metaDefinitionFrom);
+      generateTrigger(new PrintWriter(toOut), oldTable, metaDefinitionTo);
+      
+      if (StringUtils.isNotEmpty(toOut.toString()) && StringUtils.isBlank(fromOut.toString()))
+      {
+        return true;
+      }
+      return false; 
+    }
   }
+  
+  
   
   private void generateDropTableOfDeletedTables(PrintWriter pr) throws MetaException
   {
@@ -533,7 +839,7 @@ public class MetaOutputDifferenceGenerator
       {
         pr.println();
         generator.generateCommentLine(pr, "Create trigger which depend on new added table");
-        generateTrigger(pr, addedTable, metaDefinitionTo);
+        triggerGenerator.generateTrigger(pr, addedTable, metaDefinitionTo);
       }
     }
   }
@@ -553,56 +859,18 @@ public class MetaOutputDifferenceGenerator
     {
       SqlTable newTable = changedTable.getKey();
       SqlTable oldTable = changedTable.getValue();
-      generateDeleteUniqueConstraints(pr, newTable, oldTable);
-      generateDropIndexes(pr, newTable, oldTable);
+      constraintGenerator.generateDeleteUniqueConstraints(pr, newTable, oldTable);
+      indexGenerator.generateDropIndexes(pr, newTable, oldTable);
       generateDropPrimaryKeys(pr, newTable, oldTable);
-      generateDropDefaultConstraints(pr, newTable, oldTable);
+      constraintGenerator.generateDropDefaultConstraints(pr, newTable, oldTable);
       generateAlterTable(pr, newTable, oldTable);
       generateAlterForeignKeys(pr, newTable, oldTable);
-      generateRecreateDefaultConstraints(pr, newTable, oldTable);
+      constraintGenerator.generateRecreateDefaultConstraints(pr, newTable, oldTable);
       generateRecreatePrimaryKeys(pr, newTable, oldTable);
-      generateRecreateIndexes(pr, newTable, oldTable);
-      generateRecreateUniqueConstraints(pr, newTable, oldTable);
+      indexGenerator.generateRecreateIndexes(pr, newTable, oldTable);
+      constraintGenerator.generateRecreateUniqueConstraints(pr, newTable, oldTable);
       generateTableReorganisation(pr, newTable, oldTable);
     }
-  }
-
-  private void generateRecreateDefaultConstraints(PrintWriter pr, SqlTable newTable, SqlTable oldTable)
-  {
-    if (!generator.getRecreateOptions().defaultConstraints)
-    {
-      return;
-    }
-    for (SqlTableColumn col : getChangedColumnsWithDefaultConstraint(newTable, oldTable))
-    {
-      generator.generateRecreateDefaultConstraint(pr, oldTable, col);
-    }
-  }
-
-  private void generateDropDefaultConstraints(PrintWriter pr, SqlTable newTable, SqlTable oldTable)
-  {
-    if (!generator.getRecreateOptions().defaultConstraints)
-    {
-      return;
-    }
-    for (SqlTableColumn col : getChangedColumnsWithDefaultConstraint(newTable, oldTable))
-    {
-      generator.generateDropDefaultConstraint(pr, oldTable, col);
-    }
-  }
-
-  private List<SqlTableColumn> getChangedColumnsWithDefaultConstraint(SqlTable newTable, SqlTable oldTable)
-  {
-    List<SqlTableColumn> result = new ArrayList<SqlTableColumn>();
-    Map<SqlTableColumn, SqlTableColumn> changedColumns = findChangedColumns(newTable, oldTable);
-    for (SqlTableColumn changedColumn : changedColumns.keySet())
-    {
-      if (changedColumn.getDefaultValue() != null)
-      {
-        result.add(changedColumn);
-      }
-    }
-    return result;
   }
 
   private void generateAlterForeignKeys(PrintWriter pr, SqlTable newTable, SqlTable oldTable)
@@ -737,34 +1005,6 @@ public class MetaOutputDifferenceGenerator
     }
   }
 
-  private void generateCreateIndexes(PrintWriter pr, SqlTable newTable, SqlTable oldTable)
-  {
-    List<SqlIndex> addedIndexes = findAddedIndexes(newTable, oldTable);
-    if (addedIndexes.size() > 0)
-    {
-      pr.println();
-      generator.generateCommentLine(pr, "Create new indexes of table " + newTable.getId());
-      for (SqlIndex addedIndex : addedIndexes)
-      {
-        generator.generateIndex(pr, newTable, addedIndex);
-      }
-    }
-  }
-  
-  private List<SqlIndex> findAddedIndexes(SqlTable newTable, SqlTable oldTable)
-  {
-    List<SqlIndex> addedIndexes = new ArrayList<SqlIndex>();
-    for (SqlIndex newIndex : newTable.getIndexes())
-    {
-      SqlIndex oldIndex = oldTable.findIndex(newIndex.getId());
-      if (oldIndex == null)
-      {
-        addedIndexes.add(newIndex);
-      }
-    }
-    return addedIndexes;
-  }
-  
   private void generateTableReorganisation(PrintWriter pr, SqlTable newTable, SqlTable oldTable)
   {
     Map<SqlTableColumn, SqlTableColumn> changedColumns = findChangedColumns(newTable, oldTable);
@@ -775,233 +1015,7 @@ public class MetaOutputDifferenceGenerator
     }
   }
   
-  private boolean hasTriggerChanged(SqlTable newTable, SqlTable oldTable) throws MetaException
-  {
-    if (newTable == null || oldTable == null)
-    {
-      return true;
-    }
-    
-    StringWriter fromOut = new StringWriter();
-    StringWriter toOut = new StringWriter();
-
-    generateTrigger(new PrintWriter(fromOut), newTable, metaDefinitionFrom);
-    generateTrigger(new PrintWriter(toOut), oldTable, metaDefinitionTo);
-    
-    if (StringUtils.isBlank(toOut.toString()) || StringUtils.isBlank(fromOut.toString()))
-    {
-      // trigger was deleted or added (not changed)
-      return false;
-    }
-    return !toOut.toString().equals(fromOut.toString()); 
-  }
   
-  private boolean hasAddedTrigger(SqlTable newTable, SqlTable oldTable) throws MetaException
-  {
-    if (newTable == null || oldTable == null)
-    {
-      return true;
-    }
-
-    StringWriter fromOut = new StringWriter();
-    StringWriter toOut = new StringWriter();
-
-    generateTrigger(new PrintWriter(fromOut), newTable, metaDefinitionFrom);
-    generateTrigger(new PrintWriter(toOut), oldTable, metaDefinitionTo);
-    
-    if (StringUtils.isNotEmpty(toOut.toString()) && StringUtils.isBlank(fromOut.toString()))
-    {
-      return true;
-    }
-    return false; 
-  }
-  
-  
-  private void generateTrigger(PrintWriter pr, SqlTable table, SqlMeta metaDefinition) throws MetaException
-  {
-    generator.genrateForEachStatementDeleteTrigger(pr, table, metaDefinition);
-    generator.generateForEachRowDeleteTrigger(pr, table, metaDefinition);
-  }
-  
-  private void generateDeleteUniqueConstraints(PrintWriter pr, SqlTable newTable, SqlTable oldTable) throws MetaException
-  {
-    Set<SqlUniqueConstraint> changedUniqueConstraints = new LinkedHashSet<SqlUniqueConstraint>();
-    if (generator.getRecreateOptions().uniqueConstraintsOnAlterTable)
-    {
-      if (generator.getRecreateOptions().allUniqueConstraintsOnAlterTable)
-      {
-        changedUniqueConstraints.addAll(oldTable.getUniqueConstraints());
-      }
-      else
-      {
-        changedUniqueConstraints.addAll(getUniqueConstraintsFromChangedColumns(newTable, oldTable));
-      }
-    }
-    
-    changedUniqueConstraints.addAll(findDeletedUniqueConstraints(newTable, oldTable));
-    if (changedUniqueConstraints.size() > 0)
-    {
-      pr.println();
-      generator.generateCommentLine(pr, "Drop unique constraint which depend on changed columns or was deleted");
-      for (SqlUniqueConstraint uniqueConstraint : changedUniqueConstraints)
-      {
-        generator.generateDropUniqueConstraint(pr, oldTable, uniqueConstraint, createdTemporaryStoredProcedures);
-      }
-    }
-  }
-  
-  private Set<SqlUniqueConstraint> findDeletedUniqueConstraints(SqlTable newTable,
-          SqlTable oldTable)
-  {
-    Set<SqlUniqueConstraint> deletedUniqueConstraints = new LinkedHashSet<SqlUniqueConstraint>();
-    for (SqlUniqueConstraint oldConstraint : oldTable.getUniqueConstraints())
-    {
-      SqlUniqueConstraint newConstraint = newTable.findUniqueConstraint(oldConstraint.getId());
-      if (newConstraint == null)
-      {
-        deletedUniqueConstraints.add(oldConstraint);
-      }      
-    }
-    return deletedUniqueConstraints;
-  }
-
-  private void generateRecreateUniqueConstraints(PrintWriter pr, SqlTable newTable, SqlTable oldTable) throws MetaException
-  {
-    
-    Set<SqlUniqueConstraint> uniqueConstraints = getUniqueConstraintsToRecreate(newTable, oldTable);
-    generateCreateUniqueConstraints(pr, newTable, uniqueConstraints);
-  }
-
-  private Set<SqlUniqueConstraint> getUniqueConstraintsToRecreate(SqlTable newTable, SqlTable oldTable)
-  {
-    if (!generator.getRecreateOptions().uniqueConstraintsOnAlterTable)
-    {
-      return Collections.emptySet();
-    }
-
-    Set<SqlUniqueConstraint> uniqueConstraints = new HashSet<>();
-    if (generator.getRecreateOptions().allUniqueConstraintsOnAlterTable)
-    {
-      uniqueConstraints.addAll(newTable.getUniqueConstraints());
-    }
-    else
-    {
-      uniqueConstraints.addAll(getUniqueConstraintsFromChangedColumns(newTable, oldTable));
-    }
-    return uniqueConstraints;
-  }
-  
-
-  private void generateCreateUniqueConstraints(PrintWriter pr, SqlTable newTable, Collection<SqlUniqueConstraint> uniqueConstraints)
-  {
-    if (uniqueConstraints.size() > 0)
-    {
-      pr.println();
-      generator.generateCommentLine(pr, "Create unique constraints which depend on changed columns");
-      for (SqlUniqueConstraint uniqueConstraint : uniqueConstraints)
-      {
-        generator.generateAddUniqueConstraint(pr, newTable, uniqueConstraint);
-      }
-    }
-  }
-
-  private Set<SqlUniqueConstraint> getUniqueConstraintsFromChangedColumns(SqlTable newTable, SqlTable oldTable) throws MetaException
-  {
-    List<String> changedColumNames = new ArrayList<String>();
-    for (Entry<SqlTableColumn, SqlTableColumn> changedColumn : findChangedColumns(newTable, oldTable).entrySet())
-    {
-      SqlTableColumn newColumn = changedColumn.getKey();
-      SqlTableColumn oldColumn = changedColumn.getValue();
-      if (oldColumn != null)  // null if column not exists in old version!
-      {
-        changedColumNames.add(newColumn.getId());
-      }
-    }
-
-    return getUniqeConstraints(newTable, changedColumNames);
-  }
-
-  /**
-   * @return unique constraints form the given table depending on the given column names
-   */
-  private Set<SqlUniqueConstraint> getUniqeConstraints(SqlTable tables, List<String> columNames)
-  {
-    if (columNames.isEmpty())
-    {
-      return Collections.emptySet();
-    }
-
-    Set<SqlUniqueConstraint> dependentUniqueConstraints = new LinkedHashSet<SqlUniqueConstraint>(); 
-    for (SqlUniqueConstraint uniqueConstraint : tables.getUniqueConstraints())
-    {
-      for (String constraintColumn : uniqueConstraint.getColumns())
-      {
-        if (columNames.contains(constraintColumn))
-        {
-          dependentUniqueConstraints.add(uniqueConstraint);
-          break;
-        }
-      }
-    }
-    return dependentUniqueConstraints;
-  }
-  
-  private void generateDropIndexes(PrintWriter pr, SqlTable newTable, SqlTable oldTable)
-  {
-    if (!generator.getRecreateOptions().indexesOnAlterTable)
-    {
-      return;
-    }
-    
-    Set<SqlIndex> changedIndexes = getIndexesFromChangedColumns(newTable, oldTable);
-    if (changedIndexes.size() > 0)
-    {
-      pr.println();
-      generator.generateCommentLine(pr, "Drop indexes which depend on changed columns");
-      for (SqlIndex index : changedIndexes)
-      {
-        generator.generateDropIndex(pr, oldTable, index);
-      }
-    }
-  }
-  
-  
-  private Set<SqlIndex> getIndexesFromChangedColumns(SqlTable newTable, SqlTable oldTable)
-  {
-    Set<SqlIndex> result = new LinkedHashSet<SqlIndex>();
-    List<SqlIndex> indexes = generator.getIndexes(oldTable);
-    Map<SqlTableColumn, SqlTableColumn> changedColumns = findChangedColumns(newTable, oldTable);
-    for (SqlTableColumn changedColumn : changedColumns.keySet())
-    {
-      for (SqlIndex index : indexes)
-      {
-        if (index.getColumns().contains(changedColumn.getId()))
-        {
-          result.add(index);
-        }
-      }
-    }
-    return result;
-  }
-
-  private void generateRecreateIndexes(PrintWriter pr, SqlTable newTable, SqlTable oldTable)
-  {
-    if (!generator.getRecreateOptions().indexesOnAlterTable)
-    {
-      return;
-    }
-    
-    Set<SqlIndex> changedIndexes = getIndexesFromChangedColumns(newTable, oldTable);
-    if (changedIndexes.size() > 0)
-    {
-      pr.println();
-      generator.generateCommentLine(pr, "Create index which depend on changed columns");
-      for (SqlIndex index : changedIndexes)
-      {
-        generator.generateIndex(pr, newTable, index);
-      }
-    }
-  }
   
   private void generateDropPrimaryKeys(PrintWriter pr, SqlTable newTable, SqlTable oldTable)
   {
@@ -1160,7 +1174,7 @@ public class MetaOutputDifferenceGenerator
       boolean hasChangedColumns = findChangedColumns(newTable, oldTable).size() > 0;
       boolean hasAddedColumns = findAddedColumns(newTable, oldTable).size() > 0;
       boolean hasDroppedColumns = findDroppedColumns(newTable, oldTable).size() > 0;
-      boolean hasDeletedUniqueConstraints = findDeletedUniqueConstraints(newTable, oldTable).size() > 0;
+      boolean hasDeletedUniqueConstraints = constraintGenerator.findDeletedUniqueConstraints(newTable, oldTable).size() > 0;
       if (hasChangedColumns || hasAddedColumns || hasDroppedColumns || hasDeletedUniqueConstraints)
       {
         tables.put(newTable, oldTable);
