@@ -49,10 +49,11 @@ public class MetaOutputDifferenceGenerator
   private List<String> createdTemporaryStoredProcedures = new ArrayList<String>();
   private SqlMeta additionalConversionMeta;
   
-  private final IndexGenerator indexGenerator = new IndexGenerator();
-  private final TriggerGenerator triggerGenerator = new TriggerGenerator();
-  private final ConstraintGenerator constraintGenerator = new ConstraintGenerator();
-
+  private final IndexGenerator indexes = new IndexGenerator();
+  private final TriggerGenerator triggers = new TriggerGenerator();
+  private final ConstraintGenerator constraints = new ConstraintGenerator();
+  private final ForeignKeyGenerator foreignKeys = new ForeignKeyGenerator();
+  
   /**
    * @param generatorClassName
    * @return -
@@ -124,14 +125,6 @@ public class MetaOutputDifferenceGenerator
     }
   }
   
-  /**
-   * Constructor
-   * @param metaDefinitionFrom 
-   * @param metaDefinitionTo 
-   * @param additionalConversionMeta 
-   * @param generator 
-   * @param newVersionId 
-   */
   public MetaOutputDifferenceGenerator(SqlMeta metaDefinitionFrom, SqlMeta metaDefinitionTo, SqlMeta additionalConversionMeta, SqlScriptGenerator generator, int newVersionId)
   {
     this.metaDefinitionFrom = metaDefinitionFrom;
@@ -139,7 +132,6 @@ public class MetaOutputDifferenceGenerator
     this.additionalConversionMeta = additionalConversionMeta;
     this.generator = generator;
     this.newVersionId = newVersionId;
-    generator.setComment("Converts the ivy system database from version " + (newVersionId-1) + " to version " + newVersionId);
   }
 
   /** 
@@ -149,24 +141,25 @@ public class MetaOutputDifferenceGenerator
    */
   public void generate(PrintWriter pr) throws Exception
   {
+    generator.setComment("Converts the ivy system database from version " + (newVersionId-1) + " to version " + newVersionId);
     generator.generateHeader(pr);
     
     generator.generateNonMetaDiffChangesPre(pr, newVersionId);
     
     generateDropViewOfChangedTables(pr);
-    triggerGenerator.generateDropTriggersOfChangedTables(pr);
-    generateDropForeignKeysOfChangedColumns(pr);
+    triggers.generateDropTriggersOfChangedTables(pr);
+    foreignKeys.generateDropForeignKeysOfChangedColumns(pr);
     
     generateDropTableOfDeletedTables(pr);
     generateCreateTablesOfAddedTables(pr);
     
     generateTableModifications(pr);
-    indexGenerator.generateCreateIndexOfAddedIndexes(pr);
-    constraintGenerator.generateCreateUniqueOfAddedUniqueConstraints(pr);
+    indexes.generateCreateIndexOfAddedIndexes(pr);
+    constraints.generateCreateUniqueOfAddedUniqueConstraints(pr);
     
-    triggerGenerator.generateCreateTriggersOfAddedTriggers(pr);
-    generateRecreateForeignKeysOfChangedColumns(pr);
-    triggerGenerator.generateRecreateTriggersOfChangedTables(pr);
+    triggers.generateCreateTriggersOfAddedTriggers(pr);
+    foreignKeys.generateRecreateForeignKeysOfChangedColumns(pr);
+    triggers.generateRecreateTriggersOfChangedTables(pr);
     generateCreateViewOfChangedTables(pr);
     generateCreateViewOfAddedViews(pr);
     generateDeletesOfRemovedInserts(pr);
@@ -181,56 +174,6 @@ public class MetaOutputDifferenceGenerator
     generateDropTemporaryStoredProcedures(pr);
     generator.generateVersionUpdate(pr, newVersionId);
   }
-
-  private void generateRecreateForeignKeysOfChangedColumns(PrintWriter pr)
-  {
-    if (!generator.getRecreateOptions().foreignKeysOnAlterTable)
-    {
-      return;
-    }
-    List<Pair<SqlTable, SqlForeignKey>> referencingColumns = getForeignKeysReferencingChangedColumns();
-    for (Pair<SqlTable, SqlForeignKey> pair : referencingColumns)
-    {
-      if (generator.isForeignKeySupported(pair.getRight()))
-      {
-        generator.generateAlterTableAddForeignKey(pr, pair.getLeft(), pair.getRight());
-      }
-    }
-  }
-
-  private void generateDropForeignKeysOfChangedColumns(PrintWriter pr)
-  {
-    if (!generator.getRecreateOptions().foreignKeysOnAlterTable)
-    {
-      return;
-    }
-
-    List<Pair<SqlTable, SqlForeignKey>> referencingColumns = getForeignKeysReferencingChangedColumns();
-    for (Pair<SqlTable, SqlForeignKey> pair : referencingColumns)
-    {
-      if (generator.isForeignKeySupported(pair.getRight()))
-      {
-        generator.generateAlterTableDropForeignKey(pr, pair.getLeft(), pair.getRight(),
-                createdTemporaryStoredProcedures);
-      }
-    }
-  }
-  
-  private List<Pair<SqlTable, SqlForeignKey>> getForeignKeysReferencingChangedColumns()
-  {
-    List<Pair<SqlTable, SqlForeignKey>> foreignKeys = new ArrayList<Pair<SqlTable, SqlForeignKey>>();
-    for (Entry<SqlTable, SqlTable> changedTable : findChangedTables().entrySet())
-    {
-      Map<SqlTableColumn, SqlTableColumn> changedColumns = findChangedColumns(changedTable.getKey(), changedTable.getValue());
-      for (Entry<SqlTableColumn, SqlTableColumn> changedColumn : changedColumns.entrySet())
-      {
-        List<Pair<SqlTable, SqlForeignKey>> referencingColumns = metaDefinitionFrom.getReferencingForeignKeys(changedTable.getKey(), changedColumn.getKey());
-        foreignKeys.addAll(referencingColumns);
-      }
-    }    
-    return foreignKeys;
-  }
-
 
   /**
    * @param pr
@@ -386,9 +329,9 @@ public class MetaOutputDifferenceGenerator
       {
         pr.println();
         generator.generateCommentLine(pr, "Drop indexes which depend on changed columns");
-        for (SqlIndex index : changedIndexes)
+        for (SqlIndex sqlIndex : changedIndexes)
         {
-          generator.generateDropIndex(pr, oldTable, index);
+          generator.generateDropIndex(pr, oldTable, sqlIndex);
         }
       }
     }
@@ -396,15 +339,15 @@ public class MetaOutputDifferenceGenerator
     private Set<SqlIndex> getIndexesFromChangedColumns(SqlTable newTable, SqlTable oldTable)
     {
       Set<SqlIndex> result = new LinkedHashSet<SqlIndex>();
-      List<SqlIndex> indexes = generator.getIndexes(oldTable);
+      List<SqlIndex> sqlIndexes = generator.getIndexes(oldTable);
       Map<SqlTableColumn, SqlTableColumn> changedColumns = findChangedColumns(newTable, oldTable);
       for (SqlTableColumn changedColumn : changedColumns.keySet())
       {
-        for (SqlIndex index : indexes)
+        for (SqlIndex sqlIndex : sqlIndexes)
         {
-          if (index.getColumns().contains(changedColumn.getId()))
+          if (sqlIndex.getColumns().contains(changedColumn.getId()))
           {
-            result.add(index);
+            result.add(sqlIndex);
           }
         }
       }
@@ -423,9 +366,9 @@ public class MetaOutputDifferenceGenerator
       {
         pr.println();
         generator.generateCommentLine(pr, "Create index which depend on changed columns");
-        for (SqlIndex index : changedIndexes)
+        for (SqlIndex sqlIndex : changedIndexes)
         {
-          generator.generateIndex(pr, newTable, index);
+          generator.generateIndex(pr, newTable, sqlIndex);
         }
       }
     }
@@ -791,7 +734,96 @@ public class MetaOutputDifferenceGenerator
     }
   }
   
-  
+  class ForeignKeyGenerator
+  {
+
+    void generateRecreateForeignKeysOfChangedColumns(PrintWriter pr)
+    {
+      if (!generator.getRecreateOptions().foreignKeysOnAlterTable)
+      {
+        return;
+      }
+      List<Pair<SqlTable, SqlForeignKey>> referencingColumns = getForeignKeysReferencingChangedColumns();
+      for (Pair<SqlTable, SqlForeignKey> pair : referencingColumns)
+      {
+        if (generator.isForeignKeySupported(pair.getRight()))
+        {
+          generator.generateAlterTableAddForeignKey(pr, pair.getLeft(), pair.getRight());
+        }
+      }
+    }
+
+    void generateDropForeignKeysOfChangedColumns(PrintWriter pr)
+    {
+      if (!generator.getRecreateOptions().foreignKeysOnAlterTable)
+      {
+        return;
+      }
+    
+      List<Pair<SqlTable, SqlForeignKey>> referencingColumns = getForeignKeysReferencingChangedColumns();
+      for (Pair<SqlTable, SqlForeignKey> pair : referencingColumns)
+      {
+        if (generator.isForeignKeySupported(pair.getRight()))
+        {
+          generator.generateAlterTableDropForeignKey(pr, pair.getLeft(), pair.getRight(),
+                  createdTemporaryStoredProcedures);
+        }
+      }
+    }
+
+    private List<Pair<SqlTable, SqlForeignKey>> getForeignKeysReferencingChangedColumns()
+    {
+      List<Pair<SqlTable, SqlForeignKey>> sqlForeignKeys = new ArrayList<Pair<SqlTable, SqlForeignKey>>();
+      for (Entry<SqlTable, SqlTable> changedTable : findChangedTables().entrySet())
+      {
+        Map<SqlTableColumn, SqlTableColumn> changedColumns = findChangedColumns(changedTable.getKey(), changedTable.getValue());
+        for (Entry<SqlTableColumn, SqlTableColumn> changedColumn : changedColumns.entrySet())
+        {
+          List<Pair<SqlTable, SqlForeignKey>> referencingColumns = metaDefinitionFrom.getReferencingForeignKeys(changedTable.getKey(), changedColumn.getKey());
+          sqlForeignKeys.addAll(referencingColumns);
+        }
+      }    
+      return sqlForeignKeys;
+    }
+
+    void generateAlterForeignKeys(PrintWriter pr, SqlTable newTable, SqlTable oldTable)
+    {
+      if (generator.isForeignKeyReferenceInColumnDefinitionSupported())
+      {
+        return;
+      }
+    
+      List<SqlForeignKey> addedForeignKeys = findAddedForeignKeys(newTable, oldTable);
+      if (addedForeignKeys.size() > 0)
+      {
+        pr.println();
+        generator.generateCommentLine(pr, "Create added foreign keys of table " + newTable.getId());
+        for (SqlForeignKey sqlForeignKey : addedForeignKeys)
+        {
+          generator.generateAlterTableAddForeignKey(pr, newTable, sqlForeignKey);
+        }
+      }
+    }
+
+    private List<SqlForeignKey> findAddedForeignKeys(SqlTable newTable, SqlTable oldTable)
+    {
+      List<SqlForeignKey> addedForeignKeys = new ArrayList<SqlForeignKey>();
+      List<SqlForeignKey> newForeignKeys = newTable.getForeignKeys();
+      for (SqlForeignKey newForeignKey : newForeignKeys)
+      {
+        if (generator.isForeignKeySupported(newForeignKey))
+        {
+          SqlForeignKey oldForeignKey = oldTable.findForeignKey(newForeignKey.getId());
+          if (oldForeignKey == null || generator.isForeignKeySupported(oldForeignKey) == false)
+          {
+            addedForeignKeys.add(newForeignKey);
+          }
+        }
+      }
+      return addedForeignKeys;
+    }
+    
+  }
   
   private void generateDropTableOfDeletedTables(PrintWriter pr) throws MetaException
   {
@@ -837,7 +869,7 @@ public class MetaOutputDifferenceGenerator
       {
         pr.println();
         generator.generateCommentLine(pr, "Create trigger which depend on new added table");
-        triggerGenerator.generateTrigger(pr, addedTable, metaDefinitionTo);
+        triggers.generateTrigger(pr, addedTable, metaDefinitionTo);
       }
     }
   }
@@ -857,55 +889,18 @@ public class MetaOutputDifferenceGenerator
     {
       SqlTable newTable = changedTable.getKey();
       SqlTable oldTable = changedTable.getValue();
-      constraintGenerator.generateDeleteUniqueConstraints(pr, newTable, oldTable);
-      indexGenerator.generateDropIndexes(pr, newTable, oldTable);
+      constraints.generateDeleteUniqueConstraints(pr, newTable, oldTable);
+      indexes.generateDropIndexes(pr, newTable, oldTable);
       generateDropPrimaryKeys(pr, newTable, oldTable);
-      constraintGenerator.generateDropDefaultConstraints(pr, newTable, oldTable);
+      constraints.generateDropDefaultConstraints(pr, newTable, oldTable);
       generateAlterTable(pr, newTable, oldTable);
-      generateAlterForeignKeys(pr, newTable, oldTable);
-      constraintGenerator.generateRecreateDefaultConstraints(pr, newTable, oldTable);
+      foreignKeys.generateAlterForeignKeys(pr, newTable, oldTable);
+      constraints.generateRecreateDefaultConstraints(pr, newTable, oldTable);
       generateRecreatePrimaryKeys(pr, newTable, oldTable);
-      indexGenerator.generateRecreateIndexes(pr, newTable, oldTable);
-      constraintGenerator.generateRecreateUniqueConstraints(pr, newTable, oldTable);
+      indexes.generateRecreateIndexes(pr, newTable, oldTable);
+      constraints.generateRecreateUniqueConstraints(pr, newTable, oldTable);
       generateTableReorganisation(pr, newTable, oldTable);
     }
-  }
-
-  private void generateAlterForeignKeys(PrintWriter pr, SqlTable newTable, SqlTable oldTable)
-  {
-    if (generator.isForeignKeyReferenceInColumnDefinitionSupported())
-    {
-      return;
-    }
-   
-    List<SqlForeignKey> addedForeignKeys = findAddedForeignKeys(newTable, oldTable);
-    if (addedForeignKeys.size() > 0)
-    {
-      pr.println();
-      generator.generateCommentLine(pr, "Create added foreign keys of table " + newTable.getId());
-      for (SqlForeignKey foreignKey : addedForeignKeys)
-      {
-        generator.generateAlterTableAddForeignKey(pr, newTable, foreignKey);
-      }
-    }
-  }
-
-  private List<SqlForeignKey> findAddedForeignKeys(SqlTable newTable, SqlTable oldTable)
-  {
-    List<SqlForeignKey> addedForeignKeys = new ArrayList<SqlForeignKey>();
-    List<SqlForeignKey> newForeignKeys = newTable.getForeignKeys();
-    for (SqlForeignKey newForeignKey : newForeignKeys)
-    {
-      if (generator.isForeignKeySupported(newForeignKey))
-      {
-        SqlForeignKey oldForeignKey = oldTable.findForeignKey(newForeignKey.getId());
-        if (oldForeignKey == null || generator.isForeignKeySupported(oldForeignKey) == false)
-        {
-          addedForeignKeys.add(newForeignKey);
-        }
-      }
-    }
-    return addedForeignKeys;
   }
 
   private void generateAlterTable(PrintWriter pr, SqlTable newTable, SqlTable oldTable) throws MetaException
@@ -1172,7 +1167,7 @@ public class MetaOutputDifferenceGenerator
       boolean hasChangedColumns = findChangedColumns(newTable, oldTable).size() > 0;
       boolean hasAddedColumns = findAddedColumns(newTable, oldTable).size() > 0;
       boolean hasDroppedColumns = findDroppedColumns(newTable, oldTable).size() > 0;
-      boolean hasDeletedUniqueConstraints = constraintGenerator.findDeletedUniqueConstraints(newTable, oldTable).size() > 0;
+      boolean hasDeletedUniqueConstraints = constraints.findDeletedUniqueConstraints(newTable, oldTable).size() > 0;
       if (hasChangedColumns || hasAddedColumns || hasDroppedColumns || hasDeletedUniqueConstraints)
       {
         tables.put(newTable, oldTable);
