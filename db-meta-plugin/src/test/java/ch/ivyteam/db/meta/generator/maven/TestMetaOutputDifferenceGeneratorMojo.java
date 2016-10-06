@@ -207,6 +207,28 @@ public class TestMetaOutputDifferenceGeneratorMojo
             "TABLESPACE {0};"
     );
   }
+  
+  @Test
+  public void testRemoveOnDeleteReplaceByTrigger() throws IllegalAccessException, MojoExecutionException, MojoFailureException, IOException
+  {
+    String sqlContent = execute(MySqlSqlScriptGenerator.class);
+    String newTrigger = "# Create new triggers on existing table(s)\n"
+            + "CREATE TRIGGER IWA_LibraryDeleteTrigger\n"
+            + "AFTER DELETE ON IWA_Library\n"
+            + "FOR EACH ROW\n"
+            + "BEGIN\n"
+            + "  UPDATE IWA_LibrarySpecification\n"
+            + "  SET ResolvedLibraryId=NULL\n"
+            + "  WHERE IWA_LibrarySpecification.ResolvedLibraryId=OLD.LibraryId;\n"
+            + "\n"
+            + "END\n"
+            + ";";
+    assertThat(sqlContent).contains(newTrigger);
+    
+    assertThat(sqlContent)
+      .contains("# Remove foreign keys of table IWA_LibrarySpecification")
+      .contains("CALL IWA_Drop_ForeignKey_Constraint(SCHEMA(), 'IWA_LibrarySpecification', 'ResolvedLibraryId');");
+  }
 
   private String execute(Class<? extends SqlScriptGenerator> generatorClass)
           throws IllegalAccessException, MojoExecutionException, MojoFailureException, IOException

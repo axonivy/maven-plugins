@@ -281,6 +281,29 @@ CREATE TABLE IWA_Library
   PRIMARY KEY (LibraryId)
 );
 
+CREATE TABLE IWA_LibrarySpecification
+(
+  -- Identifies the the library specification.
+  LibrarySpecificationId BIGINT NOT NULL,
+  -- References the library this library specification belongs to. 
+  LibraryId BIGINT NOT NULL,
+  -- The identifier of the required library that this library requires
+  Id VARCHAR(200) NOT NULL,
+  -- The resolved runtime library which matches the specification
+  ResolvedLibraryId BIGINT REFERENCES IWA_Library(LibraryId) ON DELETE SET NULL
+    FOR Db2iSeries USE (NoReferenceUseTrigger)
+    FOR MsSqlServer USE (NoReferenceUseTrigger),
+  -- The position of this library specification within all other library specification of a library.
+  Position INTEGER NOT NULL,
+  PRIMARY KEY (LibrarySpecificationId),
+  FOREIGN KEY (LibraryId) REFERENCES IWA_Library(LibraryId) ON DELETE CASCADE
+    FOR Db2iSeries USE (NoReferenceUseTrigger)
+    FOR Java USE (AsParent),
+  UNIQUE LibrarySpecification_LibraryIdIdIndex (LibraryId, Id)
+)
+FOR Cache USE (Strategy='ALL');
+
+
 INSERT INTO IWA_RoleRoleMember (RoleId, RoleMemberId) VALUES (1, 1);
 
 INSERT INTO IWA_RoleRoleMember (RoleId, RoleMemberId)

@@ -793,8 +793,8 @@ public class MetaOutputDifferenceGenerator
         return;
       }
     
-      List<SqlForeignKey> addedForeignKeys = findAddedForeignKeys(newTable, oldTable);
-      if (addedForeignKeys.size() > 0)
+      List<SqlForeignKey> addedForeignKeys = findChangedForeignKeys(newTable, oldTable);
+      if (!addedForeignKeys.isEmpty())
       {
         pr.println();
         generator.generateCommentLine(pr, "Create added foreign keys of table " + newTable.getId());
@@ -803,26 +803,56 @@ public class MetaOutputDifferenceGenerator
           generator.generateAlterTableAddForeignKey(pr, newTable, sqlForeignKey);
         }
       }
-    }
 
-    private List<SqlForeignKey> findAddedForeignKeys(SqlTable newTable, SqlTable oldTable)
+      List<SqlForeignKey> removedForeignKeys = findChangedForeignKeys(oldTable, newTable);
+      if (!removedForeignKeys.isEmpty())
+      {
+        pr.println();
+        generator.generateCommentLine(pr, "Remove foreign keys of table " + newTable.getId());
+        for (SqlForeignKey sqlForeignKey : removedForeignKeys)
+        {
+          generator.generateAlterTableDropForeignKey(pr, newTable, sqlForeignKey, createdTemporaryStoredProcedures);
+        }
+      }
+    }
+    
+    boolean hasForeignKeyDefinitionChanged(SqlTable newTable, SqlTable oldTable)
     {
-      List<SqlForeignKey> addedForeignKeys = new ArrayList<SqlForeignKey>();
+      List<SqlForeignKey> added = findChangedForeignKeys(newTable, oldTable);
+      List<SqlForeignKey> removed = findChangedForeignKeys(oldTable, newTable);
+      return !(added.isEmpty() && removed.isEmpty());
+    }
+    
+    private List<SqlForeignKey> findChangedForeignKeys(SqlTable newTable, SqlTable oldTable)
+    {
+      List<SqlForeignKey> changedKeys = new ArrayList<SqlForeignKey>();
       List<SqlForeignKey> newForeignKeys = newTable.getForeignKeys();
       for (SqlForeignKey newForeignKey : newForeignKeys)
       {
         if (generator.isForeignKeySupported(newForeignKey))
         {
           SqlForeignKey oldForeignKey = oldTable.findForeignKey(newForeignKey.getId());
-          if (oldForeignKey == null || generator.isForeignKeySupported(oldForeignKey) == false)
+          if (!isForeignKey(oldForeignKey))
           {
-            addedForeignKeys.add(newForeignKey);
+            changedKeys.add(newForeignKey);
           }
         }
       }
-      return addedForeignKeys;
+      return changedKeys;
     }
     
+    private boolean isForeignKey(SqlForeignKey foreignKey)
+    {
+      if (foreignKey == null)
+      {
+        return false;
+      }
+      if (!generator.isForeignKeySupported(foreignKey))
+      {
+        return false;
+      }
+      return true;
+    }
   }
   
   private void generateDropTableOfDeletedTables(PrintWriter pr) throws MetaException
@@ -1168,7 +1198,8 @@ public class MetaOutputDifferenceGenerator
       boolean hasAddedColumns = findAddedColumns(newTable, oldTable).size() > 0;
       boolean hasDroppedColumns = findDroppedColumns(newTable, oldTable).size() > 0;
       boolean hasDeletedUniqueConstraints = constraints.findDeletedUniqueConstraints(newTable, oldTable).size() > 0;
-      if (hasChangedColumns || hasAddedColumns || hasDroppedColumns || hasDeletedUniqueConstraints)
+      boolean hasForeignKeysChanges = foreignKeys.hasForeignKeyDefinitionChanged(newTable, oldTable);
+      if (hasChangedColumns || hasAddedColumns || hasDroppedColumns || hasDeletedUniqueConstraints || hasForeignKeysChanges)
       {
         tables.put(newTable, oldTable);
       }
