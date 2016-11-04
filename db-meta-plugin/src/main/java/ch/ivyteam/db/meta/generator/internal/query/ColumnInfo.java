@@ -48,7 +48,10 @@ public abstract class ColumnInfo
     List<ColumnInfo> result = new ArrayList<ColumnInfo>();
     for(SqlTableColumn column: tableInfo.getTable().getColumns())
     {
-      result.add(new TableColumnInfo(tableInfo, column));
+      if (! column.getDatabaseManagementSystemHints(JavaClassGenerator.JAVA).isHintSet(JavaClassGenerator.HIDE_FIELD_ON_QUERY))
+      {
+        result.add(new TableColumnInfo(tableInfo, column));
+      }
     }
     return result;
   }
@@ -59,7 +62,10 @@ public abstract class ColumnInfo
     int pos = 0;
     for (SqlViewColumn column : view.getColumns())
     {
-      result.add(new ViewColumnInfo(meta, tableInfo, column, view.getSelects().get(0).getExpressions().get(pos++).getExpression()));
+      if (! column.getDatabaseManagementSystemHints(JavaClassGenerator.JAVA).isHintSet(JavaClassGenerator.HIDE_FIELD_ON_QUERY))
+      {
+        result.add(new ViewColumnInfo(meta, tableInfo, column, view.getSelects().get(0).getExpressions().get(pos++).getExpression()));
+      }
     }
     return result;
   }

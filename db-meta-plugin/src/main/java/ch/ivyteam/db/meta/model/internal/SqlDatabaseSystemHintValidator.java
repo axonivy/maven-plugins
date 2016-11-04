@@ -59,9 +59,9 @@ public class SqlDatabaseSystemHintValidator
     registerHint(JavaClassGenerator.JAVA, JavaClassGenerator.ENUM);
     registerHint(JavaClassGenerator.JAVA, JavaClassGenerator.PARENT_CAN_BE_MODIFIED);
     registerHint(JavaClassGenerator.JAVA, JavaClassGenerator.PASSWORD);
-    registerHint(JavaClassGenerator.JAVA, JavaClassGenerator.PASSWORD);
     registerHint(JavaClassGenerator.JAVA, JavaClassGenerator.QUERY_TABLE_NAME);
     registerHint(JavaClassGenerator.JAVA, JavaClassGenerator.QUERY_FIELD_NAME);
+    registerHint(JavaClassGenerator.JAVA, JavaClassGenerator.HIDE_FIELD_ON_QUERY);
     registerHint(JavaClassGenerator.JAVA, JavaClassGenerator.FILTER_QUERY_DATA_TYPE);
     registerHint(JavaClassGenerator.JAVA, JavaClassGenerator.SECONDARY_KEYS);
     registerHint(JavaClassGenerator.JAVA, JavaClassGenerator.TRUNCATE);

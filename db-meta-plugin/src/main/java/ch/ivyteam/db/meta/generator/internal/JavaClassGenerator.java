@@ -87,7 +87,12 @@ public abstract class JavaClassGenerator implements IMetaOutputGenerator
    * Specifies the name of a column in a generated query class. 
    * If not set the name of the column is used as field name  
    */ 
-  public static final String QUERY_FIELD_NAME = "QueryFieldName";                                                 
+  public static final String QUERY_FIELD_NAME = "QueryFieldName";
+  
+  /**
+   * Specifies that this field should not appear as queryable field on the generated Query (e.g. CaseQuery)
+   */
+  public static final String HIDE_FIELD_ON_QUERY = "HideFieldOnQuery";
   
   /**  
    * <p>Specifies the filter query data type of a column in a generated query class. 
