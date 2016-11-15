@@ -159,7 +159,7 @@ public abstract class ColumnInfo
    */
   public boolean isMinSupported()
   {
-    return !isForeignOrPrimaryKey() &&
+    return !isForeignKey() &&
     (
       supportsIntegerOption() ||
       supportsDecimalOption() ||
@@ -173,7 +173,7 @@ public abstract class ColumnInfo
    */
   public boolean isMaxSupported()
   {
-    return !isForeignOrPrimaryKey() &&
+    return !isForeignKey() &&
     (
       supportsIntegerOption() ||
       supportsDecimalOption() ||
@@ -293,17 +293,19 @@ public abstract class ColumnInfo
 
   private boolean isForeignOrPrimaryKey()
   {
-    if (getColumn().getReference() != null)
-    {
-      return true;
-    }
-    if (tableInfo.getTable().getPrimaryKey().getPrimaryKeyColumns().contains(getColumn().getId()))
-    {
-      return true;
-    }
-    return false;
+    return isForeignKey() || isPrimaryKey();
   }
 
+  private boolean isForeignKey()
+  {
+    return getColumn().getReference() != null;
+  }
+
+  private boolean isPrimaryKey()
+  {
+    return tableInfo.getTable().getPrimaryKey().getPrimaryKeyColumns().contains(getColumn().getId());
+  }
+  
   /**
    * @return table info
    */
