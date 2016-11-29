@@ -203,10 +203,6 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
       generateDelimiter(pr);
       pr.println();
       pr.println();
-      pr.print("ALTER DATABASE [{0}] COLLATE Latin1_General_CI_AI");
-      generateDelimiter(pr);
-      pr.println();
-      pr.println();
       generateAlterDatabaseForSnapshotIsolation(pr);
       pr.println();
       pr.println();
