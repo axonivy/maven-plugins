@@ -104,6 +104,8 @@ db-meta-plugin/src/test/java/ch/ivyteam/db/meta/generator/maven/ProjectMojoRule.
 db-meta-plugin/src/test/java/ch/ivyteam/db/meta/generator/maven/TestMetaOutputDifferenceGeneratorMojo.java -text
 db-meta-plugin/src/test/java/ch/ivyteam/db/meta/generator/maven/TestMetaOutputGeneratorMojo.java -text
 db-meta-plugin/src/test/java/ch/ivyteam/db/meta/generator/maven/TestMetaOutputGeneratorMojoContent.java -text
+db-meta-plugin/src/test/java/ch/ivyteam/db/meta/model/internal/TestSqlObject.java -text
+db-meta-plugin/src/test/java/ch/ivyteam/db/meta/model/internal/TestSqlView.java -text
 db-meta-plugin/src/test/resources/base/meta/simpleTest.meta -text
 db-meta-plugin/src/test/resources/base/oldVersionMeta/simpleTestV0.meta -text
 db-meta-plugin/src/test/resources/base/pom.xml -text

@@ -31,6 +31,7 @@ import ch.ivyteam.db.meta.model.internal.SqlTable;
 import ch.ivyteam.db.meta.model.internal.SqlTableColumn;
 import ch.ivyteam.db.meta.model.internal.SqlUniqueConstraint;
 import ch.ivyteam.db.meta.model.internal.SqlView;
+import ch.ivyteam.db.meta.model.internal.SqlViewColumn;
 import ch.ivyteam.db.meta.parser.internal.Parser;
 import ch.ivyteam.db.meta.parser.internal.Scanner;
 
@@ -46,7 +47,7 @@ public class MetaOutputDifferenceGenerator
   private final int newVersionId;
   private final SqlMeta metaDefinitionFrom;
   private final SqlMeta metaDefinitionTo;   
-  private List<String> createdTemporaryStoredProcedures = new ArrayList<String>();
+  private List<String> createdTemporaryStoredProcedures = new ArrayList<>();
   private SqlMeta additionalConversionMeta;
   
   private final IndexGenerator indexes = new IndexGenerator();
@@ -146,7 +147,7 @@ public class MetaOutputDifferenceGenerator
     
     generator.generateNonMetaDiffChangesPre(pr, newVersionId);
     
-    generateDropViewOfChangedTables(pr);
+    generateDropViews(pr);
     triggers.generateDropTriggersOfChangedTables(pr);
     foreignKeys.generateDropForeignKeysOfChangedColumns(pr);
     
@@ -160,8 +161,7 @@ public class MetaOutputDifferenceGenerator
     triggers.generateCreateTriggersOfAddedTriggers(pr);
     foreignKeys.generateRecreateForeignKeysOfChangedColumns(pr);
     triggers.generateRecreateTriggersOfChangedTables(pr);
-    generateCreateViewOfChangedTables(pr);
-    generateCreateViewOfAddedViews(pr);
+    generateCreateViews(pr);
     generateDeletesOfRemovedInserts(pr);
     generateInsertsOfNewAddedInserts(pr);
     
@@ -986,13 +986,13 @@ public class MetaOutputDifferenceGenerator
       }
     }
   }
-  
-  private void generateDropViewOfChangedTables(PrintWriter pr) throws MetaException
+
+  private void generateDropViews(PrintWriter pr) throws MetaException
   {
     Set<SqlView> changedViews = findChangedViews();
-    if (changedViews.size() > 0)
+    if (!changedViews.isEmpty())
     {
-      generator.generateCommentLine(pr, "Drop views which depend on changed tables");
+      generator.generateCommentLine(pr, "Drop views which has a new definition or depend on changed tables");
       for (SqlView sqlView : changedViews)
       {
         generator.generateDropView(pr, sqlView);
@@ -1000,28 +1000,27 @@ public class MetaOutputDifferenceGenerator
     }
   }
 
-  private void generateCreateViewOfChangedTables(PrintWriter pr) throws MetaException
+  private Set<SqlView> findChangedViews()
   {
-    Set<SqlView> changedViews = findChangedViews();
-    if (changedViews.size() > 0)
-    {
-      pr.println();
-      generator.generateCommentLine(pr, "Recreate views which depend on changed tables");
-      for (SqlView sqlView : changedViews)
-      {
-        generator.generateView(pr, sqlView);
-      }
-    }
+    Set<SqlView> changedViews = new HashSet<>();
+    changedViews.addAll(findViewsWhichDependOnChangedTables());
+    changedViews.addAll(findViewsWhichHasNewDefinition());
+    return changedViews;
   }
-  
-  private void generateCreateViewOfAddedViews(PrintWriter pr) throws MetaException
+
+  private void generateCreateViews(PrintWriter pr) throws MetaException
   {
-    Set<SqlView> addedViews = findAddedViews();
-    if (addedViews.size() > 0)
+    generateViews(pr, findAddedViews(), "Create added views");
+    generateViews(pr, findChangedViews(), "Recreate views which has a new definition or depend on changed tables");
+  }
+
+  private void generateViews(PrintWriter pr, Set<SqlView> views, String commentLine)
+  {
+    if (!views.isEmpty())
     {
       pr.println();
-      generator.generateCommentLine(pr, "Create added views");
-      for (SqlView sqlView : addedViews)
+      generator.generateCommentLine(pr, commentLine);
+      for (SqlView sqlView : views)
       {
         generator.generateView(pr, sqlView);
       }
@@ -1038,8 +1037,6 @@ public class MetaOutputDifferenceGenerator
     }
   }
   
-  
-  
   private void generateDropPrimaryKeys(PrintWriter pr, SqlTable newTable, SqlTable oldTable)
   {
     if (!generator.getRecreateOptions().primaryKeysOnAlterTable)
@@ -1053,7 +1050,6 @@ public class MetaOutputDifferenceGenerator
       generator.generateDropPrimaryKey(pr, oldTable, changedPrimaryKey, createdTemporaryStoredProcedures);
     }
   }
-  
   
   private SqlPrimaryKey getPrimaryKeysFromChangedColumns(SqlTable newTable, SqlTable oldTable)
   {
@@ -1088,11 +1084,11 @@ public class MetaOutputDifferenceGenerator
    * @return never null
    * @throws MetaException 
    */
-  private Set<SqlView> findChangedViews() throws MetaException
+  private Set<SqlView> findViewsWhichDependOnChangedTables() throws MetaException
   {
     Map<SqlTable, SqlTable> changedTables = findChangedTables();
     List<SqlView> views = metaDefinitionTo.getArtifacts(SqlView.class);
-    Set<SqlView> changedViews = new LinkedHashSet<SqlView>();
+    Set<SqlView> changedViews = new LinkedHashSet<>();
     for (SqlView sqlView : views)
     {
       // only recreated view if it was already there in old version
@@ -1117,8 +1113,8 @@ public class MetaOutputDifferenceGenerator
    */
   private List<SqlTable> findAddedTables()
   {
-    List<SqlTable> newTables = new ArrayList<SqlTable>(metaDefinitionTo.getArtifacts(SqlTable.class));
-    List<SqlTable> addedTables = new ArrayList<SqlTable>();
+    List<SqlTable> newTables = new ArrayList<>(metaDefinitionTo.getArtifacts(SqlTable.class));
+    List<SqlTable> addedTables = new ArrayList<>();
     for (SqlTable newTable: newTables)
     {
       SqlTable oldTable = metaDefinitionFrom.findTable(newTable.getId());
@@ -1132,8 +1128,8 @@ public class MetaOutputDifferenceGenerator
   
   private Set<SqlView> findAddedViews()
   {
-    List<SqlView> newViews = new ArrayList<SqlView>(metaDefinitionTo.getArtifacts(SqlView.class));
-    Set<SqlView> addedViews = new LinkedHashSet<SqlView>();
+    List<SqlView> newViews = new ArrayList<>(metaDefinitionTo.getArtifacts(SqlView.class));
+    Set<SqlView> addedViews = new LinkedHashSet<>();
     for (SqlView newView: newViews)
     {
       SqlView oldView = metaDefinitionFrom.findView(newView.getId());
@@ -1144,15 +1140,14 @@ public class MetaOutputDifferenceGenerator
     }
     return addedViews;
   }
-
   
   /**
    * @return tables which are deleted in the new meta definition (only exists in old meta definition)
    */
   private List<SqlTable> findDeletedTables()
   {
-    List<SqlTable> oldTables = new ArrayList<SqlTable>(metaDefinitionFrom.getArtifacts(SqlTable.class));
-    List<SqlTable> deletedTables = new ArrayList<SqlTable>();
+    List<SqlTable> oldTables = new ArrayList<>(metaDefinitionFrom.getArtifacts(SqlTable.class));
+    List<SqlTable> deletedTables = new ArrayList<>();
     for (SqlTable oldTable: oldTables)
     {
       SqlTable newTable = metaDefinitionTo.findTable(oldTable.getId());
@@ -1170,8 +1165,8 @@ public class MetaOutputDifferenceGenerator
    */
   private Map<SqlTable, SqlTable> findCommonTables()
   {
-    List<SqlTable> oldTables = new ArrayList<SqlTable>(metaDefinitionFrom.getArtifacts(SqlTable.class));
-    Map<SqlTable, SqlTable> tables = new LinkedHashMap<SqlTable, SqlTable>();
+    List<SqlTable> oldTables = new ArrayList<>(metaDefinitionFrom.getArtifacts(SqlTable.class));
+    Map<SqlTable, SqlTable> tables = new LinkedHashMap<>();
     for (SqlTable oldTable: oldTables)
     {
       SqlTable newTable = metaDefinitionTo.findTable(oldTable.getId());
@@ -1188,11 +1183,11 @@ public class MetaOutputDifferenceGenerator
    */
   private Map<SqlTable, SqlTable> findChangedTables() throws MetaException
   {
-    Map<SqlTable, SqlTable> tables = new LinkedHashMap<SqlTable, SqlTable>();
-    for (Entry<SqlTable, SqlTable> comonTable : findCommonTables().entrySet())
+    Map<SqlTable, SqlTable> tables = new LinkedHashMap<>();
+    for (Entry<SqlTable, SqlTable> commonTable : findCommonTables().entrySet())
     {
-      SqlTable newTable = comonTable.getKey();
-      SqlTable oldTable = comonTable.getValue();
+      SqlTable newTable = commonTable.getKey();
+      SqlTable oldTable = commonTable.getValue();
 
       boolean hasChangedColumns = findChangedColumns(newTable, oldTable).size() > 0;
       boolean hasAddedColumns = findAddedColumns(newTable, oldTable).size() > 0;
@@ -1205,6 +1200,40 @@ public class MetaOutputDifferenceGenerator
       }
     }
     return tables;
+  }
+
+  private Set<SqlView> findViewsWhichHasNewDefinition()
+  {
+    Set<SqlView> views = new HashSet<>();
+    for (Entry<SqlView, SqlView> newAndOldView : findOldViewsWithNewViews().entrySet())
+    {
+      SqlView newView = newAndOldView.getKey();
+      SqlView oldView = newAndOldView.getValue();
+      
+      boolean hasAddedColumns = !findAddedColumns(newView, oldView).isEmpty();
+      boolean hasDroppedColumns = !findDroppedColumns(newView, oldView).isEmpty();
+      
+      if (hasAddedColumns || hasDroppedColumns)
+      {
+        views.add(newView);
+      }
+    }
+    return views;
+  }
+
+  private Map<SqlView, SqlView> findOldViewsWithNewViews()
+  {
+    List<SqlView> oldViews = new ArrayList<>(metaDefinitionFrom.getArtifacts(SqlView.class));
+    Map<SqlView, SqlView> views = new LinkedHashMap<>();
+    for (SqlView oldView : oldViews)
+    {
+      SqlView newView = metaDefinitionTo.findView(oldView.getId());
+      if (newView != null)
+      {
+        views.put(newView, oldView);
+      }
+    }
+    return views;
   }
 
   /**
@@ -1231,10 +1260,10 @@ public class MetaOutputDifferenceGenerator
     }
     return changedColumns;
   }
-  
+
   private List<SqlTableColumn> findAddedColumns(SqlTable newTable, SqlTable oldTable) throws MetaException
   {
-    List<SqlTableColumn> addedColumns = new ArrayList<SqlTableColumn>();
+    List<SqlTableColumn> addedColumns = new ArrayList<>();
     for (SqlTableColumn newColumn : newTable.getColumns())
     {
       SqlTableColumn oldColumn = oldTable.findColumn(newColumn.getId());
@@ -1246,9 +1275,16 @@ public class MetaOutputDifferenceGenerator
     return addedColumns;
   }
 
+  private List<SqlViewColumn> findAddedColumns(SqlView newView, SqlView oldView) throws MetaException
+  {
+    return newView.getColumns().stream()
+      .filter(newColumn -> !oldView.hasColumn(newColumn.getId()))
+      .collect(Collectors.toList());
+  }
+
   private List<SqlTableColumn> findDroppedColumns(SqlTable newTable, SqlTable oldTable) throws MetaException
   {
-    List<SqlTableColumn> droppedColumns = new ArrayList<SqlTableColumn>();
+    List<SqlTableColumn> droppedColumns = new ArrayList<>();
     for (SqlTableColumn oldColumn : oldTable.getColumns())
     {
       SqlTableColumn newColumn = newTable.findColumn(oldColumn.getId());
@@ -1258,6 +1294,13 @@ public class MetaOutputDifferenceGenerator
       }
     }
     return droppedColumns;
+  }
+
+  private List<SqlViewColumn> findDroppedColumns(SqlView newView, SqlView oldView) throws MetaException
+  {
+    return oldView.getColumns().stream()
+            .filter(oldColumn -> !newView.hasColumn(oldColumn.getId()))
+            .collect(Collectors.toList());
   }
 
   private boolean hasColumnChanged(SqlTable newTable, SqlTableColumn newColumn, SqlTableColumn oldColumn) throws MetaException

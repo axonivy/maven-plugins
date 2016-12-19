@@ -2,6 +2,7 @@ package ch.ivyteam.db.meta.model.internal;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -17,15 +18,6 @@ public class SqlView extends SqlObject
   /** The selects used to define the view. If more than one select exists combine them with UNION ALL. */
   private List<SqlSelect> fSelects;
 
-  /**
-   * Constructor
-   * @param id
-   * @param columns
-   * @param selects
-   * @param dbSysHints
-   * @param comment
-   * @throws MetaException 
-   */
   public SqlView(String id, List<SqlViewColumn> columns, List<SqlSelect> selects,
           List<SqlDatabaseSystemHints> dbSysHints,
           String comment) throws MetaException
@@ -50,27 +42,30 @@ public class SqlView extends SqlObject
       }
     }
   }
-  
-  /**
-   * Returns the columns
-   * @return the columns
-   */
+
   public List<SqlViewColumn> getColumns()
   {
     return fColumns;
   }
-  
-  /**
-   * @return -
-   */
+
+  public boolean hasColumn(String columnName)
+  {
+    return findColumn(columnName) != null;
+  }
+
+  public SqlViewColumn findColumn(String columnName)
+  {
+    Optional<SqlViewColumn> optionalColumn = fColumns.stream()
+            .filter(column -> column.getId().equals(columnName))
+            .findFirst();
+    return optionalColumn.orElse(null);
+  }
+
   public List<SqlSelect> getSelects()
   {
     return fSelects;
   }
 
-  /**
-   * @see ch.ivyteam.db.meta.model.internal.SqlObject#toString()
-   */
   @Override
   public String toString()
   {
@@ -91,13 +86,8 @@ public class SqlView extends SqlObject
     }
     builder.append(")\n");
     builder.append("AS ");
-    first = true;
     for (SqlSelect select : fSelects)
     {
-      if (!first)
-      {
-        builder.append("\nUNION ALL\n");
-      }
       builder.append(select);      
     }
     return builder.toString();
@@ -108,12 +98,11 @@ public class SqlView extends SqlObject
    */
   public Set<String> getTables()
   {
-    Set<String> tables = new HashSet<String>();
+    Set<String> tables = new HashSet<>();
     for (SqlSelect select : fSelects)
     {
       tables.addAll(select.getTables());
     }
     return tables;
   }
-
 }

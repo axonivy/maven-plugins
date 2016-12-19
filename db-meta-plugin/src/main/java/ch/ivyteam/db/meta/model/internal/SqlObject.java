@@ -3,6 +3,8 @@ package ch.ivyteam.db.meta.model.internal;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 /**
  * Base class of all sql objects that can be specified inside an sql meta information
  * @author rwei
@@ -87,5 +89,31 @@ public class SqlObject extends SqlArtifact implements Comparable<SqlObject>
   {
     return fId.compareTo(o.fId);
   }
-  
+
+  @Override
+  public boolean equals(Object other)
+  {
+    if (other == null)
+    {
+      return false;
+    }
+    if (other == this)
+    {
+      return true;
+    }
+    if (other.getClass() != this.getClass())
+    {
+      return false;
+    }
+    SqlObject object = (SqlObject) other;
+    return object.fId.equals(this.fId);
+  }
+
+  @Override
+  public int hashCode()
+  {
+    return new HashCodeBuilder()
+            .append(fId)
+            .hashCode();
+  }
 }
