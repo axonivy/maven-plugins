@@ -37,7 +37,7 @@ public class AbstractXmlFileUpdater
   protected List<Node> findNodes(String xPathStr) throws XPathExpressionException
   {
     XPath xpath = XPathFactory.newInstance().newXPath();
-    ArrayList<Node> nodes = new ArrayList<Node>();
+    ArrayList<Node> nodes = new ArrayList<>();
     NodeList nodelist = (NodeList)xpath.compile(xPathStr).evaluate(doc, XPathConstants.NODESET);
     for (int pos = 0; pos < nodelist.getLength(); pos++)
     {
@@ -49,7 +49,7 @@ public class AbstractXmlFileUpdater
   protected List<Node> getChildNodes(Node parentNode, String nodeName)
   {
     NodeList children = parentNode.getChildNodes();
-    List<Node> childNodes = new ArrayList<Node>();
+    List<Node> childNodes = new ArrayList<>();
     for (int pos=0; pos < children.getLength(); pos++)
     {
       Node child = children.item(pos);
