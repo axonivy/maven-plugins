@@ -21,9 +21,10 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>com.googlecode.jmockit</groupId>
+			<groupId>org.jmockit</groupId>
 			<artifactId>jmockit</artifactId>
-			<version>1.5</version>
+			<version>1.30</version>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.easytesting</groupId>
