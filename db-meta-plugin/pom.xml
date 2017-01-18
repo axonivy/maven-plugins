@@ -4,9 +4,9 @@
 	<groupId>ch.ivyteam</groupId>
 	<artifactId>db-meta-plugin</artifactId>
 	<packaging>maven-plugin</packaging>
-	<!-- ivy-release.databaseversion -->
+
+	<!-- format: ivy-release.databaseversion -->
 	<version>6.4.44-SNAPSHOT</version>
-	<name>ch.ivyteam:db-meta-plugin</name>
 
 	<parent>
 		<groupId>ch.ivyteam.ivy</groupId>
