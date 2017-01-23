@@ -242,7 +242,7 @@ public class MetaOutputDifferenceGenerator
   
   private List<String> getInsertStmts(List<SqlInsertWithValues> sqlInserts)
   {
-    List<String> insterts = new ArrayList<String>(sqlInserts.size());
+    List<String> insterts = new ArrayList<>(sqlInserts.size());
     
     for(SqlInsertWithValues sqlInsert : sqlInserts)
     {
@@ -274,7 +274,7 @@ public class MetaOutputDifferenceGenerator
 
     private Map<SqlTable, SqlTable> findTablesWithAddedIndexes()
     {
-      Map<SqlTable, SqlTable> tables = new LinkedHashMap<SqlTable, SqlTable>();
+      Map<SqlTable, SqlTable> tables = new LinkedHashMap<>();
       for (Entry<SqlTable, SqlTable> comonTable : findCommonTables().entrySet())
       {
         SqlTable newTable = comonTable.getKey();
@@ -305,7 +305,7 @@ public class MetaOutputDifferenceGenerator
 
     private List<SqlIndex> findAddedIndexes(SqlTable newTable, SqlTable oldTable)
     {
-      List<SqlIndex> addedIndexes = new ArrayList<SqlIndex>();
+      List<SqlIndex> addedIndexes = new ArrayList<>();
       for (SqlIndex newIndex : newTable.getIndexes())
       {
         SqlIndex oldIndex = oldTable.findIndex(newIndex.getId());
@@ -338,7 +338,7 @@ public class MetaOutputDifferenceGenerator
 
     private Set<SqlIndex> getIndexesFromChangedColumns(SqlTable newTable, SqlTable oldTable)
     {
-      Set<SqlIndex> result = new LinkedHashSet<SqlIndex>();
+      Set<SqlIndex> result = new LinkedHashSet<>();
       List<SqlIndex> sqlIndexes = generator.getIndexes(oldTable);
       Map<SqlTableColumn, SqlTableColumn> changedColumns = findChangedColumns(newTable, oldTable);
       for (SqlTableColumn changedColumn : changedColumns.keySet())
@@ -825,7 +825,7 @@ public class MetaOutputDifferenceGenerator
     
     private List<SqlForeignKey> findChangedForeignKeys(SqlTable newTable, SqlTable oldTable)
     {
-      List<SqlForeignKey> changedKeys = new ArrayList<SqlForeignKey>();
+      List<SqlForeignKey> changedKeys = new ArrayList<>();
       List<SqlForeignKey> newForeignKeys = newTable.getForeignKeys();
       for (SqlForeignKey newForeignKey : newForeignKeys)
       {
