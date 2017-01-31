@@ -303,6 +303,12 @@ CREATE TABLE IWA_LibrarySpecification
 )
 FOR Cache USE (Strategy='ALL');
 
+CREATE TABLE IWA_Case
+(
+  CaseId BIGINT NOT NULL,
+  PRIMARY KEY (CaseId)
+)
+FOR Cache USE (Strategy='ALL');
 
 INSERT INTO IWA_RoleRoleMember (RoleId, RoleMemberId) VALUES (1, 1);
 

@@ -320,6 +320,23 @@ CREATE TABLE IWA_LibrarySpecification
 )
 FOR Cache USE (Strategy='ALL');
 
+CREATE TABLE IWA_CaseMap
+(
+  CaseMapId BIGINT NOT NULL,
+  PRIMARY KEY (CaseMapId)
+);
+
+CREATE TABLE IWA_Case
+(
+  CaseId BIGINT NOT NULL,
+  CaseMapId BIGINT NULL REFERENCES IWA_CaseMap(CaseMapId) ON DELETE SET NULL
+  	FOR MsSqlServer USE (NoReferenceUseTrigger),
+  	
+  PRIMARY KEY (CaseId)
+)
+FOR Cache USE (Strategy='ALL');
+
+
 INSERT INTO IWA_RoleRoleMember (RoleId, RoleMemberId) VALUES (1, 1);
 
 INSERT INTO IWA_RoleRoleMember (RoleId, RoleMemberId)

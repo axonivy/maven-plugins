@@ -158,6 +158,7 @@ public class MetaOutputDifferenceGenerator
     indexes.generateCreateIndexOfAddedIndexes(pr);
     constraints.generateCreateUniqueOfAddedUniqueConstraints(pr);
     
+    triggers.generateCreateTriggersOfAddedTables(pr);
     triggers.generateCreateTriggersOfAddedTriggers(pr);
     foreignKeys.generateRecreateForeignKeysOfChangedColumns(pr);
     triggers.generateRecreateTriggersOfChangedTables(pr);
@@ -612,6 +613,19 @@ public class MetaOutputDifferenceGenerator
       generator.generateForEachRowDeleteTrigger(pr, table, metaDefinition);
     }
 
+    public void generateCreateTriggersOfAddedTables(PrintWriter pr)
+    {
+      for (SqlTable addedTable : findAddedTables())
+      {
+        if (generator.hasTrigger(metaDefinitionTo, addedTable))
+        {
+          pr.println();
+          generator.generateCommentLine(pr, "Create trigger which depend on new added table "+addedTable.getId());
+          triggers.generateTrigger(pr, addedTable, metaDefinitionTo);
+        }
+      }
+    }
+
     void generateDropTriggersOfChangedTables(PrintWriter pr) throws MetaException
     {
       Map<SqlTable, SqlTable> tablesWithChangedTriggers = findTablesWithChangedTriggers();
@@ -891,16 +905,6 @@ public class MetaOutputDifferenceGenerator
       pr.println();
       generator.generateCommentLine(pr, "Create new added tables");
       generator.generateTables(pr, addedTables);
-    }
-    
-    for (SqlTable addedTable : addedTables)
-    {
-      if (generator.hasTrigger(metaDefinitionTo, addedTable))
-      {
-        pr.println();
-        generator.generateCommentLine(pr, "Create trigger which depend on new added table");
-        triggers.generateTrigger(pr, addedTable, metaDefinitionTo);
-      }
     }
   }
 

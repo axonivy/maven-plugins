@@ -1,6 +1,7 @@
 package ch.ivyteam.db.meta.generator.maven;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
 import java.io.IOException;
@@ -228,6 +229,33 @@ public class TestMetaOutputDifferenceGeneratorMojo
     assertThat(sqlContent)
       .contains("# Remove foreign keys of table IWA_LibrarySpecification")
       .contains("CALL IWA_Drop_ForeignKey_Constraint(SCHEMA(), 'IWA_LibrarySpecification', 'ResolvedLibraryId');");
+  }
+  
+  @Test
+  public void testCreateTriggerOfAddedTableAfterAllTablesChanges() throws Exception
+  {
+    String sqlContent = execute(MsSqlServerSqlScriptGenerator.class);
+    String createTable = "CREATE TABLE IWA_CaseMap\n"+
+                        "(\n"+
+                        "  CaseMapId BIGINT NOT NULL,\n"+
+                        "  PRIMARY KEY (CaseMapId)\n"+
+                        ")\n"+
+                        "GO";
+    String modifyTable = "-- Added columns of table IWA_Case\n"+
+                         "ALTER TABLE IWA_Case ADD\n"+
+                         "  CaseMapId BIGINT NULL\n"+
+                         "GO";
+    String createTrigger = "-- Create trigger which depend on new added table IWA_CaseMap\n"+
+                        "CREATE TRIGGER IWA_CaseMapDeleteTrigger\n"+
+                        "  ON IWA_CaseMap FOR DELETE AS\n"+
+                        "\n"+
+                        "  UPDATE IWA_Case  SET IWA_Case.CaseMapId=NULL\n"+
+                        "  FROM IWA_Case, deleted\n"+
+                        "  WHERE IWA_Case.CaseMapId = deleted.CaseMapId\n"+
+                        "\n"+
+                        "\n"+
+                        "GO";
+    assertThat(sqlContent).containsSequence(createTable, modifyTable, createTrigger);
   }
 
   private String execute(Class<? extends SqlScriptGenerator> generatorClass)
