@@ -9,6 +9,7 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
+import ch.ivyteam.ivy.generator.Eclipse3rdPartyJarReadmeGenerator;
 import ch.ivyteam.ivy.generator.Server3rdPartyJarReadmeGenerator;
 
 
@@ -25,7 +26,7 @@ public class EngineReadmeGeneratorMojo extends AbstractReadmeGeneratorMojo
   {
     getLog().info("generating readme html artifacts for engine @ "+engineDir.getAbsolutePath());
     Map<String, String> htmlTokens = new HashMap<>();
-    htmlTokens.put("thirdPartyLibs", generate("lib/shared"));
+    htmlTokens.put("thirdPartyLibs", generatePlugins());
     htmlTokens.put("riaClientLibs", generate("clientlib/signed"));
     htmlTokens.put("htmlDialogLibs", generate("webapps/ivy/WEB-INF/lib"));
     
@@ -43,6 +44,20 @@ public class EngineReadmeGeneratorMojo extends AbstractReadmeGeneratorMojo
     {
       throw new MojoExecutionException(
               "Failed to generate libraries '"+libDirectory.getAbsolutePath()+
+              "' as html", ex);
+    }
+  }
+
+  private String generatePlugins() throws MojoExecutionException
+  {
+    try
+    {
+      return new Eclipse3rdPartyJarReadmeGenerator(getLog()).generate(engineDir);
+    }
+    catch (Exception ex)
+    {
+      throw new MojoExecutionException(
+              "Failed to generate libraries '"+engineDir.getAbsolutePath()+
               "' as html", ex);
     }
   }

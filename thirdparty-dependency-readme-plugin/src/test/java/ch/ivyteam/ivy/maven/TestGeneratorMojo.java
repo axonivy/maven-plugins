@@ -55,7 +55,7 @@ public class TestGeneratorMojo
       .doesNotContain("@htmlDialogLibs@");
     
     assertThat(readmeHtml)
-      .contains("javax.inject");
+      .contains("axis2");
   }
   
   private File generateReadme(String... tokens) throws IOException

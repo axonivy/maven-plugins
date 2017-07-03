@@ -92,6 +92,12 @@ class LibraryEntry
     return name;
   }
   
+  @Override
+  public String toString()
+  {
+    return pluginName+"/"+jarName;
+  }
+  
   static void enhanceConcurrent(List<LibraryEntry> dependencies) throws InterruptedException
   {
     ExecutorService executorService = Executors.newFixedThreadPool(30);

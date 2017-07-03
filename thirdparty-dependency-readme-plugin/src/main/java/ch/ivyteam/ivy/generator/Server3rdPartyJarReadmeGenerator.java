@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.zip.ZipException;
 
@@ -67,6 +69,13 @@ public class Server3rdPartyJarReadmeGenerator
       LibraryEntry entry = new LibraryEntry(null, FilenameUtils.getRelativePath(rootDir, jar), info);
       dependencies.add(entry);
     }
+    Collections.sort(dependencies, new Comparator<LibraryEntry>(){
+      @Override
+      public int compare(LibraryEntry o1, LibraryEntry o2)
+      {
+        return o1.jarName.toLowerCase().compareTo(o2.jarName.toLowerCase());
+      }
+    });
     return dependencies;
   }
   

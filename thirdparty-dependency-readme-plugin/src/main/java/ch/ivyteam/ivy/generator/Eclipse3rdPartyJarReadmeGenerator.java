@@ -121,11 +121,6 @@ public class Eclipse3rdPartyJarReadmeGenerator
    */
   private List<LibraryEntry> findJarInPluginFile(ZipFile plugin) throws IOException
   {    
-    if (!isIvyPlugin(plugin))
-    {
-      return Collections.emptyList();
-    }
-    
     List<LibraryEntry> libraries = new ArrayList<>();
     Enumeration<? extends ZipEntry> entries = plugin.entries();
     while (entries.hasMoreElements())
@@ -141,17 +136,6 @@ public class Eclipse3rdPartyJarReadmeGenerator
       }
     }
     return libraries;
-  }
-
-  /**
-   * Checks if the given plugin file is a ivyTeam provided plugin
-   * @param plugin
-   * @return true if ivyTeam provides this plugin, otherwise false
-   * @throws IOException 
-   */
-  private static boolean isIvyPlugin(ZipFile plugin) throws IOException
-  {
-    return isIvyPlugin(Manifest.forZip(plugin));
   }
 
   /**
@@ -173,6 +157,7 @@ public class Eclipse3rdPartyJarReadmeGenerator
    */
   private LibraryEntry reportZipJarEntry(ZipFile plugin, ZipEntry jarEntry) throws IOException
   {
+    log.debug("found embedded JAR "+jarEntry.getName());
     JarInfo info = JarInfo.createFor(plugin, jarEntry);
     if (info != null)
     {

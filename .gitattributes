@@ -1073,5 +1073,5 @@ thirdparty-dependency-readme-plugin/src/test/resources/myDesigner/plugins/ch.ivy
 thirdparty-dependency-readme-plugin/src/test/resources/myDesigner/plugins/ch.ivyteam.ivy.designer.branding_6.1.0.r51177/plugin_customization.ini -text
 thirdparty-dependency-readme-plugin/src/test/resources/myDesigner/plugins/ch.ivyteam.ivy.dialog.jsf_6.1.0.r51177.jar -text
 thirdparty-dependency-readme-plugin/src/test/resources/myDesigner/plugins/ch.ivyteam.ivy.webservice.exec.axis2_6.1.0.r51291.jar -text
-thirdparty-dependency-readme-plugin/src/test/resources/myEngine/lib/shared/javax.inject-1.jar -text
+thirdparty-dependency-readme-plugin/src/test/resources/myEngine/plugins/ch.ivyteam.ivy.webservice.exec.axis2_6.1.0.r51291.jar -text
 thirdparty-dependency-readme-plugin/src/test/resources/pom.xml -text
