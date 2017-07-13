@@ -1,0 +1,901 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html" charset="ISO-8859-1"/>
+    <link rel="STYLESHEET" type="text/css" href="style.css"/>
+    <title>
+      View IWA_TaskQuery
+    </title>
+  </head>
+  <body>
+    <h1>
+      View IWA_TaskQuery
+    </h1>
+    <p>
+      
+    </p>
+    <h2>
+      Columns
+    </h2>
+    <table>
+      <tr>
+        <th>
+          Name
+        </th>
+        <th>
+          Expression
+        </th>
+        <th>
+          Comment
+        </th>
+      </tr>
+      <tr>
+        <td class="odd">
+          <a name="TaskId">
+          </a>
+          TaskId
+        </td>
+        <td class="odd">
+          <a href="IWA_Task.html">
+            IWA_Task
+          </a>
+          .
+          <a href="IWA_Task.html#TaskId">
+            TaskId
+          </a>
+        </td>
+        <td class="odd">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="odd">
+          <a name="ActivatorDisplayName">
+          </a>
+          ActivatorDisplayName
+        </td>
+        <td class="odd">
+          CASE 
+          <br/>
+           WHEN 
+          <a href="IWA_Task.html">
+            IWA_Task
+          </a>
+          .
+          <a href="IWA_Task.html#ActivatorUserId">
+            ActivatorUserId
+          </a>
+          IS NOT
+          NULL
+          AND
+          LENGTH
+          (
+          <a href="IWA_User.html">
+            ActivatorUser
+          </a>
+          .
+          <a href="ActivatorUser.html#FullName">
+            FullName
+          </a>
+          )
+          >
+          0
+           THEN 
+          <a href="IWA_User.html">
+            ActivatorUser
+          </a>
+          .
+          <a href="ActivatorUser.html#FullName">
+            FullName
+          </a>
+          <br/>
+           WHEN 
+          <a href="IWA_Task.html">
+            IWA_Task
+          </a>
+          .
+          <a href="IWA_Task.html#ActivatorUserId">
+            ActivatorUserId
+          </a>
+          IS NOT
+          NULL
+          AND
+          LENGTH
+          (
+          <a href="IWA_User.html">
+            ActivatorUser
+          </a>
+          .
+          <a href="ActivatorUser.html#FullName">
+            FullName
+          </a>
+          )
+          =
+          0
+           THEN 
+          <a href="IWA_User.html">
+            ActivatorUser
+          </a>
+          .
+          <a href="ActivatorUser.html#Name">
+            Name
+          </a>
+          <br/>
+           WHEN 
+          <a href="IWA_Task.html">
+            IWA_Task
+          </a>
+          .
+          <a href="IWA_Task.html#ActivatorRoleId">
+            ActivatorRoleId
+          </a>
+          IS NOT
+          NULL
+          AND
+          LENGTH
+          (
+          <a href="IWA_Role.html">
+            ActivatorRole
+          </a>
+          .
+          <a href="ActivatorRole.html#DisplayNameTemplate">
+            DisplayNameTemplate
+          </a>
+          )
+          >
+          0
+           THEN 
+          <a href="IWA_Role.html">
+            ActivatorRole
+          </a>
+          .
+          <a href="ActivatorRole.html#DisplayNameTemplate">
+            DisplayNameTemplate
+          </a>
+          <br/>
+           WHEN 
+          <a href="IWA_Task.html">
+            IWA_Task
+          </a>
+          .
+          <a href="IWA_Task.html#ActivatorRoleId">
+            ActivatorRoleId
+          </a>
+          IS NOT
+          NULL
+          AND
+          LENGTH
+          (
+          <a href="IWA_Role.html">
+            ActivatorRole
+          </a>
+          .
+          <a href="ActivatorRole.html#DisplayNameTemplate">
+            DisplayNameTemplate
+          </a>
+          )
+          =
+          0
+           THEN 
+          <a href="IWA_Role.html">
+            ActivatorRole
+          </a>
+          .
+          <a href="ActivatorRole.html#Name">
+            Name
+          </a>
+          <br/>
+          END
+        </td>
+        <td class="odd">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="odd">
+          <a name="ExpiryActivatorDisplayName">
+          </a>
+          ExpiryActivatorDisplayName
+        </td>
+        <td class="odd">
+          CASE 
+          <br/>
+           WHEN 
+          <a href="IWA_Task.html">
+            IWA_Task
+          </a>
+          .
+          <a href="IWA_Task.html#ExpiryActivatorUserId">
+            ExpiryActivatorUserId
+          </a>
+          IS NOT
+          NULL
+          AND
+          LENGTH
+          (
+          <a href="IWA_User.html">
+            ExpiryActivatorUser
+          </a>
+          .
+          <a href="ExpiryActivatorUser.html#FullName">
+            FullName
+          </a>
+          )
+          >
+          0
+           THEN 
+          <a href="IWA_User.html">
+            ExpiryActivatorUser
+          </a>
+          .
+          <a href="ExpiryActivatorUser.html#FullName">
+            FullName
+          </a>
+          <br/>
+           WHEN 
+          <a href="IWA_Task.html">
+            IWA_Task
+          </a>
+          .
+          <a href="IWA_Task.html#ExpiryActivatorUserId">
+            ExpiryActivatorUserId
+          </a>
+          IS NOT
+          NULL
+          AND
+          LENGTH
+          (
+          <a href="IWA_User.html">
+            ExpiryActivatorUser
+          </a>
+          .
+          <a href="ExpiryActivatorUser.html#FullName">
+            FullName
+          </a>
+          )
+          =
+          0
+           THEN 
+          <a href="IWA_User.html">
+            ExpiryActivatorUser
+          </a>
+          .
+          <a href="ExpiryActivatorUser.html#Name">
+            Name
+          </a>
+          <br/>
+           WHEN 
+          <a href="IWA_Task.html">
+            IWA_Task
+          </a>
+          .
+          <a href="IWA_Task.html#ExpiryActivatorRoleId">
+            ExpiryActivatorRoleId
+          </a>
+          IS NOT
+          NULL
+          AND
+          LENGTH
+          (
+          <a href="IWA_Role.html">
+            ExpiryActivatorRole
+          </a>
+          .
+          <a href="ExpiryActivatorRole.html#DisplayNameTemplate">
+            DisplayNameTemplate
+          </a>
+          )
+          >
+          0
+           THEN 
+          <a href="IWA_Role.html">
+            ExpiryActivatorRole
+          </a>
+          .
+          <a href="ExpiryActivatorRole.html#DisplayNameTemplate">
+            DisplayNameTemplate
+          </a>
+          <br/>
+           WHEN 
+          <a href="IWA_Task.html">
+            IWA_Task
+          </a>
+          .
+          <a href="IWA_Task.html#ExpiryActivatorRoleId">
+            ExpiryActivatorRoleId
+          </a>
+          IS NOT
+          NULL
+          AND
+          LENGTH
+          (
+          <a href="IWA_Role.html">
+            ExpiryActivatorRole
+          </a>
+          .
+          <a href="ExpiryActivatorRole.html#DisplayNameTemplate">
+            DisplayNameTemplate
+          </a>
+          )
+          =
+          0
+           THEN 
+          <a href="IWA_Role.html">
+            ExpiryActivatorRole
+          </a>
+          .
+          <a href="ExpiryActivatorRole.html#Name">
+            Name
+          </a>
+          <br/>
+           ELSE 
+          NULL
+          <br/>
+          END
+        </td>
+        <td class="odd">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="odd">
+          <a name="CurrentActivatorDisplayName">
+          </a>
+          CurrentActivatorDisplayName
+        </td>
+        <td class="odd">
+          CASE 
+          <br/>
+           WHEN 
+          <a href="IWA_Task.html">
+            IWA_Task
+          </a>
+          .
+          <a href="IWA_Task.html#IsExpired">
+            IsExpired
+          </a>
+          =
+          1
+          AND
+          <a href="IWA_Task.html">
+            IWA_Task
+          </a>
+          .
+          <a href="IWA_Task.html#ExpiryActivatorUserId">
+            ExpiryActivatorUserId
+          </a>
+          IS NOT
+          NULL
+          AND
+          LENGTH
+          (
+          <a href="IWA_User.html">
+            ExpiryActivatorUser
+          </a>
+          .
+          <a href="ExpiryActivatorUser.html#FullName">
+            FullName
+          </a>
+          )
+          >
+          0
+           THEN 
+          <a href="IWA_User.html">
+            ExpiryActivatorUser
+          </a>
+          .
+          <a href="ExpiryActivatorUser.html#FullName">
+            FullName
+          </a>
+          <br/>
+           WHEN 
+          <a href="IWA_Task.html">
+            IWA_Task
+          </a>
+          .
+          <a href="IWA_Task.html#IsExpired">
+            IsExpired
+          </a>
+          =
+          1
+          AND
+          <a href="IWA_Task.html">
+            IWA_Task
+          </a>
+          .
+          <a href="IWA_Task.html#ExpiryActivatorUserId">
+            ExpiryActivatorUserId
+          </a>
+          IS NOT
+          NULL
+          AND
+          LENGTH
+          (
+          <a href="IWA_User.html">
+            ExpiryActivatorUser
+          </a>
+          .
+          <a href="ExpiryActivatorUser.html#FullName">
+            FullName
+          </a>
+          )
+          =
+          0
+           THEN 
+          <a href="IWA_User.html">
+            ExpiryActivatorUser
+          </a>
+          .
+          <a href="ExpiryActivatorUser.html#Name">
+            Name
+          </a>
+          <br/>
+           WHEN 
+          <a href="IWA_Task.html">
+            IWA_Task
+          </a>
+          .
+          <a href="IWA_Task.html#IsExpired">
+            IsExpired
+          </a>
+          =
+          1
+          AND
+          <a href="IWA_Task.html">
+            IWA_Task
+          </a>
+          .
+          <a href="IWA_Task.html#ExpiryActivatorRoleId">
+            ExpiryActivatorRoleId
+          </a>
+          IS NOT
+          NULL
+          AND
+          LENGTH
+          (
+          <a href="IWA_Role.html">
+            ExpiryActivatorRole
+          </a>
+          .
+          <a href="ExpiryActivatorRole.html#DisplayNameTemplate">
+            DisplayNameTemplate
+          </a>
+          )
+          >
+          0
+           THEN 
+          <a href="IWA_Role.html">
+            ExpiryActivatorRole
+          </a>
+          .
+          <a href="ExpiryActivatorRole.html#DisplayNameTemplate">
+            DisplayNameTemplate
+          </a>
+          <br/>
+           WHEN 
+          <a href="IWA_Task.html">
+            IWA_Task
+          </a>
+          .
+          <a href="IWA_Task.html#IsExpired">
+            IsExpired
+          </a>
+          =
+          1
+          AND
+          <a href="IWA_Task.html">
+            IWA_Task
+          </a>
+          .
+          <a href="IWA_Task.html#ExpiryActivatorRoleId">
+            ExpiryActivatorRoleId
+          </a>
+          IS NOT
+          NULL
+          AND
+          LENGTH
+          (
+          <a href="IWA_Role.html">
+            ExpiryActivatorRole
+          </a>
+          .
+          <a href="ExpiryActivatorRole.html#DisplayNameTemplate">
+            DisplayNameTemplate
+          </a>
+          )
+          =
+          0
+           THEN 
+          <a href="IWA_Role.html">
+            ExpiryActivatorRole
+          </a>
+          .
+          <a href="ExpiryActivatorRole.html#Name">
+            Name
+          </a>
+          <br/>
+           WHEN 
+          <a href="IWA_Task.html">
+            IWA_Task
+          </a>
+          .
+          <a href="IWA_Task.html#IsExpired">
+            IsExpired
+          </a>
+          =
+          0
+          AND
+          <a href="IWA_Task.html">
+            IWA_Task
+          </a>
+          .
+          <a href="IWA_Task.html#ActivatorUserId">
+            ActivatorUserId
+          </a>
+          IS NOT
+          NULL
+          AND
+          LENGTH
+          (
+          <a href="IWA_User.html">
+            ActivatorUser
+          </a>
+          .
+          <a href="ActivatorUser.html#FullName">
+            FullName
+          </a>
+          )
+          >
+          0
+           THEN 
+          <a href="IWA_User.html">
+            ActivatorUser
+          </a>
+          .
+          <a href="ActivatorUser.html#FullName">
+            FullName
+          </a>
+          <br/>
+           WHEN 
+          <a href="IWA_Task.html">
+            IWA_Task
+          </a>
+          .
+          <a href="IWA_Task.html#IsExpired">
+            IsExpired
+          </a>
+          =
+          0
+          AND
+          <a href="IWA_Task.html">
+            IWA_Task
+          </a>
+          .
+          <a href="IWA_Task.html#ActivatorUserId">
+            ActivatorUserId
+          </a>
+          IS NOT
+          NULL
+          AND
+          LENGTH
+          (
+          <a href="IWA_User.html">
+            ActivatorUser
+          </a>
+          .
+          <a href="ActivatorUser.html#FullName">
+            FullName
+          </a>
+          )
+          =
+          0
+           THEN 
+          <a href="IWA_User.html">
+            ActivatorUser
+          </a>
+          .
+          <a href="ActivatorUser.html#Name">
+            Name
+          </a>
+          <br/>
+           WHEN 
+          <a href="IWA_Task.html">
+            IWA_Task
+          </a>
+          .
+          <a href="IWA_Task.html#IsExpired">
+            IsExpired
+          </a>
+          =
+          0
+          AND
+          <a href="IWA_Task.html">
+            IWA_Task
+          </a>
+          .
+          <a href="IWA_Task.html#ActivatorRoleId">
+            ActivatorRoleId
+          </a>
+          IS NOT
+          NULL
+          AND
+          LENGTH
+          (
+          <a href="IWA_Role.html">
+            ActivatorRole
+          </a>
+          .
+          <a href="ActivatorRole.html#DisplayNameTemplate">
+            DisplayNameTemplate
+          </a>
+          )
+          >
+          0
+           THEN 
+          <a href="IWA_Role.html">
+            ActivatorRole
+          </a>
+          .
+          <a href="ActivatorRole.html#DisplayNameTemplate">
+            DisplayNameTemplate
+          </a>
+          <br/>
+           WHEN 
+          <a href="IWA_Task.html">
+            IWA_Task
+          </a>
+          .
+          <a href="IWA_Task.html#IsExpired">
+            IsExpired
+          </a>
+          =
+          0
+          AND
+          <a href="IWA_Task.html">
+            IWA_Task
+          </a>
+          .
+          <a href="IWA_Task.html#ActivatorRoleId">
+            ActivatorRoleId
+          </a>
+          IS NOT
+          NULL
+          AND
+          LENGTH
+          (
+          <a href="IWA_Role.html">
+            ActivatorRole
+          </a>
+          .
+          <a href="ActivatorRole.html#DisplayNameTemplate">
+            DisplayNameTemplate
+          </a>
+          )
+          =
+          0
+           THEN 
+          <a href="IWA_Role.html">
+            ActivatorRole
+          </a>
+          .
+          <a href="ActivatorRole.html#Name">
+            Name
+          </a>
+          <br/>
+          END
+        </td>
+        <td class="odd">
+          
+        </td>
+      </tr>
+    </table>
+    <h2>
+      Select
+    </h2>
+    <h3>
+      Tables
+    </h3>
+    <table>
+      <tr>
+        <th>
+          Table
+        </th>
+        <th>
+          Alias
+        </th>
+        <th>
+          Join
+        </th>
+        <th>
+          On
+        </th>
+        <th>
+          Comment
+        </th>
+      </tr>
+      <tr>
+        <td class="odd">
+          <a href="IWA_Task.html">
+            IWA_Task
+          </a>
+        </td>
+        <td class="odd">
+          
+        </td>
+        <td class="odd">
+          
+        </td>
+        <td class="odd">
+        </td>
+        <td class="odd">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="even">
+          <a href="IWA_Case.html">
+            IWA_Case
+          </a>
+        </td>
+        <td class="even">
+          
+        </td>
+        <td class="even">
+          INNER JOIN
+        </td>
+        <td class="even">
+          <a href="IWA_Task.html">
+            IWA_Task
+          </a>
+          .
+          <a href="IWA_Task.html#CaseId">
+            CaseId
+          </a>
+          =
+          <a href="IWA_Case.html">
+            IWA_Case
+          </a>
+          .
+          <a href="IWA_Case.html#CaseId">
+            CaseId
+          </a>
+        </td>
+        <td class="even">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="odd">
+          <a href="IWA_User.html">
+            IWA_User
+          </a>
+        </td>
+        <td class="odd">
+          ActivatorUser
+        </td>
+        <td class="odd">
+          LEFT OUTER JOIN
+        </td>
+        <td class="odd">
+          <a href="IWA_Task.html">
+            IWA_Task
+          </a>
+          .
+          <a href="IWA_Task.html#ActivatorUserId">
+            ActivatorUserId
+          </a>
+          =
+          <a href="ActivatorUser.html">
+            ActivatorUser
+          </a>
+          .
+          <a href="ActivatorUser.html#UserId">
+            UserId
+          </a>
+        </td>
+        <td class="odd">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="even">
+          <a href="IWA_Role.html">
+            IWA_Role
+          </a>
+        </td>
+        <td class="even">
+          ActivatorRole
+        </td>
+        <td class="even">
+          LEFT OUTER JOIN
+        </td>
+        <td class="even">
+          <a href="IWA_Task.html">
+            IWA_Task
+          </a>
+          .
+          <a href="IWA_Task.html#ActivatorRoleId">
+            ActivatorRoleId
+          </a>
+          =
+          <a href="ActivatorRole.html">
+            ActivatorRole
+          </a>
+          .
+          <a href="ActivatorRole.html#RoleId">
+            RoleId
+          </a>
+        </td>
+        <td class="even">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="odd">
+          <a href="IWA_User.html">
+            IWA_User
+          </a>
+        </td>
+        <td class="odd">
+          ExpiryActivatorUser
+        </td>
+        <td class="odd">
+          LEFT OUTER JOIN
+        </td>
+        <td class="odd">
+          <a href="IWA_Task.html">
+            IWA_Task
+          </a>
+          .
+          <a href="IWA_Task.html#ExpiryActivatorUserId">
+            ExpiryActivatorUserId
+          </a>
+          =
+          <a href="ExpiryActivatorUser.html">
+            ExpiryActivatorUser
+          </a>
+          .
+          <a href="ExpiryActivatorUser.html#UserId">
+            UserId
+          </a>
+        </td>
+        <td class="odd">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="even">
+          <a href="IWA_Role.html">
+            IWA_Role
+          </a>
+        </td>
+        <td class="even">
+          ExpiryActivatorRole
+        </td>
+        <td class="even">
+          LEFT OUTER JOIN
+        </td>
+        <td class="even">
+          <a href="IWA_Task.html">
+            IWA_Task
+          </a>
+          .
+          <a href="IWA_Task.html#ExpiryActivatorRoleId">
+            ExpiryActivatorRoleId
+          </a>
+          =
+          <a href="ExpiryActivatorRole.html">
+            ExpiryActivatorRole
+          </a>
+          .
+          <a href="ExpiryActivatorRole.html#RoleId">
+            RoleId
+          </a>
+        </td>
+        <td class="even">
+          
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

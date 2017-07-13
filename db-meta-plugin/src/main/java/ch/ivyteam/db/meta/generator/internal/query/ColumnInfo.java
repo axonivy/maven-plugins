@@ -3,6 +3,7 @@ package ch.ivyteam.db.meta.generator.internal.query;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import ch.ivyteam.db.meta.generator.internal.ConstantBuilder;
@@ -10,6 +11,7 @@ import ch.ivyteam.db.meta.generator.internal.JavaClassGenerator;
 import ch.ivyteam.db.meta.generator.internal.JavaClassGeneratorUtil;
 import ch.ivyteam.db.meta.model.internal.SqlAtom;
 import ch.ivyteam.db.meta.model.internal.SqlCaseExpr;
+import ch.ivyteam.db.meta.model.internal.SqlComplexCaseExpr;
 import ch.ivyteam.db.meta.model.internal.SqlDataType.DataType;
 import ch.ivyteam.db.meta.model.internal.SqlFullQualifiedColumnName;
 import ch.ivyteam.db.meta.model.internal.SqlMeta;
@@ -64,7 +66,7 @@ public abstract class ColumnInfo
     {
       if (! column.getDatabaseManagementSystemHints(JavaClassGenerator.JAVA).isHintSet(JavaClassGenerator.HIDE_FIELD_ON_QUERY))
       {
-        result.add(new ViewColumnInfo(meta, tableInfo, column, view.getSelects().get(0).getExpressions().get(pos++).getExpression()));
+        result.add(new ViewColumnInfo(meta, view.getTableAliases(), tableInfo, column, view.getSelects().get(0).getExpressions().get(pos++).getExpression()));
       }
     }
     return result;
@@ -352,19 +354,22 @@ public abstract class ColumnInfo
     private SqlViewColumn column;
     private SqlMeta meta;
     private SqlAtom expression;
+    private Map<String, String> tableAliases;
 
     /**
      * Constructor
      * @param meta
+     * @param tableAliases 
      * @param tableInfo
      * @param column
      * @param expression 
      */
-    public ViewColumnInfo(SqlMeta meta, TableInfo tableInfo, SqlViewColumn column, SqlAtom expression)
+    public ViewColumnInfo(SqlMeta meta, Map<String, String> tableAliases, TableInfo tableInfo, SqlViewColumn column, SqlAtom expression)
     {
       super(tableInfo);
-      this.column = column;
       this.meta = meta;
+      this.tableAliases = tableAliases;
+      this.column = column;
       this.expression = expression;
     }
 
@@ -418,29 +423,51 @@ public abstract class ColumnInfo
         SqlCaseExpr caseExpr = (SqlCaseExpr)expression;
         return getColumn(caseExpr.getWhenThenList().get(0).getColumnName());
       }
+      else if (expression instanceof SqlComplexCaseExpr)
+      {
+        SqlComplexCaseExpr caseExpr = (SqlComplexCaseExpr) expression;
+        SqlAtom atom = caseExpr.getWhenThenList().get(0).getAction();
+        if (atom instanceof SqlFullQualifiedColumnName)
+        {
+          return getColumn((SqlFullQualifiedColumnName) atom);
+        }
+        throw new IllegalStateException("Unsupported view expression "+expression);
+      }
       else
       {
         throw new IllegalStateException("Unsupported view expression "+expression);
       }
     }
 
-    /**
-     * @param columnName
-     * @return column
-     */
     private SqlTableColumn getColumn(SqlFullQualifiedColumnName columnName)
     {
-      SqlTable table = meta.findTable(columnName.getTable());
-      if (table == null)
-      {
-        throw new IllegalStateException("Unknown table "+columnName.getTable());
-      }
+      SqlTable table = findTable(columnName.getTable());
       SqlTableColumn tableColumn = table.findColumn(columnName.getColumn());
       if (tableColumn == null)
       {
         throw new IllegalStateException("Unknown column  "+columnName);
       }
       return tableColumn;
+    }
+
+    private SqlTable findTable(String tableOrAlias)
+    {
+      SqlTable table = meta.findTable(tableOrAlias);
+      if (table != null)
+      {
+        return table;
+      }
+      String tableName = tableAliases.get(tableOrAlias);
+      if (tableName == null)
+      {
+        throw new IllegalStateException("Unknown table "+tableOrAlias);
+      }
+      table = meta.findTable(tableName);
+      if (table == null)
+      {
+        throw new IllegalStateException("Unknown table "+tableOrAlias);
+      }
+      return table;
     }
 
     @Override

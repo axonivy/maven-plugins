@@ -22,6 +22,8 @@ import ch.ivyteam.db.meta.model.internal.SqlArtifact;
 import ch.ivyteam.db.meta.model.internal.SqlAtom;
 import ch.ivyteam.db.meta.model.internal.SqlBinaryRelation;
 import ch.ivyteam.db.meta.model.internal.SqlCaseExpr;
+import ch.ivyteam.db.meta.model.internal.SqlComplexCaseExpr;
+import ch.ivyteam.db.meta.model.internal.SqlComplexWhenThen;
 import ch.ivyteam.db.meta.model.internal.SqlDataType;
 import ch.ivyteam.db.meta.model.internal.SqlDataType.DataType;
 import ch.ivyteam.db.meta.model.internal.SqlDatabaseSystemHints;
@@ -30,10 +32,12 @@ import ch.ivyteam.db.meta.model.internal.SqlDmlStatement;
 import ch.ivyteam.db.meta.model.internal.SqlForeignKey;
 import ch.ivyteam.db.meta.model.internal.SqlForeignKeyAction;
 import ch.ivyteam.db.meta.model.internal.SqlFullQualifiedColumnName;
+import ch.ivyteam.db.meta.model.internal.SqlFunction;
 import ch.ivyteam.db.meta.model.internal.SqlIndex;
 import ch.ivyteam.db.meta.model.internal.SqlInsert;
 import ch.ivyteam.db.meta.model.internal.SqlInsertWithSelect;
 import ch.ivyteam.db.meta.model.internal.SqlInsertWithValues;
+import ch.ivyteam.db.meta.model.internal.SqlJoinTable;
 import ch.ivyteam.db.meta.model.internal.SqlLiteral;
 import ch.ivyteam.db.meta.model.internal.SqlLogicalExpression;
 import ch.ivyteam.db.meta.model.internal.SqlMeta;
@@ -48,6 +52,7 @@ import ch.ivyteam.db.meta.model.internal.SqlSimpleExpr;
 import ch.ivyteam.db.meta.model.internal.SqlTable;
 import ch.ivyteam.db.meta.model.internal.SqlTableColumn;
 import ch.ivyteam.db.meta.model.internal.SqlTableContentDefinition;
+import ch.ivyteam.db.meta.model.internal.SqlTableId;
 import ch.ivyteam.db.meta.model.internal.SqlTrigger;
 import ch.ivyteam.db.meta.model.internal.SqlUniqueConstraint;
 import ch.ivyteam.db.meta.model.internal.SqlUpdate;
@@ -411,19 +416,46 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
     writeSpaces(pr, indent);
     pr.print("FROM ");
     first = true;
-    for (String table : select.getTables())
+    for (SqlJoinTable joinTable : select.getJoinTables())
     {
-      if (!first)
+      if (!first )
       {
-        pr.print(", ");
+        if (joinTable.getJoinKind() != null)
+        {
+          pr.print("\n    ");
+          pr.print(joinTable.getJoinKind());
+          pr.print(" ");
+        }
+        else
+        {
+          pr.print(",\n    ");
+        }
       }
       first = false;
-      generateIdentifier(pr, table);
+      generateSqlTableId(pr, joinTable.getTable());
+      if (joinTable.getJoinCondition() != null)
+      {
+        pr.print(" ON ");
+        generateFilterExpression(pr, joinTable.getJoinCondition());
+      }
     }
-    pr.println();
-    writeSpaces(pr, indent);
-    pr.print("WHERE ");
-    generateFilterExpression(pr, select.getCondition());    
+    if (select.getCondition() != null)
+    {
+      pr.println();
+      writeSpaces(pr, indent);
+      pr.print("WHERE ");
+      generateFilterExpression(pr, select.getCondition());
+    }
+  }
+
+  protected void generateSqlTableId(PrintWriter pr, SqlTableId tableId)
+  {
+    generateIdentifier(pr, tableId.getName());
+    if (tableId.getAlias() != null)
+    {
+      pr.print(" AS ");
+      generateIdentifier(pr, tableId.getAlias());
+    }
   }
 
   /**
@@ -453,9 +485,17 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
     {
       generateSqlCaseExpression(pr, (SqlCaseExpr)expression);
     }
+    else if (expression instanceof SqlComplexCaseExpr)
+    {
+      generateSqlComplexCaseExpression(pr, (SqlComplexCaseExpr) expression);
+    }
     else if (expression instanceof SqlLiteral)
     {
       generateValue(pr, ((SqlLiteral)expression).getValue());
+    }
+    else if (expression instanceof SqlFunction)
+    {
+      generateSqlFunction(pr, (SqlFunction) expression);
     }
     else
     {
@@ -486,6 +526,30 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
   }
 
   /**
+   * Generates a complex case expression
+   * @param pr
+   * @param caseExpr
+   */
+  protected void generateSqlComplexCaseExpression(PrintWriter pr, SqlComplexCaseExpr caseExpr)
+  {
+    pr.print("CASE");
+    for (SqlComplexWhenThen whenThen : caseExpr.getWhenThenList())
+    {
+      pr.print(' ');
+      pr.print("WHEN ");
+      generateFilterExpression(pr, whenThen.getCondition());
+      pr.print(" THEN ");
+      generateSqlAtom(pr, whenThen.getAction());
+    }
+    if (caseExpr.getElseAction() != null)
+    {
+      pr.print(" ELSE ");
+      generateSqlAtom(pr, caseExpr.getElseAction());
+    }
+    pr.print(" END");
+  }
+
+  /**
    * Generates a full qualified column name
    * @param pr 
    * @param fullQualifiedColumnName
@@ -505,6 +569,29 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
       pr.print('.');
     }
     generateIdentifier(pr, fullQualifiedColumnName.getColumn());
+  }
+  
+  protected void generateSqlFunction(PrintWriter pr, SqlFunction function)
+  {
+    function = convertFunction(function);
+    pr.print(function.getName());
+    pr.print("(");
+    boolean first = true;
+    for(SqlAtom argument : function.getArguments())
+    {
+      if (!first)
+      {
+        pr.print(", ");
+      }
+      first = false;
+      generateSqlAtom(pr, argument);
+    }
+    pr.print(")");
+  }
+
+  protected SqlFunction convertFunction(SqlFunction function)
+  {
+    return function;
   }
 
   /**
@@ -1333,7 +1420,7 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
   public final void addGeneratedTable(String tableName)
   {
     assert tableName != null : "Parameter tableName must not be null";
-    assert fGeneratedTables.contains(tableName) == false : "Parameter tableName must not yet be generated";
+    assert fGeneratedTables.contains(tableName) == false : "Parameter tableName '"+tableName+"' must not yet be generated";
     fGeneratedTables.add(tableName);
   }
 

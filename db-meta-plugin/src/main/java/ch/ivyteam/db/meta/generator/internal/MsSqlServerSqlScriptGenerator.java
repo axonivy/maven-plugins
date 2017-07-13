@@ -10,6 +10,7 @@ import ch.ivyteam.db.meta.model.internal.SqlDataType.DataType;
 import ch.ivyteam.db.meta.model.internal.SqlDelete;
 import ch.ivyteam.db.meta.model.internal.SqlDmlStatement;
 import ch.ivyteam.db.meta.model.internal.SqlForeignKey;
+import ch.ivyteam.db.meta.model.internal.SqlFunction;
 import ch.ivyteam.db.meta.model.internal.SqlPrimaryKey;
 import ch.ivyteam.db.meta.model.internal.SqlTable;
 import ch.ivyteam.db.meta.model.internal.SqlTableColumn;
@@ -571,5 +572,14 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
     }
   }
   
+  @Override
+  protected SqlFunction convertFunction(SqlFunction function)
+  {
+    if ("LENGTH".equalsIgnoreCase(function.getName()))
+    {
+      return new SqlFunction("LEN", function.getArguments());
+    }
+    return function;
+  }
     
 }

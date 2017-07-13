@@ -57,6 +57,8 @@ db-meta-plugin/src/main/java/ch/ivyteam/db/meta/model/internal/SqlArtifact.java 
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/model/internal/SqlAtom.java -text
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/model/internal/SqlBinaryRelation.java -text
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/model/internal/SqlCaseExpr.java -text
+db-meta-plugin/src/main/java/ch/ivyteam/db/meta/model/internal/SqlComplexCaseExpr.java -text
+db-meta-plugin/src/main/java/ch/ivyteam/db/meta/model/internal/SqlComplexWhenThen.java -text
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/model/internal/SqlDataType.java -text
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/model/internal/SqlDatabaseSystemHint.java -text
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/model/internal/SqlDatabaseSystemHintValidator.java -text
@@ -71,6 +73,7 @@ db-meta-plugin/src/main/java/ch/ivyteam/db/meta/model/internal/SqlIndex.java -te
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/model/internal/SqlInsert.java -text
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/model/internal/SqlInsertWithSelect.java -text
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/model/internal/SqlInsertWithValues.java -text
+db-meta-plugin/src/main/java/ch/ivyteam/db/meta/model/internal/SqlJoinTable.java -text
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/model/internal/SqlLiteral.java -text
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/model/internal/SqlLogicalExpression.java -text
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/model/internal/SqlMeta.java -text
@@ -86,6 +89,7 @@ db-meta-plugin/src/main/java/ch/ivyteam/db/meta/model/internal/SqlSimpleExpr.jav
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/model/internal/SqlTable.java -text
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/model/internal/SqlTableColumn.java -text
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/model/internal/SqlTableContentDefinition.java -text
+db-meta-plugin/src/main/java/ch/ivyteam/db/meta/model/internal/SqlTableId.java -text
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/model/internal/SqlTrigger.java -text
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/model/internal/SqlUniqueConstraint.java -text
 db-meta-plugin/src/main/java/ch/ivyteam/db/meta/model/internal/SqlUpdate.java -text
@@ -99,6 +103,7 @@ db-meta-plugin/src/main/java/ch/ivyteam/db/meta/parser/internal/TerminalSymbol.j
 db-meta-plugin/src/main/resources/META-INF/m2e/lifecycle-mapping-metadata.xml -text
 db-meta-plugin/src/main/resources/ch/ivyteam/db/meta/generator/internal/persistency/JavaClassForView.ftl -text
 db-meta-plugin/src/main/resources/ch/ivyteam/db/meta/generator/internal/persistency/JavaClassPersistencyServiceImplementation.ftl -text
+db-meta-plugin/src/test/java/ch/ivyteam/db/meta/generator/internal/TestComplexView.java -text
 db-meta-plugin/src/test/java/ch/ivyteam/db/meta/generator/internal/TestIssue23610.java -text
 db-meta-plugin/src/test/java/ch/ivyteam/db/meta/generator/maven/ProjectMojoRule.java -text
 db-meta-plugin/src/test/java/ch/ivyteam/db/meta/generator/maven/TestMetaOutputDifferenceGeneratorMojo.java -text
@@ -109,6 +114,13 @@ db-meta-plugin/src/test/java/ch/ivyteam/db/meta/model/internal/TestSqlView.java 
 db-meta-plugin/src/test/resources/base/meta/simpleTest.meta -text
 db-meta-plugin/src/test/resources/base/oldVersionMeta/simpleTestV0.meta -text
 db-meta-plugin/src/test/resources/base/pom.xml -text
+db-meta-plugin/src/test/resources/ch/ivyteam/db/meta/generator/internal/IWA_TaskQuery.html -text
+db-meta-plugin/src/test/resources/ch/ivyteam/db/meta/generator/internal/QueryClass.ftl -text
+db-meta-plugin/src/test/resources/ch/ivyteam/db/meta/generator/internal/TaskQuery.java -text
+db-meta-plugin/src/test/resources/ch/ivyteam/db/meta/generator/internal/complexView.meta -text
+db-meta-plugin/src/test/resources/ch/ivyteam/db/meta/generator/internal/hsql.sql -text
+db-meta-plugin/src/test/resources/ch/ivyteam/db/meta/generator/internal/mssqlserver.sql -text
+db-meta-plugin/src/test/resources/ch/ivyteam/db/meta/generator/internal/oracle.sql -text
 db-meta-plugin/techdoc/default.html -text svneol=unset#text/html
 db-meta-plugin/techdoc/schemaGenerator.png -text
 db-meta-plugin/techdoc/schemaGenerator.vsd -text

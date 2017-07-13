@@ -20,11 +20,15 @@ import ch.ivyteam.db.meta.model.internal.MetaException;
 import ch.ivyteam.db.meta.model.internal.SqlAtom;
 import ch.ivyteam.db.meta.model.internal.SqlBinaryRelation;
 import ch.ivyteam.db.meta.model.internal.SqlCaseExpr;
+import ch.ivyteam.db.meta.model.internal.SqlComplexCaseExpr;
+import ch.ivyteam.db.meta.model.internal.SqlComplexWhenThen;
 import ch.ivyteam.db.meta.model.internal.SqlDatabaseSystemHints;
 import ch.ivyteam.db.meta.model.internal.SqlDmlStatement;
 import ch.ivyteam.db.meta.model.internal.SqlForeignKey;
 import ch.ivyteam.db.meta.model.internal.SqlFullQualifiedColumnName;
+import ch.ivyteam.db.meta.model.internal.SqlFunction;
 import ch.ivyteam.db.meta.model.internal.SqlIndex;
+import ch.ivyteam.db.meta.model.internal.SqlJoinTable;
 import ch.ivyteam.db.meta.model.internal.SqlLogicalExpression;
 import ch.ivyteam.db.meta.model.internal.SqlMeta;
 import ch.ivyteam.db.meta.model.internal.SqlNot;
@@ -54,6 +58,7 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
   private Stack<String> htmlTags = new Stack<String>();
   /** The row of a table */
   private int fRow;
+  private Stack<Map<String, String>> tableAliases = new Stack<>();
   
   /**
    * @see IMetaOutputGenerator#analyseArgs(String[])
@@ -131,6 +136,12 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
       pr.append("  font-size: 14px;\n");
       pr.append("  font-weight: normal;\n");
       pr.append("  color: #000000;\n");
+      pr.append("}\n");
+
+      pr.append("h3\n");
+      pr.append("{\n");
+      pr.append("  font-size: 14px;\n");
+      pr.append("  font-weight: bold;\n");
       pr.append("}\n");
 
       pr.append("h2\n");
@@ -535,7 +546,8 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
    */
   private void writeTableReference(PrintWriter pr, String tableName)
   {
-    writeReference(pr, tableName, tableName+".html", null);
+    String originalTableName = resolveTableAlias(tableName);
+    writeReference(pr, tableName, originalTableName+".html", null);
   }
   
   /**
@@ -835,8 +847,8 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
     for (SqlTableColumn column : table.getColumns())
     {
       writeNewRow(pr);
-      writeAnchor(pr, column.getId());
       writeNewColumn(pr);
+      writeAnchor(pr, column.getId());
       writeText(pr, isPrimaryKeyColumn(table, column)?"true":"false");
       writeEndTag(pr);
       writeNewColumn(pr);
@@ -927,7 +939,8 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
    */
   private void writeAnchor(PrintWriter pr, String anchor)
   {
-    writeTag(pr, "a", "name", anchor);
+    writeStartTag(pr, "a", "name", anchor);
+    writeEndTag(pr);
   }
   
   /**
@@ -948,16 +961,37 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
     writeText(pr, "Table");
     writeEndTag(pr);
     writeStartTag(pr, "th");
+    writeText(pr, "Alias");
+    writeEndTag(pr);
+    writeStartTag(pr, "th");
+    writeText(pr, "Join");
+    writeEndTag(pr);
+    writeStartTag(pr, "th");
+    writeText(pr, "On");
+    writeEndTag(pr);
+    writeStartTag(pr, "th");
     writeText(pr, "Comment");
     writeEndTags(pr, 2);
-    for (String table : select.getTables())
+    for (SqlJoinTable table : select.getJoinTables())
     {
       writeNewRow(pr);
       writeNewColumn(pr);
-      writeTableReference(pr,table);
+      writeTableReference(pr, table.getTable().getName());
       writeEndTag(pr);
       writeNewColumn(pr);
-      writeComment(pr,metaDefinition.findTable(table).getComment());
+      writeText(pr, table.getTable().getAlias());
+      writeEndTag(pr);
+      writeNewColumn(pr);
+      writeText(pr, table.getJoinKind());
+      writeEndTag(pr);
+      writeNewColumn(pr);
+      if (table.getJoinCondition() != null)
+      {
+        writeSimpleExpr(pr, table.getJoinCondition());
+      }
+      writeEndTag(pr);
+      writeNewColumn(pr);
+      writeComment(pr, metaDefinition.findTable(table.getTable().getName()).getComment());
       writeEndTags(pr, 2);
     }
     writeEndTag(pr);    
@@ -970,12 +1004,15 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
    */
   private void writeSelectCondition(PrintWriter pr, SqlSelect select)
   {
-    writeStartTag(pr, "h3");
-    writeText(pr, "Condition");
-    writeEndTag(pr);
-    writeStartTag(pr, "p");
-    writeSimpleExpr(pr, select.getCondition());
-    writeEndTag(pr);    
+    if (select.getCondition() != null)
+    {
+      writeStartTag(pr, "h3");
+      writeText(pr, "Condition");
+      writeEndTag(pr);
+      writeStartTag(pr, "p");
+      writeSimpleExpr(pr, select.getCondition());
+      writeEndTag(pr);
+    }
   }
 
 
@@ -1057,15 +1094,17 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
     for (SqlViewColumn column : view.getColumns())
     {
       writeStartTag(pr, "tr");
-      writeTag(pr, "a", "name", column.getId());
       writeNewColumn(pr);
+      writeAnchor(pr, column.getId());
       writeText(pr, column.getId());
       writeEndTag(pr);
       for (SqlSelect select: view.getSelects())
       {
+        pushTableAliases(select.getTableAliases());
         writeNewColumn(pr);
         writeAtom(pr, select.getExpressions().get(col).getExpression());
         writeEndTag(pr);
+        popTableAliases();
       }
       col++;
       writeNewColumn(pr);
@@ -1084,9 +1123,7 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
   {
     if (atom instanceof SqlCaseExpr)
     {
-      SqlCaseExpr caseExpr;
-      
-      caseExpr = (SqlCaseExpr)atom;
+      SqlCaseExpr caseExpr = (SqlCaseExpr)atom;
       writeText(pr, "CASE ");
       writeTableColumnReference(pr, caseExpr.getColumnName());
       for (SqlWhenThen whenThen : caseExpr.getWhenThenList())
@@ -1097,12 +1134,48 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
         writeTableColumnReference(pr, whenThen.getColumnName());
       }
     }
+    if (atom instanceof SqlComplexCaseExpr)
+    {
+      SqlComplexCaseExpr caseExpr = (SqlComplexCaseExpr)atom;
+      writeText(pr, "CASE ");
+      writeTag(pr, "br");
+      for (SqlComplexWhenThen whenThen : caseExpr.getWhenThenList())
+      {
+        writeText(pr, " WHEN ");
+        writeSimpleExpr(pr, whenThen.getCondition());
+        writeText(pr, " THEN ");
+        writeAtom(pr, whenThen.getAction());
+        writeTag(pr, "br");
+      }
+      if (caseExpr.getElseAction() != null)
+      {
+        writeText(pr, " ELSE ");
+        writeAtom(pr, caseExpr.getElseAction());
+        writeTag(pr, "br");
+      }
+      writeText(pr, "END");
+    }
     else if (atom instanceof SqlFullQualifiedColumnName)
     {
-      SqlFullQualifiedColumnName columnName;
-      
-      columnName = (SqlFullQualifiedColumnName)atom;
+      SqlFullQualifiedColumnName columnName = (SqlFullQualifiedColumnName)atom;
       writeTableColumnReference(pr, columnName);
+    }
+    else if (atom instanceof SqlFunction)
+    {
+      SqlFunction function = (SqlFunction)atom;
+      writeText(pr, function.getName());
+      writeText(pr, "(");
+      boolean first = true;
+      for (SqlAtom argument : function.getArguments())
+      {
+        if (!first)
+        {
+          writeText(pr, ", ");
+        }
+        first = false;
+        writeAtom(pr, argument);        
+      }
+      writeText(pr, ")");
     }
     else
     {
@@ -1924,7 +1997,10 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
   private void writeText(PrintWriter pr, String text)
   {
     writeSpaces(pr);
-    pr.append(text);
+    if (text != null)
+    {
+      pr.append(text);
+    }
     pr.append('\n');
   }
 
@@ -2040,6 +2116,31 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
   public void printHelp()
   {
     System.out.println("HtmlDocGenerator Options: -outputDir {directory}");
+  }
+
+  private String resolveTableAlias(String alias)
+  {
+    if (tableAliases.isEmpty())
+    {
+      return alias;
+    }
+    Map<String, String> aliases = tableAliases.peek();
+    String tableName = aliases.get(alias);
+    if (tableName != null)
+    {
+      return tableName;
+    }
+    return alias;
+  }
+
+  private void pushTableAliases(Map<String, String> aliases)
+  {
+    tableAliases.push(aliases);
+  }
+
+  private void popTableAliases()
+  {
+    tableAliases.pop();
   }
 
 }

@@ -1,0 +1,80 @@
+CREATE TABLE IWA_Task
+(
+  TaskId BIGINT NOT NULL,
+  ActivatorRoleId BIGINT REFERENCES IWA_Role(RoleId) ON DELETE SET NULL,
+  ActivatorUserId BIGINT REFERENCES IWA_User(UserId) ON DELETE SET NULL,
+  ExpiryActivatorRoleId BIGINT REFERENCES IWA_Role(RoleId) ON DELETE SET NULL,
+  ExpiryActivatorUserId BIGINT REFERENCES IWA_User(UserId) ON DELETE SET NULL,
+  IsExpired BIT NOT NULL,
+  PRIMARY KEY (TaskId)
+)
+FOR Java USE(
+  QueryTableName='IWA_TaskQuery', 
+  BusinessClass='ch.ivyteam.ivy.workflow.ITask');
+
+CREATE TABLE IWA_Case
+(
+  CaseId BIGINT NOT NULL
+);
+  
+CREATE TABLE IWA_User
+(
+  -- Identifies the user.
+  UserId BIGINT NOT NULL,
+  -- Name of the user. The name identifies a user within a web application.
+  Name VARCHAR(200) NOT NULL
+    FOR Oracle USE (ConvertEmptyStringToNull),
+  -- Full name of the user.
+  FullName VARCHAR(200) DEFAULT ''
+);  
+  
+CREATE TABLE IWA_Role
+(
+  -- Identifies the role.
+  RoleId BIGINT NOT NULL,
+  -- Name of the role. The name identifies a role within an application.
+  Name VARCHAR(200) NOT NULL
+    FOR Oracle USE (ConvertEmptyStringToNull),
+  -- Display template for the name of the role.
+  DisplayNameTemplate VARCHAR(200)
+);
+
+CREATE VIEW IWA_TaskQuery
+(
+  TaskId,
+  ActivatorDisplayName,
+  ExpiryActivatorDisplayName,
+  CurrentActivatorDisplayName
+)
+AS SELECT 
+  IWA_Task.TaskId,
+  CASE 
+	WHEN IWA_Task.ActivatorUserId IS NOT NULL AND LENGTH(ActivatorUser.FullName) > 0 THEN ActivatorUser.FullName
+	WHEN IWA_Task.ActivatorUserId IS NOT NULL AND LENGTH(ActivatorUser.FullName) = 0 THEN ActivatorUser.Name
+	WHEN IWA_Task.ActivatorRoleId IS NOT NULL AND LENGTH(ActivatorRole.DisplayNameTemplate) > 0 THEN ActivatorRole.DisplayNameTemplate
+	WHEN IWA_Task.ActivatorRoleId IS NOT NULL AND LENGTH(ActivatorRole.DisplayNameTemplate) = 0 THEN ActivatorRole.Name
+	END,
+  CASE 
+	WHEN IWA_Task.ExpiryActivatorUserId IS NOT NULL AND LENGTH(ExpiryActivatorUser.FullName) > 0 THEN ExpiryActivatorUser.FullName
+	WHEN IWA_Task.ExpiryActivatorUserId IS NOT NULL AND LENGTH(ExpiryActivatorUser.FullName) = 0 THEN ExpiryActivatorUser.Name
+	WHEN IWA_Task.ExpiryActivatorRoleId IS NOT NULL AND LENGTH(ExpiryActivatorRole.DisplayNameTemplate) > 0 THEN ExpiryActivatorRole.DisplayNameTemplate
+	WHEN IWA_Task.ExpiryActivatorRoleId IS NOT NULL AND LENGTH(ExpiryActivatorRole.DisplayNameTemplate) = 0 THEN ExpiryActivatorRole.Name
+	ELSE NULL END,	
+  CASE 
+	WHEN IWA_Task.IsExpired = 1 AND IWA_Task.ExpiryActivatorUserId IS NOT NULL AND LENGTH(ExpiryActivatorUser.FullName) > 0 THEN ExpiryActivatorUser.FullName
+	WHEN IWA_Task.IsExpired = 1 AND IWA_Task.ExpiryActivatorUserId IS NOT NULL AND LENGTH(ExpiryActivatorUser.FullName) = 0 THEN ExpiryActivatorUser.Name
+	WHEN IWA_Task.IsExpired = 1 AND IWA_Task.ExpiryActivatorRoleId IS NOT NULL AND LENGTH(ExpiryActivatorRole.DisplayNameTemplate) > 0 THEN ExpiryActivatorRole.DisplayNameTemplate
+	WHEN IWA_Task.IsExpired = 1 AND IWA_Task.ExpiryActivatorRoleId IS NOT NULL AND LENGTH(ExpiryActivatorRole.DisplayNameTemplate) = 0 THEN ExpiryActivatorRole.Name
+	WHEN IWA_Task.IsExpired = 0 AND IWA_Task.ActivatorUserId IS NOT NULL AND LENGTH(ActivatorUser.FullName) > 0 THEN ActivatorUser.FullName
+	WHEN IWA_Task.IsExpired = 0 AND IWA_Task.ActivatorUserId IS NOT NULL AND LENGTH(ActivatorUser.FullName) = 0 THEN ActivatorUser.Name
+	WHEN IWA_Task.IsExpired = 0 AND IWA_Task.ActivatorRoleId IS NOT NULL AND LENGTH(ActivatorRole.DisplayNameTemplate) > 0 THEN ActivatorRole.DisplayNameTemplate
+	WHEN IWA_Task.IsExpired = 0 AND IWA_Task.ActivatorRoleId IS NOT NULL AND LENGTH(ActivatorRole.DisplayNameTemplate) = 0 THEN ActivatorRole.Name
+	END
+FROM IWA_Task
+INNER JOIN IWA_Case ON IWA_Task.CaseId = IWA_Case.CaseId 
+LEFT OUTER JOIN IWA_User ActivatorUser ON IWA_Task.ActivatorUserId = ActivatorUser.UserId 
+LEFT OUTER JOIN IWA_Role ActivatorRole ON IWA_Task.ActivatorRoleId = ActivatorRole.RoleId
+LEFT OUTER JOIN IWA_User ExpiryActivatorUser ON IWA_Task.ExpiryActivatorUserId = ExpiryActivatorUser.UserId 
+LEFT OUTER JOIN IWA_Role ExpiryActivatorRole ON IWA_Task.ExpiryActivatorRoleId = ExpiryActivatorRole.RoleId;
+
+

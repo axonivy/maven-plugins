@@ -17,6 +17,7 @@ import ch.ivyteam.db.meta.model.internal.SqlFunction;
 import ch.ivyteam.db.meta.model.internal.SqlIndex;
 import ch.ivyteam.db.meta.model.internal.SqlTable;
 import ch.ivyteam.db.meta.model.internal.SqlTableColumn;
+import ch.ivyteam.db.meta.model.internal.SqlTableId;
 import ch.ivyteam.db.meta.model.internal.SqlUniqueConstraint;
 import ch.ivyteam.db.meta.model.internal.SqlUpdate;
 import ch.ivyteam.db.meta.model.internal.SqlUpdateColumnExpression;
@@ -339,4 +340,16 @@ public class OracleSqlScriptGenerator extends SqlScriptGenerator
     options.uniqueConstraintsOnAlterTable = true;
     return options;
   }
+  
+  @Override
+  protected void generateSqlTableId(PrintWriter pr, SqlTableId tableId)
+  {
+    generateIdentifier(pr, tableId.getName());
+    if (tableId.getAlias() != null)
+    {
+      pr.write(" ");
+      generateIdentifier(pr, tableId.getAlias());
+    }
+  }
+
 }

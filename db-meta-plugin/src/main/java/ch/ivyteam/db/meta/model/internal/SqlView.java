@@ -1,7 +1,9 @@
 package ch.ivyteam.db.meta.model.internal;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -101,8 +103,22 @@ public class SqlView extends SqlObject
     Set<String> tables = new HashSet<>();
     for (SqlSelect select : fSelects)
     {
-      tables.addAll(select.getTables());
+      for (SqlJoinTable joinTable : select.getJoinTables())
+      {
+        tables.add(joinTable.getTable().getName());
+      }
     }
     return tables;
+  }
+
+  public Map<String, String> getTableAliases()
+  {
+    Map<String, String> aliases = new HashMap<>();
+    for (SqlSelect select : fSelects)
+    {
+      aliases.putAll(select.getTableAliases());
+    }
+
+    return aliases;
   }
 }

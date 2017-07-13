@@ -1,8 +1,8 @@
 package ch.ivyteam.db.meta.model.internal;
 
 import java.util.List;
-
-import ch.ivyteam.db.meta.generator.internal.SqlScriptUtil;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * An sql select definition
@@ -12,33 +12,28 @@ import ch.ivyteam.db.meta.generator.internal.SqlScriptUtil;
 public class SqlSelect
 {
   /** The select columns expressions */
-  private List<SqlSelectExpression> fExpressions;
+  private List<SqlSelectExpression> expressions;
   /** the tables the view gather data from */
-  private List<String> fTables;
+  private List<SqlJoinTable> joinTables;
   /** The condition of the view */
-  private SqlSimpleExpr fCondition;
-  
+  private SqlSimpleExpr condition;
    
   /**
    * @param expressions
-   * @param tables
+   * @param joinTables
    * @param condition
    */
-  public SqlSelect(List<SqlSelectExpression> expressions, List<String> tables, SqlSimpleExpr condition)
+  public SqlSelect(List<SqlSelectExpression> expressions, List<SqlJoinTable> joinTables, SqlSimpleExpr condition)
   {
     super();
-    this.fExpressions = expressions;
-    this.fTables = tables;
-    this.fCondition = condition;
+    this.expressions = expressions;
+    this.joinTables = joinTables;
+    this.condition = condition;
   }
 
-
-  /**
-   * @return -
-   */
   public List<SqlSelectExpression> getExpressions()
   {
-    return fExpressions;
+    return expressions;
   }
 
   @Override
@@ -46,7 +41,8 @@ public class SqlSelect
   {
     StringBuilder builder = new StringBuilder();
     boolean first = true;
-    for (SqlSelectExpression expression : fExpressions)
+    builder.append("SELECT\n");
+    for (SqlSelectExpression expression : expressions)
     {
       if (!first)
       {
@@ -58,27 +54,45 @@ public class SqlSelect
     }
     builder.append("\n");
     builder.append("FROM ");
-    SqlScriptUtil.formatCommaSeparated(builder, fTables);
-    builder.append("\nWHERE ");
-    builder.append(fCondition);
+    first = true;
+    for (SqlJoinTable joinTable : joinTables)
+    {
+      if (!first)
+      {
+        if (joinTable.getJoinKind() == null)
+        {
+          builder.append(",");
+        }
+        builder.append(" ");
+      }
+      first = false;
+      builder.append(joinTable);
+    }
+    if (condition != null)
+    {
+      builder.append("\nWHERE ");
+      builder.append(condition);
+    }
     return builder.toString();
   }
 
-
-  /**
-   * @return -
-   */
-  public List<String> getTables()
+  public List<SqlJoinTable> getJoinTables()
   {
-    return fTables;
+    return joinTables;
   }
 
+  public Map<String, String> getTableAliases()
+  {
+    Map<String, String> aliases = joinTables
+        .stream()
+        .map(joinTable -> joinTable.getTable())
+        .filter(table-> table.getAlias() != null)
+        .collect(Collectors.toMap(SqlTableId::getAlias, SqlTableId::getName));
+    return aliases;
+  }
 
-  /**
-   * @return -
-   */
   public SqlSimpleExpr getCondition()
   {
-    return fCondition;
+    return condition;
   }
 }

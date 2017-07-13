@@ -7,18 +7,34 @@ import org.apache.commons.lang3.StringUtils;
 
 public class SqlFunction extends SqlAtom
 {
-  private String functionName;
-  private List<SqlAtom> args;
+  private String name;
+  private List<SqlAtom> arguments;
 
-  public SqlFunction(String functionName, SqlAtom... args)
+  public SqlFunction(String name, SqlAtom... arguments)
   {
-    this.functionName = functionName;
-    this.args = Arrays.asList(args);
+    this.name = name;
+    this.arguments = Arrays.asList(arguments);
+  }
+
+  public SqlFunction(String name, List<SqlAtom> arguments)
+  {
+    this.name = name;
+    this.arguments = arguments;
   }
   
+  public String getName()
+  {
+    return name;
+  }
+  
+  public List<SqlAtom> getArguments()
+  {
+    return arguments;
+  }
+
   @Override
   public String toString()
   {
-    return functionName+"("+StringUtils.join(args,",")+")";
+    return name+"("+StringUtils.join(arguments,",")+")";
   }
 }
