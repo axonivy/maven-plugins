@@ -16,6 +16,7 @@
 		<module>image-dpi-plugin</module>
 		<module>eclipse-help-plugin</module>
 		<module>db-meta-plugin</module>
+		<module>osgi-bundle-doc</module>
 		<module>parser-generator-plugin</module>
 		<module>thirdparty-dependency-readme-plugin</module>
 		<!-- add more plugins here, that should be built on Jenkins -->
