@@ -351,5 +351,19 @@ public class OracleSqlScriptGenerator extends SqlScriptGenerator
       generateIdentifier(pr, tableId.getAlias());
     }
   }
+  
+  @Override
+  protected SqlFunction convertFunction(SqlFunction function)
+  {
+    if ("LENGTH".equals(function.getName()) && 
+        function.getArguments().size() == 1 && 
+        function.getArguments().get(0) instanceof SqlFullQualifiedColumnName)
+    {
+      // A better implementation would be to check if the column is varchar and nullable! 
+      // in this case our oracle implementation converts "" -> " " and we have to use TRIM so that LENGTH(...) > 0 is correct
+      return new SqlFunction(function.getName(), new SqlFunction("TRIM", function.getArguments()));
+    }
+    return super.convertFunction(function);
+  }
 
 }
