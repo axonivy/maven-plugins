@@ -5,6 +5,7 @@ import static org.fest.assertions.api.Assertions.assertThat;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.jar.Manifest;
 
 import org.apache.commons.io.IOUtils;
@@ -21,7 +22,7 @@ public class TestManifest
   
   private void updateAndCompareString(String file) throws IOException
   {
-    String original = IOUtils.toString(getClass().getResourceAsStream(file));
+    String original = IOUtils.toString(getClass().getResourceAsStream(file), Charset.defaultCharset());
     MetaInfMojo mojo = new MetaInfMojo();
     mojo.requiredLine = "Eclipse-ExtensibleAPI:true";
     mojo.classpathExtension = "patch.jar";
@@ -31,6 +32,7 @@ public class TestManifest
     assertThat(updatedContent).isEqualTo(original);
   }
 
+  @SuppressWarnings("unused")
   private void updateAndCompare(String file) throws IOException
   {
     InputStream is = getClass().getResourceAsStream(file);
@@ -43,7 +45,7 @@ public class TestManifest
     mf.write(bos);
     String updatedContent = bos.toString();
     System.err.println(updatedContent);
-    String original = IOUtils.toString(getClass().getResourceAsStream(file));
+    String original = IOUtils.toString(getClass().getResourceAsStream(file), Charset.defaultCharset());
     assertThat(updatedContent).isEqualTo(original);
   }
 
