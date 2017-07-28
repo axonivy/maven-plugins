@@ -128,6 +128,11 @@ public class Eclipse3rdPartyJarReadmeGenerator
       ZipEntry entry = entries.nextElement();
       if (entry.getName().toLowerCase().endsWith(".jar"))
       {
+        if (entry.getName().contains("/mvn-src/"))
+        { // filter maven thirdparty plugin jar apidocs
+          continue;
+        }
+
         LibraryEntry libraryEntry = reportZipJarEntry(plugin, entry);
         if (libraryEntry != null)
         {
