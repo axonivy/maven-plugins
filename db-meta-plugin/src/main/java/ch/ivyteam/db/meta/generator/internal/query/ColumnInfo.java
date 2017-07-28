@@ -66,8 +66,9 @@ public abstract class ColumnInfo
     {
       if (! column.getDatabaseManagementSystemHints(JavaClassGenerator.JAVA).isHintSet(JavaClassGenerator.HIDE_FIELD_ON_QUERY))
       {
-        result.add(new ViewColumnInfo(meta, view.getTableAliases(), tableInfo, column, view.getSelects().get(0).getExpressions().get(pos++).getExpression()));
+        result.add(new ViewColumnInfo(meta, view.getTableAliases(), tableInfo, column, view.getSelects().get(0).getExpressions().get(pos).getExpression()));
       }
+      pos++;
     }
     return result;
   }
