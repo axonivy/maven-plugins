@@ -1,0 +1,8 @@
+CREATE TABLE IWA_Task
+(
+  TaskId BIGINT NOT NULL,
+  Category VARCHAR(200) NOT NULL DEFAULT '',
+  KindCode VARCHAR(20)
+    FOR Java USE (Deprecated='Category'),
+  PRIMARY KEY (TaskId)
+) FOR Java USE (BusinessClass='ch.ivyteam.ivy.workflow.ITask');

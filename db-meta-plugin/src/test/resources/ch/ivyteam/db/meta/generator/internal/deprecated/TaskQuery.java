@@ -199,31 +199,24 @@ public class TaskQuery extends Query<ch.ivyteam.ivy.workflow.ITask>
     public IIntegerColumnFilterQuery taskId();
 
     /**
-     * <p>Prepares a where statement for the column <code>ActivatorDisplayName</code>.<br>
+     * <p>Prepares a where statement for the column <code>Category</code>.<br>
      * Must be followed by a call to a condition method.</p>
      * @return query for further composition
      */
     @PublicAPI(IvyScriptVisibility.EXPERT)
     @Reviewed(date="17.1.2012", reviewers="bb,fs,rwei")
-    public IStringColumnFilterQuery activatorDisplayName();
+    public IStringColumnFilterQuery category();
 
     /**
-     * <p>Prepares a where statement for the column <code>ExpiryActivatorDisplayName</code>.<br>
+     * <p>Prepares a where statement for the column <code>KindCode</code>.<br>
      * Must be followed by a call to a condition method.</p>
      * @return query for further composition
+     * @deprecated use {@link #category()} instead
      */
+    @Deprecated
     @PublicAPI(IvyScriptVisibility.EXPERT)
     @Reviewed(date="17.1.2012", reviewers="bb,fs,rwei")
-    public IStringColumnFilterQuery expiryActivatorDisplayName();
-
-    /**
-     * <p>Prepares a where statement for the column <code>CurrentActivatorDisplayName</code>.<br>
-     * Must be followed by a call to a condition method.</p>
-     * @return query for further composition
-     */
-    @PublicAPI(IvyScriptVisibility.EXPERT)
-    @Reviewed(date="17.1.2012", reviewers="bb,fs,rwei")
-    public IStringColumnFilterQuery currentActivatorDisplayName();
+    public IStringColumnFilterQuery kindCode();
 
   }
 
@@ -284,40 +277,30 @@ public class TaskQuery extends Query<ch.ivyteam.ivy.workflow.ITask>
     @Override
     public IIntegerColumnFilterQuery taskId()
     {
-      return new IntegerColumnFilterQuery(this, DbTaskData.QueryView.VIEW_COLUMN_TASK_ID);
+      return new IntegerColumnFilterQuery(this, DbTaskData.COLUMN_TASK_ID);
     }
 
     /**
-     * @see ch.ivyteam.meta.query.TaskQuery.IFilterableColumns#activatorDisplayName()
+     * @see ch.ivyteam.meta.query.TaskQuery.IFilterableColumns#category()
      */
     @PublicAPI(IvyScriptVisibility.EXPERT)
     @Reviewed(date="17.1.2012", reviewers="bb,fs,rwei")
     @Override
-    public IStringColumnFilterQuery activatorDisplayName()
+    public IStringColumnFilterQuery category()
     {
-      return new StringColumnFilterQuery(this, DbTaskData.QueryView.VIEW_COLUMN_ACTIVATOR_DISPLAY_NAME);
+      return new StringColumnFilterQuery(this, DbTaskData.COLUMN_CATEGORY);
     }
 
     /**
-     * @see ch.ivyteam.meta.query.TaskQuery.IFilterableColumns#expiryActivatorDisplayName()
+     * @see ch.ivyteam.meta.query.TaskQuery.IFilterableColumns#kindCode()
      */
+    @Deprecated
     @PublicAPI(IvyScriptVisibility.EXPERT)
     @Reviewed(date="17.1.2012", reviewers="bb,fs,rwei")
     @Override
-    public IStringColumnFilterQuery expiryActivatorDisplayName()
+    public IStringColumnFilterQuery kindCode()
     {
-      return new StringColumnFilterQuery(this, DbTaskData.QueryView.VIEW_COLUMN_EXPIRY_ACTIVATOR_DISPLAY_NAME);
-    }
-
-    /**
-     * @see ch.ivyteam.meta.query.TaskQuery.IFilterableColumns#currentActivatorDisplayName()
-     */
-    @PublicAPI(IvyScriptVisibility.EXPERT)
-    @Reviewed(date="17.1.2012", reviewers="bb,fs,rwei")
-    @Override
-    public IStringColumnFilterQuery currentActivatorDisplayName()
-    {
-      return new StringColumnFilterQuery(this, DbTaskData.QueryView.VIEW_COLUMN_CURRENT_ACTIVATOR_DISPLAY_NAME);
+      return new StringColumnFilterQuery(this, DbTaskData.COLUMN_KIND_CODE);
     }
 
   }
@@ -1350,31 +1333,24 @@ public class TaskQuery extends Query<ch.ivyteam.ivy.workflow.ITask>
     public GroupByQuery taskId();
 
     /**
-     * <p>Groups the result of the query by the field <code>ActivatorDisplayName</code>.</p>
-     * <p>SQL part: <code>GROUP BY ActivatorDisplayName</code></p>
+     * <p>Groups the result of the query by the field <code>Category</code>.</p>
+     * <p>SQL part: <code>GROUP BY Category</code></p>
      * @return query for further composition
      */
     @PublicAPI(IvyScriptVisibility.EXPERT)
     @Reviewed(date="17.1.2012", reviewers="bb,fs,rwei")
-    public GroupByQuery activatorDisplayName();
+    public GroupByQuery category();
 
     /**
-     * <p>Groups the result of the query by the field <code>ExpiryActivatorDisplayName</code>.</p>
-     * <p>SQL part: <code>GROUP BY ExpiryActivatorDisplayName</code></p>
+     * <p>Groups the result of the query by the field <code>KindCode</code>.</p>
+     * <p>SQL part: <code>GROUP BY KindCode</code></p>
      * @return query for further composition
+     * @deprecated use {@link #category()} instead
      */
+    @Deprecated
     @PublicAPI(IvyScriptVisibility.EXPERT)
     @Reviewed(date="17.1.2012", reviewers="bb,fs,rwei")
-    public GroupByQuery expiryActivatorDisplayName();
-
-    /**
-     * <p>Groups the result of the query by the field <code>CurrentActivatorDisplayName</code>.</p>
-     * <p>SQL part: <code>GROUP BY CurrentActivatorDisplayName</code></p>
-     * @return query for further composition
-     */
-    @PublicAPI(IvyScriptVisibility.EXPERT)
-    @Reviewed(date="17.1.2012", reviewers="bb,fs,rwei")
-    public GroupByQuery currentActivatorDisplayName();
+    public GroupByQuery kindCode();
 
   }
 
@@ -1399,43 +1375,32 @@ public class TaskQuery extends Query<ch.ivyteam.ivy.workflow.ITask>
     @Override
     public GroupByQuery taskId()
     {
-      getQueryBuilder().groupBy(DbTaskData.QueryView.VIEW_COLUMN_TASK_ID, "TaskId");
+      getQueryBuilder().groupBy(DbTaskData.COLUMN_TASK_ID, "TaskId");
       return this;
     }
 
     /**
-     * @see ch.ivyteam.meta.query.TaskQuery.IGroupByQueryColumns#activatorDisplayName()
+     * @see ch.ivyteam.meta.query.TaskQuery.IGroupByQueryColumns#category()
      */
     @PublicAPI(IvyScriptVisibility.EXPERT)
     @Reviewed(date="17.1.2012", reviewers="bb,fs,rwei")
     @Override
-    public GroupByQuery activatorDisplayName()
+    public GroupByQuery category()
     {
-      getQueryBuilder().groupBy(DbTaskData.QueryView.VIEW_COLUMN_ACTIVATOR_DISPLAY_NAME, "ActivatorDisplayName");
+      getQueryBuilder().groupBy(DbTaskData.COLUMN_CATEGORY, "Category");
       return this;
     }
 
     /**
-     * @see ch.ivyteam.meta.query.TaskQuery.IGroupByQueryColumns#expiryActivatorDisplayName()
+     * @see ch.ivyteam.meta.query.TaskQuery.IGroupByQueryColumns#kindCode()
      */
+    @Deprecated
     @PublicAPI(IvyScriptVisibility.EXPERT)
     @Reviewed(date="17.1.2012", reviewers="bb,fs,rwei")
     @Override
-    public GroupByQuery expiryActivatorDisplayName()
+    public GroupByQuery kindCode()
     {
-      getQueryBuilder().groupBy(DbTaskData.QueryView.VIEW_COLUMN_EXPIRY_ACTIVATOR_DISPLAY_NAME, "ExpiryActivatorDisplayName");
-      return this;
-    }
-
-    /**
-     * @see ch.ivyteam.meta.query.TaskQuery.IGroupByQueryColumns#currentActivatorDisplayName()
-     */
-    @PublicAPI(IvyScriptVisibility.EXPERT)
-    @Reviewed(date="17.1.2012", reviewers="bb,fs,rwei")
-    @Override
-    public GroupByQuery currentActivatorDisplayName()
-    {
-      getQueryBuilder().groupBy(DbTaskData.QueryView.VIEW_COLUMN_CURRENT_ACTIVATOR_DISPLAY_NAME, "CurrentActivatorDisplayName");
+      getQueryBuilder().groupBy(DbTaskData.COLUMN_KIND_CODE, "KindCode");
       return this;
     }
 
@@ -1465,49 +1430,36 @@ public class TaskQuery extends Query<ch.ivyteam.ivy.workflow.ITask>
     public OrderByColumnQuery taskId();
 
     /**
-     * <p>Adds an order by statement for the column <code>ActivatorDisplayName</code> in the default direction ascending.<br>
-     * To change the order to descending use <code>activatorDisplayName().descending()</code></p>
+     * <p>Adds an order by statement for the column <code>Category</code> in the default direction ascending.<br>
+     * To change the order to descending use <code>category().descending()</code></p>
      * <p><b>Example:</b><br>
-     * <code><pre>TaskQuery.create().orderBy().activatorDisplayName()</pre></code>
+     * <code><pre>TaskQuery.create().orderBy().category()</pre></code>
      * </p>
-     * <p>SQL part: <code>ORDER BY ActivatorDisplayName ASC</code></p>
+     * <p>SQL part: <code>ORDER BY Category ASC</code></p>
      * @return query for further composition
      * @see OrderByColumnQuery#descending()
      * @see OrderByColumnQuery#ascending()
      */
     @PublicAPI(IvyScriptVisibility.EXPERT)
     @Reviewed(date="17.1.2012", reviewers="bb,fs,rwei")
-    public OrderByColumnQuery activatorDisplayName();
+    public OrderByColumnQuery category();
 
     /**
-     * <p>Adds an order by statement for the column <code>ExpiryActivatorDisplayName</code> in the default direction ascending.<br>
-     * To change the order to descending use <code>expiryActivatorDisplayName().descending()</code></p>
+     * <p>Adds an order by statement for the column <code>KindCode</code> in the default direction ascending.<br>
+     * To change the order to descending use <code>kindCode().descending()</code></p>
      * <p><b>Example:</b><br>
-     * <code><pre>TaskQuery.create().orderBy().expiryActivatorDisplayName()</pre></code>
+     * <code><pre>TaskQuery.create().orderBy().kindCode()</pre></code>
      * </p>
-     * <p>SQL part: <code>ORDER BY ExpiryActivatorDisplayName ASC</code></p>
+     * <p>SQL part: <code>ORDER BY KindCode ASC</code></p>
      * @return query for further composition
      * @see OrderByColumnQuery#descending()
      * @see OrderByColumnQuery#ascending()
+     * @deprecated use {@link #category()} instead
      */
+    @Deprecated
     @PublicAPI(IvyScriptVisibility.EXPERT)
     @Reviewed(date="17.1.2012", reviewers="bb,fs,rwei")
-    public OrderByColumnQuery expiryActivatorDisplayName();
-
-    /**
-     * <p>Adds an order by statement for the column <code>CurrentActivatorDisplayName</code> in the default direction ascending.<br>
-     * To change the order to descending use <code>currentActivatorDisplayName().descending()</code></p>
-     * <p><b>Example:</b><br>
-     * <code><pre>TaskQuery.create().orderBy().currentActivatorDisplayName()</pre></code>
-     * </p>
-     * <p>SQL part: <code>ORDER BY CurrentActivatorDisplayName ASC</code></p>
-     * @return query for further composition
-     * @see OrderByColumnQuery#descending()
-     * @see OrderByColumnQuery#ascending()
-     */
-    @PublicAPI(IvyScriptVisibility.EXPERT)
-    @Reviewed(date="17.1.2012", reviewers="bb,fs,rwei")
-    public OrderByColumnQuery currentActivatorDisplayName();
+    public OrderByColumnQuery kindCode();
 
   }
 
@@ -1532,40 +1484,30 @@ public class TaskQuery extends Query<ch.ivyteam.ivy.workflow.ITask>
     @Override
     public OrderByColumnQuery taskId()
     {
-      return new OrderByColumnQuery(this, DbTaskData.QueryView.VIEW_COLUMN_TASK_ID);
+      return new OrderByColumnQuery(this, DbTaskData.COLUMN_TASK_ID);
     }
 
     /**
-     * @see ch.ivyteam.meta.query.TaskQuery.IOrderByQueryColumns#activatorDisplayName()
+     * @see ch.ivyteam.meta.query.TaskQuery.IOrderByQueryColumns#category()
      */
     @PublicAPI(IvyScriptVisibility.EXPERT)
     @Reviewed(date="17.1.2012", reviewers="bb,fs,rwei")
     @Override
-    public OrderByColumnQuery activatorDisplayName()
+    public OrderByColumnQuery category()
     {
-      return new OrderByColumnQuery(this, DbTaskData.QueryView.VIEW_COLUMN_ACTIVATOR_DISPLAY_NAME);
+      return new OrderByColumnQuery(this, DbTaskData.COLUMN_CATEGORY);
     }
 
     /**
-     * @see ch.ivyteam.meta.query.TaskQuery.IOrderByQueryColumns#expiryActivatorDisplayName()
+     * @see ch.ivyteam.meta.query.TaskQuery.IOrderByQueryColumns#kindCode()
      */
+    @Deprecated
     @PublicAPI(IvyScriptVisibility.EXPERT)
     @Reviewed(date="17.1.2012", reviewers="bb,fs,rwei")
     @Override
-    public OrderByColumnQuery expiryActivatorDisplayName()
+    public OrderByColumnQuery kindCode()
     {
-      return new OrderByColumnQuery(this, DbTaskData.QueryView.VIEW_COLUMN_EXPIRY_ACTIVATOR_DISPLAY_NAME);
-    }
-
-    /**
-     * @see ch.ivyteam.meta.query.TaskQuery.IOrderByQueryColumns#currentActivatorDisplayName()
-     */
-    @PublicAPI(IvyScriptVisibility.EXPERT)
-    @Reviewed(date="17.1.2012", reviewers="bb,fs,rwei")
-    @Override
-    public OrderByColumnQuery currentActivatorDisplayName()
-    {
-      return new OrderByColumnQuery(this, DbTaskData.QueryView.VIEW_COLUMN_CURRENT_ACTIVATOR_DISPLAY_NAME);
+      return new OrderByColumnQuery(this, DbTaskData.COLUMN_KIND_CODE);
     }
 
   }
@@ -1656,58 +1598,44 @@ public class TaskQuery extends Query<ch.ivyteam.ivy.workflow.ITask>
     public AggregationQuery maxTaskId();
 
     /**
-     * <p>Adds a result column <code>MinActivatorDisplayName</code> to the query, that contains the minimum value of the field <code>ActivatorDisplayName</code> of all (grouped) rows.</p>
-     * <p>SQL part: <code>MIN(ActivatorDisplayName) AS MinActivatorDisplayName</code></p>
+     * <p>Adds a result column <code>MinCategory</code> to the query, that contains the minimum value of the field <code>Category</code> of all (grouped) rows.</p>
+     * <p>SQL part: <code>MIN(Category) AS MinCategory</code></p>
      * @return query for further composition
      */
     @PublicAPI(IvyScriptVisibility.EXPERT)
     @Reviewed(date="16.01.2012", reviewers="mda,bb,fs")
-    public AggregationQuery minActivatorDisplayName();
+    public AggregationQuery minCategory();
 
     /**
-     * <p>Adds a result column <code>MaxActivatorDisplayName</code> to the query, that contains the maximum value of the field <code>ActivatorDisplayName</code> of all (grouped) rows.</p>
-     * <p>SQL part: <code>MAX(ActivatorDisplayName) AS MaxActivatorDisplayName</code></p>
+     * <p>Adds a result column <code>MaxCategory</code> to the query, that contains the maximum value of the field <code>Category</code> of all (grouped) rows.</p>
+     * <p>SQL part: <code>MAX(Category) AS MaxCategory</code></p>
      * @return query for further composition
      */
     @PublicAPI(IvyScriptVisibility.EXPERT)
     @Reviewed(date="16.01.2012", reviewers="mda,bb,fs")
-    public AggregationQuery maxActivatorDisplayName();
+    public AggregationQuery maxCategory();
 
     /**
-     * <p>Adds a result column <code>MinExpiryActivatorDisplayName</code> to the query, that contains the minimum value of the field <code>ExpiryActivatorDisplayName</code> of all (grouped) rows.</p>
-     * <p>SQL part: <code>MIN(ExpiryActivatorDisplayName) AS MinExpiryActivatorDisplayName</code></p>
+     * <p>Adds a result column <code>MinKindCode</code> to the query, that contains the minimum value of the field <code>KindCode</code> of all (grouped) rows.</p>
+     * <p>SQL part: <code>MIN(KindCode) AS MinKindCode</code></p>
      * @return query for further composition
+     * @deprecated use {@link #minCategory()} instead
      */
+    @Deprecated
     @PublicAPI(IvyScriptVisibility.EXPERT)
     @Reviewed(date="16.01.2012", reviewers="mda,bb,fs")
-    public AggregationQuery minExpiryActivatorDisplayName();
+    public AggregationQuery minKindCode();
 
     /**
-     * <p>Adds a result column <code>MaxExpiryActivatorDisplayName</code> to the query, that contains the maximum value of the field <code>ExpiryActivatorDisplayName</code> of all (grouped) rows.</p>
-     * <p>SQL part: <code>MAX(ExpiryActivatorDisplayName) AS MaxExpiryActivatorDisplayName</code></p>
+     * <p>Adds a result column <code>MaxKindCode</code> to the query, that contains the maximum value of the field <code>KindCode</code> of all (grouped) rows.</p>
+     * <p>SQL part: <code>MAX(KindCode) AS MaxKindCode</code></p>
      * @return query for further composition
+     * @deprecated use {@link #maxCategory()} instead
      */
+    @Deprecated
     @PublicAPI(IvyScriptVisibility.EXPERT)
     @Reviewed(date="16.01.2012", reviewers="mda,bb,fs")
-    public AggregationQuery maxExpiryActivatorDisplayName();
-
-    /**
-     * <p>Adds a result column <code>MinCurrentActivatorDisplayName</code> to the query, that contains the minimum value of the field <code>CurrentActivatorDisplayName</code> of all (grouped) rows.</p>
-     * <p>SQL part: <code>MIN(CurrentActivatorDisplayName) AS MinCurrentActivatorDisplayName</code></p>
-     * @return query for further composition
-     */
-    @PublicAPI(IvyScriptVisibility.EXPERT)
-    @Reviewed(date="16.01.2012", reviewers="mda,bb,fs")
-    public AggregationQuery minCurrentActivatorDisplayName();
-
-    /**
-     * <p>Adds a result column <code>MaxCurrentActivatorDisplayName</code> to the query, that contains the maximum value of the field <code>CurrentActivatorDisplayName</code> of all (grouped) rows.</p>
-     * <p>SQL part: <code>MAX(CurrentActivatorDisplayName) AS MaxCurrentActivatorDisplayName</code></p>
-     * @return query for further composition
-     */
-    @PublicAPI(IvyScriptVisibility.EXPERT)
-    @Reviewed(date="16.01.2012", reviewers="mda,bb,fs")
-    public AggregationQuery maxCurrentActivatorDisplayName();
+    public AggregationQuery maxKindCode();
 
   }
 
@@ -1748,7 +1676,7 @@ public class TaskQuery extends Query<ch.ivyteam.ivy.workflow.ITask>
     @Reviewed(date="16.01.2012", reviewers="mda,bb,fs")
     public AggregationQuery minTaskId()
     {
-      getQueryBuilder().addMin(DbTaskData.QueryView.VIEW_COLUMN_TASK_ID, "MinTaskId");
+      getQueryBuilder().addMin(DbTaskData.COLUMN_TASK_ID, "MinTaskId");
       return this;
     }
 
@@ -1760,79 +1688,57 @@ public class TaskQuery extends Query<ch.ivyteam.ivy.workflow.ITask>
     @Reviewed(date="16.01.2012", reviewers="mda,bb,fs")
     public AggregationQuery maxTaskId()
     {
-      getQueryBuilder().addMax(DbTaskData.QueryView.VIEW_COLUMN_TASK_ID, "MaxTaskId");
+      getQueryBuilder().addMax(DbTaskData.COLUMN_TASK_ID, "MaxTaskId");
       return this;
     }
 
     /**
-     * @see ch.ivyteam.meta.query.TaskQuery.IAggregationQuery#minActivatorDisplayName()
+     * @see ch.ivyteam.meta.query.TaskQuery.IAggregationQuery#minCategory()
      */
     @Override
     @PublicAPI(IvyScriptVisibility.EXPERT)
     @Reviewed(date="16.01.2012", reviewers="mda,bb,fs")
-    public AggregationQuery minActivatorDisplayName()
+    public AggregationQuery minCategory()
     {
-      getQueryBuilder().addMin(DbTaskData.QueryView.VIEW_COLUMN_ACTIVATOR_DISPLAY_NAME, "MinActivatorDisplayName");
+      getQueryBuilder().addMin(DbTaskData.COLUMN_CATEGORY, "MinCategory");
       return this;
     }
 
     /**
-     * @see ch.ivyteam.meta.query.TaskQuery.IAggregationQuery#maxActivatorDisplayName()
+     * @see ch.ivyteam.meta.query.TaskQuery.IAggregationQuery#maxCategory()
      */
     @Override
     @PublicAPI(IvyScriptVisibility.EXPERT)
     @Reviewed(date="16.01.2012", reviewers="mda,bb,fs")
-    public AggregationQuery maxActivatorDisplayName()
+    public AggregationQuery maxCategory()
     {
-      getQueryBuilder().addMax(DbTaskData.QueryView.VIEW_COLUMN_ACTIVATOR_DISPLAY_NAME, "MaxActivatorDisplayName");
+      getQueryBuilder().addMax(DbTaskData.COLUMN_CATEGORY, "MaxCategory");
       return this;
     }
 
     /**
-     * @see ch.ivyteam.meta.query.TaskQuery.IAggregationQuery#minExpiryActivatorDisplayName()
+     * @see ch.ivyteam.meta.query.TaskQuery.IAggregationQuery#minKindCode()
      */
+    @Deprecated
     @Override
     @PublicAPI(IvyScriptVisibility.EXPERT)
     @Reviewed(date="16.01.2012", reviewers="mda,bb,fs")
-    public AggregationQuery minExpiryActivatorDisplayName()
+    public AggregationQuery minKindCode()
     {
-      getQueryBuilder().addMin(DbTaskData.QueryView.VIEW_COLUMN_EXPIRY_ACTIVATOR_DISPLAY_NAME, "MinExpiryActivatorDisplayName");
+      getQueryBuilder().addMin(DbTaskData.COLUMN_KIND_CODE, "MinKindCode");
       return this;
     }
 
     /**
-     * @see ch.ivyteam.meta.query.TaskQuery.IAggregationQuery#maxExpiryActivatorDisplayName()
+     * @see ch.ivyteam.meta.query.TaskQuery.IAggregationQuery#maxKindCode()
      */
+    @Deprecated
     @Override
     @PublicAPI(IvyScriptVisibility.EXPERT)
     @Reviewed(date="16.01.2012", reviewers="mda,bb,fs")
-    public AggregationQuery maxExpiryActivatorDisplayName()
+    public AggregationQuery maxKindCode()
     {
-      getQueryBuilder().addMax(DbTaskData.QueryView.VIEW_COLUMN_EXPIRY_ACTIVATOR_DISPLAY_NAME, "MaxExpiryActivatorDisplayName");
-      return this;
-    }
-
-    /**
-     * @see ch.ivyteam.meta.query.TaskQuery.IAggregationQuery#minCurrentActivatorDisplayName()
-     */
-    @Override
-    @PublicAPI(IvyScriptVisibility.EXPERT)
-    @Reviewed(date="16.01.2012", reviewers="mda,bb,fs")
-    public AggregationQuery minCurrentActivatorDisplayName()
-    {
-      getQueryBuilder().addMin(DbTaskData.QueryView.VIEW_COLUMN_CURRENT_ACTIVATOR_DISPLAY_NAME, "MinCurrentActivatorDisplayName");
-      return this;
-    }
-
-    /**
-     * @see ch.ivyteam.meta.query.TaskQuery.IAggregationQuery#maxCurrentActivatorDisplayName()
-     */
-    @Override
-    @PublicAPI(IvyScriptVisibility.EXPERT)
-    @Reviewed(date="16.01.2012", reviewers="mda,bb,fs")
-    public AggregationQuery maxCurrentActivatorDisplayName()
-    {
-      getQueryBuilder().addMax(DbTaskData.QueryView.VIEW_COLUMN_CURRENT_ACTIVATOR_DISPLAY_NAME, "MaxCurrentActivatorDisplayName");
+      getQueryBuilder().addMax(DbTaskData.COLUMN_KIND_CODE, "MaxKindCode");
       return this;
     }
 

@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
+
 import ch.ivyteam.db.meta.generator.internal.ConstantBuilder;
 import ch.ivyteam.db.meta.generator.internal.JavaClassGenerator;
 import ch.ivyteam.db.meta.generator.internal.JavaClassGeneratorUtil;
@@ -315,6 +317,26 @@ public abstract class ColumnInfo
   protected TableInfo getTableInfo()
   {
     return tableInfo;
+  }
+  
+  public boolean isDeprecated()
+  {
+    return getColumn().getDatabaseManagementSystemHints(JavaClassGenerator.JAVA).isHintSet(JavaClassGenerator.DEPRECATED);
+  }
+
+  public String getDeprecatedUseColumnInstead()
+  {
+    String useColumnNameInstead = getColumn().getDatabaseManagementSystemHints(JavaClassGenerator.JAVA).getHintValue(JavaClassGenerator.DEPRECATED);
+    if (StringUtils.isBlank(useColumnNameInstead))
+    {
+      throw new IllegalStateException("No column defined which should be used instead of deprecated column "+getName()); 
+    }
+    SqlTableColumn useColumnInstead = tableInfo.getTable().findColumn(useColumnNameInstead);
+    if (useColumnInstead == null)
+    {
+      throw new IllegalStateException("Column '"+useColumnNameInstead+"' defined to used instead of deprecated column "+getName()+" not found");
+    }
+    return useColumnInstead.getId();
   }
 
   /**

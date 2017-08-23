@@ -103,7 +103,10 @@ public abstract class JavaClassGenerator implements IMetaOutputGenerator
   public static final String FILTER_QUERY_DATA_TYPE = "FilterQueryDataType";
   
   /** Field used for optimistic locking (e.g. Versioning of a row) **/
-  public static final String FIELD_FOR_OPTIMISTIC_LOCKING = "FieldForOptimisticLocking";                                                 
+  public static final String FIELD_FOR_OPTIMISTIC_LOCKING = "FieldForOptimisticLocking";
+  
+  /** Field is deprecated and should no longer be used. Instead use the field given as value */
+  public static final String DEPRECATED = "Deprecated";
 
   /**
    * @see ch.ivyteam.db.meta.generator.internal.IMetaOutputGenerator#analyseArgs(java.lang.String[])

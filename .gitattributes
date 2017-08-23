@@ -104,6 +104,7 @@ db-meta-plugin/src/main/resources/META-INF/m2e/lifecycle-mapping-metadata.xml -t
 db-meta-plugin/src/main/resources/ch/ivyteam/db/meta/generator/internal/persistency/JavaClassForView.ftl -text
 db-meta-plugin/src/main/resources/ch/ivyteam/db/meta/generator/internal/persistency/JavaClassPersistencyServiceImplementation.ftl -text
 db-meta-plugin/src/test/java/ch/ivyteam/db/meta/generator/internal/TestComplexView.java -text
+db-meta-plugin/src/test/java/ch/ivyteam/db/meta/generator/internal/TestDeprecated.java -text
 db-meta-plugin/src/test/java/ch/ivyteam/db/meta/generator/internal/TestIssue23610.java -text
 db-meta-plugin/src/test/java/ch/ivyteam/db/meta/generator/maven/ProjectMojoRule.java -text
 db-meta-plugin/src/test/java/ch/ivyteam/db/meta/generator/maven/TestMetaOutputDifferenceGeneratorMojo.java -text
@@ -118,6 +119,8 @@ db-meta-plugin/src/test/resources/ch/ivyteam/db/meta/generator/internal/IWA_Task
 db-meta-plugin/src/test/resources/ch/ivyteam/db/meta/generator/internal/QueryClass.ftl -text
 db-meta-plugin/src/test/resources/ch/ivyteam/db/meta/generator/internal/TaskQuery.java -text
 db-meta-plugin/src/test/resources/ch/ivyteam/db/meta/generator/internal/complexView.meta -text
+db-meta-plugin/src/test/resources/ch/ivyteam/db/meta/generator/internal/deprecated.meta -text
+db-meta-plugin/src/test/resources/ch/ivyteam/db/meta/generator/internal/deprecated/TaskQuery.java -text
 db-meta-plugin/src/test/resources/ch/ivyteam/db/meta/generator/internal/hsql.sql -text
 db-meta-plugin/src/test/resources/ch/ivyteam/db/meta/generator/internal/mssqlserver.sql -text
 db-meta-plugin/src/test/resources/ch/ivyteam/db/meta/generator/internal/oracle.sql -text

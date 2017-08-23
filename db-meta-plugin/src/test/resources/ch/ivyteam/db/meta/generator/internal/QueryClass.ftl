@@ -187,8 +187,8 @@ public class ${table.queryClassName} extends Query<${table.businessClassName}>
 <#recover>
 </#attempt>
     /**
-     * <p>Adds a condition, which negates a set of where conditions given by the <code>otherQuery</code> with a NOT expression.<br/>
-     * Only the where clause of the given <code>otherQuery</code> is considered. All other parts are ignored.</p>
+     * <p>Adds a condition, which negates a set of <code>where</code> conditions given by the <code>otherQuery</code> with a NOT expression.<br/>
+     * Only the <code>where</code> clause of the given <code>otherQuery</code> is considered. All other parts are ignored.</p>
      * <p>SQL part: <code>NOT([otherSqlExpression])</code></p>
      * <p>
      *   <b>Example:</b>
@@ -203,7 +203,7 @@ public class ${table.queryClassName} extends Query<${table.businessClassName}>
      *    customVarCharField1 = 'a'
      *    OR customVarCharField2 = 'b')</pre></code>
      * </p>
-     * @param otherQuery Query from which the negated where part will be added to the current query.
+     * @param otherQuery Query from which the negated <code>where</code> part will be added to the current query.
      * @return query for further composition
      */
     @PublicAPI(IvyScriptVisibility.EXPERT)
@@ -218,7 +218,13 @@ public class ${table.queryClassName} extends Query<${table.businessClassName}>
      * ${column.additionalComments}
 </#if>     
      * @return query for further composition
+<#if column.isDeprecated()>
+     * @deprecated use {@link #${StringUtils.uncapitalize(column.deprecatedUseColumnInstead)}()} instead
+</#if>     
      */
+<#if column.isDeprecated()>
+    @Deprecated
+</#if>     
     @PublicAPI(IvyScriptVisibility.EXPERT)
     @Reviewed(date="17.1.2012", reviewers="bb,fs,rwei")
     <#if column.supportsStringOption()>
@@ -300,6 +306,9 @@ public class ${table.queryClassName} extends Query<${table.businessClassName}>
     /**
      * @see ${packageName}.${table.queryClassName}.IFilterableColumns#${StringUtils.uncapitalize(column.name)}()
      */
+<#if column.isDeprecated()>
+    @Deprecated
+</#if>     
     @PublicAPI(IvyScriptVisibility.EXPERT)
     @Reviewed(date="17.1.2012", reviewers="bb,fs,rwei")
     @Override
@@ -1462,13 +1471,17 @@ public class ${table.queryClassName} extends Query<${table.businessClassName}>
   public interface IFilterLink 
   {
     /**
-     * <p>Adds an AND statement to the where condition. <br/>
+     * <p>Adds an AND statement to the <code>where</code> condition. <br/>
      * Must be followed by other query conditions.</p>
-     * <p>Note that {@link FilterLink#and() and} operations are evaluated before {@link FilterLink#or() or} operations.
-     * E.g. the expression <code>a and b or c</code> is evaluated like <code>(a and b) or c</code>. 
-     * If you want to evaluate <code>a and (b or c)</code>, then use {@link FilterLink#and(${table.queryClassName})}</p>
+     * <p>Note that {@link FilterLink#and() and} operations are always evaluated before {@link FilterLink#or() or} 
+     * operations, e.g. the expression <code>A OR B AND C</code> is evaluated to <code>A OR (B AND C)</code>. 
+     * If you need to get <code>(A OR B) AND C</code>, then use the {@link FilterLink#andOverall() andOverall} method.</p>
+     * <p>Example <code>A OR (B AND C)</code>:
+     * <code><pre>CaseQuery.create().description().isEqual("A").or().description().isEqual("B")
+     *  .and().name().isEqual("C");</pre></code>
      * <p>SQL part: <code> AND </code></p>
      * @return query for further composition
+     * @see #andOverall
      */
     @PublicAPI(IvyScriptVisibility.EXPERT)
     @Reviewed(date="17.1.2012", reviewers="bb,fs,rwei")
@@ -1476,32 +1489,62 @@ public class ${table.queryClassName} extends Query<${table.businessClassName}>
 
     /**
      * <p>Adds and AND statement with the given filter <code>subQuery</code>.
-     * Only the where clause of the given <code>subQuery</code> is considered. All other parts are ignored. 
-     * The whole where clause of the given filter <code>subQuery</code> is and-ed to the query as one term with 
+     * Only the <code>where</code> condition of the given <code>subQuery</code> is considered. All other parts are ignored. 
+     * The whole <code>where</code> condition of the given filter <code>subQuery</code> is and-ed to the query as one term with 
      * brackets around it.</p>  
      * 
-     * <p>Note that {@link FilterLink#and() and} operations are always evaluated before {@link FilterLink#or() or} 
-     * operations, e.g. the expression <code>A AND B OR C</code> is evaluated to <code>(A AND B) OR C</code>. 
-     * If you need to get <code>A AND (B OR C)</code>, then use this method to add a sub query (<code>B OR C</code>) 
-     * with a <code>AND</code> operation to the current query (A).</p>
-     * <p>Example:
-     * <code><pre>${table.queryClassName}.create().name().isEqual("Name").and(
-     *  ${table.queryClassName}.create().description().isEqual("Desc").or().description().isEqual("Description")
-     * );</pre></code>
+     * <p>Note that {@link FilterLink#and(${table.queryClassName}) and} operations are always evaluated before {@link FilterLink#or() or} 
+     * operations, e.g. the expression <code>A OR B AND (subQuery)</code> is evaluated to <code>A OR (B AND (subQuery))</code>. 
+     * If you need to get <code>(A OR B) AND (subQuery)</code>, then use the {@link FilterLink#andOverall(${table.queryClassName}) andOverall} method.</p>
+     * <p>Example <code>A AND (B OR C)</code>:
+     * <code><pre>CaseQuery.create().description().isEqual("A")
+     *  .and(CaseQuery.create().name().isEqual("B").or().name().isEqual("C"));</pre></code>
      * <p>SQL part: <code> AND([subQueryWhereClause]) </code></p>
      * @param subQuery query with a set of where conditions.
      * @return query for further composition
      * @throws IllegalArgumentException when the query parameter is the same instance or null.
+     * @see #andOverall(${table.queryClassName})
      */
     @PublicAPI(IvyScriptVisibility.EXPERT)
     @Reviewed(date="17.1.2012", reviewers="bb,fs,rwei")
     public FilterLink and(${table.queryClassName} subQuery);
 
     /**
-     * <p>Adds an OR statement to the where condition. <br/>
+     * <p>Adds an AND statement to the <strong>whole</strong> <code>where</code> condition configured before. <br/>
+     * Must be followed by other query conditions.</p>
+     * <p>Example <code>(A OR B) AND C</code>:
+     * <code><pre>CaseQuery.create().description().isEqual("A").or().description().isEqual("B")
+     *  .andOverall().name().isEqual("C");</pre></code>
+     * @return query for further composition
+     * @see #and
+     */
+    @PublicAPI(IvyScriptVisibility.EXPERT)
+    @Reviewed(date="10.07.2017", reviewers="rwei,rew,cst")
+    public FilterQuery andOverall();
+
+    /**
+     * <p>Adds and AND statement with the given filter <code>subQuery</code> to the <strong>whole</strong> <code>where</code> condition configured before.
+     * Only the <code>where</code> condition of the given <code>subQuery</code> is considered. All other parts are ignored. 
+     * The <strong>whole</strong> <code>where</code> condition of the given filter <code>subQuery</code> is and-ed to the query as one term with 
+     * brackets around it.</p>  
+     * <p>Example (A OR B) AND (C OR D):
+     * <code><pre>CaseQuery.create().description().isEqual("A").or().description().isEqual("B")
+     *  .andOverall(CaseQuery.create().name().isEqual("C").or().name().isEqual("D"));</pre></code>
+     * <p>SQL part: <code> AND([subQueryWhereClause]) </code></p>
+     * @param subQuery query with a set of where conditions.
+     * @return query for further composition
+     * @throws IllegalArgumentException when the query parameter is the same instance or null.
+     * @see #and(${table.queryClassName})
+     */
+    @PublicAPI(IvyScriptVisibility.EXPERT)
+    @Reviewed(date="10.07.2017", reviewers="rwei,rew,cst")
+    public FilterLink andOverall(${table.queryClassName} subQuery);
+
+    /**
+     * <p>Adds an OR statement to the <code>where</code> condition. <br/>
      * Must be followed by other query conditions.</p>
      * <p>Note that {@link FilterLink#and() and} operations are evaluated before {@link FilterLink#or() or} operations.
-     * E.g. the expression <code>a and b or c</code> is evaluated like <code>(a and b) or c</code></p>
+     * E.g. the expression <code>A and B or C</code> is evaluated like <code>(A and B) or C</code></p>
      * <p>SQL part: <code> OR </code></p>
      * @return query for further composition
      */
@@ -1511,8 +1554,8 @@ public class ${table.queryClassName} extends Query<${table.businessClassName}>
 
     /**
      * <p>Adds and OR statement with the given filter <code>subQuery</code>.<br>
-     * Only the where close of the given <code>subQuery</code> is considered. All other parts are ignored.
-     * The whole where clause of the given filter <code>subQuery</code> is or-ed to the query as one term with 
+     * Only the <code>where</code> condition of the given <code>subQuery</code> is considered. All other parts are ignored.
+     * The whole <code>where</code> condition of the given filter <code>subQuery</code> is or-ed to the query as one term with 
      * brackets around it.</p>      
      * <p>Note that {@link FilterLink#and() and} operations are always evaluated before {@link FilterLink#or() or} 
      * operations, e.g. the expression <code>A AND B OR C</code> is evaluated to <code>(A AND B) OR C</code>. 
@@ -1566,6 +1609,29 @@ public class ${table.queryClassName} extends Query<${table.businessClassName}>
     }
 
     /**
+     * @see ${packageName}.${table.queryClassName}.IFilterLink#andOverall()
+     */
+    @Override
+    @PublicAPI(IvyScriptVisibility.EXPERT)
+    public FilterQuery andOverall()
+    {
+      getQueryBuilder().andOverall();
+      startAndOrOperation("overallAnd()");
+      return new FilterQuery(this);
+    }
+
+    /**
+     * @see ${packageName}.${table.queryClassName}.IFilterLink#andOverall(${table.queryClassName})
+     */
+    @Override
+    @PublicAPI(IvyScriptVisibility.EXPERT)
+    public FilterLink andOverall(${table.queryClassName} subQuery)
+    {
+      getQueryBuilder().andOverall(getFilterForSubExpression(subQuery));
+      return this;
+    }
+
+    /**
      * @see ${packageName}.${table.queryClassName}.IFilterLink#or()
      */
     @Override
@@ -1614,7 +1680,13 @@ public class ${table.queryClassName} extends Query<${table.businessClassName}>
      * ${column.additionalComments}
    </#if>     
      * @return query for further composition
+<#if column.isDeprecated()>
+     * @deprecated use {@link #${StringUtils.uncapitalize(column.deprecatedUseColumnInstead)}()} instead
+</#if>     
      */
+<#if column.isDeprecated()>
+    @Deprecated
+</#if>     
     @PublicAPI(IvyScriptVisibility.EXPERT)
     @Reviewed(date="17.1.2012", reviewers="bb,fs,rwei")
     public GroupByQuery ${StringUtils.uncapitalize(column.name)}();
@@ -1646,6 +1718,9 @@ public class ${table.queryClassName} extends Query<${table.businessClassName}>
     /**
      * @see ${packageName}.${table.queryClassName}.IGroupByQueryColumns#${StringUtils.uncapitalize(column.name)}()
      */
+<#if column.isDeprecated()>
+    @Deprecated
+</#if>     
     @PublicAPI(IvyScriptVisibility.EXPERT)
     @Reviewed(date="17.1.2012", reviewers="bb,fs,rwei")
     @Override
@@ -1687,7 +1762,13 @@ public class ${table.queryClassName} extends Query<${table.businessClassName}>
      * @return query for further composition
      * @see OrderByColumnQuery#descending()
      * @see OrderByColumnQuery#ascending()
+<#if column.isDeprecated()>
+     * @deprecated use {@link #${StringUtils.uncapitalize(column.deprecatedUseColumnInstead)}()} instead
+</#if>     
      */
+<#if column.isDeprecated()>
+    @Deprecated
+</#if>     
     @PublicAPI(IvyScriptVisibility.EXPERT)
     @Reviewed(date="17.1.2012", reviewers="bb,fs,rwei")
     public OrderByColumnQuery ${StringUtils.uncapitalize(column.name)}();
@@ -1719,6 +1800,9 @@ public class ${table.queryClassName} extends Query<${table.businessClassName}>
     /**
      * @see ${packageName}.${table.queryClassName}.IOrderByQueryColumns#${StringUtils.uncapitalize(column.name)}()
      */
+<#if column.isDeprecated()>
+    @Deprecated
+</#if>     
     @PublicAPI(IvyScriptVisibility.EXPERT)
     @Reviewed(date="17.1.2012", reviewers="bb,fs,rwei")
     @Override
@@ -1812,7 +1896,13 @@ public class ${table.queryClassName} extends Query<${table.businessClassName}>
      * ${column.additionalComments}
    </#if>     
      * @return query for further composition
+<#if column.isDeprecated()>
+     * @deprecated use {@link #sum${column.deprecatedUseColumnInstead}()} instead
+</#if>     
      */
+<#if column.isDeprecated()>
+    @Deprecated
+</#if>     
     @PublicAPI(IvyScriptVisibility.EXPERT)
     @Reviewed(date="16.01.2012", reviewers="mda,bb,fs")
     public AggregationQuery sum${column.name}();
@@ -1826,7 +1916,13 @@ public class ${table.queryClassName} extends Query<${table.businessClassName}>
      * ${column.additionalComments}
    </#if>     
      * @return query for further composition
+<#if column.isDeprecated()>
+     * @deprecated use {@link #avg${column.deprecatedUseColumnInstead}()} instead
+</#if>     
      */
+<#if column.isDeprecated()>
+    @Deprecated
+</#if>     
     @PublicAPI(IvyScriptVisibility.EXPERT)
     @Reviewed(date="16.01.2012", reviewers="mda,bb,fs")
     public AggregationQuery avg${column.name}();
@@ -1840,7 +1936,13 @@ public class ${table.queryClassName} extends Query<${table.businessClassName}>
      * ${column.additionalComments}
    </#if>     
      * @return query for further composition
+<#if column.isDeprecated()>
+     * @deprecated use {@link #min${column.deprecatedUseColumnInstead}()} instead
+</#if>     
      */
+<#if column.isDeprecated()>
+    @Deprecated
+</#if>     
     @PublicAPI(IvyScriptVisibility.EXPERT)
     @Reviewed(date="16.01.2012", reviewers="mda,bb,fs")
     public AggregationQuery min${column.name}();
@@ -1854,7 +1956,13 @@ public class ${table.queryClassName} extends Query<${table.businessClassName}>
      * ${column.additionalComments}
    </#if>     
      * @return query for further composition
+<#if column.isDeprecated()>
+     * @deprecated use {@link #max${column.deprecatedUseColumnInstead}()} instead
+</#if>     
      */
+<#if column.isDeprecated()>
+    @Deprecated
+</#if>     
     @PublicAPI(IvyScriptVisibility.EXPERT)
     @Reviewed(date="16.01.2012", reviewers="mda,bb,fs")
     public AggregationQuery max${column.name}();
@@ -1902,6 +2010,9 @@ public class ${table.queryClassName} extends Query<${table.businessClassName}>
     /**
      * @see ${packageName}.${table.queryClassName}.IAggregationQuery#sum${column.name}()
      */
+<#if column.isDeprecated()>
+    @Deprecated
+</#if>     
     @Override
     @PublicAPI(IvyScriptVisibility.EXPERT)
     @Reviewed(date="16.01.2012", reviewers="mda,bb,fs")
@@ -1916,6 +2027,9 @@ public class ${table.queryClassName} extends Query<${table.businessClassName}>
     /**
      * @see ${packageName}.${table.queryClassName}.IAggregationQuery#avg${column.name}()
      */
+<#if column.isDeprecated()>
+    @Deprecated
+</#if>     
     @Override
     @PublicAPI(IvyScriptVisibility.EXPERT)
     @Reviewed(date="16.01.2012", reviewers="mda,bb,fs")
@@ -1930,6 +2044,9 @@ public class ${table.queryClassName} extends Query<${table.businessClassName}>
     /**
      * @see ${packageName}.${table.queryClassName}.IAggregationQuery#min${column.name}()
      */
+<#if column.isDeprecated()>
+    @Deprecated
+</#if>     
     @Override
     @PublicAPI(IvyScriptVisibility.EXPERT)
     @Reviewed(date="16.01.2012", reviewers="mda,bb,fs")
@@ -1944,6 +2061,9 @@ public class ${table.queryClassName} extends Query<${table.businessClassName}>
     /**
      * @see ${packageName}.${table.queryClassName}.IAggregationQuery#max${column.name}()
      */
+<#if column.isDeprecated()>
+    @Deprecated
+</#if>     
     @Override
     @PublicAPI(IvyScriptVisibility.EXPERT)
     @Reviewed(date="16.01.2012", reviewers="mda,bb,fs")
