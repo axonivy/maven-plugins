@@ -11,7 +11,6 @@ meta-inf-modifier-plugin/target
 parser-generator-plugin/target
 public-api-source-maven-plugin/src/test/resources/test-project-template/bin/*
 public-api-source-maven-plugin/target
-sample-maven-plugin/target
 /target
 /testProject
 thirdparty-dependency-readme-plugin/target

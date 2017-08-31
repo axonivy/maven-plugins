@@ -8,8 +8,6 @@
 	<description>Contains all ivy Maven-Plugins as module dependency</description>
 
 	<modules>
-		<!-- our own Maven-Plugins: -->
-		<module>sample-maven-plugin</module> <!-- only exist for illustrative purposes: copy it and start creating you own plugin! -->
 		<module>maven-version-plugin</module>
 		<module>public-api-source-maven-plugin</module>
 		<module>image-text-plugin</module>
@@ -19,7 +17,6 @@
 		<module>osgi-bundle-doc</module>
 		<module>parser-generator-plugin</module>
 		<module>thirdparty-dependency-readme-plugin</module>
-		<!-- add more plugins here, that should be built on Jenkins -->
 
 		<!-- Parent POMs: must be versioned for full dependency analysis of consuming maven artifacts -->
 		<module>build.maven/plugin</module>

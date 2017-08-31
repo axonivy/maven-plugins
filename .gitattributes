@@ -1053,15 +1053,6 @@ public-api-source-maven-plugin/src/test/resources/test-project-template/target/c
 public-api-source-maven-plugin/src/test/resources/test-project-template/target/classes/ch/ivyteam/test/ClassInIncludes.class -text
 public-api-source-maven-plugin/src/test/resources/test-project-template/target/classes/ch/ivyteam/test/ClassWithPublicApi.class -text
 public-api-source-maven-plugin/src/test/resources/test-project-template/target/classes/ch/ivyteam/test/ClassWithoutSourceGeneration.class -text
-sample-maven-plugin/.classpath -text
-sample-maven-plugin/.project -text
-sample-maven-plugin/.settings/org.eclipse.jdt.core.prefs -text
-sample-maven-plugin/.settings/org.eclipse.m2e.core.prefs -text
-sample-maven-plugin/.settings/org.eclipse.wst.validation.prefs -text
-sample-maven-plugin/pom.xml -text
-sample-maven-plugin/src/main/java/ch/ivyteam/ivy/maven/SampleMojo.java -text
-sample-maven-plugin/src/test/java/ch/ivyteam/ivy/maven/TestSampleMojo.java -text
-sample-maven-plugin/src/test/resources/pom.xml -text
 thirdparty-dependency-readme-plugin/.classpath -text
 thirdparty-dependency-readme-plugin/.project -text
 thirdparty-dependency-readme-plugin/.settings/org.eclipse.jdt.core.prefs -text
