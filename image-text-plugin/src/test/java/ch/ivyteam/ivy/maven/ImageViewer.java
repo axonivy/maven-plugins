@@ -15,6 +15,8 @@ import javax.swing.JPanel;
  */
 public class ImageViewer extends JPanel
 {
+  private static final long serialVersionUID = 1L;
+
   public static void show(File imageFile)
   {
     try
@@ -41,7 +43,7 @@ public class ImageViewer extends JPanel
     f.setVisible(true);
   }
 
-  private BufferedImage image;
+  private final BufferedImage image;
 
   private ImageViewer(BufferedImage image)
   {

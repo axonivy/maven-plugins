@@ -3,10 +3,13 @@ package ch.ivyteam.ivy.maven;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.GraphicsEnvironment;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Optional;
 
 import javax.imageio.ImageIO;
 
@@ -39,6 +42,14 @@ public class ImageTextMojo extends AbstractMojo
   /** the RGB font color, defaults to WHITE */
   @Parameter(defaultValue="255,255,255")
   String fontColor;
+  
+  /** either plain, italic or bold, defaults to plain  */
+  @Parameter(defaultValue="plain", property="fontStyle")
+  String fontStyle;
+  
+  /** A font file in TTF format that will be used. If this parameter is set,  */
+  @Parameter(property="fontFile")
+  File fontFile;
   
   /** relative to left corner */
   @Parameter(defaultValue="20", property="x")
@@ -88,7 +99,7 @@ public class ImageTextMojo extends AbstractMojo
     }
   }
   
-  private BufferedImage modifyImage(BufferedImage template)
+  private BufferedImage modifyImage(BufferedImage template) throws MojoExecutionException
   {
       BufferedImage editImage = new BufferedImage(
               template.getWidth(),  template.getHeight(), BufferedImage.TYPE_3BYTE_BGR);
@@ -133,11 +144,52 @@ public class ImageTextMojo extends AbstractMojo
     }
   }
   
-  private Font getFont()
+  private Font getFont() throws MojoExecutionException
   {
-    return new Font(font, Font.PLAIN, fontSize.intValue());
+    if (fontFile != null)
+    {
+      return createFontFromFile();
+    }
+    else
+    {
+      Optional<Font> systemFont = Arrays.stream(GraphicsEnvironment.getLocalGraphicsEnvironment().getAllFonts())
+              .filter(awtFont -> awtFont.getFontName().equals(font))
+              .findAny();
+      if (!systemFont.isPresent())
+      {
+        return createNonSystemFont();
+      }
+      return systemFont.get()
+              .deriveFont(getFontStyle(), fontSize.intValue());
+    }
   }
   
+  private Font createFontFromFile() throws MojoExecutionException
+  {
+    try
+    {
+      getLog().info("Loading "+fontFile);
+      return Font.createFont(Font.TRUETYPE_FONT, fontFile).deriveFont(getFontStyle(), fontSize.intValue());
+    }
+    catch (Exception ex)
+    {
+      throw new MojoExecutionException("Failed to read TTF font from file '"+fontFile+"'", ex);
+    }
+  }
+
+  private Font createNonSystemFont()
+  {
+    getLog().warn("Font '"+font+"' seems not to be installed on this system. Run with -X to see available fonts.");
+    if (getLog().isDebugEnabled())
+    {
+      String fontNames[] = Arrays.stream(GraphicsEnvironment.getLocalGraphicsEnvironment().getAllFonts())
+              .map(awtFont -> awtFont.getFontName())
+              .toArray(String[]::new);
+      getLog().debug("Available fonts are: "+ StringUtils.join(fontNames, ","));
+    }
+    return new Font(font, getFontStyle(), fontSize.intValue());
+  }
+
   private Color getColor()
   {
     String[] rgbTokens = StringUtils.split(fontColor, ",");
@@ -158,6 +210,20 @@ public class ImageTextMojo extends AbstractMojo
     {
       getLog().warn("Failed to parse font color '" + fontColor + "'. Using default font (white).", ex);
       return Color.WHITE;
+    }
+  }
+  
+  private int getFontStyle()
+  {
+    switch(Style.valueOf(fontStyle.toUpperCase()))
+    {
+      case ITALIC:
+        return Font.ITALIC;
+      case BOLD:
+        return Font.BOLD;
+      case PLAIN:
+      default:
+        return Font.PLAIN;
     }
   }
 
@@ -192,5 +258,10 @@ public class ImageTextMojo extends AbstractMojo
   enum Align
   {
     LEFT, CENTER, RIGHT;
+  }
+  
+  enum Style
+  {
+    PLAIN, BOLD, ITALIC;
   }
 }
