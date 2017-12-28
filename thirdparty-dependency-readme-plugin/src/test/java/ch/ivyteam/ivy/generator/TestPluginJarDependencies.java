@@ -25,9 +25,9 @@ public class TestPluginJarDependencies
     List<LibraryEntry> dependencies = new Eclipse3rdPartyJarReadmeGenerator(new SystemStreamLog()).getDependencies(plugins);
     LibraryEntry axiom = dependencies.stream().filter(dependency -> dependency.jarName.contains("axiom-api")).findAny().get();
     
-    assertThat(axiom.getInfo().getName()).isEqualTo(null);
-    assertThat(axiom.getInfo().getVersion()).isEqualTo(null);
-    assertThat(axiom.getInfo().getVendor()).isEqualTo(null);
+    assertThat(axiom.getInfo().getName()).isNull();
+    assertThat(axiom.getInfo().getVersion()).isNull();
+    assertThat(axiom.getInfo().getVendor()).isNull();
     
     axiom.enhanceFromMavenCentral();
     assertThat(axiom.getInfo().getName()).isEqualTo("axiom-api");

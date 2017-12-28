@@ -1075,6 +1075,7 @@ thirdparty-dependency-readme-plugin/src/main/java/ch/ivyteam/util/FilenameUtils.
 thirdparty-dependency-readme-plugin/src/main/java/ch/ivyteam/xml/IvyEntities.java -text
 thirdparty-dependency-readme-plugin/src/main/java/ch/ivyteam/xml/XmlParserUtil.java -text
 thirdparty-dependency-readme-plugin/src/main/java/ch/ivyteam/xml/XmlUtil.java -text
+thirdparty-dependency-readme-plugin/src/test/java/ch/ivyteam/ivy/generator/TestMavenCentral.java -text
 thirdparty-dependency-readme-plugin/src/test/java/ch/ivyteam/ivy/generator/TestPluginJarDependencies.java -text
 thirdparty-dependency-readme-plugin/src/test/java/ch/ivyteam/ivy/maven/TestGeneratorMojo.java -text
 thirdparty-dependency-readme-plugin/src/test/resources/eclipseFeatures.html -text

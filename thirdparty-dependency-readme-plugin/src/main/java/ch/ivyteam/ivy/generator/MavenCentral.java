@@ -14,7 +14,7 @@ class MavenCentral
   
   public static CentralResponse getInfo(String sha1JarHash) throws IOException
   {
-    URL url = new URL("http://search.maven.org/solrsearch/select?q=1:\""+sha1JarHash+"\"&rows=10&wt=json");
+    URL url = new URL("http://search.maven.org/solrsearch/select?q=1:"+sha1JarHash+"&rows=10&wt=json");
     String answer = IOUtils.toString(url.openStream());
     ObjectMapper mapper = new ObjectMapper();
     JsonNode root =  mapper.readTree(answer);
