@@ -8,7 +8,11 @@ pipeline {
   stages {
     stage('build and deploy') {
       steps {
-        sh 'mvn clean deploy -Dmaven.test.failure.ignore=true '
+		script {
+	      	configFileProvider([configFile(fileId: 'maven-settings', variable: 'MAVEN_SETTINGS')]) {
+	        	sh 'mvn -s $MAVEN_SETTINGS clean deploy -Dmaven.test.failure.ignore=true'
+	    	}
+	    }
       }
 	  post {
         success {
