@@ -13,7 +13,7 @@ pipeline {
           maven cmd: 'clean deploy -Dmaven.test.failure.ignore=true'
         }
       }
-	  post {
+      post {
         success {
           junit '**/target/surefire-reports/**/*.xml' 
         }
