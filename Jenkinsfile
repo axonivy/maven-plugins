@@ -1,3 +1,5 @@
+@Library('ivy-jenkins-shared-libraries') _
+
 pipeline {
   agent {
     docker {
@@ -11,6 +13,8 @@ pipeline {
 	      	configFileProvider([configFile(fileId: 'maven-settings', variable: 'MAVEN_SETTINGS')]) {
 	        	sh 'mvn -s $MAVEN_SETTINGS clean deploy -Dmaven.test.failure.ignore=true'
 	    	}
+	    	log.info 'Starting'
+            log.warning 'Nothing to do!'
 	    }
       }
 	  post {
