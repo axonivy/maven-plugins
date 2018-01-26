@@ -9,9 +9,9 @@ pipeline {
   stages {
     stage('build and deploy') {
       steps {
-		script {
-			maven cmd: 'clean deploy -Dmaven.test.failure.ignore=true'
-	    }
+        script {
+          maven cmd: 'clean deploy -Dmaven.test.failure.ignore=true'
+        }
       }
 	  post {
         success {
