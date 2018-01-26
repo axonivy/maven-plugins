@@ -55,6 +55,7 @@ public class EclipseHelpMojo extends AbstractMojo
     {
       File helpFile = new File(ds.getBasedir(), includeFilePath);
       String helpContent = getContent(helpFile);
+      includeFilePath = includeFilePath.replace("\\", "/");
       parseHelpFile(cids, includeFilePath, helpContent);
     }
     return cids;
