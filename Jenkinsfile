@@ -6,9 +6,9 @@ pipeline {
     
   }
   stages {
-    stage('build') {
+    stage('build and deploy') {
       steps {
-        sh 'mvn -Dmaven.test.failure.ignore=true install'
+        sh 'mvn clean deploy -Dmaven.test.failure.ignore=true '
       }
 	  post {
         success {
