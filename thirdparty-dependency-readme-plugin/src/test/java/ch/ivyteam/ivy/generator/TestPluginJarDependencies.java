@@ -23,15 +23,15 @@ public class TestPluginJarDependencies
     File plugins = new File(tstResources, "myDesigner/plugins");
      
     List<LibraryEntry> dependencies = new Eclipse3rdPartyJarReadmeGenerator(new SystemStreamLog()).getDependencies(plugins);
-    LibraryEntry axiom = dependencies.stream().filter(dependency -> dependency.jarName.contains("axiom-api")).findAny().get();
+    LibraryEntry axiom = dependencies.stream().filter(dependency -> dependency.jarName.contains("axis2-json")).findAny().get();
     
     assertThat(axiom.getInfo().getName()).isNull();
     assertThat(axiom.getInfo().getVersion()).isNull();
     assertThat(axiom.getInfo().getVendor()).isNull();
     
     axiom.enhanceFromMavenCentral();
-    assertThat(axiom.getInfo().getName()).isEqualTo("axiom-api");
-    assertThat(axiom.getInfo().getVersion()).isEqualTo("1.2.5");
+    assertThat(axiom.getInfo().getName()).isEqualTo("axis2-json");
+    assertThat(axiom.getInfo().getVersion()).isEqualTo("1.3");
     assertThat(axiom.getInfo().getVendor()).isEqualTo("Apache Software Foundation");
   }
   

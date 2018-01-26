@@ -8,6 +8,7 @@ maven-version-plugin/target
 maven-version-plugin/testIvy
 maven-version-plugin/testProject
 meta-inf-modifier-plugin/target
+osgi-bundle-doc/target
 parser-generator-plugin/target
 public-api-source-maven-plugin/src/test/resources/test-project-template/bin/*
 public-api-source-maven-plugin/target
