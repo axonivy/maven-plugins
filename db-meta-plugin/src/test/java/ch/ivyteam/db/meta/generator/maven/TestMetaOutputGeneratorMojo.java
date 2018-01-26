@@ -39,7 +39,7 @@ public class TestMetaOutputGeneratorMojo
   public void executeWithOutputDir() throws IllegalAccessException, MojoExecutionException, MojoFailureException
   {
     mojoRule.setVariableValueToObject(mojo, "generatorClass", HtmlDocGenerator.class.getName());
-    assertThat(getProjectFile("generated").listFiles()).isEmpty();
+    assertThat(getProjectFile("generated")).doesNotExist();
     mojo.execute();
     assertThatProjectFile("generated/IWA_ClusterHost.html").exists();
   }
