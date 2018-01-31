@@ -1,5 +1,3 @@
-@Library('ivy-jenkins-shared-libraries') _
-
 pipeline {
   agent {
     docker {
