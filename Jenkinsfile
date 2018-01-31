@@ -6,6 +6,9 @@ pipeline {
       image 'maven:3.5.2-jdk-8'
     }
   }
+  triggers {
+    pollSCM '@hourly'
+  }
   stages {
     stage('build and deploy') {
       steps {
