@@ -6,6 +6,7 @@ pipeline {
   }
   triggers {
     pollSCM '@hourly'
+    cron '@midnight'
   }
   stages {
     stage('build and deploy') {
