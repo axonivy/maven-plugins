@@ -3,10 +3,8 @@ package ch.ivyteam.ivy.changelog.generator;
 import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.maven.execution.MavenSession;
@@ -20,23 +18,14 @@ import org.apache.maven.settings.Server;
 import org.apache.maven.shared.model.fileset.FileSet;
 import org.apache.maven.shared.model.fileset.util.FileSetManager;
 
-import ch.ivyteam.ivy.changelog.generator.format.AsciiFormatter;
-import ch.ivyteam.ivy.changelog.generator.format.Formatter;
-import ch.ivyteam.ivy.changelog.generator.format.MarkdownFormatter;
 import ch.ivyteam.ivy.changelog.generator.jira.JiraResponse.Issue;
 import ch.ivyteam.ivy.changelog.generator.jira.JiraService;
+import ch.ivyteam.ivy.changelog.generator.util.TemplateExpander;
 import ch.ivyteam.ivy.changelog.generator.util.TokenReplacer;
 
 @Mojo(name = "generate-changelog", requiresProject = false)
 public class ChangelogGeneratorMojo extends AbstractMojo
 {
-  private final static Set<Formatter> formatters = new HashSet<>();
-  static
-  {
-    formatters.add(new AsciiFormatter());
-    formatters.add(new MarkdownFormatter());
-  }
-
   /** server id which is configured in settings.xml */
   @Parameter(property = "jiraServerId")
   public String jiraServerId;
@@ -57,11 +46,16 @@ public class ChangelogGeneratorMojo extends AbstractMojo
   @Parameter(property="fileset", required = true)
   public FileSet fileset;
   
+  @Parameter(property = "markdownTemplate", defaultValue = "* ${summary} [${key}](${uri})")
+  public String markdownTemplate;
+  @Parameter(property = "asciiTemplate", defaultValue = "${kind} ${key}${spacesKey} ${type}${spacesType} ${summary}")
+  public String asciiTemplate;
+  
   @Parameter(property = "project", required = false, readonly = true)
   MavenProject project;
   @Parameter(property = "session", required = true, readonly = true)
   MavenSession session;
-
+  
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
   {
@@ -71,11 +65,11 @@ public class ChangelogGeneratorMojo extends AbstractMojo
 
     for (File file : getAllFiles())
     {
-      Formatter formatter = findFormatter(file);
-      if (formatter != null)
+      TemplateExpander expander = createExpanderForFile(file);
+      if (expander != null)
       {
         getLog().info("replace tokens in " + file.getAbsolutePath());
-        Map<String, String> tokens = generateTokens(issues, formatter);
+        Map<String, String> tokens = generateTokens(issues, expander);
         new TokenReplacer(file, tokens).replaceTokens();
       }
     }
@@ -101,21 +95,32 @@ public class ChangelogGeneratorMojo extends AbstractMojo
             .collect(Collectors.toList());
   }
   
-  private static Formatter findFormatter(File file)
+  private TemplateExpander createExpanderForFile(File file)
   {
-    return formatters.stream()
-            .filter(formatter -> formatter.isResponsibleFor(file))
-            .findFirst()
-            .orElse(null);
+    TemplateExpander expander = null;
+    if (file.getName().endsWith(".md"))
+    {
+      expander = new TemplateExpander(markdownTemplate);
+    }
+    if (file.getName().endsWith(".txt"))
+    {
+      expander = new TemplateExpander(asciiTemplate);
+    }
+    return expander;
   }
-
-  private static Map<String, String> generateTokens(List<Issue> issues, Formatter formatter)
+  
+  private static Map<String, String> generateTokens(List<Issue> issues, TemplateExpander expander)
   {
     Map<String, String> tokens = new HashMap<>();
-    tokens.put("changelog", formatter.generate(issues));
-    tokens.put("changelog#bugs", formatter.generate(issues.stream().filter(i -> "bug".equalsIgnoreCase(i.getType())).collect(Collectors.toList())));
-    tokens.put("changelog#improvements", formatter.generate(issues.stream().filter(i -> "improvement".equalsIgnoreCase(i.getType())).collect(Collectors.toList())));
+    tokens.put("changelog", expander.expand(issues));
+    tokens.put("changelog#bugs", expander.expand(filterByType(issues, "bug")));
+    tokens.put("changelog#improvements", expander.expand(filterByType(issues, "improvement")));
     return tokens;
+  }
+ 
+  private static List<Issue> filterByType(List<Issue> issues, String type)
+  {
+    return issues.stream().filter(i -> type.equalsIgnoreCase(i.getType())).collect(Collectors.toList());
   }
   
 }

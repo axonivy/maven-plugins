@@ -18,7 +18,12 @@ public class JiraResponse
     
     public String getUri()
     {
-      return serverUri + "/browse/" + getProjectKey();
+      return serverUri + "/browse/" + getKey();
+    }
+    
+    public String getKey()
+    {
+      return key;
     }
 
     public String getProjectKey()
