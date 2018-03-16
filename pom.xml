@@ -17,6 +17,7 @@
 		<module>osgi-bundle-doc</module>
 		<module>parser-generator-plugin</module>
 		<module>thirdparty-dependency-readme-plugin</module>
+		<module>changelog-generator-plugin</module>
 
 		<!-- Parent POMs: must be versioned for full dependency analysis of consuming maven artifacts -->
 		<module>build.maven/plugin</module>
