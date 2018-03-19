@@ -12,7 +12,7 @@ import org.codehaus.plexus.util.StringUtils;
 public class TokenReplacer
 {
   private static final String TOKEN_SEPARATOR = "@";
-  private static final String encoding = "UTF-8";
+  private static final String encoding = "ISO-8859-1";
   
   private final File file;
   private final Map<String, String> tokens;
