@@ -61,8 +61,14 @@ public class ChangelogGeneratorMojo extends AbstractMojo
   {
     getLog().info("generating changelog for fixVersion " + fixVersion + " and jiraProjects " + jiraProjects);
 
-    List<Issue> issues = loadIssuesFromJira();
+    Server server = session.getSettings().getServer(jiraServerId);
+    if (server == null)
+    {
+      getLog().warn("can not generate changelog, beacause server '" + jiraServerId + "' is not definied in setting.xml");
+      return;
+    }
 
+    List<Issue> issues = loadIssuesFromJira(server);
     for (File file : getAllFiles())
     {
       TemplateExpander expander = createExpanderForFile(file);
@@ -75,11 +81,10 @@ public class ChangelogGeneratorMojo extends AbstractMojo
     }
   }
 
-  private List<Issue> loadIssuesFromJira() throws MojoExecutionException
+  private List<Issue> loadIssuesFromJira(Server server) throws MojoExecutionException
   {
     try
     {
-      Server server = session.getSettings().getServer(jiraServerId);
       return new JiraService(jiraServerUri, server).getIssuesWithFixVersion(fixVersion,jiraProjects);
     }
     catch (RuntimeException ex)
