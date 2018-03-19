@@ -44,4 +44,29 @@
 		</dependency>
 	</dependencies>
 
+	<build>
+        <extensions>
+        	<!-- makes server credentials available as properties -->
+            <extension>
+                <groupId>com.github.shyiko.servers-maven-extension</groupId>
+                <artifactId>servers-maven-extension</artifactId>
+                <version>1.3.1</version>
+            </extension>
+        </extensions>
+	
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.21.0</version>
+				<configuration>
+					<systemPropertyVariables>
+						<jira.username>${settings.servers.server.axonivy.jira.username}</jira.username>
+						<jira.password>${settings.servers.server.axonivy.jira.password}</jira.password>
+					</systemPropertyVariables>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
 </project>
