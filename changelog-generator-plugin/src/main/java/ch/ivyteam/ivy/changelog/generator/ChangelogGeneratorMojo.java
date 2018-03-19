@@ -46,7 +46,7 @@ public class ChangelogGeneratorMojo extends AbstractMojo
   @Parameter(property="fileset", required = true)
   public FileSet fileset;
   
-  @Parameter(property = "markdownTemplate", defaultValue = "* [${key}](${uri}) ${summary}")
+  @Parameter(property = "markdownTemplate", defaultValue = "* [${key}](${uri}) ${summary} ${labelsWithHtmlBatches}")
   public String markdownTemplate;
   @Parameter(property = "asciiTemplate", defaultValue = "${kind} ${key}${spacesKey} ${type}${spacesType} ${summary}")
   public String asciiTemplate;

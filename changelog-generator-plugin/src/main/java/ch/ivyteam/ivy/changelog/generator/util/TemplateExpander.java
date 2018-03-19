@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.text.StrSubstitutor;
 
+import ch.ivyteam.ivy.changelog.generator.jira.JiraResponse;
 import ch.ivyteam.ivy.changelog.generator.jira.JiraResponse.Issue;
 
 public class TemplateExpander
@@ -39,7 +40,17 @@ public class TemplateExpander
     values.put("type", issue.getType());
     values.put("spacesType", generateSpaces(maxTypeLength - issue.getType().length()));
     values.put("uri", issue.getUri());
+    values.put("labelsWithHtmlBatches", generateLabels(issue));
     return values;
+  }
+
+  private static String generateLabels(Issue issue)
+  {
+    return issue.getLabels().stream()
+            .filter(i -> !i.equalsIgnoreCase(JiraResponse.LABEL_IMPROVEMENT))
+            .map(String::toLowerCase)
+            .map(l -> "<span class=\"feature-badge\">" + l + "</span>")
+            .collect(Collectors.joining(" "));
   }
   
   private static String generateSpaces(int length)

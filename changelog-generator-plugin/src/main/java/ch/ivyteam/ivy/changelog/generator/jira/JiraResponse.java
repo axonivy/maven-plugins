@@ -7,6 +7,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class JiraResponse
 {
+  public static final String LABEL_IMPROVEMENT = "improvement"; 
+  
   public List<Issue> issues = new ArrayList<>();
 
   public static class Issue
@@ -53,7 +55,7 @@ public class JiraResponse
     
     public boolean isImprovement()
     {
-      return hasLabel("improvement");
+      return hasLabel(LABEL_IMPROVEMENT);
     }
     
     public boolean isSecurityIssue()
@@ -64,6 +66,11 @@ public class JiraResponse
     public boolean isStabilityIssue()
     {
       return hasLabel("stability");
+    }
+    
+    public List<String> getLabels()
+    {
+      return fields.labels;
     }
     
     private boolean hasLabel(String label)
