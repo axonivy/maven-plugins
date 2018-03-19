@@ -17,7 +17,7 @@ public class TestTemplateExpander
   @Test
   public void expand_key()
   {
-    TemplateExpander testee = new TemplateExpander("[${key}] - ${summary}");
+    TemplateExpander testee = new TemplateExpander("[${key}] - ${summary}", "");
     String expand = testee.expand(createOneIssue());
     assertThat(expand).isEqualTo("[XIVY-500] - JSF Bug");
   }

@@ -13,13 +13,25 @@ import ch.ivyteam.ivy.changelog.generator.jira.JiraResponse.Issue;
 public class TemplateExpander
 {
   private final String template;
+  private final String templateImprovements;
   
-  public TemplateExpander(String template)
+  public TemplateExpander(String template, String templateImprovements)
   {
     this.template = template;
+    this.templateImprovements = templateImprovements;
   }
   
   public String expand(List<Issue> issues)
+  {
+    return expand(issues, template);
+  }
+  
+  public String expandImprovements(List<Issue> issues)
+  {
+    return expand(issues, templateImprovements);
+  }
+  
+  private static String expand(List<Issue> issues, String template)
   {
     Integer maxKeyLength = issues.stream().map(i -> i.getKey().length()).reduce(Integer::max).orElse(0);
     Integer maxTypeLength = issues.stream().map(i -> i.getType().length()).reduce(Integer::max).orElse(0);
@@ -41,6 +53,7 @@ public class TemplateExpander
     values.put("spacesType", generateSpaces(maxTypeLength - issue.getType().length()));
     values.put("uri", issue.getUri());
     values.put("labelsWithHtmlBatches", generateLabels(issue));
+    values.put("htmlLinkIcon", "<a href=\"" + issue.getUri() + "\"><span class=\"glyphicon glyphicon-new-window\"></span></a>");
     return values;
   }
 

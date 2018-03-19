@@ -48,6 +48,9 @@ public class ChangelogGeneratorMojo extends AbstractMojo
   
   @Parameter(property = "markdownTemplate", defaultValue = "* [${key}](${uri}) ${summary} ${labelsWithHtmlBatches}")
   public String markdownTemplate;
+  @Parameter(property = "markdownTemplateImprovements", defaultValue = "* ${summary} ${htmlLinkIcon} ${labelsWithHtmlBatches}")
+  public String markdownTemplateImprovements;
+  
   @Parameter(property = "asciiTemplate", defaultValue = "${kind} ${key}${spacesKey} ${type}${spacesType} ${summary}")
   public String asciiTemplate;
   
@@ -64,7 +67,7 @@ public class ChangelogGeneratorMojo extends AbstractMojo
     Server server = session.getSettings().getServer(jiraServerId);
     if (server == null)
     {
-      getLog().warn("can not generate changelog, beacause server '" + jiraServerId + "' is not definied in setting.xml");
+      getLog().warn("can not generate changelog because server '" + jiraServerId + "' is not definied in setting.xml");
       return;
     }
 
@@ -102,24 +105,23 @@ public class ChangelogGeneratorMojo extends AbstractMojo
   
   private TemplateExpander createExpanderForFile(File file)
   {
-    TemplateExpander expander = null;
     if (file.getName().endsWith(".md"))
     {
-      expander = new TemplateExpander(markdownTemplate);
+      return new TemplateExpander(markdownTemplate, markdownTemplateImprovements);
     }
     if (file.getName().endsWith(".txt"))
     {
-      expander = new TemplateExpander(asciiTemplate);
+      return new TemplateExpander(asciiTemplate, asciiTemplate);
     }
-    return expander;
+    return null;
   }
 
-  private static Map<String, String> generateTokens(List<Issue> issues, TemplateExpander expander)
+  private Map<String, String> generateTokens(List<Issue> issues, TemplateExpander expander)
   {
     Map<String, String> tokens = new HashMap<>();
     tokens.put("changelog", expander.expand(issues));
     tokens.put("changelog#bugs", expander.expand(onlyBugs(issues)));
-    tokens.put("changelog#improvements", expander.expand(onlyImprovements(issues)));
+    tokens.put("changelog#improvements", expander.expandImprovements(onlyImprovements(issues)));
     return tokens;
   }
  
