@@ -14,7 +14,7 @@ public class JiraResponse
     public String serverUri;
     public String key;
     @JsonProperty("fields")
-    private IssueFields fields;
+    public IssueFields fields;
     
     public String getUri()
     {
