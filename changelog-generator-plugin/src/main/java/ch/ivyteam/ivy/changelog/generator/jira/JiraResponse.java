@@ -46,6 +46,16 @@ public class JiraResponse
       return IssueType.toEnum(getType());
     }
     
+    public boolean isBug()
+    {
+      return getType().equalsIgnoreCase("bug");
+    }
+    
+    public boolean isImprovement()
+    {
+      return hasLabel("improvement");
+    }
+    
     public boolean isSecurityIssue()
     {
       return hasLabel("security");
@@ -60,6 +70,7 @@ public class JiraResponse
     {
       return fields.labels.stream().anyMatch(l -> label.equalsIgnoreCase(l));
     }
+
   }
 
   public static class IssueFields

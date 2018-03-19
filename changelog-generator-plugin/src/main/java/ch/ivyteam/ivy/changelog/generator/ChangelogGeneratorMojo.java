@@ -108,19 +108,23 @@ public class ChangelogGeneratorMojo extends AbstractMojo
     }
     return expander;
   }
-  
+
   private static Map<String, String> generateTokens(List<Issue> issues, TemplateExpander expander)
   {
     Map<String, String> tokens = new HashMap<>();
     tokens.put("changelog", expander.expand(issues));
-    tokens.put("changelog#bugs", expander.expand(filterByType(issues, "bug")));
-    tokens.put("changelog#improvements", expander.expand(filterByType(issues, "improvement")));
+    tokens.put("changelog#bugs", expander.expand(onlyBugs(issues)));
+    tokens.put("changelog#improvements", expander.expand(onlyImprovements(issues)));
     return tokens;
   }
  
-  private static List<Issue> filterByType(List<Issue> issues, String type)
+  private static List<Issue> onlyBugs(List<Issue> issues)
   {
-    return issues.stream().filter(i -> type.equalsIgnoreCase(i.getType())).collect(Collectors.toList());
+    return issues.stream().filter(i -> i.isBug()).collect(Collectors.toList());
   }
   
+  private static List<Issue> onlyImprovements(List<Issue> issues)
+  {
+    return issues.stream().filter(i -> i.isImprovement()).collect(Collectors.toList());
+  }
 }

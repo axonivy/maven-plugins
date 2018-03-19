@@ -1,5 +1,7 @@
 package ch.ivyteam.ivy.changelog.generator.jira;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -11,6 +13,7 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status.Family;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.settings.Server;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
@@ -33,15 +36,32 @@ public class JiraService
     this.server = server;
   }
   
-  public List<Issue> getIssuesWithFixVersion(String fixVersion, String projects)
+  public List<Issue> getIssuesWithFixVersion(String fixVersion, String projectsCommaSeparated)
   {
     String convertedFixVersion = removeEndingZero(fixVersion);
     
     Client client = createClient();
-    return readIssues(client, convertedFixVersion, projects).issues.stream()
+    List<Issue> issues = readIssues(client, convertedFixVersion, projectsCommaSeparated).issues.stream()
             .map(i -> { i.serverUri = serverUri; return i; })
             .sorted(createComparator())
             .collect(Collectors.toList());
+    
+    return orderIssuesByProjects(projectsCommaSeparated, issues);
+  }
+
+  private List<Issue> orderIssuesByProjects(String projectsCommaSeparated, List<Issue> unsortedIssues)
+  {
+    List<String> projects = Arrays.stream(projectsCommaSeparated.split(","))
+            .map(StringUtils::trimToEmpty)
+            .filter(StringUtils::isNotEmpty)
+            .collect(Collectors.toList());
+    
+    List<Issue> issues = new ArrayList<>();
+    for (String project : projects)
+    {
+      issues.addAll(unsortedIssues.stream().filter(i -> i.getProjectKey().equalsIgnoreCase((project))).collect(Collectors.toList()));
+    }
+    return issues;
   }
   
   /**
@@ -101,9 +121,8 @@ public class JiraService
 
   private static Comparator<Issue> createComparator()
   {
-    Comparator<Issue> byProject = (e1, e2) -> e1.getProjectKey().compareTo(e2.getProjectKey());
     Comparator<Issue> byType = (e1, e2) -> Objects.compare(e1.getIssueType(), e2.getIssueType(), IssueType::compareTo);
     Comparator<Issue> byKey = (e1, e2) -> e1.getType().compareTo(e2.getType());
-    return byProject.thenComparing(byType).thenComparing(byKey);
+    return byType.thenComparing(byKey);
   }
 }
