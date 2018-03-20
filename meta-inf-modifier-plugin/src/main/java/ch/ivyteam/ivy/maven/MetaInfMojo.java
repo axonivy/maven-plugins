@@ -1,12 +1,8 @@
 package ch.ivyteam.ivy.maven;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -64,21 +60,6 @@ public class MetaInfMojo extends AbstractMojo
     FileUtils.writeStringToFile(manifest, newContent);
   }
 
-  private void updateViaManifestAPI(File manifest) throws IOException, FileNotFoundException
-  {
-    try(InputStream is = new FileInputStream(manifest);
-        OutputStream os = new FileOutputStream(manifest);)
-    {
-      Manifest updated = updateManifest(is);
-      if (updated != null)
-      {
-        is.close();
-        
-        updated.write(os);
-      }
-    }
-  }
-
   String updateManifest(String content)
   {
     StringBuilder newContent = new StringBuilder(content);
@@ -101,19 +82,6 @@ public class MetaInfMojo extends AbstractMojo
     return newContent.toString();
   }
 
-  private int findAttributeEnd(String existing)
-  {
-    int i = 0;
-    while((i=existing.indexOf("\n", i))!=-1)
-    {
-      if (existing.charAt(i+1) != ' ')
-      {
-        return i;
-      }
-    }
-    throw new RuntimeException("Failed to determine end");
-  }
-  
   Manifest updateManifest(InputStream is) throws IOException
   {
     Manifest mf = new Manifest(is);
