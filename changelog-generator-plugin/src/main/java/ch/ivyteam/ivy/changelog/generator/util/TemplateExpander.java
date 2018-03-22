@@ -39,7 +39,7 @@ public class TemplateExpander
     return issues.stream()
             .map(issue -> createValues(issue, maxKeyLength, maxTypeLength))
             .map(values -> new StrSubstitutor(values).replace(template))
-            .collect(Collectors.joining("\n"));
+            .collect(Collectors.joining("\r\n"));
   }
   
   private static Map<String, String> createValues(Issue issue, int maxKeyLength, int maxTypeLength)
