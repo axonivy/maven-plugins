@@ -42,6 +42,10 @@ public class ChangelogGeneratorMojo extends AbstractMojo
   @Parameter(property = "jiraProjects", defaultValue = "XIVY")
   public String jiraProjects;
   
+  /** comma separated list of labels which will be parsed as batches for example: security, performance, usability */
+  @Parameter(property = "whitelistJiraLabels", defaultValue = "")
+  public String whitelistJiraLabels;
+
   /** files which tokens must be replaced */
   @Parameter(property="fileset", required = true)
   public FileSet fileset;
@@ -107,11 +111,11 @@ public class ChangelogGeneratorMojo extends AbstractMojo
   {
     if (file.getName().endsWith(".md"))
     {
-      return new TemplateExpander(markdownTemplate, markdownTemplateImprovements);
+      return new TemplateExpander(markdownTemplate, markdownTemplateImprovements, whitelistJiraLabels);
     }
     if (file.getName().endsWith(".txt"))
     {
-      return new TemplateExpander(asciiTemplate, asciiTemplate);
+      return new TemplateExpander(asciiTemplate, asciiTemplate, whitelistJiraLabels);
     }
     return null;
   }

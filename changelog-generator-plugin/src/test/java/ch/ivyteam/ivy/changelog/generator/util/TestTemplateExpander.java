@@ -17,9 +17,17 @@ public class TestTemplateExpander
   @Test
   public void expand_key()
   {
-    TemplateExpander testee = new TemplateExpander("[${key}] - ${summary}", "");
+    TemplateExpander testee = new TemplateExpander("[${key}] - ${summary}", "", "");
     String expand = testee.expand(createOneIssue());
     assertThat(expand).isEqualTo("[XIVY-500] - JSF Bug");
+  }
+  
+  @Test
+  public void expand_labelsWithHtmlBatches()
+  {
+    TemplateExpander testee = new TemplateExpander("${labelsWithHtmlBatches}", "", "seCurity , performance");
+    String expand = testee.expand(createOneIssue());
+    assertThat(expand).isEqualTo("<span class=\"feature-badge\">security</span>");
   }
 
   private static List<Issue> createOneIssue() {
@@ -33,6 +41,10 @@ public class TestTemplateExpander
 
     i.fields.issuetype = new Type();
     i.fields.issuetype.name = "Bug";
+    
+    i.fields.labels = new ArrayList<>();
+    i.fields.labels.add("Security");
+    i.fields.labels.add("jira_escalated");
     
     issues.add(i);
     return issues;
