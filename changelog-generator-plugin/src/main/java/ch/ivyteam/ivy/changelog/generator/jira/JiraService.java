@@ -14,6 +14,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status.Family;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.settings.Server;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
@@ -29,11 +30,13 @@ public class JiraService
 {
   private final String serverUri;
   private final Server server;
+  private final Log log;
   
-  public JiraService(String serverUri, Server server)
+  public JiraService(String serverUri, Server server, Log log)
   {
     this.serverUri = serverUri;
     this.server = server;
+    this.log = log;
   }
   
   public List<Issue> getIssuesWithFixVersion(String fixVersion, String projectsCommaSeparated)
@@ -95,7 +98,7 @@ public class JiraService
             .path("rest/api/2/search")
             .queryParam("maxResults", unlimited) 
             .queryParam("jql", "fixVersion = " + fixVersion + " and project in (" + projects + ") order by key");
-     
+    log.info("GET: "+target.getUri());
     Response response = target.request().get();
     if (!response.getStatusInfo().getFamily().equals(Family.SUCCESSFUL))
     {
@@ -110,7 +113,7 @@ public class JiraService
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
     Client client = ClientBuilder.newClient(new ClientConfig(jacksonJsonProvider));
-
+    
     if (server != null)
     {
       client.register(HttpAuthenticationFeature.basic(server.getUsername(), server.getPassword()));
@@ -125,4 +128,5 @@ public class JiraService
     Comparator<Issue> byKey = (e1, e2) -> e1.getType().compareTo(e2.getType());
     return byType.thenComparing(byKey);
   }
+
 }

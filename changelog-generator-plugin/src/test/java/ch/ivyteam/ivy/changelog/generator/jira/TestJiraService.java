@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.List;
 
+import org.apache.maven.plugin.logging.SystemStreamLog;
 import org.apache.maven.settings.Server;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,7 +25,7 @@ public class TestJiraService
     Server server = new Server();
     server.setUsername(System.getProperty("jira.username"));
     server.setPassword(System.getProperty("jira.password"));
-    testee = new JiraService("https://jira.axonivy.com/jira", server);
+    testee = new JiraService("https://jira.axonivy.com/jira", server, new SystemStreamLog());
   }
 
   @Test

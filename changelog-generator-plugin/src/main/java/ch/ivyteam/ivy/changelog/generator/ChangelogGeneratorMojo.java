@@ -92,7 +92,8 @@ public class ChangelogGeneratorMojo extends AbstractMojo
   {
     try
     {
-      return new JiraService(jiraServerUri, server).getIssuesWithFixVersion(fixVersion,jiraProjects);
+      JiraService jiraService = new JiraService(jiraServerUri, server, getLog());
+      return jiraService.getIssuesWithFixVersion(fixVersion,jiraProjects);
     }
     catch (RuntimeException ex)
     {
