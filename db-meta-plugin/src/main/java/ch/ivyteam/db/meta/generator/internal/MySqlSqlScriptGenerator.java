@@ -2,9 +2,11 @@ package ch.ivyteam.db.meta.generator.internal;
 
 import java.io.PrintWriter;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import ch.ivyteam.db.meta.model.internal.MetaException;
 import ch.ivyteam.db.meta.model.internal.SqlDataType;
@@ -25,7 +27,8 @@ import ch.ivyteam.db.meta.model.internal.SqlUpdateColumnExpression;
 public class MySqlSqlScriptGenerator extends SqlScriptGenerator
 {
   private static final int MAX_INDEX_SIZE_IN_BYTES  = 767;
-
+  private static final Set<String> RESERVED_WORDS_MYSQL = new HashSet<>(Arrays.asList("SYSTEM"));
+  
   /** Database System */
   public static final String MYSQL = String.valueOf("MySql");
   
@@ -455,6 +458,16 @@ public class MySqlSqlScriptGenerator extends SqlScriptGenerator
         return 0x10000;
     }
     return 0;
+  }
+  
+  @Override
+  protected boolean isReservedSqlKeyword(String identifier)
+  {
+    if (RESERVED_WORDS_MYSQL.contains(identifier.toUpperCase()))
+    {
+      return true;
+    }
+    return super.isReservedSqlKeyword(identifier);
   }
   
   @Override
