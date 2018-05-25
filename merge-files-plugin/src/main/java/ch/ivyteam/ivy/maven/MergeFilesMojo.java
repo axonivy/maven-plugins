@@ -19,13 +19,13 @@ import org.apache.maven.plugins.annotations.Parameter;
 @Mojo(name = "merge-files")
 public class MergeFilesMojo extends AbstractMojo
 {
-  @Parameter(property = "inputFiles", required = true, readonly = true)
+  @Parameter(property = "inputFiles", required = true)
   FileSet inputFiles;
 
   @Parameter(property = "outputFile", required = true)
   File outputFile;
 
-  @Parameter(property = "ascending", defaultValue = "false", readonly = true)
+  @Parameter(property = "ascending", defaultValue = "false")
   boolean ascending;
 
   @Override
