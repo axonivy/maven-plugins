@@ -95,7 +95,7 @@ public class JiraResponse
   
   public enum IssueType
   {
-    EPIC, STORY, IMPROVEMENT, BUG;
+    EPIC, STORY, IMPROVEMENT, BUG, UNKNOWN;
     
     static IssueType toEnum(String name)
     {
@@ -105,7 +105,7 @@ public class JiraResponse
       }
       catch (IllegalArgumentException ex)
       {
-        return null;
+        return UNKNOWN;
       }
     }
   }
