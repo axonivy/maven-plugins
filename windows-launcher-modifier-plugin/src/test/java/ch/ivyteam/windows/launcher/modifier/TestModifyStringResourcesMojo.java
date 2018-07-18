@@ -23,10 +23,10 @@ public class TestModifyStringResourcesMojo
   public void execute() throws Exception
   {
     File tstResources =  new File("src/test/resources");
-    ModifyStringResourcesMojo mojo = (ModifyStringResourcesMojo) rule.lookupConfiguredMojo(tstResources, ModifyStringResourcesMojo.GOAL);
-    mojo.inputFiles = new FileSet[] {new FileSet()};
-    mojo.inputFiles[0].setDirectory("src/test/resources/testLaunchers");
-    mojo.inputFiles[0].setIncludes(Arrays.asList("*.exe", "*.dll"));
+    ModifyStringResourcesMojo mojo = new ModifyStringResourcesMojo();
+    mojo.inputFiles = new FileSet();
+    mojo.inputFiles.setDirectory("src/test/resources/testLaunchers");
+    mojo.inputFiles.setIncludes(Arrays.asList("*.exe", "*.dll"));
     mojo.outputDirectory = tempFolder.getRoot();
     mojo.productVersion="7.2.0.62d6898";
     mojo.execute();

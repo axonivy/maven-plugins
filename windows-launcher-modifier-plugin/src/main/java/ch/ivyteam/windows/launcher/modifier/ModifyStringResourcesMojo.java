@@ -3,7 +3,6 @@ package ch.ivyteam.windows.launcher.modifier;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -21,13 +20,13 @@ public class ModifyStringResourcesMojo extends AbstractMojo
 {
   public static final String GOAL = "modify-string-resources";
 
-  @Parameter(property="product.version")
+  @Parameter(required=true)
   String productVersion;
   
-  @Parameter(property="launcher.dir")
-  FileSet[] inputFiles;
+  @Parameter(required=true)
+  FileSet inputFiles;
   
-  @Parameter(defaultValue="${basedir}/target/windows_launchers", property="output.dir")
+  @Parameter(required=true)
   File outputDirectory;
 
   @Override
@@ -111,16 +110,6 @@ public class ModifyStringResourcesMojo extends AbstractMojo
     return true;
   }
 
-  private List<File> getFiles(FileSet[] fileSets)
-  {
-    List<File> files = new ArrayList<File>();
-    for (FileSet fs : fileSets)
-    {
-      files.addAll(getFiles(fs));
-    }
-    return files;
-  }
-  
   private List<File> getFiles(FileSet fs)
   {
     File directory = new File(fs.getDirectory());
