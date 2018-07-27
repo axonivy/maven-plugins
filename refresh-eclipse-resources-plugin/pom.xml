@@ -11,6 +11,8 @@
 		<relativePath>../build.maven/plugin</relativePath>
 	</parent>
 
+	<version>1.0.2.SNAPSHOT</version>
+
 	<dependencies>
 		<dependency>
 		   <groupId>org.sonatype.plexus</groupId>
@@ -18,5 +20,5 @@
 		   <version>0.0.7</version>
 		 </dependency>
 	</dependencies>
-
+	
 </project>
