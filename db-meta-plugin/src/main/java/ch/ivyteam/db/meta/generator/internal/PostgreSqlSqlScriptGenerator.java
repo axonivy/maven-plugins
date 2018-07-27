@@ -8,9 +8,12 @@ import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
 
 import ch.ivyteam.db.meta.model.internal.MetaException;
+import ch.ivyteam.db.meta.model.internal.SqlDataType;
 import ch.ivyteam.db.meta.model.internal.SqlDataType.DataType;
 import ch.ivyteam.db.meta.model.internal.SqlDmlStatement;
 import ch.ivyteam.db.meta.model.internal.SqlForeignKey;
+import ch.ivyteam.db.meta.model.internal.SqlIndex;
+import ch.ivyteam.db.meta.model.internal.SqlMeta;
 import ch.ivyteam.db.meta.model.internal.SqlTable;
 import ch.ivyteam.db.meta.model.internal.SqlTableColumn;
 import ch.ivyteam.db.meta.model.internal.SqlUniqueConstraint;
@@ -138,6 +141,84 @@ public class PostgreSqlSqlScriptGenerator extends SqlScriptGenerator
     return "OLD";
   }
   
+  @Override
+  public void generateIndex(PrintWriter pr,
+          SqlTable table, SqlIndex index)
+  {
+    pr.print("CREATE INDEX ");
+    generateIdentifier(pr, getIndexName(index));
+    pr.println();
+    pr.print("ON ");
+    generateIdentifier(pr, table.getId());
+    pr.print(" (");
+    generateIndexColumnList(pr, table, index.getColumns());
+    pr.print(")");
+    generateDelimiter(pr);
+    pr.println();
+    pr.println();    
+  }
+  
+  private void generateIndexColumnList(PrintWriter pr, SqlTable table, List<String> columns)
+  {
+    boolean first = true;
+    for (String column : columns)
+    {
+      if (!first)
+      {
+        pr.append(", ");
+      }
+      first = false;
+      generateIdentifier(pr, column);
+      if (isVarCharColumn(table, column))
+      {
+        pr.append(" ");
+        pr.append("varchar_pattern_ops");
+      }
+    }
+  }
+  
+  @Override
+  public void generateNonMetaDiffChangesPost(PrintWriter pr, SqlMeta metaDefinitionFrom, SqlMeta metaDefinitionTo, int newVersionId)
+  {
+    if (newVersionId == 48)
+    {
+      recreateVarCharIndices(pr, metaDefinitionFrom);
+    }
+    super.generateNonMetaDiffChangesPost(pr, metaDefinitionFrom, metaDefinitionTo, newVersionId);
+  }
+
+  private void recreateVarCharIndices(PrintWriter pr, SqlMeta metaDefinitionTo)
+  {
+    for (SqlTable table : metaDefinitionTo.getArtifacts(SqlTable.class))
+    {
+      for (SqlIndex index : getIndexes(table))
+      {
+        if (hasVarCharColumn(table, index))
+        {
+          generateCommentLine(pr, "Drop and recreate index with varchar_pattern_ops to get better LIKE 'prefix%' performance");
+          generateDropIndex(pr, table, index);
+          pr.println();
+          generateIndex(pr, table, index);
+          pr.println();
+        }
+      }
+    }
+  }
+
+  private boolean hasVarCharColumn(SqlTable table, SqlIndex index)
+  {
+    return index.getColumns()
+            .stream()
+            .filter(column -> this.isVarCharColumn(table, column))
+            .findAny()
+            .isPresent();
+  }
+
+  private boolean isVarCharColumn(SqlTable table, String column)
+  {
+    return table.findColumn(column).getDataType().getDataType() == SqlDataType.DataType.VARCHAR;
+  }
+
   /**
    * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#generateAlterTableAddForeignKey(java.io.PrintWriter, ch.ivyteam.db.meta.model.internal.SqlTable, ch.ivyteam.db.meta.model.internal.SqlForeignKey)
    */

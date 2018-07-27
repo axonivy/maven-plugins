@@ -11,6 +11,8 @@ import ch.ivyteam.db.meta.model.internal.SqlDelete;
 import ch.ivyteam.db.meta.model.internal.SqlDmlStatement;
 import ch.ivyteam.db.meta.model.internal.SqlForeignKey;
 import ch.ivyteam.db.meta.model.internal.SqlFunction;
+import ch.ivyteam.db.meta.model.internal.SqlIndex;
+import ch.ivyteam.db.meta.model.internal.SqlMeta;
 import ch.ivyteam.db.meta.model.internal.SqlPrimaryKey;
 import ch.ivyteam.db.meta.model.internal.SqlTable;
 import ch.ivyteam.db.meta.model.internal.SqlTableColumn;
@@ -250,9 +252,9 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
    * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#generateNonMetaDiffChangesPost(java.io.PrintWriter, int)
    */
   @Override
-  public void generateNonMetaDiffChangesPost(PrintWriter pr, int newVersionId)
+  public void generateNonMetaDiffChangesPost(PrintWriter pr, SqlMeta metaDefinitionFrom, SqlMeta metaDefinitionTo, int newVersionId)
   {
-    super.generateNonMetaDiffChangesPost(pr, newVersionId);
+    super.generateNonMetaDiffChangesPost(pr, metaDefinitionFrom, metaDefinitionTo, newVersionId);
     if (newVersionId == 29)
     {
       pr.print("COMMIT TRANSACTION");
@@ -497,6 +499,21 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
       pr.println();
       pr.println();
     }
+  }
+
+  /**
+   * Drops the index
+   * @param pr
+   * @param table 
+   * @param index
+   */
+  @Override
+  public void generateDropIndex(PrintWriter pr, SqlTable table, SqlIndex index) 
+  {
+    pr.print("DROP INDEX ");
+    generateIdentifier(pr, table.getId()+"."+getIndexName(index));
+    generateDelimiter(pr);
+    pr.println(); 
   }
   
   @Override

@@ -170,8 +170,8 @@ public class MetaOutputDifferenceGenerator
     {
       generator.generateMetaOutputStatements(pr, additionalConversionMeta);
     }
-    
-    generator.generateNonMetaDiffChangesPost(pr, newVersionId);
+   
+    generator.generateNonMetaDiffChangesPost(pr, metaDefinitionFrom, metaDefinitionTo, newVersionId);
     generateDropTemporaryStoredProcedures(pr);
     generator.generateVersionUpdate(pr, newVersionId);
   }

@@ -671,9 +671,14 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
   /**
    * Generates the DDL updates that are not reflected by a meta data difference 
    * @param pr
+   * @param metaDefinitionTo 
+   * @param metaDefinitionFrom 
    * @param newVersionId
    */
-  public void generateNonMetaDiffChangesPost(PrintWriter pr, int newVersionId)
+  public void generateNonMetaDiffChangesPost(PrintWriter pr, 
+          @SuppressWarnings("unused") SqlMeta metaDefinitionFrom, 
+          @SuppressWarnings("unused") SqlMeta metaDefinitionTo, 
+          int newVersionId)
   {
     // Delete all process models that belong to the SYSTEM application. 
     // This triggers a redeploy of the system projects at the first ivy Server restart.
@@ -2151,16 +2156,15 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
   }
 
   /**
-   * Currently only used for Databases returning true for {@link RecreateOptions#indexesOnAlterTable}
-   * This is currently {@link MsSqlServerSqlScriptGenerator}
+   * Drops the index
    * @param pr
    * @param table 
    * @param index
    */
-  public void generateDropIndex(PrintWriter pr, SqlTable table, SqlIndex index) 
+  public void generateDropIndex(PrintWriter pr, @SuppressWarnings("unused") SqlTable table, SqlIndex index) 
   {
     pr.print("DROP INDEX ");
-    generateIdentifier(pr, table.getId()+"."+getIndexName(index));
+    generateIdentifier(pr, getIndexName(index));
     generateDelimiter(pr);
     pr.println(); 
   }
