@@ -886,10 +886,6 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
     pr.println(); 
   }
   
-  /**
-   * @param pr
-   * @param table
-   */
   public void generateDropTrigger(PrintWriter pr, SqlTable table)
   {
     pr.write("DROP TRIGGER ");
@@ -1136,11 +1132,7 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
     generateDelimiter(pr);
   }
 
-  /**
-   * @param pr
-   * @param table
-   */
-  private void generateTriggerName(PrintWriter pr, SqlTable table)
+  protected void generateTriggerName(PrintWriter pr, SqlTable table)
   {
     if (isDatabaseSystemHintSet(table, DELETE_TRIGGER_NAME))
     {

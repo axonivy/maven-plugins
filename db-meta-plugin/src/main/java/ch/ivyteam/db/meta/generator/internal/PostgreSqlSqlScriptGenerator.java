@@ -92,10 +92,19 @@ public class PostgreSqlSqlScriptGenerator extends SqlScriptGenerator
   protected void generateForEachRowDeleteTrigger(PrintWriter pr, SqlTable table,
           List<SqlDmlStatement> triggerStatements, boolean recursiveTrigger) throws MetaException
   {
-    // 1. create function
+    String functionName = table.getId() + "DeleteTriggerFunc";
+
+    // Drop already existing functions (used for regeneration)
+    pr.print("DROP FUNCTION IF EXISTS ");
+    pr.print(functionName);
+    generateDelimiter(pr);
+    pr.println();
+    pr.println();
+
+    // create function
     pr.print("CREATE FUNCTION ");
-    pr.print(table.getId());
-    pr.print("DeleteTriggerFunc()");
+    pr.print(functionName);
+    pr.print("()");
     pr.println(" RETURNS TRIGGER AS '");
     writeSpaces(pr, 2);
     pr.println("BEGIN");
@@ -119,7 +128,7 @@ public class PostgreSqlSqlScriptGenerator extends SqlScriptGenerator
     pr.println();
     pr.println();
 
-    // 2. create trigger that uses function
+    // create trigger that uses function
     pr.print("CREATE TRIGGER ");
     pr.print(table.getId());
     pr.println("DeleteTrigger AFTER DELETE");
@@ -219,9 +228,6 @@ public class PostgreSqlSqlScriptGenerator extends SqlScriptGenerator
     return table.findColumn(column).getDataType().getDataType() == SqlDataType.DataType.VARCHAR;
   }
 
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#generateAlterTableAddForeignKey(java.io.PrintWriter, ch.ivyteam.db.meta.model.internal.SqlTable, ch.ivyteam.db.meta.model.internal.SqlForeignKey)
-   */
   @Override
   public void generateAlterTableAddForeignKey(PrintWriter pr, SqlTable table, SqlForeignKey foreignKey)
           throws MetaException
@@ -302,18 +308,12 @@ public class PostgreSqlSqlScriptGenerator extends SqlScriptGenerator
     }
   }
   
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#generateAlterTableAddColumn(java.io.PrintWriter, ch.ivyteam.db.meta.model.internal.SqlTableColumn, ch.ivyteam.db.meta.model.internal.SqlTable)
-   */
   @Override
   public void generateAlterTableAddColumn(PrintWriter pr, SqlTableColumn newColumn, SqlTable newTable)
   {
     GenerateAlterTableUtil.generateAlterTableAddColumn(pr, this, newColumn, newTable, "ADD COLUMN");
   }
   
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#generateAlterTableDropUniqueConstraint(java.io.PrintWriter, ch.ivyteam.db.meta.model.internal.SqlTable, ch.ivyteam.db.meta.model.internal.SqlUniqueConstraint, java.util.List)
-   */
   @Override
   protected void generateAlterTableDropUniqueConstraint(PrintWriter pr, SqlTable table,
           SqlUniqueConstraint unique, List<String> createdTemporaryStoredProcedures)
@@ -354,5 +354,16 @@ public class PostgreSqlSqlScriptGenerator extends SqlScriptGenerator
     RecreateOptions options = super.getRecreateOptions();
     options.foreignKeysOnAlterTable = true;
     return options;
+  }
+  
+  @Override
+  public void generateDropTrigger(PrintWriter pr, SqlTable table)
+  {
+    pr.write("DROP TRIGGER ");
+    generateTriggerName(pr, table);
+    pr.append(" ON ");
+    pr.append(table.getId());
+    generateDelimiter(pr);
+    pr.println(); 
   }
 }
