@@ -92,7 +92,7 @@ public class PostgreSqlSqlScriptGenerator extends SqlScriptGenerator
   protected void generateForEachRowDeleteTrigger(PrintWriter pr, SqlTable table,
           List<SqlDmlStatement> triggerStatements, boolean recursiveTrigger) throws MetaException
   {
-    String functionName = table.getId() + "DeleteTriggerFunc";
+    String functionName = table.getId() + "DeleteTriggerFunc()";
 
     // Drop already existing functions (used for regeneration)
     pr.print("DROP FUNCTION IF EXISTS ");
@@ -104,7 +104,6 @@ public class PostgreSqlSqlScriptGenerator extends SqlScriptGenerator
     // create function
     pr.print("CREATE FUNCTION ");
     pr.print(functionName);
-    pr.print("()");
     pr.println(" RETURNS TRIGGER AS '");
     writeSpaces(pr, 2);
     pr.println("BEGIN");
