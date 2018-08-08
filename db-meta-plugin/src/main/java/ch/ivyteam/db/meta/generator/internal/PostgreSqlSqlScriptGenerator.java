@@ -27,12 +27,8 @@ import ch.ivyteam.db.meta.model.internal.SqlUpdateColumnExpression;
  */
 public class PostgreSqlSqlScriptGenerator extends SqlScriptGenerator
 {
-  /** The postgre sql database system */
   public static final String POSTGRESQL = String.valueOf("PostgreSql");
   
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#generateDataType(java.io.PrintWriter, ch.ivyteam.db.meta.model.internal.SqlDataType.DataType)
-   */
   @Override
   protected void generateDataType(PrintWriter pr, DataType dataType)
   {
@@ -58,36 +54,24 @@ public class PostgreSqlSqlScriptGenerator extends SqlScriptGenerator
     }
   }
     
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#isIndexInTableSupported()
-   */
   @Override
   protected boolean isIndexInTableSupported()
   {
     return false;
   }
   
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#getDatabaseComment()
-   */
   @Override
   protected String getDatabaseComment()
   {
     return "Postgre SQL";
   }
 
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#getDatabaseSystemNames()
-   */
   @Override
   protected List<String> getDatabaseSystemNames()
   {
     return Arrays.asList(POSTGRESQL);
   }
 
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#generateForEachRowDeleteTrigger(java.io.PrintWriter, ch.ivyteam.db.meta.model.internal.SqlTable, java.util.List, boolean)
-   */
   @Override
   protected void generateForEachRowDeleteTrigger(PrintWriter pr, SqlTable table,
           List<SqlDmlStatement> triggerStatements, boolean recursiveTrigger) throws MetaException
@@ -140,9 +124,6 @@ public class PostgreSqlSqlScriptGenerator extends SqlScriptGenerator
     generateDelimiter(pr);
   }
   
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#getRowTriggerOldVariableName()
-   */
   @Override
   protected String getRowTriggerOldVariableName()
   {
@@ -242,9 +223,6 @@ public class PostgreSqlSqlScriptGenerator extends SqlScriptGenerator
     pr.println();
   }
   
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#generateUpdateStatement(java.io.PrintWriter, ch.ivyteam.db.meta.model.internal.SqlUpdate, int)
-   */
   @Override
   protected void generateUpdateStatement(PrintWriter pr, SqlUpdate updateStmt, int insets)
           throws MetaException
@@ -273,10 +251,6 @@ public class PostgreSqlSqlScriptGenerator extends SqlScriptGenerator
     generateFilterExpression(pr, updateStmt.getFilterExpression());
   }
   
-  
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#generateAlterTableAlterColumn(PrintWriter, SqlTableColumn, SqlTable, SqlTableColumn)
-   */
   @Override
   public void generateAlterTableAlterColumn(PrintWriter pr, SqlTableColumn newColumn, SqlTable newTable, SqlTableColumn oldColumn) throws MetaException
   {
