@@ -248,9 +248,6 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
     pr.println();
   }
   
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#generateNonMetaDiffChangesPost(java.io.PrintWriter, int)
-   */
   @Override
   public void generateNonMetaDiffChangesPost(PrintWriter pr, SqlMeta metaDefinitionFrom, SqlMeta metaDefinitionTo, int newVersionId)
   {
