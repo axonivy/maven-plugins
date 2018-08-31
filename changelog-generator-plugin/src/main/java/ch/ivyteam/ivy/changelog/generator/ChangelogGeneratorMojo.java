@@ -33,7 +33,7 @@ public class ChangelogGeneratorMojo extends AbstractMojo
   /** jira base url */
   @Parameter(property = "jiraServerUri", defaultValue = "https://jira.axonivy.com/jira")
   public String jiraServerUri;
-  
+
   /*** version to generate the changelog from. for example 7.1 or 7.0.3 */
   @Parameter(property = "fixVersion", required = true)
   public String fixVersion;
@@ -41,7 +41,7 @@ public class ChangelogGeneratorMojo extends AbstractMojo
   /** comma separated list of jira projects for example: XIVY, IVYPORTAL */
   @Parameter(property = "jiraProjects", defaultValue = "XIVY")
   public String jiraProjects;
-  
+
   /** comma separated list of labels which will be parsed as batches for example: security, performance, usability */
   @Parameter(property = "whitelistJiraLabels", defaultValue = "")
   public String whitelistJiraLabels;
@@ -49,20 +49,20 @@ public class ChangelogGeneratorMojo extends AbstractMojo
   /** files which tokens must be replaced */
   @Parameter(property="fileset", required = true)
   public FileSet fileset;
-  
+
   @Parameter(property = "markdownTemplate", defaultValue = "* [${key}](${uri}) ${summary} ${labelsWithHtmlBatches}")
   public String markdownTemplate;
   @Parameter(property = "markdownTemplateImprovements", defaultValue = "* ${summary} ${htmlLinkIcon} ${labelsWithHtmlBatches}")
   public String markdownTemplateImprovements;
-  
+
   @Parameter(property = "asciiTemplate", defaultValue = "${kind} ${key}${spacesKey} ${type}${spacesType} ${summary}")
   public String asciiTemplate;
-  
+
   @Parameter(property = "project", required = false, readonly = true)
   MavenProject project;
   @Parameter(property = "session", required = true, readonly = true)
   MavenSession session;
-  
+
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
   {
@@ -100,25 +100,21 @@ public class ChangelogGeneratorMojo extends AbstractMojo
       throw new MojoExecutionException("could not load issues from jira", ex);
     }
   }
-  
+
   private List<File> getAllFiles()
   {
     return Arrays.stream(new FileSetManager().getIncludedFiles(fileset))
             .map(f -> new File(fileset.getDirectory() + File.separatorChar + f))
             .collect(Collectors.toList());
   }
-  
+
   private TemplateExpander createExpanderForFile(File file)
   {
     if (file.getName().endsWith(".md"))
     {
       return new TemplateExpander(markdownTemplate, markdownTemplateImprovements, whitelistJiraLabels);
     }
-    if (file.getName().endsWith(".txt"))
-    {
-      return new TemplateExpander(asciiTemplate, asciiTemplate, whitelistJiraLabels);
-    }
-    return null;
+    return new TemplateExpander(asciiTemplate, asciiTemplate, whitelistJiraLabels);
   }
 
   private Map<String, String> generateTokens(List<Issue> issues, TemplateExpander expander)
@@ -129,12 +125,12 @@ public class ChangelogGeneratorMojo extends AbstractMojo
     tokens.put("changelog#improvements", expander.expandImprovements(onlyImprovements(issues)));
     return tokens;
   }
- 
+
   private static List<Issue> onlyBugs(List<Issue> issues)
   {
     return issues.stream().filter(i -> i.isBug()).collect(Collectors.toList());
   }
-  
+
   private static List<Issue> onlyImprovements(List<Issue> issues)
   {
     return issues.stream().filter(i -> i.isImprovement()).collect(Collectors.toList());
