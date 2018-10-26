@@ -15,11 +15,10 @@ import ch.ivyteam.ivy.changelog.generator.jira.JiraResponse.Issue;
 
 public class TemplateExpander
 {
-  private static final int wordWrapLenght = 80;
   private final String template;
   private final String templateImprovements;
   private final Set<String> whitelistJiraLables;
-  private boolean wordWrap = false;
+  private int wordWrap = -1;
   
   public TemplateExpander(String template, String templateImprovements, String whitelistJiraLables)
   {
@@ -28,7 +27,7 @@ public class TemplateExpander
     this.whitelistJiraLables = convertWhitelistedJiraLables(whitelistJiraLables);
   }
   
-  public void setWordWrap(boolean wordWrap)
+  public void setWordWrap(int wordWrap)
   {
     this.wordWrap = wordWrap;
   }
@@ -43,7 +42,7 @@ public class TemplateExpander
     return expand(issues, templateImprovements, whitelistJiraLables, wordWrap);
   }
   
-  private static String expand(List<Issue> issues, String template, Set<String> whitelistedJiraLables, boolean wordWrap)
+  private static String expand(List<Issue> issues, String template, Set<String> whitelistedJiraLables, int wordWrap)
   {
     Integer maxKeyLength = issues.stream().map(i -> i.getKey().length()).reduce(Integer::max).orElse(0);
     Integer maxTypeLength = issues.stream().map(i -> i.getType().length()).reduce(Integer::max).orElse(0);
@@ -55,13 +54,13 @@ public class TemplateExpander
             .collect(Collectors.joining("\r\n"));
   }
   
-  private static String wordWrap(String changes, boolean wordWrap)
+  private static String wordWrap(String changes, int wordWrap)
   {
-    if (wordWrap && changes.length() > wordWrapLenght)
+    if (wordWrap > 0 && changes.length() > wordWrap)
     {
       int indentCount = changes.indexOf(changes.trim());
       String indent = StringUtils.repeat(" ", indentCount);
-      String wrapped =  WordUtils.wrap(changes, wordWrapLenght - indentCount, "\n  " + indent, true);
+      String wrapped =  WordUtils.wrap(changes, wordWrap - indentCount, "\n  " + indent, true);
       return indent + wrapped;
     }
     return changes;

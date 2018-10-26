@@ -53,8 +53,8 @@ public class ChangelogGeneratorMojo extends AbstractMojo
   public String compression;
   
   /** word wrap in changelog */
-  @Parameter(property = "wordWrap", defaultValue = "false")
-  public boolean wordWrap;
+  @Parameter(property = "wordWrap", defaultValue = "-1")
+  public int wordWrap;
 
   /** files which tokens must be replaced */
   @Parameter(property="fileset", required = true)

@@ -38,7 +38,7 @@
 							<asciiTemplate xml:space="preserve"> ${kind} ${key}${spacesKey} ${type}${spacesType} ${summary}</asciiTemplate>
 							<whitelistJiraLabels>security,performance</whitelistJiraLabels>
 							<compression>gz</compression>
-							<wordWrap>true</wordWrap>
+							<wordWrap>80</wordWrap>
 							<fileset>
 								<directory>${basedir}/</directory>
 								<include>changelog</include>

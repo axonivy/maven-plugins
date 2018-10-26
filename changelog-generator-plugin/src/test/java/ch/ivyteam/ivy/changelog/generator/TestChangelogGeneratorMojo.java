@@ -55,7 +55,7 @@ public class TestChangelogGeneratorMojo
     mojo.fileset.addInclude("changelog");
     mojo.fileset.setOutputDirectory(outputPath);
     mojo.compression = "gz";
-    mojo.wordWrap = true;
+    mojo.wordWrap = 80;
     mojo.execute();
     
     assertThat(new File(outputPath + "/changelog.gz")).exists();

@@ -25,9 +25,7 @@ public class TestTokenReplace {
 		tokens.put("changelog", issues);
 		ChangelogIO fileHandler = new ChangelogIO(changelog, changelog);
 		String result = new TokenReplacer(tokens).replaceTokens(fileHandler.getTemplateContent());
-		fileHandler.writeResult(result);
-		String replaced = FileUtils.readFileToString(changelog);
-		assertThat(replaced).isEqualTo(issues);
+		assertThat(result).isEqualTo(issues);
 	}
 
 }

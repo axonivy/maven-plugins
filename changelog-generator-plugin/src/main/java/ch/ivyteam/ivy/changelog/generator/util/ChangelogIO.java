@@ -86,33 +86,4 @@ public class ChangelogIO
     }
     return gzipFile;
   }
-  
-//private static void compressGzipFile(File file)
-//{
-//  String gzipFile = file.getAbsolutePath() + ".gz";
-//  try
-//  {
-//    new File(gzipFile).createNewFile();
-//  }
-//  catch (IOException ex)
-//  {
-//    ex.printStackTrace();
-//  }
-//  try (FileInputStream fis = new FileInputStream(file);
-//          FileOutputStream fos = new FileOutputStream(gzipFile);
-//          OutputStream gzipOS = new GZIPOutputStream(fos) {{def.setLevel(Deflater.BEST_COMPRESSION);}};)
-//  {
-//    byte[] buffer = new byte[1024];
-//    int len;
-//    while ((len = fis.read(buffer)) != -1)
-//    {
-//      gzipOS.write(buffer, 0, len);
-//    }
-//  }
-//  catch (IOException e)
-//  {
-//    e.printStackTrace();
-//  }
-//  file.delete();
-//}
 }
