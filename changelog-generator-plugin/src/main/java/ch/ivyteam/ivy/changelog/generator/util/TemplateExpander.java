@@ -9,11 +9,13 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StrSubstitutor;
+import org.apache.commons.text.WordUtils;
 
 import ch.ivyteam.ivy.changelog.generator.jira.JiraResponse.Issue;
 
 public class TemplateExpander
 {
+  private static final int wordWrapLenght = 80;
   private final String template;
   private final String templateImprovements;
   private final Set<String> whitelistJiraLables;
@@ -43,7 +45,20 @@ public class TemplateExpander
     return issues.stream()
             .map(issue -> createValues(issue, whitelistedJiraLables, maxKeyLength, maxTypeLength))
             .map(values -> new StrSubstitutor(values).replace(template))
+            .map(change -> wordWrap(change))
             .collect(Collectors.joining("\r\n"));
+  }
+  
+  private static String wordWrap(String changes)
+  {
+    if (changes.length() > wordWrapLenght)
+    {
+      int indentCount = changes.indexOf(changes.trim());
+      String indent = StringUtils.repeat(" ", indentCount);
+      String wrapped =  WordUtils.wrap(changes, wordWrapLenght - indentCount, "\n  " + indent, true);
+      return indent + wrapped;
+    }
+    return changes;
   }
   
   private static Map<String, String> createValues(Issue issue, Set<String> whitelistedJiraLables, int maxKeyLength, int maxTypeLength)

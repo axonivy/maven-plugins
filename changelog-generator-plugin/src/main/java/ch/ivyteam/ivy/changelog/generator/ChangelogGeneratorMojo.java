@@ -1,12 +1,23 @@
 package ch.ivyteam.ivy.changelog.generator;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
+import org.apache.commons.compress.compressors.gzip.GzipParameters;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -45,6 +56,10 @@ public class ChangelogGeneratorMojo extends AbstractMojo
   /** comma separated list of labels which will be parsed as batches for example: security, performance, usability */
   @Parameter(property = "whitelistJiraLabels", defaultValue = "")
   public String whitelistJiraLabels;
+  
+  /** */
+  @Parameter(property = "type", defaultValue = "")
+  public String type;
 
   /** files which tokens must be replaced */
   @Parameter(property="fileset", required = true)
@@ -85,8 +100,78 @@ public class ChangelogGeneratorMojo extends AbstractMojo
         Map<String, String> tokens = generateTokens(issues, expander);
         new TokenReplacer(file, tokens).replaceTokens();
       }
+      if (StringUtils.equals(type, "deb"))
+      {
+        compressMaxGzipFile(file);
+      }
     }
   }
+  
+  private void compressMaxGzipFile(File file)
+  {
+    String gzipFile = getGzipFile(file);
+    GzipParameters parameters = new GzipParameters();
+    parameters.setCompressionLevel(9);
+    try (InputStream in = new FileInputStream(file);
+            OutputStream os = new FileOutputStream(gzipFile);
+            BufferedOutputStream out = new BufferedOutputStream(os);
+            GzipCompressorOutputStream gzOut = new GzipCompressorOutputStream(out, parameters);)
+    {
+      final byte[] buffer = new byte[1024];
+      int n = 0;
+      while (-1 != (n = in.read(buffer))) {
+          gzOut.write(buffer, 0, n);
+      }
+    }
+    catch (IOException ex)
+    {
+      ex.printStackTrace();
+    }
+    file.delete();
+  }
+
+  private String getGzipFile(File file)
+  {
+    String gzipFile = file.getAbsolutePath() + ".gz";
+    try
+    {
+      new File(gzipFile).createNewFile();
+    }
+    catch (IOException ex)
+    {
+      ex.printStackTrace();
+    }
+    return gzipFile;
+  }
+  
+//  private static void compressGzipFile(File file)
+//  {
+//    String gzipFile = file.getAbsolutePath() + ".gz";
+//    try
+//    {
+//      new File(gzipFile).createNewFile();
+//    }
+//    catch (IOException ex)
+//    {
+//      ex.printStackTrace();
+//    }
+//    try (FileInputStream fis = new FileInputStream(file);
+//            FileOutputStream fos = new FileOutputStream(gzipFile);
+//            OutputStream gzipOS = new GZIPOutputStream(fos) {{def.setLevel(Deflater.BEST_COMPRESSION);}};)
+//    {
+//      byte[] buffer = new byte[1024];
+//      int len;
+//      while ((len = fis.read(buffer)) != -1)
+//      {
+//        gzipOS.write(buffer, 0, len);
+//      }
+//    }
+//    catch (IOException e)
+//    {
+//      e.printStackTrace();
+//    }
+//    file.delete();
+//  }
 
   private List<Issue> loadIssuesFromJira(Server server) throws MojoExecutionException
   {
@@ -103,9 +188,33 @@ public class ChangelogGeneratorMojo extends AbstractMojo
 
   private List<File> getAllFiles()
   {
-    return Arrays.stream(new FileSetManager().getIncludedFiles(fileset))
-            .map(f -> new File(fileset.getDirectory() + File.separatorChar + f))
-            .collect(Collectors.toList());
+    String sourceDir = fileset.getDirectory();
+    String outputDir = fileset.getOutputDirectory();
+    List<File> files = new ArrayList<>();
+    if (StringUtils.isNotEmpty(outputDir))
+    {
+      for (String file : new FileSetManager().getIncludedFiles(fileset))
+      {
+        File sourceFile = new File(sourceDir + File.separatorChar + file);
+        File outputFile = new File(outputDir + File.separatorChar + file);
+        try
+        {
+          FileUtils.copyFile(sourceFile, outputFile);
+        }
+        catch (IOException ex)
+        {
+          ex.printStackTrace();
+        }
+        files.add(outputFile);
+      }
+      return files;
+    }
+    else
+    {
+      return Arrays.stream(new FileSetManager().getIncludedFiles(fileset))
+              .map(f -> new File(fileset.getDirectory() + File.separatorChar + f))
+              .collect(Collectors.toList());
+    }
   }
 
   private TemplateExpander createExpanderForFile(File file)
