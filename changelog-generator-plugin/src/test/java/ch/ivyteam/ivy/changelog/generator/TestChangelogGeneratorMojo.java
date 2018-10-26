@@ -1,6 +1,9 @@
 package ch.ivyteam.ivy.changelog.generator;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.io.File;
+import java.io.IOException;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecution;
@@ -8,18 +11,30 @@ import org.apache.maven.plugin.testing.MojoRule;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.settings.Server;
 import org.apache.maven.shared.model.fileset.FileSet;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 public class TestChangelogGeneratorMojo
 {
   @Rule
   public MojoRule rule = new MojoRule();
   
+  @Rule
+  public TemporaryFolder tempFolder = new TemporaryFolder();
+  
+  @Before
+  public void setup() throws IOException
+  {
+    tempFolder.create();
+  }
+  
   @Test
   public void createChangelog() throws Exception
   {
     File basedir = new File("src/test/resources");
+    String outputPath = tempFolder.getRoot().getAbsolutePath() + "/target";
     MavenProject project = rule.readMavenProject(basedir);
     MavenSession session = rule.newMavenSession(project);
     MojoExecution execution = rule.newMojoExecution("generate-changelog");
@@ -38,8 +53,11 @@ public class TestChangelogGeneratorMojo
     mojo.fileset = new FileSet();
     mojo.fileset.setDirectory(basedir.getAbsolutePath());
     mojo.fileset.addInclude("changelog");
-    mojo.fileset.setOutputDirectory(basedir.getAbsoluteFile() + "/target");
-    mojo.type = "deb";
+    mojo.fileset.setOutputDirectory(outputPath);
+    mojo.compression = "gz";
+    mojo.wordWrap = true;
     mojo.execute();
+    
+    assertThat(new File(outputPath + "/changelog.gz")).exists();
   }
 }

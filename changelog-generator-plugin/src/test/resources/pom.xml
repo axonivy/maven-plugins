@@ -37,7 +37,8 @@
 							<jiraProjects>XIVY,IVYPORTAL</jiraProjects>
 							<asciiTemplate xml:space="preserve"> ${kind} ${key}${spacesKey} ${type}${spacesType} ${summary}</asciiTemplate>
 							<whitelistJiraLabels>security,performance</whitelistJiraLabels>
-							<type>deb</type>
+							<compression>gz</compression>
+							<wordWrap>true</wordWrap>
 							<fileset>
 								<directory>${basedir}/</directory>
 								<include>changelog</include>
