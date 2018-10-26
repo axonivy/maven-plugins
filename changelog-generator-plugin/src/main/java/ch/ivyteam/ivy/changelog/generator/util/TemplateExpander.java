@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StrSubstitutor;
+import org.apache.commons.text.WordUtils;
 
 import ch.ivyteam.ivy.changelog.generator.jira.JiraResponse.Issue;
 
@@ -17,6 +18,7 @@ public class TemplateExpander
   private final String template;
   private final String templateImprovements;
   private final Set<String> whitelistJiraLables;
+  private int wordWrap = -1;
   
   public TemplateExpander(String template, String templateImprovements, String whitelistJiraLables)
   {
@@ -25,17 +27,22 @@ public class TemplateExpander
     this.whitelistJiraLables = convertWhitelistedJiraLables(whitelistJiraLables);
   }
   
+  public void setWordWrap(int wordWrap)
+  {
+    this.wordWrap = wordWrap;
+  }
+  
   public String expand(List<Issue> issues)
   {
-    return expand(issues, template, whitelistJiraLables);
+    return expand(issues, template, whitelistJiraLables,wordWrap);
   }
   
   public String expandImprovements(List<Issue> issues)
   {
-    return expand(issues, templateImprovements, whitelistJiraLables);
+    return expand(issues, templateImprovements, whitelistJiraLables, wordWrap);
   }
   
-  private static String expand(List<Issue> issues, String template, Set<String> whitelistedJiraLables)
+  private static String expand(List<Issue> issues, String template, Set<String> whitelistedJiraLables, int wordWrap)
   {
     Integer maxKeyLength = issues.stream().map(i -> i.getKey().length()).reduce(Integer::max).orElse(0);
     Integer maxTypeLength = issues.stream().map(i -> i.getType().length()).reduce(Integer::max).orElse(0);
@@ -43,7 +50,20 @@ public class TemplateExpander
     return issues.stream()
             .map(issue -> createValues(issue, whitelistedJiraLables, maxKeyLength, maxTypeLength))
             .map(values -> new StrSubstitutor(values).replace(template))
+            .map(change -> wordWrap(change, wordWrap))
             .collect(Collectors.joining("\r\n"));
+  }
+  
+  private static String wordWrap(String changes, int wordWrap)
+  {
+    if (wordWrap > 0 && changes.length() > wordWrap)
+    {
+      int indentCount = changes.indexOf(changes.trim());
+      String indent = StringUtils.repeat(" ", indentCount);
+      String wrapped =  WordUtils.wrap(changes, wordWrap - indentCount, "\n  " + indent, true);
+      return indent + wrapped;
+    }
+    return changes;
   }
   
   private static Map<String, String> createValues(Issue issue, Set<String> whitelistedJiraLables, int maxKeyLength, int maxTypeLength)

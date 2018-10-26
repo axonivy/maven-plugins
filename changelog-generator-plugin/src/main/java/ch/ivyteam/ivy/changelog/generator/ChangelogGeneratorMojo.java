@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -20,6 +21,7 @@ import org.apache.maven.shared.model.fileset.util.FileSetManager;
 
 import ch.ivyteam.ivy.changelog.generator.jira.JiraResponse.Issue;
 import ch.ivyteam.ivy.changelog.generator.jira.JiraService;
+import ch.ivyteam.ivy.changelog.generator.util.ChangelogIO;
 import ch.ivyteam.ivy.changelog.generator.util.TemplateExpander;
 import ch.ivyteam.ivy.changelog.generator.util.TokenReplacer;
 
@@ -45,6 +47,14 @@ public class ChangelogGeneratorMojo extends AbstractMojo
   /** comma separated list of labels which will be parsed as batches for example: security, performance, usability */
   @Parameter(property = "whitelistJiraLabels", defaultValue = "")
   public String whitelistJiraLabels;
+  
+  /** compression (supports gz) */
+  @Parameter(property = "compression", defaultValue = "")
+  public String compression;
+  
+  /** word wrap in changelog */
+  @Parameter(property = "wordWrap", defaultValue = "-1")
+  public int wordWrap;
 
   /** files which tokens must be replaced */
   @Parameter(property="fileset", required = true)
@@ -76,14 +86,27 @@ public class ChangelogGeneratorMojo extends AbstractMojo
     }
 
     List<Issue> issues = loadIssuesFromJira(server);
-    for (File file : getAllFiles())
+    for (File sourceFile : getAllFiles())
     {
-      TemplateExpander expander = createExpanderForFile(file);
-      if (expander != null)
+      getLog().info("replace tokens in " + sourceFile.getAbsolutePath());
+      
+      ChangelogIO changelogHandler = new ChangelogIO(sourceFile, getOutputFile(sourceFile));
+      String changelog = changelogHandler.getTemplateContent();
+      
+      TemplateExpander expander = createExpanderForFile(sourceFile);
+      expander.setWordWrap(wordWrap);
+      
+      Map<String, String> tokens = generateTokens(issues, expander);
+      changelog = new TokenReplacer(tokens).replaceTokens(
+              changelogHandler.getTemplateContent());
+      
+      if (StringUtils.equals(compression, "gz"))
       {
-        getLog().info("replace tokens in " + file.getAbsolutePath());
-        Map<String, String> tokens = generateTokens(issues, expander);
-        new TokenReplacer(file, tokens).replaceTokens();
+        changelogHandler.compressMaxGzipFile(changelog);
+      }
+      else
+      {
+        changelogHandler.writeResult(changelog);
       }
     }
   }
@@ -106,6 +129,16 @@ public class ChangelogGeneratorMojo extends AbstractMojo
     return Arrays.stream(new FileSetManager().getIncludedFiles(fileset))
             .map(f -> new File(fileset.getDirectory() + File.separatorChar + f))
             .collect(Collectors.toList());
+  }
+  
+  private File getOutputFile(File sourceFile)
+  {
+    String outputDir = fileset.getOutputDirectory();
+    if (StringUtils.isNotEmpty(outputDir))
+    {
+      return new File(outputDir + File.separatorChar + sourceFile.getName());
+    }
+    return sourceFile;
   }
 
   private TemplateExpander createExpanderForFile(File file)
