@@ -60,12 +60,12 @@ public class JiraResponse
     
     public boolean isUpgradeCritical()
     {
-      return hasLabel("upgradeCritial");
+      return hasLabel("UpgradeCritial");
     }
     
     public boolean isUpgradeRecommended()
     {
-      return hasLabel("upgradeRecommended");
+      return hasLabel("UpgradeRecommended");
     }
     
     public List<String> getLabels()
