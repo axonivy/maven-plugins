@@ -46,8 +46,8 @@ public class TestJiraService
   {
     Issue issue = issues.stream().filter(i -> i.key.equals("XIVY-2266")).findFirst().orElse(null);
     assertThat(issue.getSummary()).isEqualTo("Remove AspectJ");
-    assertThat(issue.isSecurityIssue()).isFalse();
-    assertThat(issue.isStabilityIssue()).isFalse();
+    assertThat(issue.isUpgradeCritical()).isFalse();
+    assertThat(issue.isUpgradeRecommended()).isFalse();
     assertThat(issue.getType()).isEqualTo("Story");
   }
 

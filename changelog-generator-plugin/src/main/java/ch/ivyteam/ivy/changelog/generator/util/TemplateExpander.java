@@ -103,11 +103,11 @@ public class TemplateExpander
   
   private static String createFirstSign(Issue issue)
   {
-    if (issue.isSecurityIssue())
+    if (issue.isUpgradeCritical())
     {
       return "!";
     }
-    else if (issue.isStabilityIssue())
+    else if (issue.isUpgradeRecommended())
     {
       return "*";
     }

@@ -58,14 +58,14 @@ public class JiraResponse
       return hasLabel(LABEL_IMPROVEMENT);
     }
     
-    public boolean isSecurityIssue()
+    public boolean isUpgradeCritical()
     {
-      return hasLabel("security");
+      return hasLabel("upgradeCritial");
     }
     
-    public boolean isStabilityIssue()
+    public boolean isUpgradeRecommended()
     {
-      return hasLabel("stability");
+      return hasLabel("upgradeRecommended");
     }
     
     public List<String> getLabels()
