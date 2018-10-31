@@ -7,8 +7,8 @@
 	<packaging>pom</packaging>
 
 	<organization>
-		<name>AXON.IVY AG</name>
-		<url>http://www.ivyTeam.ch</url>
+		<name>AXON Ivy AG</name>
+		<url>https://developer.axonivy.com/</url>
 	</organization>
 
 	<properties>
