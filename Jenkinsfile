@@ -1,7 +1,7 @@
 pipeline {
   agent {
     docker {
-      image 'maven:3.5.4-jdk-8'
+      image 'maven:3.5.4-jdk-8-alpine'
     }
   }
   triggers {
@@ -12,7 +12,7 @@ pipeline {
     stage('build and deploy') {
       steps {
         script {
-          maven cmd: 'clean deploy -Dmaven.test.failure.ignore=true'
+          maven cmd: 'deploy -Dmaven.test.failure.ignore=true'
         }
       }
       post {
