@@ -67,7 +67,8 @@ Replace version 5.1.0 with version 5.1.14.qualifier in plugin node ch.ivyteam.ut
 Replace version 5.1.0 with version 5.1.14.qualifier in plugin node ch.ivyteam.test of feature file C:\dev\maven-plugin\maven-plugin\testIvy\development\features\ch.ivyteam.ivy.test.feature\feature.xml
 Replace version 5.1.0 with version 5.1.14.qualifier in plugin node ch.ivyteam.ivy.base.services.facade.tests of feature file C:\dev\maven-plugin\maven-plugin\testIvy\development\features\ch.ivyteam.ivy.test.feature\feature.xml
 Replace version 5.1.0-SNAPSHOT with version 5.1.14-SNAPSHOT in node /project/parent/version of pom file C:\dev\maven-plugin\maven-plugin\testIvy\development\updatesites\ch.ivyteam.ivy.test.p2\pom.xml
-Replace version 5.1.0.qualifier with version 5.1.14.qualifier in feature node ch.ivyteam.ivy.test.feature of file feature C:\dev\maven-plugin\maven-plugin\testIvy\development\updatesites\ch.ivyteam.ivy.test.p2\category.xml
+Replace version 5.1.0.qualifier with version 5.1.14.qualifier in feature node ch.ivyteam.ivy.test.feature of category file C:\dev\maven-plugin\maven-plugin\testIvy\development\updatesites\ch.ivyteam.ivy.test.p2\category.xml
+Replace version 5.1.0.qualifier with version 5.1.14.qualifier in bundle node ch.ivyteam.ivy.test of category file C:\dev\maven\ivy-maven-plugins\maven-version-plugin\testIvy\development\updatesites\ch.ivyteam.ivy.test.p2\category.xml
 Replace version 5.1.0-SNAPSHOT with version 5.1.14-SNAPSHOT in node /project/version of pom file C:\dev\maven-plugin\maven-plugin\testIvy\pom.xml
 Pom file C:\dev\maven-plugin\maven-plugin\testIvy\development\ch.ivyteam.ivy.build.maven\config\pom.xml is up to date. Nothing to do.
 Replace version 5.1.0-SNAPSHOT with version 5.1.14-SNAPSHOT in node /project/version of pom file C:\dev\maven-plugin\maven-plugin\testIvy\development\ch.ivyteam.ivy.build.maven\pom.xml

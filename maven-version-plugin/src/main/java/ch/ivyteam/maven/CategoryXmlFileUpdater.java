@@ -23,7 +23,9 @@ class CategoryXmlFileUpdater extends AbstractProjectAwareXmlFileUpdater
   protected boolean updateContent() throws Exception
   {
     boolean changed = false;
-    return updateFeaturesVersion(changed);
+    changed = updateFeaturesVersion(changed);
+    changed = updateBundlesVersion(changed);
+    return changed;
   }
 
   private boolean updateFeaturesVersion(boolean changed) throws XPathExpressionException
@@ -44,7 +46,24 @@ class CategoryXmlFileUpdater extends AbstractProjectAwareXmlFileUpdater
         urlText = StringUtils.replace(urlText, "_"+previousVersion, "_"+featureVersion);
         replaceAttributeText(featureNode, urlNode, urlText);
         
-        update.log.info("Replace version "+previousVersion+" with version "+featureVersion+" in feature node "+getAttributeText(featureNode, "id")+" of file feature "+xmlFile.getAbsolutePath());
+        update.log.info("Replace version "+previousVersion+" with version "+featureVersion+" in feature node "+getAttributeText(featureNode, "id")+" of category file "+xmlFile.getAbsolutePath());
+        changed = true;       
+      }
+    }
+    return changed;
+  }
+  
+  private boolean updateBundlesVersion(boolean changed) throws XPathExpressionException
+  {
+    String xPath = "/site/bundle";
+    List<Node> bundleNodes = findNodes(xPath);
+    for (Node bundleNode : bundleNodes)
+    {
+      Node versionNode = getVersionAttributeNode(bundleNode);
+      if (versionNeedsUpdate(bundleNode, versionNode, featureVersion))
+      {
+        replaceAttributeText(bundleNode, versionNode, featureVersion);
+        update.log.info("Replace version "+versionNode.getTextContent()+" with version "+featureVersion+" in bundle node "+getAttributeText(bundleNode, "id")+" of category file "+xmlFile.getAbsolutePath());
         changed = true;       
       }
     }
