@@ -8,6 +8,7 @@ import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
 
 import ch.ivyteam.db.meta.model.internal.MetaException;
+import ch.ivyteam.db.meta.model.internal.SqlArtifact;
 import ch.ivyteam.db.meta.model.internal.SqlDataType;
 import ch.ivyteam.db.meta.model.internal.SqlDataType.DataType;
 import ch.ivyteam.db.meta.model.internal.SqlDmlStatement;
@@ -28,6 +29,7 @@ import ch.ivyteam.db.meta.model.internal.SqlUpdateColumnExpression;
 public class PostgreSqlSqlScriptGenerator extends SqlScriptGenerator
 {
   public static final String POSTGRESQL = String.valueOf("PostgreSql");
+  public static final String CAST = "CAST";
   
   @Override
   protected void generateDataType(PrintWriter pr, DataType dataType)
@@ -338,5 +340,15 @@ public class PostgreSqlSqlScriptGenerator extends SqlScriptGenerator
     pr.append(table.getId());
     generateDelimiter(pr);
     pr.println(); 
+  }
+  
+  @Override
+  protected void generateNULL(PrintWriter pr, SqlArtifact artifact)
+  {
+    super.generateNULL(pr, artifact);
+    if (isDatabaseSystemHintSet(artifact, CAST))
+    {
+      generateDatabaseManagementHintValue(pr, artifact, CAST);
+    }
   }
 }

@@ -1,6 +1,7 @@
 package ch.ivyteam.db.meta.model.internal;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +16,7 @@ public class SqlArtifact
   private String fComment;
   /** The database system hints */
   private Map<String, SqlDatabaseSystemHints> fDatabaseSystemHints = new HashMap<String, SqlDatabaseSystemHints>();
+  public static final SqlArtifact UNDEFINED = new SqlArtifact(Collections.emptyList(), "");
   
   /**
    * Constructor

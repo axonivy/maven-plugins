@@ -466,16 +466,22 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
    */
   protected void generateViewExpression(PrintWriter pr, SqlSelectExpression expression) throws MetaException
   {
-    generateSqlAtom(pr, expression.getExpression());
+    generateSqlAtom(pr, expression.getExpression(), expression);
   }
 
+  protected void generateSqlAtom(PrintWriter pr, SqlAtom expression) throws MetaException
+  {
+    generateSqlAtom(pr, expression, SqlArtifact.UNDEFINED);
+  }
+  
   /**
    * Generates a sql atom
    * @param pr
    * @param expression
+   * @param artifact
    * @throws MetaException 
    */
-  protected void generateSqlAtom(PrintWriter pr, SqlAtom expression) throws MetaException
+  protected void generateSqlAtom(PrintWriter pr, SqlAtom expression, SqlArtifact artifact) throws MetaException
   {
     if (expression instanceof SqlFullQualifiedColumnName)
     {
@@ -491,7 +497,7 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
     }
     else if (expression instanceof SqlLiteral)
     {
-      generateValue(pr, ((SqlLiteral)expression).getValue());
+      generateValue(pr, ((SqlLiteral)expression).getValue(), artifact);
     }
     else if (expression instanceof SqlFunction)
     {
@@ -2040,16 +2046,22 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
     }
   }
 
+  protected void generateValue(PrintWriter pr, Object value)
+  {
+    generateValue(pr, value, SqlArtifact.UNDEFINED);
+  }
+  
   /**
    * Generates a value
    * @param pr the writer
    * @param value the value to generate
+   * @param artifact 
    */
-  protected void generateValue(PrintWriter pr, Object value)
+  protected void generateValue(PrintWriter pr, Object value, SqlArtifact artifact)
   {
     if (value == SqlNull.getInstance())
     {
-      pr.append("NULL");
+      generateNULL(pr, artifact);
     }
     else if (value instanceof String)
     {
@@ -2061,6 +2073,16 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
     {
       pr.append(value.toString());
     }
+  }
+
+  /**
+   * Generate NULL value 
+   * @param pr
+   * @param artifact
+   */
+  protected void generateNULL(PrintWriter pr, @SuppressWarnings("unused") SqlArtifact artifact)
+  {
+    pr.append("NULL");
   }
 
   /**

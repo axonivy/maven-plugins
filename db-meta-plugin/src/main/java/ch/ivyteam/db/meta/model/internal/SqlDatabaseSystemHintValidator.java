@@ -91,6 +91,7 @@ public class SqlDatabaseSystemHintValidator
     registerHint(OracleSqlScriptGenerator.ORACLE, OracleSqlScriptGenerator.CONVERT_EMPTY_STRING_TO_NULL);
 
     registerType(PostgreSqlSqlScriptGenerator.POSTGRESQL);
+    registerHint(PostgreSqlSqlScriptGenerator.POSTGRESQL, PostgreSqlSqlScriptGenerator.CAST);
   }
   
   private static void registerHint(String type, String hint)
