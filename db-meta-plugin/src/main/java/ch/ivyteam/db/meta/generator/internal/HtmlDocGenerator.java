@@ -991,7 +991,12 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
       }
       writeEndTag(pr);
       writeNewColumn(pr);
-      writeComment(pr, metaDefinition.findTable(table.getTable().getName()).getComment());
+      SqlTable joinTable = metaDefinition.findTable(table.getTable().getName());
+      if (joinTable == null)
+      {
+        throw new MetaException("Could not find table "+table.getTable().getName());
+      }
+      writeComment(pr, joinTable.getComment());
       writeEndTags(pr, 2);
     }
     writeEndTag(pr);    
