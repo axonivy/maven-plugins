@@ -47,7 +47,7 @@ public abstract class JavaClassGenerator implements IMetaOutputGenerator
 
   /** Class name databse system hint. Specifies the class name of the java entitiy class generated for the table */
   public static final String CLASS_NAME = "ClassName";
-  
+
   /** Secondary keys database system hints. Use this to specify list of columns that build the secondary keys */
   public static final String SECONDARY_KEYS = "SecondaryKeys";
 
@@ -66,7 +66,7 @@ public abstract class JavaClassGenerator implements IMetaOutputGenerator
   /** DataType database system hint. Marks that the given java data type should be used instead the default one */
   public static final String DATA_TYPE = "DataType";
 
-  /** 
+  /**
    * Database system hint. Indicates, that the database field is of type 'int' and in java an enumeration is used with the given name.
    * The defined enumeration must implement the interface IPersistentEnumeration */
   public static final String ENUM = "Enum";
@@ -82,31 +82,34 @@ public abstract class JavaClassGenerator implements IMetaOutputGenerator
 
   /** Query table name system hint. Specifies the table name that should be used for reading entity data */
   public static final String QUERY_TABLE_NAME = "QueryTableName";
-  
-  /** query field name system hint. 
-   * Specifies the name of a column in a generated query class. 
-   * If not set the name of the column is used as field name  
-   */ 
+
+  /** query field name system hint.
+   * Specifies the name of a column in a generated query class.
+   * If not set the name of the column is used as field name
+   */
   public static final String QUERY_FIELD_NAME = "QueryFieldName";
-  
+
   /**
    * Specifies that this field should not appear as queryable field on the generated Query (e.g. CaseQuery)
    */
   public static final String HIDE_FIELD_ON_QUERY = "HideFieldOnQuery";
-  
-  /**  
-   * <p>Specifies the filter query data type of a column in a generated query class. 
+
+  /**
+   * <p>Specifies the filter query data type of a column in a generated query class.
    * If not set the data type of the column is used to evaluate the as field name.</p>
-   * <p>Most often used to keep the old filter query data type when a data type of a column changes 
-   * so that the query interface is still compatible with older versions.</p>  
-   */ 
+   * <p>Most often used to keep the old filter query data type when a data type of a column changes
+   * so that the query interface is still compatible with older versions.</p>
+   */
   public static final String FILTER_QUERY_DATA_TYPE = "FilterQueryDataType";
-  
+
   /** Field used for optimistic locking (e.g. Versioning of a row) **/
   public static final String FIELD_FOR_OPTIMISTIC_LOCKING = "FieldForOptimisticLocking";
-  
+
   /** Field is deprecated and should no longer be used. Instead use the field given as value */
   public static final String DEPRECATED = "Deprecated";
+
+  /** Table has custom field, defined in separate associated table(s). */
+  public static final String CUSTOM_FIELDS = "CustomFields";
 
   /**
    * @see ch.ivyteam.db.meta.generator.internal.IMetaOutputGenerator#analyseArgs(java.lang.String[])
@@ -128,13 +131,13 @@ public abstract class JavaClassGenerator implements IMetaOutputGenerator
     }
     analyseAdditionalArgs(commandLine);
   }
-  
+
   @Override
   public Target getTarget()
   {
     return Target.createTargetFiles(getTargetDirectory(), fTablesToGenerateJavaClassFor.size());
   }
-  
+
   protected File getTargetDirectory()
   {
     return new File(getOutputDirectory(), getTargetPackage().replace('.', File.separatorChar));
@@ -167,7 +170,7 @@ public abstract class JavaClassGenerator implements IMetaOutputGenerator
   {
     new HelpFormatter().printHelp(getClass().getSimpleName(), options);
   }
-  
+
   /**
    * Gets the tables to generate java classes for
    * @return list with table names
@@ -289,12 +292,12 @@ public abstract class JavaClassGenerator implements IMetaOutputGenerator
    * @param table the table
    * @param metaDefinition the meta definition
    * @return list of association tables
-   * @throws MetaException 
+   * @throws MetaException
    */
   protected List<SqlTable> getAssociationTables(SqlTable table, SqlMeta metaDefinition) throws MetaException
   {
     List<SqlTable> associationTables = new ArrayList<SqlTable>();
-    
+
     for (SqlTable associationTable : metaDefinition.getArtifacts(SqlTable.class))
     {
       if (associationTable.getDatabaseManagementSystemHints(JavaClassGenerator.JAVA).isHintSet(AS_ASSOCIATION))
@@ -314,7 +317,7 @@ public abstract class JavaClassGenerator implements IMetaOutputGenerator
         if (associationTable.getColumns().get(0).getReference().getForeignTable().equals(table.getId())||
             associationTable.getColumns().get(1).getReference().getForeignTable().equals(table.getId()))
         {
-          associationTables.add(associationTable);          
+          associationTables.add(associationTable);
         }
       }
     }

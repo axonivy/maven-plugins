@@ -17,7 +17,7 @@ public class TableInfo
 {
   /** System DB Hint, used in the SystemDatabase.meta */
   public static final String BUSINESS_CLASS = "BusinessClass";
-  
+
   private final SqlTable table;
 
   private boolean hasNumberColumns;
@@ -29,7 +29,7 @@ public class TableInfo
   private boolean hasBooleanColumns;
 
   private boolean hasStringColumns;
-  
+
   private boolean hasClobColumns;
 
   /**
@@ -73,7 +73,7 @@ public class TableInfo
   {
     return table;
   }
-  
+
   /**
    * @return -
    */
@@ -81,7 +81,7 @@ public class TableInfo
   {
     return table.getId();
   }
-  
+
   /**
    * @return -
    */
@@ -105,7 +105,7 @@ public class TableInfo
   {
     return hasBooleanColumns;
   }
-      
+
   /**
    * @return -
    */
@@ -113,7 +113,7 @@ public class TableInfo
   {
     return hasIntegerColumns;
   }
-  
+
   /**
    * @return -
    */
@@ -121,13 +121,18 @@ public class TableInfo
   {
     return hasNumberColumns;
   }
-  
+
   /**
    * @return -
    */
   public boolean getHasDateColumns()
   {
     return hasDateColumns;
+  }
+
+  public boolean getHasCustomFields()
+  {
+    return table.getDatabaseManagementSystemHints(JavaClassGenerator.JAVA).isHintSet(JavaClassGenerator.CUSTOM_FIELDS);
   }
 
   /**
