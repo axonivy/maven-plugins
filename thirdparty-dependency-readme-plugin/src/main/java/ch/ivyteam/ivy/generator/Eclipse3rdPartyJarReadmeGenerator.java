@@ -94,10 +94,10 @@ public class Eclipse3rdPartyJarReadmeGenerator
     log.debug("enhanced informations in "+watch.getTime()+" ms");
   }
 
-  List<LibraryEntry> getDependencies(File plugins) throws IOException, ZipException
+  List<LibraryEntry> getDependencies(File pluginsDir) throws IOException, ZipException
   {
     List<LibraryEntry> dependencies = new ArrayList<>();
-    for (File plugin : plugins.listFiles((FileFilter)new OrFileFilter(DirectoryFileFilter.INSTANCE, new SuffixFileFilter(".jar", IOCase.INSENSITIVE))))
+    for (File plugin : pluginsDir.listFiles((FileFilter) new OrFileFilter(DirectoryFileFilter.INSTANCE, new SuffixFileFilter(".jar", IOCase.INSENSITIVE))))
     {
       log.debug("plugin "+plugin.getName());
       if (plugin.isDirectory())

@@ -48,7 +48,7 @@ public class EngineReadmeGeneratorMojo extends AbstractReadmeGeneratorMojo
 
   private String generatePlugins() throws MojoExecutionException
   {
-    File pluginsDir = new File(engineDir, "system" + File.separator + "plugins");
+    File pluginsDir = new File(engineDir, "plugins");
     try
     {
       return new Eclipse3rdPartyJarReadmeGenerator(getLog()).generate(pluginsDir);
