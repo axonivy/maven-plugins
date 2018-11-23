@@ -43,7 +43,7 @@ public class TestGeneratorMojo
     File tstResources =  new File("src/test/resources");
     EngineReadmeGeneratorMojo mojo = (EngineReadmeGeneratorMojo) rule.lookupConfiguredMojo(tstResources, EngineReadmeGeneratorMojo.GOAL);
     mojo.engineDir = new File(tstResources, "myEngine");
-    mojo.templateFile = generateReadme("thirdPartyLibs", "riaClientLibs", "htmlDialogLibs");
+    mojo.templateFile = generateReadme("thirdPartyLibs", "htmlDialogLibs");
     mojo.outputFile = new File(Files.createTempDirectory("output").toFile(), "ReadMe.html");
     mojo.execute();
     
@@ -51,11 +51,11 @@ public class TestGeneratorMojo
     assertThat(readmeHtml)
       .as("Tokens must be replaced by html tables with content")
       .doesNotContain("@thirdPartyLibs@")
-      .doesNotContain("@riaClientLibs@")
       .doesNotContain("@htmlDialogLibs@");
     
     assertThat(readmeHtml)
-      .contains("axis2");
+      .contains("axis2")
+      .contains("freemarker");
   }
   
   private File generateReadme(String... tokens) throws IOException

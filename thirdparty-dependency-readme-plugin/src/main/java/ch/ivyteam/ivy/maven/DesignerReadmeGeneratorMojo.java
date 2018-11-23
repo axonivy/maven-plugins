@@ -29,12 +29,15 @@ public class DesignerReadmeGeneratorMojo extends AbstractReadmeGeneratorMojo
     Map<String, String> htmlTokens = new HashMap<>();
     try
     {
-      htmlTokens.put("eclipsePlugins", new Eclipse3rdPartyJarReadmeGenerator(getLog()).generate(designerDir));
-      htmlTokens.put("eclipseFeatures", new Eclipse3rdPartyFeatureReadmeGenerator(getLog()).generate(designerDir));
+      File pluginsDir = new File(designerDir, "plugins");
+      htmlTokens.put("eclipsePlugins", new Eclipse3rdPartyJarReadmeGenerator(getLog()).generate(pluginsDir));
+
+      File featuresDir = new File(designerDir, "features");
+      htmlTokens.put("eclipseFeatures", new Eclipse3rdPartyFeatureReadmeGenerator(getLog()).generate(featuresDir));
     }
     catch (Exception ex)
     {
-      throw new MojoExecutionException("Failed to generate readme for designer "+designerDir);
+      throw new MojoExecutionException("Failed to generate readme for designer "+designerDir, ex);
     }
     
     writeReadme(htmlTokens);

@@ -27,9 +27,7 @@ public class EngineReadmeGeneratorMojo extends AbstractReadmeGeneratorMojo
     getLog().info("generating readme html artifacts for engine @ "+engineDir.getAbsolutePath());
     Map<String, String> htmlTokens = new HashMap<>();
     htmlTokens.put("thirdPartyLibs", generatePlugins());
-    htmlTokens.put("riaClientLibs", generate("clientlib/signed"));
     htmlTokens.put("htmlDialogLibs", generate("webapps/ivy/WEB-INF/lib"));
-    
     writeReadme(htmlTokens);
   }
 
@@ -50,14 +48,15 @@ public class EngineReadmeGeneratorMojo extends AbstractReadmeGeneratorMojo
 
   private String generatePlugins() throws MojoExecutionException
   {
+    File pluginsDir = new File(engineDir, "system" + File.separator + "plugins");
     try
     {
-      return new Eclipse3rdPartyJarReadmeGenerator(getLog()).generate(engineDir);
+      return new Eclipse3rdPartyJarReadmeGenerator(getLog()).generate(pluginsDir);
     }
     catch (Exception ex)
     {
       throw new MojoExecutionException(
-              "Failed to generate libraries '"+engineDir.getAbsolutePath()+
+              "Failed to generate libraries '"+pluginsDir.getAbsolutePath()+
               "' as html", ex);
     }
   }

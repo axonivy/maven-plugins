@@ -42,13 +42,13 @@ public class Eclipse3rdPartyFeatureReadmeGenerator
   /**
    * Analyses the eclipse features installed at the current directory location.
    * Set the current directory location to the installation directory of an ivy Designer. 
-   * @param designerDir 
+   * @param featuresDir 
    * @return html
    * @throws IOException 
    * @throws SAXException 
    * @throws ParserConfigurationException 
    */
-  public String generate(File designerDir) throws ParserConfigurationException, SAXException, IOException
+  public String generate(File featuresDir) throws ParserConfigurationException, SAXException, IOException
   {
     log.debug("Generating dependency table for designer/features");
     
@@ -65,7 +65,7 @@ public class Eclipse3rdPartyFeatureReadmeGenerator
     printHtml("  </thead>");
     printHtml("  <tbody>");
     
-    printFeatures(designerDir);
+    printFeatures(featuresDir);
     
     printHtml("  </tbody>");
     printHtml("</table>");
@@ -81,9 +81,8 @@ public class Eclipse3rdPartyFeatureReadmeGenerator
     }
   }
 
-  private void printFeatures(File designerDir) throws ParserConfigurationException, SAXException, IOException
+  private void printFeatures(File featuresDir) throws ParserConfigurationException, SAXException, IOException
   {
-    File featuresDir = new File(designerDir, "features");
     if (featuresDir.exists() && featuresDir.isDirectory())
     {
       for (File featureDir : featuresDir.listFiles((FileFilter)DirectoryFileFilter.INSTANCE))
