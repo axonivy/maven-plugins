@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
@@ -27,6 +28,9 @@ public class MergeFilesMojo extends AbstractMojo
 
   @Parameter(property = "ascending", defaultValue = "false")
   boolean ascending;
+  
+  @Parameter(property = "separator")
+  String separator;
 
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
@@ -40,11 +44,17 @@ public class MergeFilesMojo extends AbstractMojo
   {
     try (FileOutputStream fos = new FileOutputStream(outputFile, true))
     {
-      for (File file : files)
+      Iterator<File> filesIterator = files.iterator();
+      while (filesIterator.hasNext())
       {
+        File file = filesIterator.next();
         try (FileInputStream input = new FileInputStream(file))
         {
           IOUtils.copy(input, fos);
+          if (filesIterator.hasNext() && separator != null)
+          {
+            fos.write(separator.getBytes());
+          }
         }
       }
     }
