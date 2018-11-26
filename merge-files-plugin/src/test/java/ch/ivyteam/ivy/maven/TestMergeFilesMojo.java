@@ -29,7 +29,31 @@ public class TestMergeFilesMojo
 
     List<String> lines = Files.readAllLines(mojo.outputFile.toPath());
     assertThat(lines).containsExactly(
-            "This is file nr 3","---","This is file nr 2","---", "This is file nr 1"
+            "This is file nr 3",
+            "---",
+            "This is file nr 2",
+            "---",
+            "This is file nr 1"
+    );
+  }
+  
+  @Test
+  public void mergeMarkdowns() throws Exception
+  {
+    MergeFilesMojo mojo = new MergeFilesMojo();
+    mojo.inputFiles = new FileSet();
+    mojo.inputFiles.setDirectory("src/test/resources");
+    mojo.outputFile = folder.newFile();
+    mojo.inputFiles.addInclude("NewAndNoteworthy*.md");
+    mojo.ascending = false;
+    mojo.separator = "\n---\n";
+    mojo.execute();
+
+    List<String> lines = Files.readAllLines(mojo.outputFile.toPath());
+    assertThat(lines).containsExactly(
+            "# New and Noteworthy 7.2",
+            "---",
+            "# New and Noteworthy 7.1"
     );
   }
 }
