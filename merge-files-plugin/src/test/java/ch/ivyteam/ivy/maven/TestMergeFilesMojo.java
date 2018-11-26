@@ -24,14 +24,12 @@ public class TestMergeFilesMojo
     mojo.outputFile = folder.newFile();
     mojo.inputFiles.addInclude("file*.txt");
     mojo.ascending = false;
-    mojo.separator = "---";
+    mojo.separator = "\n---\n";
     mojo.execute();
 
     List<String> lines = Files.readAllLines(mojo.outputFile.toPath());
     assertThat(lines).containsExactly(
-            "This is file nr 3---This is file nr 2---This is file nr 1"
+            "This is file nr 3","---","This is file nr 2","---", "This is file nr 1"
     );
-    
-    Files.delete(mojo.outputFile.toPath());
   }
 }
