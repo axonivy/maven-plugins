@@ -61,6 +61,14 @@ public class TableInfo
   /**
    * @return -
    */
+  public String getJavaClassName()
+  {
+    return JavaClassGeneratorUtil.getJavaClassName(table);
+  }
+
+  /**
+   * @return -
+   */
   public String getBusinessClassName()
   {
     return table.getDatabaseManagementSystemHints(JavaClassGenerator.JAVA).getHintValue(BUSINESS_CLASS);
