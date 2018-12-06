@@ -48,22 +48,22 @@ class LibraryEntry
     rowHtml.append("    <tr>\n");
     if (pluginName != null)
     {
-      rowHtml.append("      <td>");
-      rowHtml.append(XmlUtil.escapeHtmlAndConvertNewline(pluginName));
-      rowHtml.append("</td>\n");
+    //  rowHtml.append("      <td>");
+    //  rowHtml.append(XmlUtil.escapeHtmlAndConvertNewline(pluginName));
+    //  rowHtml.append("</td>\n");
     }
     rowHtml.append("      <td>");
-    rowHtml.append(XmlUtil.escapeHtmlAndConvertNewline(jarName));
+    rowHtml.append(XmlUtil.escapeHtmlAndConvertNewline(jarName) +  (pluginName == null ? "" : "<br /><i>" + pluginName + "</i>"));
     rowHtml.append("</td>\n");
     rowHtml.append("      <td>");
+    
     rowHtml.append(clean(info.getName()));
+    rowHtml.append("<br /><i>by " + clean(info.getVendor()) + "</i>");
+    
     rowHtml.append("</td>\n");
     rowHtml.append("      <td>");
     rowHtml.append(clean(info.getVersion()));
     rowHtml.append("</td>\n");    
-    rowHtml.append("      <td>");
-    rowHtml.append(clean(info.getVendor()));
-    rowHtml.append("</td>\n");
     rowHtml.append("    </tr>");
     
     return rowHtml.toString();

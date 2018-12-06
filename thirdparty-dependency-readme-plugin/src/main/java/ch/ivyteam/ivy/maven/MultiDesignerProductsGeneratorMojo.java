@@ -53,8 +53,12 @@ public class MultiDesignerProductsGeneratorMojo extends AbstractMojo
 
   private static void generateReadme(File readMe) throws MojoExecutionException, MojoFailureException
   {
-    DesignerReadmeGeneratorMojo generator = new DesignerReadmeGeneratorMojo();
-    generator.designerDir = readMe.getParentFile();
+    OSGiReadmeGeneratorMojo generator = new OSGiReadmeGeneratorMojo();
+    File rootDesignerDir = readMe.getParentFile().getParentFile().getParentFile();
+    generator.featuresDir = new File(rootDesignerDir, "features");
+    generator.pluginsDir = new File(rootDesignerDir, "plugins");
+    generator.webappLibsDir = new File(rootDesignerDir, "webapps/ivy/WEB-INF/lib");
+    
     generator.templateFile = readMe;
     generator.outputFile = readMe;
     generator.execute();
