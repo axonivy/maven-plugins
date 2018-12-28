@@ -11,11 +11,22 @@ import java.util.stream.Collectors;
 public class BundleInfoScanner
 {
   private Map<String, BundleInfo> bundles = new HashMap<>();
-  private File workspaceDirectory;
+  private final File workspaceDirectory;
   
   private BundleInfoScanner(File workspaceDirectory)
   {
-    this.workspaceDirectory = workspaceDirectory;
+    if (workspaceDirectory.exists())
+    {
+      this.workspaceDirectory = workspaceDirectory;
+    }
+    else
+    {
+      this.workspaceDirectory = new File("techdoc/" + workspaceDirectory.getPath());
+    }
+    if (!this.workspaceDirectory.exists())
+    {
+      throw new RuntimeException("workspaceDirectory does not exist " + this.workspaceDirectory.getAbsolutePath());
+    }
   }
 
   public static BundleInfoScanner scanDirectory(File directory)
