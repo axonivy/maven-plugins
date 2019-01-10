@@ -10,6 +10,7 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.apache.commons.lang3.StringUtils;
 
 import ch.ivyteam.db.meta.generator.Target;
 import ch.ivyteam.db.meta.model.internal.MetaException;
@@ -262,7 +263,8 @@ public abstract class JavaClassGenerator implements IMetaOutputGenerator
    */
   protected void writeJavaDocComment(PrintWriter pr, int indent, String comment)
   {
-    for (String line : comment.split("\n"))
+    String commentStripped = removeAtRef(comment);
+    for (String line : commentStripped.split("\n"))
     {
       writeIndent(pr, indent);
       pr.print(" * ");
@@ -271,7 +273,10 @@ public abstract class JavaClassGenerator implements IMetaOutputGenerator
     }
   }
 
-
+  public static String removeAtRef(String comment)
+  {
+    return StringUtils.defaultString(comment).replace("@ref ", "");
+  }
 
   /**
    * Writes an ident
