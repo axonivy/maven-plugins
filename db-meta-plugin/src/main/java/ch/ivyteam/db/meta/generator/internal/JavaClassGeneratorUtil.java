@@ -508,6 +508,6 @@ public final class JavaClassGeneratorUtil
       builder.append(line);
       builder.append("<br>");
     }
-    return builder.toString();
+    return JavaClassGenerator.removeAtRef((builder.toString()));
   }
 }
