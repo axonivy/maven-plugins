@@ -286,6 +286,18 @@ public class MySqlSqlScriptGenerator extends SqlScriptGenerator
   }
   
   @Override
+  public void generateDropIndex(PrintWriter pr, SqlTable table, SqlIndex index)
+  {
+    pr.print("DROP INDEX ");
+    generateIdentifier(pr, getIndexName(index));
+    pr.println(); 
+    pr.print("ON ");
+    generateIdentifier(pr, table.getId());
+    generateDelimiter(pr);
+    pr.println(); 
+  }
+  
+  @Override
   protected boolean generateIndexInTable(PrintWriter pr, SqlTable table, SqlIndex index)
   {
     Map<SqlTableColumn, MemoryInfo> columns = reduceIndexColumnSizes(table, index);
