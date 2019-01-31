@@ -909,7 +909,7 @@ public class MetaOutputDifferenceGenerator
       {
         return false;
       }
-      return !generator.isForeignKeySupported(foreignKey);
+      return generator.isForeignKeySupported(foreignKey);
     }
   }
   
