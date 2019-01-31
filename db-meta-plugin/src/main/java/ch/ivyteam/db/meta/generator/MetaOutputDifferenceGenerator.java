@@ -379,7 +379,7 @@ public class MetaOutputDifferenceGenerator
         return;
       }
       pr.println();
-      generator.generateCommentLine(pr, "Drop removed indexes");
+      generator.generateCommentLine(pr, "Drop removed indexes of table " + newTable.getId());
       for (SqlIndex sqlIndex : changedIndexes)
       {
         generator.generateDropIndex(pr, oldTable, sqlIndex);
