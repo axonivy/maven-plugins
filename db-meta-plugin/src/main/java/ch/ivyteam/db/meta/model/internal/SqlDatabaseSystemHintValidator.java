@@ -87,6 +87,7 @@ public class SqlDatabaseSystemHintValidator
     registerType(MsSqlServerSqlScriptGenerator.MS_SQL_SERVER);
 
     registerType(MySqlSqlScriptGenerator.MYSQL);
+    registerHint(MySqlSqlScriptGenerator.MYSQL, MySqlSqlScriptGenerator.INDEX_COLUMN_LENGTH);
 
     registerType(OracleSqlScriptGenerator.ORACLE);
     registerHint(OracleSqlScriptGenerator.ORACLE, OracleSqlScriptGenerator.CONVERT_EMPTY_STRING_TO_NULL);
