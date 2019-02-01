@@ -2,6 +2,8 @@ package ch.ivyteam.db.meta.generator.internal;
 
 import java.io.PrintWriter;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -9,7 +11,6 @@ import java.util.Map;
 import java.util.Set;
 
 import ch.ivyteam.db.meta.model.internal.MetaException;
-import ch.ivyteam.db.meta.model.internal.SqlDataType;
 import ch.ivyteam.db.meta.model.internal.SqlDataType.DataType;
 import ch.ivyteam.db.meta.model.internal.SqlDmlStatement;
 import ch.ivyteam.db.meta.model.internal.SqlForeignKey;
@@ -33,8 +34,8 @@ public class MySqlSqlScriptGenerator extends SqlScriptGenerator
   public static final String MYSQL = String.valueOf("MySql");
   
   private static final String DROP_FOREIGN_KEY_CONSTRAINT_STORED_PROCUDRE = "IWA_Drop_ForeignKey_Constraint";
-
-  
+  public static final String INDEX_COLUMN_LENGTH = "IndexColumnLength";
+                                                    
   /**
    * @see SqlScriptGenerator#generateDataType(PrintWriter, DataType)
    */
@@ -285,6 +286,18 @@ public class MySqlSqlScriptGenerator extends SqlScriptGenerator
   }
   
   @Override
+  public void generateDropIndex(PrintWriter pr, SqlTable table, SqlIndex index)
+  {
+    pr.print("DROP INDEX ");
+    generateIdentifier(pr, getIndexName(index));
+    pr.println(); 
+    pr.print("ON ");
+    generateIdentifier(pr, table.getId());
+    generateDelimiter(pr);
+    pr.println(); 
+  }
+  
+  @Override
   protected boolean generateIndexInTable(PrintWriter pr, SqlTable table, SqlIndex index)
   {
     Map<SqlTableColumn, MemoryInfo> columns = reduceIndexColumnSizes(table, index);
@@ -302,35 +315,64 @@ public class MySqlSqlScriptGenerator extends SqlScriptGenerator
   public void generateIndex(PrintWriter pr, SqlTable table, SqlIndex index)
   {
     Map<SqlTableColumn, MemoryInfo> columns = reduceIndexColumnSizes(table, index);
-    if (columns != null)
-    {
-      generateIndex(pr, table, index, columns);
-    }
-    else
-    {
-      super.generateIndex(pr, table, index);
-    }
+    generateIndex(pr, table, index, columns);
   }
 
   private Map<SqlTableColumn, MemoryInfo> reduceIndexColumnSizes(SqlTable table, SqlIndex index)
   {
-    int bytes = 0;
-    Map<SqlTableColumn, MemoryInfo> bytesPerColumn = new LinkedHashMap<>();
-    for (String column : index.getColumns())
-    {
-      SqlTableColumn col = table.findColumn(column);
-      int columnBytes = getBytes(col.getDataType());      
-      bytesPerColumn.put(col, new MemoryInfo(col.getDataType().getLength(), columnBytes));
-      bytes += columnBytes;
-    }
+    Map<SqlTableColumn, MemoryInfo> bytesPerColumn = getIndexColumnBytes(table, index);
+    int bytes = bytesPerColumn.values().stream().mapToInt(info -> info.bytes).sum();
+    
     if (bytes > MAX_INDEX_SIZE_IN_BYTES)
     {
       reduce(index, bytesPerColumn, bytes-MAX_INDEX_SIZE_IN_BYTES);
       return bytesPerColumn;
     }
-    return null;
+    return bytesPerColumn;
+  }
+
+  private Map<SqlTableColumn, MemoryInfo> getIndexColumnBytes(SqlTable table, SqlIndex index)
+  {
+    Map<SqlTableColumn, MemoryInfo> bytesPerColumn = new LinkedHashMap<>();
+    Map<SqlTableColumn, Integer> columnLengthHints = getColumnLengthHints(table, index);
+    for (String column : index.getColumns())
+    {
+      SqlTableColumn col = table.findColumn(column);
+      int length = col.getDataType().getLength();
+      if (columnLengthHints.containsKey(col))
+      {
+        length = columnLengthHints.get(col);
+      }
+      int columnBytes = getBytes(col.getDataType().getDataType(), length); 
+      bytesPerColumn.put(col, new MemoryInfo(length, columnBytes));
+    }
+    return bytesPerColumn;
   }
   
+  private Map<SqlTableColumn, Integer> getColumnLengthHints(SqlTable table, SqlIndex index)
+  {
+    String lengthHintStr = getDatabaseSystemHintValue(index,  INDEX_COLUMN_LENGTH);
+    if (lengthHintStr == null)
+    {
+      return Collections.emptyMap();
+    }
+
+    int[] lengthHints = Arrays.stream(lengthHintStr.split(",")).mapToInt(Integer::parseInt).toArray();
+    if (lengthHints.length != index.getColumns().size())
+    {
+      throw new IllegalArgumentException(
+              "Hint "+INDEX_COLUMN_LENGTH+" on index "+index.getId()+" in table "+table.getId()+
+              " contains "+lengthHints.length+" arguments expected are "+index.getColumns().size());
+    }
+    Map<SqlTableColumn, Integer> columnLengthHints = new HashMap<>();
+    for (int pos = 0; pos < lengthHints.length; pos++)
+    {
+      SqlTableColumn column = table.findColumn(index.getColumns().get(pos));
+      columnLengthHints.put(column, lengthHints[pos]);
+    }
+    return columnLengthHints;
+  }
+
   private void reduce(SqlIndex index, Map<SqlTableColumn, MemoryInfo> bytesPerColumn, int bytesToReduce)
   {
     SqlTableColumn maxColumn=null;
@@ -428,13 +470,13 @@ public class MySqlSqlScriptGenerator extends SqlScriptGenerator
     return dataType.equals(DataType.VARCHAR) || dataType.equals(DataType.CHAR);
   }
 
-  private int getBytes(SqlDataType dataType)
+  private int getBytes(DataType dataType, int length)
   {
-    switch(dataType.getDataType())
+    switch(dataType)
     {
       case VARCHAR:
       case CHAR:
-        return dataType.getLength()*3;
+        return length*3;
       case BIGINT:
         return 8;
       case BIT:
@@ -451,7 +493,7 @@ public class MySqlSqlScriptGenerator extends SqlScriptGenerator
         return 8;
       case DECIMAL:
       case NUMBER:
-        return dataType.getLength()*4/9+4;
+        return length*4/9+4;
       case BLOB:
         return 0x1000000;
       case CLOB:

@@ -148,6 +148,7 @@ public class MetaOutputDifferenceGenerator
     generator.generateNonMetaDiffChangesPre(pr, newVersionId);
     
     generateDropViews(pr);
+    indexes.generateDropIndexesOfRemovedIndexes(pr);
     triggers.generateDropTriggersOfChangedTables(pr);
     foreignKeys.generateDropForeignKeysOfChangedColumns(pr);
     
@@ -281,7 +282,7 @@ public class MetaOutputDifferenceGenerator
         SqlTable newTable = comonTable.getKey();
         SqlTable oldTable = comonTable.getValue();
     
-        boolean hasAddedIndexes = findAddedIndexes(newTable, oldTable).size() > 0;
+        boolean hasAddedIndexes = !findAddedIndexes(newTable, oldTable).isEmpty();
         if (hasAddedIndexes)
         {
           tables.put(newTable, oldTable);
@@ -293,32 +294,28 @@ public class MetaOutputDifferenceGenerator
     private void generateCreateIndexes(PrintWriter pr, SqlTable newTable, SqlTable oldTable)
     {
       List<SqlIndex> addedIndexes = findAddedIndexes(newTable, oldTable);
-      if (addedIndexes.size() > 0)
+      if (addedIndexes.isEmpty())
       {
-        pr.println();
-        generator.generateCommentLine(pr, "Create new indexes of table " + newTable.getId());
-        for (SqlIndex addedIndex : addedIndexes)
-        {
-          generator.generateIndex(pr, newTable, addedIndex);
-        }
+        return;
+      }
+      pr.println();
+      generator.generateCommentLine(pr, "Create new indexes of table " + newTable.getId());
+      for (SqlIndex addedIndex : addedIndexes)
+      {
+        generator.generateIndex(pr, newTable, addedIndex);
       }
     }
 
     private List<SqlIndex> findAddedIndexes(SqlTable newTable, SqlTable oldTable)
     {
-      List<SqlIndex> addedIndexes = new ArrayList<>();
-      for (SqlIndex newIndex : newTable.getIndexes())
-      {
-        SqlIndex oldIndex = oldTable.findIndex(newIndex.getId());
-        if (oldIndex == null)
-        {
-          addedIndexes.add(newIndex);
-        }
-      }
-      return addedIndexes;
+      return newTable
+              .getIndexes()
+              .stream()
+              .filter(newIndex -> oldTable.findIndex(newIndex.getId()) == null)
+              .collect(Collectors.toList());
     }
 
-    void generateDropIndexes(PrintWriter pr, SqlTable newTable, SqlTable oldTable)
+    void generateDropIndexesOfChangedColumns(PrintWriter pr, SqlTable newTable, SqlTable oldTable)
     {
       if (!generator.getRecreateOptions().indexesOnAlterTable)
       {
@@ -326,17 +323,69 @@ public class MetaOutputDifferenceGenerator
       }
       
       Set<SqlIndex> changedIndexes = getIndexesFromChangedColumns(newTable, oldTable);
-      if (changedIndexes.size() > 0)
+      if (changedIndexes.isEmpty())
       {
-        pr.println();
-        generator.generateCommentLine(pr, "Drop indexes which depend on changed columns");
-        for (SqlIndex sqlIndex : changedIndexes)
-        {
-          generator.generateDropIndex(pr, oldTable, sqlIndex);
-        }
+        return;
+      }
+      pr.println();
+      generator.generateCommentLine(pr, "Drop indexes which depend on changed columns");
+      for (SqlIndex sqlIndex : changedIndexes)
+      {
+        generator.generateDropIndex(pr, oldTable, sqlIndex);
+      }
+    }
+    
+    void generateDropIndexesOfRemovedIndexes(PrintWriter pr)
+    {
+      for (Entry<SqlTable, SqlTable> changedTable : findTablesWithRemovedIndexes().entrySet())
+      {
+        SqlTable newTable = changedTable.getKey();
+        SqlTable oldTable = changedTable.getValue();
+        generateDroppedIndexes(pr, newTable, oldTable);    
       }
     }
 
+    private Map<SqlTable, SqlTable> findTablesWithRemovedIndexes()
+    {
+      Map<SqlTable, SqlTable> tables = new LinkedHashMap<>();
+      for (Entry<SqlTable, SqlTable> comonTable : findCommonTables().entrySet())
+      {
+        SqlTable newTable = comonTable.getKey();
+        SqlTable oldTable = comonTable.getValue();
+    
+        boolean hasRemovedIndexes = !findRemovedIndexes(newTable, oldTable).isEmpty();
+        if (hasRemovedIndexes)
+        {
+          tables.put(newTable, oldTable);
+        }      
+      }
+      return tables;
+    }
+    
+    private List<SqlIndex> findRemovedIndexes(SqlTable newTable, SqlTable oldTable)
+    {
+      return oldTable
+              .getIndexes()
+              .stream()
+              .filter(oldIndex -> newTable.findIndex(oldIndex.getId()) == null)
+              .collect(Collectors.toList());
+    }
+
+    private void generateDroppedIndexes(PrintWriter pr, SqlTable newTable, SqlTable oldTable)
+    {
+      List<SqlIndex> changedIndexes = findRemovedIndexes(newTable, oldTable);
+      if (changedIndexes.isEmpty())
+      {
+        return;
+      }
+      pr.println();
+      generator.generateCommentLine(pr, "Drop removed indexes of table " + newTable.getId());
+      for (SqlIndex sqlIndex : changedIndexes)
+      {
+        generator.generateDropIndex(pr, oldTable, sqlIndex);
+      }
+    }
+    
     private Set<SqlIndex> getIndexesFromChangedColumns(SqlTable newTable, SqlTable oldTable)
     {
       Set<SqlIndex> result = new LinkedHashSet<>();
@@ -363,17 +412,17 @@ public class MetaOutputDifferenceGenerator
       }
       
       Set<SqlIndex> changedIndexes = getIndexesFromChangedColumns(newTable, oldTable);
-      if (changedIndexes.size() > 0)
+      if (changedIndexes.isEmpty())
       {
-        pr.println();
-        generator.generateCommentLine(pr, "Create index which depend on changed columns");
-        for (SqlIndex sqlIndex : changedIndexes)
-        {
-          generator.generateIndex(pr, newTable, sqlIndex);
-        }
+        return;
+      }
+      pr.println();
+      generator.generateCommentLine(pr, "Create index which depend on changed columns");
+      for (SqlIndex sqlIndex : changedIndexes)
+      {
+        generator.generateIndex(pr, newTable, sqlIndex);
       }
     }
-    
   }
   
   class ConstraintGenerator
@@ -405,7 +454,7 @@ public class MetaOutputDifferenceGenerator
 
     private List<SqlTableColumn> getChangedColumnsWithDefaultConstraint(SqlTable newTable, SqlTable oldTable)
     {
-      List<SqlTableColumn> result = new ArrayList<SqlTableColumn>();
+      List<SqlTableColumn> result = new ArrayList<>();
       Map<SqlTableColumn, SqlTableColumn> changedColumns = findChangedColumns(newTable, oldTable);
       for (SqlTableColumn changedColumn : changedColumns.keySet())
       {
@@ -429,13 +478,13 @@ public class MetaOutputDifferenceGenerator
 
     private Map<SqlTable, SqlTable> findTablesWithAddedUniqueConstraints()
     {
-      Map<SqlTable, SqlTable> tables = new LinkedHashMap<SqlTable, SqlTable>();
+      Map<SqlTable, SqlTable> tables = new LinkedHashMap<>();
       for (Entry<SqlTable, SqlTable> comonTable : findCommonTables().entrySet())
       {
         SqlTable newTable = comonTable.getKey();
         SqlTable oldTable = comonTable.getValue();
     
-        boolean hasAddedIndexes = findAddedUniqueConstraints(newTable, oldTable).size() > 0;
+        boolean hasAddedIndexes = !findAddedUniqueConstraints(newTable, oldTable).isEmpty();
         if (hasAddedIndexes)
         {
           tables.put(newTable, oldTable);
@@ -447,31 +496,32 @@ public class MetaOutputDifferenceGenerator
     private void generateCreateUniqueConstraint(PrintWriter pr, SqlTable newTable, SqlTable oldTable)
     {
       List<SqlUniqueConstraint> addedUniques = findAddedUniqueConstraints(newTable, oldTable);
-      if (addedUniques.size() > 0)
+      if (addedUniques.isEmpty())
       {
-        Set<SqlUniqueConstraint> alreadyRecreatedUniqueConstraints = getUniqueConstraintsToRecreate(newTable, oldTable);
-        
-        pr.println();
-        generator.generateCommentLine(pr, "Create new unique constraint of table " + newTable.getId());
-        for (SqlUniqueConstraint addedUnique : addedUniques)
-        {
-          if (alreadyRecreatedUniqueConstraints.contains(addedUnique))
-          {
-            generator.generateCommentLine(pr, "Skipping generation of constraint '" + addedUnique + "'."
-                    + " It was already re-generated in this script.");
-          }
-          else
-          {
-            generator.generateAddUniqueConstraint(pr, newTable, addedUnique);
-          }
-        }
-        pr.println();
+        return;
       }
+      Set<SqlUniqueConstraint> alreadyRecreatedUniqueConstraints = getUniqueConstraintsToRecreate(newTable, oldTable);
+      
+      pr.println();
+      generator.generateCommentLine(pr, "Create new unique constraint of table " + newTable.getId());
+      for (SqlUniqueConstraint addedUnique : addedUniques)
+      {
+        if (alreadyRecreatedUniqueConstraints.contains(addedUnique))
+        {
+          generator.generateCommentLine(pr, "Skipping generation of constraint '" + addedUnique + "'."
+                  + " It was already re-generated in this script.");
+        }
+        else
+        {
+          generator.generateAddUniqueConstraint(pr, newTable, addedUnique);
+        }
+      }
+      pr.println();
     }
 
     private List<SqlUniqueConstraint> findAddedUniqueConstraints(SqlTable newTable, SqlTable oldTable)
     {
-      List<SqlUniqueConstraint> addedUniques = new ArrayList<SqlUniqueConstraint>();
+      List<SqlUniqueConstraint> addedUniques = new ArrayList<>();
       for (SqlUniqueConstraint newUnique : newTable.getUniqueConstraints())
       {
         SqlUniqueConstraint oldIndex = oldTable.findUniqueConstraint(newUnique.getId());
@@ -483,9 +533,9 @@ public class MetaOutputDifferenceGenerator
       return addedUniques;
     }
 
-    void generateDeleteUniqueConstraints(PrintWriter pr, SqlTable newTable, SqlTable oldTable) throws MetaException
+    void generateDeleteUniqueConstraints(PrintWriter pr, SqlTable newTable, SqlTable oldTable) 
     {
-      Set<SqlUniqueConstraint> changedUniqueConstraints = new LinkedHashSet<SqlUniqueConstraint>();
+      Set<SqlUniqueConstraint> changedUniqueConstraints = new LinkedHashSet<>();
       if (generator.getRecreateOptions().uniqueConstraintsOnAlterTable)
       {
         if (generator.getRecreateOptions().allUniqueConstraintsOnAlterTable)
@@ -499,21 +549,22 @@ public class MetaOutputDifferenceGenerator
       }
       
       changedUniqueConstraints.addAll(findDeletedUniqueConstraints(newTable, oldTable));
-      if (changedUniqueConstraints.size() > 0)
+      if (changedUniqueConstraints.isEmpty())
       {
-        pr.println();
-        generator.generateCommentLine(pr, "Drop unique constraint which depend on changed columns or was deleted");
-        for (SqlUniqueConstraint uniqueConstraint : changedUniqueConstraints)
-        {
-          generator.generateDropUniqueConstraint(pr, oldTable, uniqueConstraint, createdTemporaryStoredProcedures);
-        }
+        return;
+      }
+      pr.println();
+      generator.generateCommentLine(pr, "Drop unique constraint which depend on changed columns or was deleted");
+      for (SqlUniqueConstraint uniqueConstraint : changedUniqueConstraints)
+      {
+        generator.generateDropUniqueConstraint(pr, oldTable, uniqueConstraint, createdTemporaryStoredProcedures);
       }
     }
 
     private Set<SqlUniqueConstraint> findDeletedUniqueConstraints(SqlTable newTable,
             SqlTable oldTable)
     {
-      Set<SqlUniqueConstraint> deletedUniqueConstraints = new LinkedHashSet<SqlUniqueConstraint>();
+      Set<SqlUniqueConstraint> deletedUniqueConstraints = new LinkedHashSet<>();
       for (SqlUniqueConstraint oldConstraint : oldTable.getUniqueConstraints())
       {
         SqlUniqueConstraint newConstraint = newTable.findUniqueConstraint(oldConstraint.getId());
@@ -525,7 +576,7 @@ public class MetaOutputDifferenceGenerator
       return deletedUniqueConstraints;
     }
 
-    void generateRecreateUniqueConstraints(PrintWriter pr, SqlTable newTable, SqlTable oldTable) throws MetaException
+    void generateRecreateUniqueConstraints(PrintWriter pr, SqlTable newTable, SqlTable oldTable)
     {
       Set<SqlUniqueConstraint> uniqueConstraints = getUniqueConstraintsToRecreate(newTable, oldTable);
       generateCreateUniqueConstraints(pr, newTable, uniqueConstraints);
@@ -552,20 +603,21 @@ public class MetaOutputDifferenceGenerator
 
     private void generateCreateUniqueConstraints(PrintWriter pr, SqlTable newTable, Collection<SqlUniqueConstraint> uniqueConstraints)
     {
-      if (uniqueConstraints.size() > 0)
+      if (uniqueConstraints.isEmpty())
       {
-        pr.println();
-        generator.generateCommentLine(pr, "Create unique constraints which depend on changed columns");
-        for (SqlUniqueConstraint uniqueConstraint : uniqueConstraints)
-        {
-          generator.generateAddUniqueConstraint(pr, newTable, uniqueConstraint);
-        }
+        return;
+      }
+      pr.println();
+      generator.generateCommentLine(pr, "Create unique constraints which depend on changed columns");
+      for (SqlUniqueConstraint uniqueConstraint : uniqueConstraints)
+      {
+        generator.generateAddUniqueConstraint(pr, newTable, uniqueConstraint);
       }
     }
 
-    private Set<SqlUniqueConstraint> getUniqueConstraintsFromChangedColumns(SqlTable newTable, SqlTable oldTable) throws MetaException
+    private Set<SqlUniqueConstraint> getUniqueConstraintsFromChangedColumns(SqlTable newTable, SqlTable oldTable)
     {
-      List<String> changedColumNames = new ArrayList<String>();
+      List<String> changedColumNames = new ArrayList<>();
       for (Entry<SqlTableColumn, SqlTableColumn> changedColumn : findChangedColumns(newTable, oldTable).entrySet())
       {
         SqlTableColumn newColumn = changedColumn.getKey();
@@ -589,7 +641,7 @@ public class MetaOutputDifferenceGenerator
         return Collections.emptySet();
       }
     
-      Set<SqlUniqueConstraint> dependentUniqueConstraints = new LinkedHashSet<SqlUniqueConstraint>(); 
+      Set<SqlUniqueConstraint> dependentUniqueConstraints = new LinkedHashSet<>(); 
       for (SqlUniqueConstraint uniqueConstraint : tables.getUniqueConstraints())
       {
         for (String constraintColumn : uniqueConstraint.getColumns())
@@ -607,7 +659,7 @@ public class MetaOutputDifferenceGenerator
   
   class TriggerGenerator
   {
-    void generateTrigger(PrintWriter pr, SqlTable table, SqlMeta metaDefinition) throws MetaException
+    void generateTrigger(PrintWriter pr, SqlTable table, SqlMeta metaDefinition)
     {
       generator.genrateForEachStatementDeleteTrigger(pr, table, metaDefinition);
       generator.generateForEachRowDeleteTrigger(pr, table, metaDefinition);
@@ -626,7 +678,7 @@ public class MetaOutputDifferenceGenerator
       }
     }
 
-    void generateDropTriggersOfChangedTables(PrintWriter pr) throws MetaException
+    void generateDropTriggersOfChangedTables(PrintWriter pr)
     {
       Map<SqlTable, SqlTable> tablesWithChangedTriggers = findTablesWithChangedTriggers();
       
@@ -638,7 +690,7 @@ public class MetaOutputDifferenceGenerator
       }
     }
     
-    void generateCreateTriggersOfAddedTriggers(PrintWriter pr) throws MetaException
+    void generateCreateTriggersOfAddedTriggers(PrintWriter pr)
     {
       Map<SqlTable, SqlTable> tablesWithAddedTriggers = findTablesWithAddedTriggers();
       for (SqlTable newTableWithTrigger : tablesWithAddedTriggers.keySet())
@@ -649,7 +701,7 @@ public class MetaOutputDifferenceGenerator
       }
     }
     
-    void generateRecreateTriggersOfChangedTables(PrintWriter pr) throws MetaException
+    void generateRecreateTriggersOfChangedTables(PrintWriter pr)
     {
       Map<SqlTable, SqlTable> tablesWithChangedTriggers = findTablesWithChangedTriggers();
       
@@ -661,9 +713,9 @@ public class MetaOutputDifferenceGenerator
       }
     }
     
-    private Map<SqlTable, SqlTable> findTablesWithAddedTriggers() throws MetaException
+    private Map<SqlTable, SqlTable> findTablesWithAddedTriggers()
     {
-      Map<SqlTable, SqlTable> tablesOfAddedTriggers = new LinkedHashMap<SqlTable, SqlTable>();
+      Map<SqlTable, SqlTable> tablesOfAddedTriggers = new LinkedHashMap<>();
       for (Entry<SqlTable, SqlTable> comonTable : findCommonTables().entrySet())
       {
         SqlTable newTable = comonTable.getKey();
@@ -676,9 +728,9 @@ public class MetaOutputDifferenceGenerator
       return tablesOfAddedTriggers;
     }
 
-    private Map<SqlTable, SqlTable> findTablesWithChangedTriggers() throws MetaException
+    private Map<SqlTable, SqlTable> findTablesWithChangedTriggers()
     {
-      Map<SqlTable, SqlTable> tablesOfChangedTriggers = new LinkedHashMap<SqlTable, SqlTable>();
+      Map<SqlTable, SqlTable> tablesOfChangedTriggers = new LinkedHashMap<>();
       // fist check all common tables if they have a trigger which has changed
       for (Entry<SqlTable, SqlTable> comonTable : findCommonTables().entrySet())
       {
@@ -706,7 +758,7 @@ public class MetaOutputDifferenceGenerator
       return tablesOfChangedTriggers;
     }
     
-    private boolean hasTriggerChanged(SqlTable newTable, SqlTable oldTable) throws MetaException
+    private boolean hasTriggerChanged(SqlTable newTable, SqlTable oldTable)
     {
       if (newTable == null || oldTable == null)
       {
@@ -727,7 +779,7 @@ public class MetaOutputDifferenceGenerator
       return !toOut.toString().equals(fromOut.toString()); 
     }
     
-    private boolean hasAddedTrigger(SqlTable newTable, SqlTable oldTable) throws MetaException
+    private boolean hasAddedTrigger(SqlTable newTable, SqlTable oldTable)
     {
       if (newTable == null || oldTable == null)
       {
@@ -740,11 +792,7 @@ public class MetaOutputDifferenceGenerator
       generateTrigger(new PrintWriter(fromOut), newTable, metaDefinitionFrom);
       generateTrigger(new PrintWriter(toOut), oldTable, metaDefinitionTo);
       
-      if (StringUtils.isNotEmpty(toOut.toString()) && StringUtils.isBlank(fromOut.toString()))
-      {
-        return true;
-      }
-      return false; 
+      return StringUtils.isNotEmpty(toOut.toString()) && StringUtils.isBlank(fromOut.toString());
     }
   }
   
@@ -787,7 +835,7 @@ public class MetaOutputDifferenceGenerator
 
     private List<Pair<SqlTable, SqlForeignKey>> getForeignKeysReferencingChangedColumns()
     {
-      List<Pair<SqlTable, SqlForeignKey>> sqlForeignKeys = new ArrayList<Pair<SqlTable, SqlForeignKey>>();
+      List<Pair<SqlTable, SqlForeignKey>> sqlForeignKeys = new ArrayList<>();
       for (Entry<SqlTable, SqlTable> changedTable : findChangedTables().entrySet())
       {
         Map<SqlTableColumn, SqlTableColumn> changedColumns = findChangedColumns(changedTable.getKey(), changedTable.getValue());
@@ -861,15 +909,11 @@ public class MetaOutputDifferenceGenerator
       {
         return false;
       }
-      if (!generator.isForeignKeySupported(foreignKey))
-      {
-        return false;
-      }
-      return true;
+      return generator.isForeignKeySupported(foreignKey);
     }
   }
   
-  private void generateDropTableOfDeletedTables(PrintWriter pr) throws MetaException
+  private void generateDropTableOfDeletedTables(PrintWriter pr)
   {
     List<SqlTable> deletedTables = findDeletedTables();
     if (deletedTables.isEmpty())
@@ -895,17 +939,18 @@ public class MetaOutputDifferenceGenerator
     }
   }
 
-  private void generateCreateTablesOfAddedTables(PrintWriter pr) throws MetaException
+  private void generateCreateTablesOfAddedTables(PrintWriter pr)
   {
     registerOldTables();
     
     List<SqlTable> addedTables = findAddedTables();
-    if (addedTables.size() > 0)
+    if (addedTables.isEmpty())
     {
-      pr.println();
-      generator.generateCommentLine(pr, "Create new added tables");
-      generator.generateTables(pr, addedTables);
+      return;
     }
+    pr.println();
+    generator.generateCommentLine(pr, "Create new added tables");
+    generator.generateTables(pr, addedTables);
   }
 
   private void registerOldTables()
@@ -917,14 +962,14 @@ public class MetaOutputDifferenceGenerator
     }
   }
 
-  private void generateTableModifications(PrintWriter pr) throws MetaException
+  private void generateTableModifications(PrintWriter pr)
   {
     for (Entry<SqlTable, SqlTable> changedTable : findChangedTables().entrySet())
     {
       SqlTable newTable = changedTable.getKey();
       SqlTable oldTable = changedTable.getValue();
       constraints.generateDeleteUniqueConstraints(pr, newTable, oldTable);
-      indexes.generateDropIndexes(pr, newTable, oldTable);
+      indexes.generateDropIndexesOfChangedColumns(pr, newTable, oldTable);
       generateDropPrimaryKeys(pr, newTable, oldTable);
       constraints.generateDropDefaultConstraints(pr, newTable, oldTable);
       generateAlterTable(pr, newTable, oldTable);
@@ -937,7 +982,7 @@ public class MetaOutputDifferenceGenerator
     }
   }
 
-  private void generateAlterTable(PrintWriter pr, SqlTable newTable, SqlTable oldTable) throws MetaException
+  private void generateAlterTable(PrintWriter pr, SqlTable newTable, SqlTable oldTable)
   {
     generateAlterTableDropColumns(pr, newTable, oldTable);
     generateAlterTableAlterColumns(pr, newTable, oldTable);
@@ -947,19 +992,20 @@ public class MetaOutputDifferenceGenerator
   private void generateAlterTableDropColumns(PrintWriter pr, SqlTable newTable, SqlTable oldTable)
   {
     List<SqlTableColumn> droppedColumns = findDroppedColumns(newTable, oldTable);
-    if (droppedColumns.size() > 0)
+    if (droppedColumns.isEmpty())
     {
+      return;
+    }
+    pr.println();
+    generator.generateCommentLine(pr, "Dropped columns of table " + newTable.getId());
+    for (SqlTableColumn droppedColumn : droppedColumns)
+    {
+      generator.generateAlterTableDropColumn(pr, droppedColumn, newTable);
       pr.println();
-      generator.generateCommentLine(pr, "Dropped columns of table " + newTable.getId());
-      for (SqlTableColumn droppedColumn : droppedColumns)
-      {
-        generator.generateAlterTableDropColumn(pr, droppedColumn, newTable);
-        pr.println();
-      }
     }
   }
 
-  private void generateAlterTableAlterColumns(PrintWriter pr, SqlTable newTable, SqlTable oldTable) throws MetaException
+  private void generateAlterTableAlterColumns(PrintWriter pr, SqlTable newTable, SqlTable oldTable)
   {
     Map<SqlTableColumn, SqlTableColumn> changedColumns = findChangedColumns(newTable, oldTable);
     if (changedColumns.size() > 0)
@@ -979,19 +1025,20 @@ public class MetaOutputDifferenceGenerator
   private void generateAlterTableAddColumns(PrintWriter pr, SqlTable newTable, SqlTable oldTable)
   {
     List<SqlTableColumn> addedColumns = findAddedColumns(newTable, oldTable);
-    if (addedColumns.size() > 0)
+    if (addedColumns.isEmpty())
     {
+      return;
+    }
+    pr.println();
+    generator.generateCommentLine(pr, "Added columns of table " + newTable.getId());
+    for (SqlTableColumn addedColumn : addedColumns)
+    {
+      generator.generateAlterTableAddColumn(pr, addedColumn, newTable);
       pr.println();
-      generator.generateCommentLine(pr, "Added columns of table " + newTable.getId());
-      for (SqlTableColumn addedColumn : addedColumns)
-      {
-        generator.generateAlterTableAddColumn(pr, addedColumn, newTable);
-        pr.println();
-      }
     }
   }
 
-  private void generateDropViews(PrintWriter pr) throws MetaException
+  private void generateDropViews(PrintWriter pr)
   {
     Set<SqlView> changedViews = findChangedViews();
     if (!changedViews.isEmpty())
@@ -1012,7 +1059,7 @@ public class MetaOutputDifferenceGenerator
     return changedViews;
   }
 
-  private void generateCreateViews(PrintWriter pr) throws MetaException
+  private void generateCreateViews(PrintWriter pr)
   {
     generateViews(pr, findAddedViews(), "Create added views");
     generateViews(pr, findChangedViews(), "Recreate views which has a new definition or depend on changed tables");
@@ -1088,7 +1135,7 @@ public class MetaOutputDifferenceGenerator
    * @return never null
    * @throws MetaException 
    */
-  private Set<SqlView> findViewsWhichDependOnChangedTables() throws MetaException
+  private Set<SqlView> findViewsWhichDependOnChangedTables()
   {
     Map<SqlTable, SqlTable> changedTables = findChangedTables();
     List<SqlView> views = metaDefinitionTo.getArtifacts(SqlView.class);
@@ -1185,7 +1232,7 @@ public class MetaOutputDifferenceGenerator
   /** 
    * @return map with new and old tables of changed tables (tables with same id and added or changed columns)
    */
-  private Map<SqlTable, SqlTable> findChangedTables() throws MetaException
+  private Map<SqlTable, SqlTable> findChangedTables()
   {
     Map<SqlTable, SqlTable> tables = new LinkedHashMap<>();
     for (Entry<SqlTable, SqlTable> commonTable : findCommonTables().entrySet())
@@ -1193,10 +1240,10 @@ public class MetaOutputDifferenceGenerator
       SqlTable newTable = commonTable.getKey();
       SqlTable oldTable = commonTable.getValue();
 
-      boolean hasChangedColumns = findChangedColumns(newTable, oldTable).size() > 0;
-      boolean hasAddedColumns = findAddedColumns(newTable, oldTable).size() > 0;
-      boolean hasDroppedColumns = findDroppedColumns(newTable, oldTable).size() > 0;
-      boolean hasDeletedUniqueConstraints = constraints.findDeletedUniqueConstraints(newTable, oldTable).size() > 0;
+      boolean hasChangedColumns = !findChangedColumns(newTable, oldTable).isEmpty();
+      boolean hasAddedColumns = !findAddedColumns(newTable, oldTable).isEmpty();
+      boolean hasDroppedColumns = !findDroppedColumns(newTable, oldTable).isEmpty();
+      boolean hasDeletedUniqueConstraints = !constraints.findDeletedUniqueConstraints(newTable, oldTable).isEmpty();
       boolean hasForeignKeysChanges = foreignKeys.hasForeignKeyDefinitionChanged(newTable, oldTable);
       if (hasChangedColumns || hasAddedColumns || hasDroppedColumns || hasDeletedUniqueConstraints || hasForeignKeysChanges)
       {
@@ -1247,25 +1294,23 @@ public class MetaOutputDifferenceGenerator
    * @return map with new and old columns of changed columns of a table
    * @throws MetaException 
    */
-  private Map<SqlTableColumn, SqlTableColumn> findChangedColumns(SqlTable newTable, SqlTable oldTable) throws MetaException
+  private Map<SqlTableColumn, SqlTableColumn> findChangedColumns(SqlTable newTable, SqlTable oldTable)
   {
     List<SqlTableColumn> oldColumns = oldTable.getColumns();
-    Map<SqlTableColumn, SqlTableColumn> changedColumns = new LinkedHashMap<SqlTableColumn, SqlTableColumn>(oldColumns.size());
+    Map<SqlTableColumn, SqlTableColumn> changedColumns = new LinkedHashMap<>(oldColumns.size());
     for (SqlTableColumn oldColumn: oldColumns)
     {
       SqlTableColumn newColumn = newTable.findColumn(oldColumn.getId());
-      if (newColumn != null)
+      if (newColumn != null && 
+          hasColumnChanged(newTable, newColumn, oldColumn))
       {
-        if (hasColumnChanged(newTable, newColumn, oldColumn))
-        {
-          changedColumns.put(newColumn, oldColumn);
-        }
+        changedColumns.put(newColumn, oldColumn);
       }
     }
     return changedColumns;
   }
 
-  private List<SqlTableColumn> findAddedColumns(SqlTable newTable, SqlTable oldTable) throws MetaException
+  private List<SqlTableColumn> findAddedColumns(SqlTable newTable, SqlTable oldTable)
   {
     List<SqlTableColumn> addedColumns = new ArrayList<>();
     for (SqlTableColumn newColumn : newTable.getColumns())
@@ -1279,14 +1324,14 @@ public class MetaOutputDifferenceGenerator
     return addedColumns;
   }
 
-  private List<SqlViewColumn> findAddedColumns(SqlView newView, SqlView oldView) throws MetaException
+  private List<SqlViewColumn> findAddedColumns(SqlView newView, SqlView oldView)
   {
     return newView.getColumns().stream()
       .filter(newColumn -> !oldView.hasColumn(newColumn.getId()))
       .collect(Collectors.toList());
   }
 
-  private List<SqlTableColumn> findDroppedColumns(SqlTable newTable, SqlTable oldTable) throws MetaException
+  private List<SqlTableColumn> findDroppedColumns(SqlTable newTable, SqlTable oldTable)
   {
     List<SqlTableColumn> droppedColumns = new ArrayList<>();
     for (SqlTableColumn oldColumn : oldTable.getColumns())
@@ -1300,14 +1345,14 @@ public class MetaOutputDifferenceGenerator
     return droppedColumns;
   }
 
-  private List<SqlViewColumn> findDroppedColumns(SqlView newView, SqlView oldView) throws MetaException
+  private List<SqlViewColumn> findDroppedColumns(SqlView newView, SqlView oldView)
   {
     return oldView.getColumns().stream()
             .filter(oldColumn -> !newView.hasColumn(oldColumn.getId()))
             .collect(Collectors.toList());
   }
 
-  private boolean hasColumnChanged(SqlTable newTable, SqlTableColumn newColumn, SqlTableColumn oldColumn) throws MetaException
+  private boolean hasColumnChanged(SqlTable newTable, SqlTableColumn newColumn, SqlTableColumn oldColumn)
   {
     if (!newColumn.getId().equals(oldColumn.getId()))
     {
