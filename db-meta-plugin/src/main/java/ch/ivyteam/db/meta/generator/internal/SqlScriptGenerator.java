@@ -892,7 +892,7 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
     pr.println(); 
   }
   
-  public void generateDropTrigger(PrintWriter pr, SqlTable table)
+  public void generateDropTrigger(PrintWriter pr, SqlTable table, @SuppressWarnings("unused") SqlMeta metaDefinitionFrom)
   {
     pr.write("DROP TRIGGER ");
     generateTriggerName(pr, table);

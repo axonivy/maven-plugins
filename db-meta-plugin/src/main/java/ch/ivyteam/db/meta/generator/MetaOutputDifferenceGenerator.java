@@ -686,7 +686,7 @@ public class MetaOutputDifferenceGenerator
       {
         pr.println();
         generator.generateCommentLine(pr, "Drop trigger which depend on changed table(s)");
-        generator.generateDropTrigger(pr, oldTableWithTrigger);
+        generator.generateDropTrigger(pr, oldTableWithTrigger, metaDefinitionFrom);
       }
     }
     
@@ -927,7 +927,7 @@ public class MetaOutputDifferenceGenerator
       {
         pr.println();
         generator.generateCommentLine(pr, "Drop trigger of no longer exisiting table");
-        generator.generateDropTrigger(pr, deletedTable);
+        generator.generateDropTrigger(pr, deletedTable, metaDefinitionFrom);
       }
     }
     

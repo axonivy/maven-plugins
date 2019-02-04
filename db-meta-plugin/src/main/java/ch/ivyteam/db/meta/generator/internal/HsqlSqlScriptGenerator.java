@@ -200,7 +200,7 @@ public class HsqlSqlScriptGenerator extends SqlScriptGenerator
             pr.print("CREATE TRIGGER ");
             if (isDatabaseSystemHintSet(foreignKey, TRIGGER_NAME_POST_FIX))
             {
-              pr.print(table.getId());
+              pr.print(triggerTable.getId());
               generateDatabaseManagementHintValue(pr, foreignKey, TRIGGER_NAME_POST_FIX);
               pr.println("DeleteTrigger");
             }
@@ -221,6 +221,54 @@ public class HsqlSqlScriptGenerator extends SqlScriptGenerator
         }
       }
     }
+  }
+  
+  @Override
+  public void generateDropTrigger(PrintWriter pr, SqlTable table, SqlMeta metaDefinitionFrom)
+  {
+    boolean dropped = dropForEachRowDeleteTriggers(pr, table, metaDefinitionFrom);
+    if (!dropped)
+    {
+      super.generateDropTrigger(pr, table, metaDefinitionFrom);
+    }
+  }
+
+  private boolean dropForEachRowDeleteTriggers(PrintWriter pr, SqlTable table, SqlMeta metaDefinitionFrom)
+  {
+    boolean dropped = false;
+    for (SqlForeignKey foreignKey : table.getForeignKeys())
+    {
+      if ((!isDatabaseSystemHintSet(foreignKey, NO_REFERENCE))&&(getForeignKeyAction(foreignKey) == SqlForeignKeyAction.ON_DELETE_THIS_CASCADE))
+      {
+        List<SqlTable> tables = new ArrayList<>();
+        tables.add(table);
+        if (isDatabaseSystemHintSet(foreignKey, ADDITIONAL_TRIGGERS_FOR_TABLES))
+        {
+          for (String tableName : getDatabaseSystemHintValue(foreignKey, ADDITIONAL_TRIGGERS_FOR_TABLES).split(","))
+          {
+            tables.add(metaDefinitionFrom.findTable(tableName.trim()));
+          }
+        }
+        for (SqlTable triggerTable : tables)
+        {
+          pr.print("DROP TRIGGER ");
+          if (isDatabaseSystemHintSet(foreignKey, TRIGGER_NAME_POST_FIX))
+          {
+            pr.print(triggerTable.getId());
+            generateDatabaseManagementHintValue(pr, foreignKey, TRIGGER_NAME_POST_FIX);
+            pr.print("DeleteTrigger");
+          }
+          else              
+          {
+            generateTriggerName(pr, triggerTable);
+          }
+          generateDelimiter(pr);
+          pr.println(); 
+        }
+        dropped = true;
+      }
+    }
+    return dropped;
   }
   
   /**
