@@ -158,8 +158,9 @@ public class HsqlSqlScriptGenerator extends SqlScriptGenerator
       for (SqlTrigger trigger : table.getTriggers())
       {
         pr.print("CREATE TRIGGER ");
-        pr.print(trigger.getTableName());
-        pr.println("DeleteTrigger");
+        SqlTable triggerTable = metaDefinition.findTable(trigger.getTableName());
+        generateTriggerName(pr, triggerTable);
+        pr.println();
         pr.print("AFTER DELETE ON ");
         pr.print(trigger.getTableName());
         pr.println(" QUEUE 0");
@@ -179,33 +180,36 @@ public class HsqlSqlScriptGenerator extends SqlScriptGenerator
   @Override
   protected void generateForEachRowDeleteTriggers(PrintWriter pr, SqlMeta metaDefinition) throws MetaException
   {
-    List<String> tables = new ArrayList<String>();
     for (SqlTable table : metaDefinition.getArtifacts(SqlTable.class))
     {
       for (SqlForeignKey foreignKey : table.getForeignKeys())
       {
         if ((!isDatabaseSystemHintSet(foreignKey, NO_REFERENCE))&&(getForeignKeyAction(foreignKey) == SqlForeignKeyAction.ON_DELETE_THIS_CASCADE))
         {
-          tables.clear();
-          tables.add(table.getId());
+          List<SqlTable> tables = new ArrayList<>();
+          tables.add(table);
           if (isDatabaseSystemHintSet(foreignKey, ADDITIONAL_TRIGGERS_FOR_TABLES))
           {
             for (String tableName : getDatabaseSystemHintValue(foreignKey, ADDITIONAL_TRIGGERS_FOR_TABLES).split(","))
             {
-              tables.add(tableName.trim());
+              tables.add(metaDefinition.findTable(tableName.trim()));
             }
           }
-          for (String tableName : tables)
+          for (SqlTable triggerTable : tables)
           {
             pr.print("CREATE TRIGGER ");
-            pr.print(tableName);
             if (isDatabaseSystemHintSet(foreignKey, TRIGGER_NAME_POST_FIX))
             {
+              pr.print(table.getId());
               generateDatabaseManagementHintValue(pr, foreignKey, TRIGGER_NAME_POST_FIX);
+              pr.println("DeleteTrigger");
             }
-            pr.println("DeleteTrigger");
+            else              
+            {
+              generateTriggerName(pr, triggerTable);
+            }
             pr.print("AFTER DELETE ON ");
-            pr.print(tableName);
+            pr.print(triggerTable.getId());
             pr.println(" QUEUE 0");
             pr.print("CALL \"");
             generateDatabaseManagementHintValue(pr, foreignKey, TRIGGER_CLASS);

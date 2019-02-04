@@ -1273,8 +1273,8 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
           List<SqlDmlStatement> triggerStatements) throws MetaException
   {
     pr.print("CREATE TRIGGER ");
-    pr.print(table.getId());
-    pr.println("DeleteTrigger");
+    generateTriggerName(pr, table);
+    pr.println();
     pr.print("AFTER DELETE ON ");
     pr.println(table.getId());
     pr.println("BEGIN");

@@ -95,15 +95,8 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
           List<SqlDmlStatement> triggerStatements, boolean recursiveTrigger) throws MetaException
   {
     pr.print("CREATE TRIGGER ");
-    if (isDatabaseSystemHintSet(table, DELETE_TRIGGER_NAME))
-    {
-      pr.println(getDatabaseSystemHintValue(table, DELETE_TRIGGER_NAME));
-    }
-    else
-    { 
-      pr.print(table.getId());
-      pr.println("DeleteTrigger");
-    }
+    generateTriggerName(pr, table);
+    pr.println();
     pr.print("  ON ");
     pr.print(table.getId());
     pr.println(" FOR DELETE AS");
