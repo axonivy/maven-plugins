@@ -332,7 +332,7 @@ public class PostgreSqlSqlScriptGenerator extends SqlScriptGenerator
   }
   
   @Override
-  public void generateDropTrigger(PrintWriter pr, SqlTable table)
+  public void generateDropTrigger(PrintWriter pr, SqlTable table, SqlMeta metaDefinitionFrom)
   {
     pr.write("DROP TRIGGER ");
     generateTriggerName(pr, table);
