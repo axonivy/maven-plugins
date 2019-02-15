@@ -4,6 +4,9 @@ pipeline {
       image 'maven:3.5.2-jdk-8'
     }
   }
+  options {
+    buildDiscarder(logRotator(numToKeepStr: '30', artifactNumToKeepStr: '5'))
+  }
   triggers {
     pollSCM '@hourly'
     cron '@midnight'
