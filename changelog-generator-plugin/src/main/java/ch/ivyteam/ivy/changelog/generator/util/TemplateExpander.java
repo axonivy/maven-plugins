@@ -8,7 +8,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.text.StrSubstitutor;
+import org.apache.commons.text.StringSubstitutor;
 import org.apache.commons.text.WordUtils;
 
 import ch.ivyteam.ivy.changelog.generator.jira.JiraResponse.Issue;
@@ -49,7 +49,7 @@ public class TemplateExpander
     
     return issues.stream()
             .map(issue -> createValues(issue, whitelistedJiraLables, maxKeyLength, maxTypeLength))
-            .map(values -> new StrSubstitutor(values).replace(template))
+            .map(values -> new StringSubstitutor(values).replace(template))
             .map(change -> wordWrap(change, wordWrap))
             .collect(Collectors.joining("\r\n"));
   }
