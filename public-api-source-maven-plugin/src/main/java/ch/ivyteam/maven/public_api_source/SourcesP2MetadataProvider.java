@@ -18,7 +18,9 @@ import org.eclipse.tycho.p2.facade.internal.AttachedArtifact;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.metadata.IDependencyMetadata;
+import org.eclipse.tycho.p2.metadata.PublisherOptions;
 import org.eclipse.tycho.p2.resolver.P2MetadataProvider;
+import org.eclipse.tycho.source.OsgiSourceMojo;
 
 /**
  * Copied from tycho-source-plugin
@@ -46,7 +48,7 @@ public class SourcesP2MetadataProvider implements P2MetadataProvider, Initializa
         if (PublicApiSourceMojo.isRelevantProjectImpl(project, buildPropertiesParser)) {
             IArtifactFacade sourcesArtifact = new AttachedArtifact(project, project.getBasedir(), "sources");
             return Collections.singletonMap(sourcesArtifact.getClassifier(),
-                    sourcesGenerator.generateMetadata(sourcesArtifact, null, OptionalResolutionAction.REQUIRE));
+                    sourcesGenerator.generateMetadata(sourcesArtifact, null, OptionalResolutionAction.REQUIRE, new PublisherOptions()));
         }
         return null;
     }
