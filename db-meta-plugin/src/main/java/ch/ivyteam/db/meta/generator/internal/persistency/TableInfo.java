@@ -99,7 +99,7 @@ public class TableInfo
    */
   public String getKeyType()
   {
-    return getPrimaryKey().getDataType();
+    return getPrimaryKey().getJavaDataType();
   }
 
   /**
