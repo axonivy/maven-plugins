@@ -686,12 +686,6 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
           @SuppressWarnings("unused") SqlMeta metaDefinitionTo, 
           int newVersionId)
   {
-    // Delete all process models that belong to the SYSTEM application. 
-    // This triggers a redeploy of the system projects at the first ivy Server restart.
-    generateCommentLine(pr, "Delete process models that belong to the SYSTEM application");
-    pr.append("DELETE FROM IWA_ProcessModel WHERE ApplicationId=0");    
-    generateDelimiter(pr);
-    pr.println();
     pr.println();
     
     if (newVersionId == 32)
