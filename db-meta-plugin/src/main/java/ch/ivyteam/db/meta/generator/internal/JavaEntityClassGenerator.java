@@ -144,8 +144,8 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
       writeIndent(pr, 4);
       pr.println("{");
       writeIndent(pr, 6);
-      pr.print("return keyOfForeignEntity.equals(object.f");
-      pr.print(JavaClassGeneratorUtil.generateJavaIdentifier(column));
+      pr.print("return keyOfForeignEntity.equals(object.");
+      pr.print(generateAttributeName(column));
       pr.println(");");
       writeIndent(pr, 4);
       pr.println("}");
@@ -259,7 +259,7 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
     writeIndent(pr, 2);
     pr.println("/**");
     writeIndent(pr, 2);
-    pr.print(" * @see Object#hashCode()");
+    pr.println(" * @see Object#hashCode()");
     writeIndent(pr, 2);
     pr.println(" */");
     writeIndent(pr, 2);
@@ -274,8 +274,8 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
     {
       pr.println();
       writeIndent(pr, 6);
-      pr.print(".append(f");
-      pr.print(JavaClassGeneratorUtil.generateJavaIdentifier(column));
+      pr.print(".append(");
+      pr.print(generateAttributeName(column));
       pr.print(')');
     }
     pr.println(".toHashCode();");
@@ -296,7 +296,7 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
     pr.println("/**");
 
     writeIndent(pr, 2);
-    pr.print(" * @see Object#equals(Object)");
+    pr.println(" * @see Object#equals(Object)");
     
     writeIndent(pr, 2);
     pr.println(" */");
@@ -346,10 +346,10 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
       pr.println();
     
       writeIndent(pr, 8);
-      pr.print(".append(f");
-      pr.print(JavaClassGeneratorUtil.generateJavaIdentifier(column));
-      pr.print(", other.f");
-      pr.print(JavaClassGeneratorUtil.generateJavaIdentifier(column));
+      pr.print(".append(");
+      pr.print(generateAttributeName(column));
+      pr.print(", other.");
+      pr.print(generateAttributeName(column));
       pr.print(')');
     }
     pr.println(".isEquals();");
@@ -467,7 +467,7 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
     pr.print(associationTableName.toUpperCase());
     pr.print(associationPostfix);
     pr.print(" = new ch.ivyteam.ivy.persistence.Association(\"");
-    pr.print(associationTableName);
+    pr.print(associationTable.getId());
     pr.print("\", \"");
     pr.print(primaryKey);
     pr.print("\", \"");
@@ -553,8 +553,8 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
     for (SqlTableColumn column: secondaryKeyColumns)
     {
       writeIndent(pr, 2);
-      pr.print(" * @see #f");
-      pr.println(JavaClassGeneratorUtil.generateJavaIdentifier(column));
+      pr.print(" * @see #");
+      pr.println(generateAttributeName(column));
     }
     writeIndent(pr, 2);
     pr.println(" */");
@@ -573,8 +573,7 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
         pr.print(", ");       
       }
       first = false;
-      pr.print('f');
-      pr.print(JavaClassGeneratorUtil.generateJavaIdentifier(column));
+      pr.print(generateAttributeName(column));
     }
     pr.println("};");
     writeIndent(pr, 2);
@@ -598,7 +597,7 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
     pr.println(" (parent key)");
     writeIndent(pr, 2);
     pr.print(" * @param ");
-    pr.print(StringUtils.uncapitalize(JavaClassGeneratorUtil.generateJavaIdentifier(column)));
+    pr.print(generateAttributeName(column));
     pr.print(" new value of column ");
     pr.println(column.getId());
     writeIndent(pr, 2);
@@ -613,7 +612,7 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
     pr.print('(');
     writeDataType(pr, column);
     pr.print(" ");
-    pr.print(StringUtils.uncapitalize(JavaClassGeneratorUtil.generateJavaIdentifier(column)));
+    pr.print(generateAttributeName(column));
     pr.println(')');
     writeIndent(pr, 2);
     pr.println("{");
@@ -626,7 +625,7 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
     pr.println(")clone();");
     writeIndent(pr, 4);
     pr.print("data.modifyParentKey(");
-    pr.print(StringUtils.uncapitalize(JavaClassGeneratorUtil.generateJavaIdentifier(column)));
+    pr.print(generateAttributeName(column));
     pr.println(");");
     writeIndent(pr, 4);
     pr.println("return data;");
@@ -726,7 +725,7 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
       {
         writeIndent(pr, 2);
         pr.print(" * @param ");
-        pr.print(StringUtils.uncapitalize(JavaClassGeneratorUtil.generateJavaIdentifier(column)));
+        pr.print(generateAttributeName(column));
         pr.print(" new value of column ");
         pr.println(column.getId());
       }
@@ -735,8 +734,8 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
       for (SqlTableColumn column: columns)
       {
         writeIndent(pr, 2);
-        pr.print(" * @see #f");
-        pr.println(JavaClassGeneratorUtil.generateJavaIdentifier(column));
+        pr.print(" * @see #");
+        pr.println(generateAttributeName(column));
       }
       writeIndent(pr, 2);
       pr.println(" */");
@@ -756,7 +755,7 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
         first = false;
         writeDataType(pr, column);
         pr.print(" ");
-        pr.print(StringUtils.uncapitalize(JavaClassGeneratorUtil.generateJavaIdentifier(column)));
+        pr.print(generateAttributeName(column));
       }
       pr.println(')');
       writeIndent(pr, 2);
@@ -771,10 +770,10 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
       for (SqlTableColumn column : columns)
       {
         writeIndent(pr, 4);
-        pr.print("data.f");
-        pr.print(JavaClassGeneratorUtil.generateJavaIdentifier(column));
+        pr.print("data.");
+        pr.print(generateAttributeName(column));
         pr.print(" = ");
-        pr.print(StringUtils.uncapitalize(JavaClassGeneratorUtil.generateJavaIdentifier(column)));
+        pr.print(generateAttributeName(column));
         pr.println(";");
       }
       writeIndent(pr, 4);
@@ -800,14 +799,14 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
     pr.println(column.getId());
     writeIndent(pr, 2);
     pr.print(" * @param ");
-    pr.print(StringUtils.uncapitalize(JavaClassGeneratorUtil.generateJavaIdentifier(column)));
+    pr.print(generateAttributeName(column));
     pr.print(" new value of column ");
     pr.println(column.getId());
     writeIndent(pr, 2);
     pr.println(" * @return new entity object with the new value set on the column");
     writeIndent(pr, 2);
-    pr.print(" * @see #f");
-    pr.println(JavaClassGeneratorUtil.generateJavaIdentifier(column));
+    pr.print(" * @see #");
+    pr.println(generateAttributeName(column));
     writeIndent(pr, 2);
     pr.println(" */");
     writeIndent(pr, 2);
@@ -818,7 +817,7 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
     pr.print('(');
     writeDataType(pr, column);
     pr.print(" ");
-    pr.print(StringUtils.uncapitalize(JavaClassGeneratorUtil.generateJavaIdentifier(column)));
+    pr.print(generateAttributeName(column));
     pr.println(')');
     writeIndent(pr, 2);
     pr.println("{");
@@ -830,10 +829,10 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
     pr.print(className);
     pr.println(")clone();");
     writeIndent(pr, 4);
-    pr.print("data.f");
-    pr.print(JavaClassGeneratorUtil.generateJavaIdentifier(column));
+    pr.print("data.");
+    pr.print(generateAttributeName(column));
     pr.print(" = ");
-    pr.print(StringUtils.uncapitalize(JavaClassGeneratorUtil.generateJavaIdentifier(column)));
+    pr.print(generateAttributeName(column));
     pr.println(";");
     writeIndent(pr, 4);
     pr.println("return data;");
@@ -858,8 +857,8 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
     pr.print(" * @return value of column ");
     pr.println(column.getId());
     writeIndent(pr, 2);
-    pr.print(" * @see #f");
-    pr.println(JavaClassGeneratorUtil.generateJavaIdentifier(column));
+    pr.print(" * @see #");
+    pr.println(generateAttributeName(column));
     writeIndent(pr, 2);
     pr.println(" */");
     writeIndent(pr, 2);
@@ -871,8 +870,8 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
     writeIndent(pr, 2);
     pr.println("{");
     writeIndent(pr, 4);
-    pr.print("return f");
-    pr.print(JavaClassGeneratorUtil.generateJavaIdentifier(column));
+    pr.print("return ");
+    pr.print(generateAttributeName(column));
     pr.println(";");
     writeIndent(pr, 2);
     pr.println('}');
@@ -900,7 +899,7 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
     pr.print("public ");
     writeDataType(pr, column);
     pr.print(" get");
-    pr.print(StringUtils.capitalize(JavaClassGeneratorUtil.generateJavaIdentifier(column)));
+    pr.print(JavaClassGeneratorUtil.generateJavaIdentifier(column));
     pr.println("()");
     writeIndent(pr, 2);
     pr.println("{");
@@ -942,7 +941,7 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
       writeIndent(pr, 2);
       pr.print(" *");
       pr.print(" @param ");
-      pr.print(StringUtils.uncapitalize(JavaClassGeneratorUtil.generateJavaIdentifier(column)));
+      pr.print(generateAttributeName(column));
       pr.print(' ');
       pr.println(column.getComment());
     }
@@ -968,28 +967,27 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
         writeDataType(pr, column);
       }
       pr.print(" ");      
-      pr.print(StringUtils.uncapitalize(JavaClassGeneratorUtil.generateJavaIdentifier(column)));
+      pr.print(generateAttributeName(column));
     }
     pr.println(')');
     writeIndent(pr, 2);
     pr.println('{');
     writeIndent(pr, 4);
     pr.print("super(");
-    pr.print(StringUtils.uncapitalize(JavaClassGeneratorUtil.generateJavaIdentifier(table.findColumn(table.getPrimaryKey().getPrimaryKeyColumns().get(0)))));
+    pr.print(generateAttributeName(table.findColumn(table.getPrimaryKey().getPrimaryKeyColumns().get(0))));
     if (isChildPersistentObject(table))
     {
       pr.print(", ");
-      pr.print(StringUtils.uncapitalize(JavaClassGeneratorUtil.generateJavaIdentifier(table.findColumn(JavaClassGeneratorUtil.getParentKey(table)))));      
+      pr.print(generateAttributeName(table.findColumn(JavaClassGeneratorUtil.getParentKey(table))));      
     }
     pr.println(");");
     for (SqlTableColumn column : JavaClassGeneratorUtil.getNonPrimaryAndParentKeyAndLobColumns(table))
     {
       writeIndent(pr, 4);
-      pr.print('f');
-      pr.print(JavaClassGeneratorUtil.generateJavaIdentifier(column));
+      pr.print("this.");
+      pr.print(generateAttributeName(column));
       pr.print(" = ");
-      pr.print(" ");      
-      pr.print(StringUtils.uncapitalize(JavaClassGeneratorUtil.generateJavaIdentifier(column)));
+      pr.print(generateAttributeName(column));
       pr.println(';');
     }
     writeIndent(pr, 2);
@@ -1044,10 +1042,15 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
     writeIndent(pr, 2);
     pr.print("private ");
     writeDataType(pr, column);
-    pr.print(" f");
-    pr.print(JavaClassGeneratorUtil.generateJavaIdentifier(column));
+    pr.print(' ');
+    pr.print(generateAttributeName(column));
     pr.println(';');
     pr.println();    
+  }
+
+  private String generateAttributeName(SqlTableColumn column)
+  {
+    return StringUtils.uncapitalize(JavaClassGeneratorUtil.generateJavaIdentifier(column));
   }
 
   /**
@@ -1144,7 +1147,7 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
    */
   private void writeClass(PrintWriter pr, String className, SqlTable table)
   {
-    pr.print("public class ");
+    pr.print("public final class ");
     pr.print(className);
     pr.print(" extends ");
     if (isChildPersistentObject(table))
