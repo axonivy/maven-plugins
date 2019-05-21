@@ -17,12 +17,9 @@ pipeline {
         script {
           maven cmd: 'deploy -Dmaven.test.failure.ignore=true'
         }
-      }
-      post {
-        success {
-          junit '**/target/surefire-reports/**/*.xml' 
-        }
-      }
+        junit '**/target/surefire-reports/**/*.xml' 
+        archiveArtifacts '**/target/*.jar'
+      }      
     }
   }
 }
