@@ -159,4 +159,26 @@ public class SqlMeta
     return result;
   }
 
+  /**
+   * Returns all foreign keys referencing the given <code>table</code>
+   * @param table
+   * @return empty list if not referenced
+   */
+  public List<Pair<SqlTable, SqlForeignKey>> getReferencingForeignKeys(SqlTable table)
+  {
+    List<Pair<SqlTable, SqlForeignKey>> result = new ArrayList<Pair<SqlTable, SqlForeignKey>>();
+    for (SqlTable foreignTable : getArtifacts(SqlTable.class))
+    {
+      for (SqlForeignKey foreignKey : foreignTable.getForeignKeys())
+      {
+        SqlReference reference = foreignKey.getReference();
+        if (reference.getForeignTable().equals(table.getId()))
+        {
+          result.add(new ImmutablePair<SqlTable, SqlForeignKey>(foreignTable, foreignKey));
+        }
+      }
+    }
+    return result;
+  }
+
 }

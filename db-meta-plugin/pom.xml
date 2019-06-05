@@ -6,7 +6,7 @@
 	<packaging>maven-plugin</packaging>
 
 	<!-- format: ivy-release.databaseversion -->
-	<version>7.4.60-SNAPSHOT</version>
+	<version>7.4.63-SNAPSHOT</version>
 
 	<parent>
 		<groupId>ch.ivyteam.ivy</groupId>
