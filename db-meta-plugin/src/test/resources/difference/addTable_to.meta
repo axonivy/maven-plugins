@@ -1,0 +1,9 @@
+CREATE TABLE Test
+(
+  TestId BIGINT NOT NULL
+); 
+
+CREATE TABLE New
+(
+  NewId BIGINT NOT NULL
+); 
