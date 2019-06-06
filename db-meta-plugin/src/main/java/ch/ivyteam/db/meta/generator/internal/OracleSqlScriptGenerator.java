@@ -12,6 +12,7 @@ import ch.ivyteam.db.meta.model.internal.SqlDataType;
 import ch.ivyteam.db.meta.model.internal.SqlDataType.DataType;
 import ch.ivyteam.db.meta.model.internal.SqlDelete;
 import ch.ivyteam.db.meta.model.internal.SqlDmlStatement;
+import ch.ivyteam.db.meta.model.internal.SqlForeignKey;
 import ch.ivyteam.db.meta.model.internal.SqlFullQualifiedColumnName;
 import ch.ivyteam.db.meta.model.internal.SqlFunction;
 import ch.ivyteam.db.meta.model.internal.SqlIndex;
@@ -334,10 +335,28 @@ public class OracleSqlScriptGenerator extends SqlScriptGenerator
   }
   
   @Override
+  public void generateAlterTableDropForeignKey(PrintWriter pr, SqlTable table, SqlForeignKey foreignKey,
+          List<String> createdTemporaryStoredProcedures)
+  {
+    pr.println("DECLARE");
+    pr.println("FK_NAME VARCHAR(30);");
+    pr.println("BEGIN");
+    pr.println("  SELECT UC.CONSTRAINT_NAME INTO FK_NAME");
+    pr.println("  FROM USER_CONSTRAINTS UC INNER JOIN USER_CONS_COLUMNS UCC ON UC.CONSTRAINT_NAME = UCC.CONSTRAINT_NAME");
+    pr.println("  WHERE UC.CONSTRAINT_TYPE='R' AND UC.TABLE_NAME='"+table.getId().toUpperCase()+"' AND UCC.COLUMN_NAME='"+foreignKey.getColumnName().toUpperCase()+"';");
+    pr.println();
+    pr.println("  EXECUTE IMMEDIATE 'ALTER TABLE "+table.getId()+" DROP CONSTRAINT ' || FK_NAME;");
+    pr.println("END;");
+    pr.println(";");
+    pr.println();
+  }
+  
+  @Override
   public RecreateOptions getRecreateOptions()
   {
     RecreateOptions options = super.getRecreateOptions();
     options.uniqueConstraintsOnAlterTable = true;
+    options.foreignKeysOnAlterTable=true;
     return options;
   }
   
