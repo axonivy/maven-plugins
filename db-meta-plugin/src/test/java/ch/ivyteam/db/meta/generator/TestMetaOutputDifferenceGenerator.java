@@ -55,7 +55,7 @@ public class TestMetaOutputDifferenceGenerator
       
       differenceGenerator.generate(pr);
       
-      String assertOutput = FileUtils.readFileToString(new File(TESTS_DIRECTORY, testName+"_postgre.sql"));
+      String assertOutput = normalizeLineEnds(FileUtils.readFileToString(new File(TESTS_DIRECTORY, testName+"_postgre.sql")));
       String testee = removeHeaderAndUpdateVersion(sw.toString());
       assertThat(testee).isEqualTo(assertOutput);
     }
@@ -63,11 +63,16 @@ public class TestMetaOutputDifferenceGenerator
 
   private String removeHeaderAndUpdateVersion(String testee)
   {
+    testee = normalizeLineEnds(testee);
     testee = StringUtils.substringAfterLast(testee, "----");
-    testee = StringUtils.substringBefore(testee, "-- \r\n-- Update Version");
-    testee = StringUtils.replace(testee, "\r\n", "\n");
-    testee = StringUtils.replace(testee, "\n", "\r\n");
+    testee = StringUtils.substringBefore(testee, "-- \n-- Update Version");
     testee = testee.trim();
+    return testee;
+  }
+
+  private String normalizeLineEnds(String testee)
+  {
+    testee = StringUtils.replace(testee, "\r\n", "\n");
     return testee;
   }
 }
