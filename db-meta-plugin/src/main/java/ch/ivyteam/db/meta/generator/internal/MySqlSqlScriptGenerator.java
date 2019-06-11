@@ -252,9 +252,9 @@ public class MySqlSqlScriptGenerator extends SqlScriptGenerator
       pr.println("  WHILE EXISTS(");
       pr.println("    SELECT * FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE");
       pr.println("    WHERE REFERENCED_COLUMN_NAME IS NOT NULL");
-      pr.println("      AND TABLE_SCHEMA = fk_schema");
-      pr.println("      AND TABLE_NAME = fk_table");
-      pr.println("      AND COLUMN_NAME = fk_column");
+      pr.println("      AND CAST(TABLE_SCHEMA AS CHAR CHARACTER SET ascii) COLLATE ascii_general_ci = CAST(fk_schema AS CHAR CHARACTER SET ascii)");
+      pr.println("      AND CAST(TABLE_NAME AS CHAR CHARACTER SET ascii) COLLATE ascii_general_ci = CAST(fk_table AS CHAR CHARACTER SET ascii)");
+      pr.println("      AND CAST(COLUMN_NAME AS CHAR CHARACTER SET ascii) COLLATE ascii_general_ci = CAST(fk_column AS CHAR CHARACTER SET ascii)");
       pr.println("  ) ");
       pr.println("  DO");
       pr.println("    BEGIN");
@@ -262,9 +262,9 @@ public class MySqlSqlScriptGenerator extends SqlScriptGenerator
       pr.println("        SELECT CONCAT('ALTER TABLE ',TABLE_SCHEMA,'.',TABLE_NAME,' DROP FOREIGN KEY ',CONSTRAINT_NAME)");
       pr.println("        FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE");
       pr.println("        WHERE REFERENCED_COLUMN_NAME IS NOT NULL");
-      pr.println("          AND TABLE_SCHEMA = fk_schema");
-      pr.println("          AND TABLE_NAME = fk_table");
-      pr.println("          AND COLUMN_NAME = fk_column");
+      pr.println("          AND CAST(TABLE_SCHEMA AS CHAR CHARACTER SET ascii) COLLATE ascii_general_ci = CAST(fk_schema AS CHAR CHARACTER SET ascii)");
+      pr.println("          AND CAST(TABLE_NAME AS CHAR CHARACTER SET ascii) COLLATE ascii_general_ci = CAST(fk_table AS CHAR CHARACTER SET ascii)");
+      pr.println("          AND CAST(COLUMN_NAME AS CHAR CHARACTER SET ascii) COLLATE ascii_general_ci = CAST(fk_column AS CHAR CHARACTER SET ascii)");
       pr.println("        LIMIT 1");
       pr.println("      );");
       pr.println("      PREPARE stmt1 FROM @sqlstmt;");
