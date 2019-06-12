@@ -1,0 +1,10 @@
+CREATE TABLE DropTable
+( 
+  DropTableId BIGINT NOT NULL
+);
+
+CREATE TABLE ReferenceTable
+(
+  ReferenceTableId BIGINT NOT NULL,
+  DropTableId BIGINT NOT NULL REFERENCES DropTable(DropTableId)
+); 

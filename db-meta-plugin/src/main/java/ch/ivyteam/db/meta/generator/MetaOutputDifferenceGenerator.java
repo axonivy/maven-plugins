@@ -151,7 +151,7 @@ public class MetaOutputDifferenceGenerator
     generateDropViews(pr);
     indexes.generateDropIndexesOfRemovedIndexes(pr);
     triggers.generateDropTriggersOfChangedTables(pr);
-    foreignKeys.generateDropForeignKeysOfChangedColumns(pr);
+    foreignKeys.generateDropForeignKeysReferencingChangedOrDeletedColumns(pr);
     
     generateDropTableOfDeletedTables(pr);
     generateCreateTablesOfAddedTables(pr);
@@ -816,7 +816,7 @@ public class MetaOutputDifferenceGenerator
       }
     }
 
-    void generateDropForeignKeysOfChangedColumns(PrintWriter pr)
+    void generateDropForeignKeysReferencingChangedOrDeletedColumns(PrintWriter pr)
     {
       if (!generator.getRecreateOptions().foreignKeysOnAlterTable)
       {
@@ -824,6 +824,8 @@ public class MetaOutputDifferenceGenerator
       }
     
       List<Pair<SqlTable, SqlForeignKey>> referencingColumns = getForeignKeysReferencingChangedColumns();
+      referencingColumns.addAll(getForeignKeysReferencingDroppedColumns());
+      referencingColumns.addAll(getForeignKeysReferencingDroppedTables());
       for (Pair<SqlTable, SqlForeignKey> pair : referencingColumns)
       {
         if (generator.isForeignKeySupported(pair.getRight()))
@@ -849,6 +851,32 @@ public class MetaOutputDifferenceGenerator
       return sqlForeignKeys;
     }
 
+    private List<Pair<SqlTable, SqlForeignKey>> getForeignKeysReferencingDroppedColumns()
+    {
+      List<Pair<SqlTable, SqlForeignKey>> sqlForeignKeys = new ArrayList<>();
+      for (Entry<SqlTable, SqlTable> changedTable : findChangedTables().entrySet())
+      {
+        List<SqlTableColumn> droppedColumns = findDroppedColumns(changedTable.getKey(), changedTable.getValue());
+        for (SqlTableColumn droppedColumn : droppedColumns)
+        {
+          List<Pair<SqlTable, SqlForeignKey>> referencingColumns = metaDefinitionFrom.getReferencingForeignKeys(changedTable.getValue(), droppedColumn);
+          sqlForeignKeys.addAll(referencingColumns);
+        }
+      }    
+      return sqlForeignKeys;
+    }
+
+    private List<Pair<SqlTable, SqlForeignKey>> getForeignKeysReferencingDroppedTables()
+    {
+      List<Pair<SqlTable, SqlForeignKey>> sqlForeignKeys = new ArrayList<>();
+      for (SqlTable droppedTable : findDroppedTables())
+      {
+        List<Pair<SqlTable, SqlForeignKey>> referencingColumns = metaDefinitionFrom.getReferencingForeignKeys(droppedTable);
+        sqlForeignKeys.addAll(referencingColumns);
+      }    
+      return sqlForeignKeys;
+    }
+
     void generateAlterForeignKeys(PrintWriter pr, SqlTable newTable, SqlTable oldTable)
     {
       if (generator.isForeignKeyReferenceInColumnDefinitionSupported())
@@ -868,6 +896,7 @@ public class MetaOutputDifferenceGenerator
       }
 
       List<SqlForeignKey> removedForeignKeys = findChangedForeignKeys(oldTable, newTable);
+      removedForeignKeys = removeForeignKeysOnDroppedColumns(newTable, removedForeignKeys);
       if (!removedForeignKeys.isEmpty())
       {
         pr.println();
@@ -877,6 +906,15 @@ public class MetaOutputDifferenceGenerator
           generator.generateAlterTableDropForeignKey(pr, newTable, sqlForeignKey, createdTemporaryStoredProcedures);
         }
       }
+    }
+
+    private List<SqlForeignKey> removeForeignKeysOnDroppedColumns(SqlTable newTable,
+            List<SqlForeignKey> removedForeignKeys)
+    {
+      return removedForeignKeys
+              .stream()
+              .filter(foreignKey -> newTable.findColumn(foreignKey.getColumnName())!=null)
+              .collect(Collectors.toList());
     }
     
     boolean hasForeignKeyDefinitionChanged(SqlTable newTable, SqlTable oldTable)
@@ -916,7 +954,7 @@ public class MetaOutputDifferenceGenerator
   
   private void generateDropTableOfDeletedTables(PrintWriter pr)
   {
-    List<SqlTable> deletedTables = findDeletedTables();
+    List<SqlTable> deletedTables = findDroppedTables();
     if (deletedTables.isEmpty())
     {
       return;
@@ -1196,7 +1234,7 @@ public class MetaOutputDifferenceGenerator
   /**
    * @return tables which are deleted in the new meta definition (only exists in old meta definition)
    */
-  private List<SqlTable> findDeletedTables()
+  private List<SqlTable> findDroppedTables()
   {
     List<SqlTable> oldTables = new ArrayList<>(metaDefinitionFrom.getArtifacts(SqlTable.class));
     List<SqlTable> deletedTables = new ArrayList<>();

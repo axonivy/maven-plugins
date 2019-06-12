@@ -36,9 +36,10 @@ public class NotReferencedTablesFirstComparator implements Comparator<SqlTable>
   }
 
   private boolean isNotReferencedBy(SqlTable table, List<SqlTable> remainingTables)
-  {
+  {    
     return remainingTables
             .stream()
+            .filter(remainingTable -> !Objects.equals(remainingTable, table))
             .noneMatch(remainingTable -> isReferencedBy(table, remainingTable));
   }
   

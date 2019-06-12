@@ -1,0 +1,5 @@
+CREATE TABLE Test
+(
+  TestId BIGINT NOT NULL,
+  Name VARCHAR(200)
+); 
