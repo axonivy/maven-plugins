@@ -20,11 +20,17 @@ public class CompareImagesMojo extends AbstractMojo
 {
   static final String GOAL = "compare-images";
 
+  /** Reference images to compare with: this directory should have the same structure as the fileSet given in {@link #newImagesFs} */
   @Parameter(property="img.dir.reference")
   File refImages;
   
+  /** Files that must be compared with reference images */
   @Parameter(property="img.files.new")
   FileSet newImagesFs;
+  
+  /** How similar must each image be to its reference image */
+  @Parameter(property="img.similarity", defaultValue="99")
+  float requiredSimilarity;
   
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
@@ -32,7 +38,7 @@ public class CompareImagesMojo extends AbstractMojo
     List<File> newImages = toFiles(newImagesFs);
     getLog().info("analysing "+newImages.size()+" images in "+newImagesFs.getDirectory()+" with "+refImages);
     
-    new ImageComparer(refImages, new File(newImagesFs.getDirectory()), newImages, getLog()).compare();
+    new ImageComparer(refImages, new File(newImagesFs.getDirectory()), newImages, requiredSimilarity, getLog()).compare();
   }
   
   private static List<File> toFiles(FileSet fs) throws MojoExecutionException

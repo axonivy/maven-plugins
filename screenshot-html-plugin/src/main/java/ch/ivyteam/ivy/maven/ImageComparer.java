@@ -3,6 +3,7 @@ package ch.ivyteam.ivy.maven;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -15,13 +16,15 @@ public class ImageComparer
   private final List<File> newImages;
   private final Log log;
   private final File refRoot;
-  private final File newRoot;
+  private final Path newRoot;
+  private float requiredSimilarity;
 
-  public ImageComparer(File refRoot, File newRoot, List<File> newImages, Log log)
+  public ImageComparer(File refRoot, File newRoot, List<File> newImages, float requiredSimilarity, Log log)
   {
     this.refRoot = refRoot;
-    this.newRoot = newRoot;
+    this.newRoot = newRoot.toPath();
     this.newImages = newImages;
+    this.requiredSimilarity = requiredSimilarity;
     this.log = log;
   }
 
@@ -32,64 +35,67 @@ public class ImageComparer
 
   private File getRefImg(File img)
   {
-    Path relativize = newRoot.toPath().relativize(img.toPath());
+    Path relativize = relativizeToRoot(img);
     Path ref = refRoot.toPath().resolve(relativize);
     return ref.toFile();
+  }
+
+  private Path relativizeToRoot(File img)
+  {
+    return newRoot.relativize(img.toPath());
   }
 
   private void compareImg(File img, File ref)
   {
     log.debug("comparing "+img+" with "+ref);
 
-    float percentage = 0;
-
     try
     {
-      BufferedImage imageA = ImageIO.read(img);
-      DataBuffer imageABuffer = imageA.getData().getDataBuffer();
-      int sizeImageA = imageABuffer.getSize();
-
-      BufferedImage imageB = ImageIO.read(ref);
-      DataBuffer imageBBuffer = imageB.getData().getDataBuffer();
-      int sizeImageB = imageBBuffer.getSize();
-
-      int count = 0;
-      if (sizeImageA == sizeImageB)
-      {
-        for (int i = 0; i < sizeImageA; i++)
-        {
-          if (imageABuffer.getElem(i) == imageBBuffer.getElem(i))
-          {
-              count = count + 1;
-          }
-        }
-
-        percentage = (count * 100f) / sizeImageA;
-      }
-      else
+      DataBuffer imageABuffer = toDataBuffer(img);
+      DataBuffer imageBBuffer = toDataBuffer(ref);
+      
+      if (imageABuffer.getSize() != imageBBuffer.getSize())
       {
         logWarning(img, "Different sized image");
+        return;
       }
+        
+      int matchedPixels = countMatchingPixels(imageABuffer, imageBBuffer);
 
-      validateSimilarity(img, percentage);
+      float similarity = (matchedPixels * 100f) / imageABuffer.getSize();
+      if (similarity < requiredSimilarity)
+      {
+        logWarning(img, "Image only has similarity of " + similarity);
+      }
     }
-    catch (Exception e)
+    catch (IOException e)
     {
       logWarning(img, "Could not read image");
     }
   }
-
-  private void validateSimilarity(File img, float percentage)
-  {
-    if (percentage < 99.99f)
-    {
-      logWarning(img, "Images are different");
-    }
-  }
   
+  private static DataBuffer toDataBuffer(File imgFile) throws IOException
+  {
+    BufferedImage bufferedImage = ImageIO.read(imgFile);
+    return bufferedImage.getData().getDataBuffer();
+  }
+
+  private int countMatchingPixels(DataBuffer imageABuffer, DataBuffer imageBBuffer)
+  {
+    int matchedPixels = 0;
+    for (int i = 0; i < imageABuffer.getSize(); i++)
+    {
+      if (imageABuffer.getElem(i) == imageBBuffer.getElem(i))
+      {
+        matchedPixels++;
+      }
+    }
+    return matchedPixels;
+  }
+
   private void logWarning(File img, String msg)
   {
-    String imageName = img.getParent() + "/" + img.getName();
+    String imageName = relativizeToRoot(img).toString();
     log.warn(msg + ": " + imageName);
   }
   
