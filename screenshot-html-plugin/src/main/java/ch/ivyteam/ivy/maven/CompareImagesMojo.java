@@ -20,24 +20,19 @@ public class CompareImagesMojo extends AbstractMojo
 {
   static final String GOAL = "compare-images";
 
-  @Parameter(property="compare.img.reference")
-  FileSet refImagesFs;
+  @Parameter(property="img.dir.reference")
+  File refImages;
   
-  @Parameter(property="compare.img.new")
+  @Parameter(property="img.files.new")
   FileSet newImagesFs;
   
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
   {
     List<File> newImages = toFiles(newImagesFs);
-    getLog().info("analysing "+newImages.size()+" images in "+newImagesFs.getDirectory());
+    getLog().info("analysing "+newImages.size()+" images in "+newImagesFs.getDirectory()+" with "+refImages);
     
-    List<File> refImages = toFiles(refImagesFs);
-    getLog().info("using "+refImages.size()+" reference images in "+refImagesFs.getDirectory()+" for comparison");
-    
-    new ImageComparer(refImages, newImages, getLog()).compare();
-    //getLog().info("running "+CompareImagesMojo.class.getSimpleName()+" with parameter 'buildApplicationDirectory'="+buildApplicationDirectory);
-    //getLog().error("not yet implemented");
+    new ImageComparer(refImages, new File(newImagesFs.getDirectory()), newImages, getLog()).compare();
   }
   
   private static List<File> toFiles(FileSet fs) throws MojoExecutionException
