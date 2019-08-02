@@ -41,7 +41,7 @@ public class CompareImagesMojo extends AbstractMojo
     new ImageComparer(refImages, new File(newImagesFs.getDirectory()), newImages, requiredSimilarity, getLog()).compare();
   }
   
-  private static List<File> toFiles(FileSet fs) throws MojoExecutionException
+  static List<File> toFiles(FileSet fs) throws MojoExecutionException
   {
     if (fs.getDirectory() == null)
     {
