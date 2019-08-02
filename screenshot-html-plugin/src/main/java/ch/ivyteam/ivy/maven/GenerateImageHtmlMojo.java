@@ -1,14 +1,16 @@
 package ch.ivyteam.ivy.maven;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Stream;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.maven.model.FileSet;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -23,27 +25,25 @@ public class GenerateImageHtmlMojo extends AbstractMojo
   static final String GOAL = "generate-html";
   static final String REPLACE_TAG = "{generated.img.tag.location}";
 
-  /** Html template to use around generated images, add {generated.img.tag.location} inside template to define location for generated <img> tags */
-  @Parameter(property = "html.template", required = true)
+  /** Custom html template to use around generated images, add {generated.img.tag.location} inside template to define location for generated <img> tags*/
+  @Parameter(property = "html.template")
   File htmlTemplate;
-  
-  /** Filename of output html, default overview.html */
-  @Parameter(property = "html.output.name", defaultValue = "overview.html", required = false)
-  String outputName;
   
   /** Images to include in generated html, this directory can have sub-directories */
   @Parameter(property="include.imgs")
   FileSet images;
   
-  @Parameter(property = "outputDirectory", defaultValue = "${project.build.directory}", required = true)
-  File outputDirectory;
+  /** Output file location of html, default value ${project.build.directory}/overview.html */
+  @Parameter(property = "outputFile", defaultValue = "${project.build.directory}/overview.html")
+  File outputFile;
   
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
   {
     List<File> imageFiles = CompareImagesMojo.toFiles(images);
     Collections.sort(imageFiles);
-    getLog().info("Generating html with " + imageFiles.size()+" images from " + images.getDirectory());
+    
+    getLog().info("Generating " + outputFile);
     
     String templateString = readTemplate();
     String outputHtml = new HtmlGenerator(templateString, imageFiles, Paths.get(images.getDirectory()), getLog()).generate();
@@ -52,16 +52,21 @@ public class GenerateImageHtmlMojo extends AbstractMojo
 
   private String readTemplate()
   {
-    StringBuilder templateBuilder = new StringBuilder();
-    try (Stream<String> templateStream = Files.lines(htmlTemplate.toPath(), StandardCharsets.UTF_8))
+    try
     {
-      templateStream.forEach(line -> templateBuilder.append(line + System.lineSeparator()));
+      if (htmlTemplate == null)
+      {
+        InputStream resourceAsStream = getClass().getResourceAsStream("template.html");
+        return IOUtils.toString(resourceAsStream, StandardCharsets.UTF_8);
+      }
+      
+      return IOUtils.toString(new ByteArrayInputStream(Files.readAllBytes(htmlTemplate.toPath())), StandardCharsets.UTF_8);
     }
-    catch (IOException e)
+    catch (IOException ex)
     {
-      getLog().error("Failed reading template " + htmlTemplate.toPath() + " " + e);
+      getLog().error("Failed reading template " + htmlTemplate.toPath() + " " + ex);
     }
-    return templateBuilder.toString();
+    return null;
   }
   
   private void writeHtmlFile(String outputHtml)
@@ -69,15 +74,16 @@ public class GenerateImageHtmlMojo extends AbstractMojo
     getLog().debug(outputHtml);
     try
     {
-      if (!outputDirectory.exists())
+      File parentDir = new File(outputFile.getParent());
+      if (!parentDir.exists())
       {
-        outputDirectory.mkdirs();
+        parentDir.mkdirs();
       }
-      Files.write(new File(outputDirectory.toPath() + File.separator + outputName).toPath(), outputHtml.getBytes());
+      Files.write(outputFile.toPath(), outputHtml.getBytes());
     }
     catch (IOException ex)
     {
-      getLog().error("Could not generate file in " + outputDirectory + " " + ex);
+      getLog().error("Could not generate file in " + outputFile + " " + ex);
     }
   }
 
