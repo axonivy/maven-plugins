@@ -10,14 +10,16 @@ import org.apache.maven.plugin.logging.Log;
 public class HtmlGenerator
 {
 
+  private String templateHtml;
   private List<File> imageFiles;
   private Path rootDir;
   private Log log;
-  private StringBuilder htmlBuilder;
+  private StringBuilder imgTagBuilder;
   private String lastParent;
 
-  public HtmlGenerator(List<File> imageFiles, Path rootDir, Log log)
+  public HtmlGenerator(String template, List<File> imageFiles, Path rootDir, Log log)
   {
+    this.templateHtml = template;
     this.imageFiles = imageFiles;
     this.rootDir = rootDir;
     this.log = log;
@@ -25,29 +27,12 @@ public class HtmlGenerator
 
   public String generate()
   {
-    htmlBuilder = new StringBuilder();
-    appendHead();
+    imgTagBuilder = new StringBuilder();
+        
     imageFiles.stream().forEach(this::appendImage);
-    appendFoot();
-
-    return htmlBuilder.toString();
-  }
-  
-  private void appendHead()
-  {
-    htmlBuilder.append("<!doctype html>\n");
-    htmlBuilder.append("<html lang=\"en\">\n");
-    htmlBuilder.append("<head>\n");
-    htmlBuilder.append("\t<meta charset=\"utf-8\">\n");
-    htmlBuilder.append("\t<title>Overview</title>\n");
-    htmlBuilder.append("</head>\n");
-    htmlBuilder.append("<body>\n");
-  }
-  
-  private void appendFoot()
-  {
-    htmlBuilder.append("</body>\n");
-    htmlBuilder.append("</html>\n");
+    imgTagBuilder.toString();
+    
+    return StringUtils.replace(templateHtml, GenerateImageHtmlMojo.REPLACE_TAG, imgTagBuilder.toString());
   }
   
   private void appendImage(File image)
@@ -56,7 +41,7 @@ public class HtmlGenerator
     appendTitle(relativeImagePath);
     
     log.debug("Adding: " + relativeImagePath);
-    htmlBuilder.append("\t<img src=\"" + rootDir.getFileName() + File.separator + 
+    imgTagBuilder.append("<img src=\"" + rootDir.getFileName() + File.separator + 
             relativeImagePath + "\" title=\"" + image.getName() + "\">\n");
   }
   
@@ -66,7 +51,7 @@ public class HtmlGenerator
     if (!StringUtils.equals(imgParent, lastParent))
     {
       lastParent = imgParent;
-      htmlBuilder.append("\t<h3>" + relativeImagePath.getParent() + "</h3>\n");
+      imgTagBuilder.append("<p>" + relativeImagePath.getParent() + "</p>\n");
     }
   }
 }
