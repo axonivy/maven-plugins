@@ -27,6 +27,10 @@ public class GenerateImageHtmlMojo extends AbstractMojo
   @Parameter(property = "html.template", required = true)
   File htmlTemplate;
   
+  /** Filename of output html, default overview.html */
+  @Parameter(property = "html.output.name", defaultValue = "overview.html", required = false)
+  String outputName;
+  
   /** Images to include in generated html, this directory can have sub-directories */
   @Parameter(property="include.imgs")
   FileSet images;
@@ -69,7 +73,7 @@ public class GenerateImageHtmlMojo extends AbstractMojo
       {
         outputDirectory.mkdirs();
       }
-      Files.write(new File(outputDirectory.toPath() + File.separator + "overview.html").toPath(), outputHtml.getBytes());
+      Files.write(new File(outputDirectory.toPath() + File.separator + outputName).toPath(), outputHtml.getBytes());
     }
     catch (IOException ex)
     {
