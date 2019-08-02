@@ -27,7 +27,7 @@ public class HtmlGenerator
   {
     htmlBuilder = new StringBuilder();
     appendHead();
-    imageFiles.stream().forEach(img -> appendImage(img));
+    imageFiles.stream().forEach(this::appendImage);
     appendFoot();
 
     return htmlBuilder.toString();
@@ -39,7 +39,7 @@ public class HtmlGenerator
     htmlBuilder.append("<html lang=\"en\">\n");
     htmlBuilder.append("<head>\n");
     htmlBuilder.append("\t<meta charset=\"utf-8\">\n");
-    htmlBuilder.append("\t<title>Screenshots Overview</title>\n");
+    htmlBuilder.append("\t<title>Overview</title>\n");
     htmlBuilder.append("</head>\n");
     htmlBuilder.append("<body>\n");
   }
@@ -56,7 +56,8 @@ public class HtmlGenerator
     appendTitle(relativeImagePath);
     
     log.debug("Adding: " + relativeImagePath);
-    htmlBuilder.append("\t<img src=\"" + rootDir.getFileName() + File.separator + relativeImagePath + "\" height=\"500\" width=\"500\">\n");
+    htmlBuilder.append("\t<img src=\"" + rootDir.getFileName() + File.separator + 
+            relativeImagePath + "\" title=\"" + image.getName() + "\">\n");
   }
   
   private void appendTitle(Path relativeImagePath)
@@ -65,7 +66,7 @@ public class HtmlGenerator
     if (!StringUtils.equals(imgParent, lastParent))
     {
       lastParent = imgParent;
-      htmlBuilder.append("\t<p>" + relativeImagePath.getParent() + "</p>\n");
+      htmlBuilder.append("\t<h3>" + relativeImagePath.getParent() + "</h3>\n");
     }
   }
 }

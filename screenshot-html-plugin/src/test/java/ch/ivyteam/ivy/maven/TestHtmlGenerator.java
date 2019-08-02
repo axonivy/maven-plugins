@@ -27,14 +27,14 @@ public class TestHtmlGenerator
   public void setUp() throws IOException
   {
     log = new LogCollector();
-    images = Arrays.asList(load(newImgFolder + "/" + nameTab), load(newImgFolder + "/" + conditionTab));
+    images = Arrays.asList(load(newImgFolder + File.separator + nameTab), load(newImgFolder + File.separator + conditionTab));
   }
 
   @Test
   public void generateHtml()
   {
     String html = new HtmlGenerator(images, Paths.get("/tmp"), log).generate();
-    assertThat(html).contains("", "", nameTab, conditionTab);
+    assertThat(html).contains(newImgFolder, nameTab, conditionTab);
     assertThat(log.getWarnings()).isEmpty();
     assertThat(log.getDebug().toString()).contains(nameTab, conditionTab);
   }
