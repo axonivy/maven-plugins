@@ -10,10 +10,11 @@ import org.apache.maven.plugin.logging.Log;
 public class HtmlGenerator
 {
 
-  private String templateHtml;
-  private List<File> imageFiles;
-  private Path rootDir;
-  private Log log;
+  private final String templateHtml;
+  private final List<File> imageFiles;
+  private final Path rootDir;
+  private final Log log;
+
   private StringBuilder imgTagBuilder;
   private String lastParent;
 
@@ -28,7 +29,7 @@ public class HtmlGenerator
   public String generate()
   {
     imgTagBuilder = new StringBuilder();
-        
+    
     imageFiles.stream().forEach(this::appendImage);
     imgTagBuilder.toString();
     

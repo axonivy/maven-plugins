@@ -25,7 +25,8 @@ public class GenerateImageHtmlMojo extends AbstractMojo
   static final String GOAL = "generate-html";
   static final String REPLACE_TAG = "{generated.img.tag.location}";
 
-  /** Custom html template to use around generated images, add {generated.img.tag.location} inside template to define location for generated <img> tags*/
+  /** Custom html template to use around generated images, add {generated.img.tag.location} inside template 
+   * to define location for generated <img> tags. If not defined a default template is used */
   @Parameter(property = "html.template")
   File htmlTemplate;
   
@@ -50,40 +51,38 @@ public class GenerateImageHtmlMojo extends AbstractMojo
     writeHtmlFile(outputHtml);
   }
 
-  private String readTemplate()
+  private String readTemplate() throws MojoExecutionException
   {
     try
     {
-      if (htmlTemplate == null)
-      {
-        InputStream resourceAsStream = getClass().getResourceAsStream("template.html");
-        return IOUtils.toString(resourceAsStream, StandardCharsets.UTF_8);
-      }
-      
-      return IOUtils.toString(new ByteArrayInputStream(Files.readAllBytes(htmlTemplate.toPath())), StandardCharsets.UTF_8);
+      return IOUtils.toString(getTemplateStream(), StandardCharsets.UTF_8);
     }
     catch (IOException ex)
     {
-      getLog().error("Failed reading template " + htmlTemplate.toPath() + " " + ex);
+      throw new MojoExecutionException("Failed reading template " + htmlTemplate.toPath() + " " + ex);
     }
-    return null;
   }
   
-  private void writeHtmlFile(String outputHtml)
+  private InputStream getTemplateStream() throws IOException
   {
-    getLog().debug(outputHtml);
+    if (htmlTemplate == null)
+    {
+      return getClass().getResourceAsStream("template.html");
+    }
+    return new ByteArrayInputStream(Files.readAllBytes(htmlTemplate.toPath()));
+  }
+  
+  private void writeHtmlFile(String outputHtml) throws MojoExecutionException
+  {
+    getLog().debug("Writing " + outputHtml + " to file " + outputFile);
     try
     {
-      File parentDir = new File(outputFile.getParent());
-      if (!parentDir.exists())
-      {
-        parentDir.mkdirs();
-      }
+      new File(outputFile.getParent()).mkdirs();
       Files.write(outputFile.toPath(), outputHtml.getBytes());
     }
     catch (IOException ex)
     {
-      getLog().error("Could not generate file in " + outputFile + " " + ex);
+      throw new MojoExecutionException("Could not generate file in " + outputFile + " " + ex);
     }
   }
 
