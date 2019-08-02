@@ -10,6 +10,7 @@ import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.model.FileSet;
 import org.apache.maven.plugin.AbstractMojo;
@@ -78,7 +79,7 @@ public class GenerateImageHtmlMojo extends AbstractMojo
     try
     {
       new File(outputFile.getParent()).mkdirs();
-      Files.write(outputFile.toPath(), outputHtml.getBytes());
+      FileUtils.writeStringToFile(outputFile, outputHtml, StandardCharsets.UTF_8);
     }
     catch (IOException ex)
     {
