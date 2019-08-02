@@ -19,7 +19,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
 
-@Mojo(name=GenerateImageHtmlMojo.GOAL, requiresProject = false)
+@Mojo(name=GenerateImageHtmlMojo.GOAL, requiresProject = true)
 public class GenerateImageHtmlMojo extends AbstractMojo
 {
   static final String GOAL = "generate-html";
