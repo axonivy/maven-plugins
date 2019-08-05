@@ -52,7 +52,9 @@ public class HtmlGenerator
     if (!StringUtils.equals(imgParent, lastParent))
     {
       lastParent = imgParent;
-      imgTagBuilder.append("<p>" + relativeImagePath.getParent() + "</p>\n");
+      String title = relativeImagePath.getParent().toString();
+      String id = StringUtils.replace(title, " ", "-");
+      imgTagBuilder.append("<h3 id='"+id+"'>" + title + "</h3><a href='#"+id+"'>link</a></br>\n");
     }
   }
 }
