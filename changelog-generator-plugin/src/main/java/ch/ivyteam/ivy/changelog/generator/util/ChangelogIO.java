@@ -15,7 +15,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 
 public class ChangelogIO
 {
-  private static final String encoding = "ISO-8859-1";
+  private static final String encoding = "UTF-8";
   private File sourceFile;
   private File outputFile;
   
