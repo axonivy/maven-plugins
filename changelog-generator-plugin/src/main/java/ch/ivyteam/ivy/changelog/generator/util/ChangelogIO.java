@@ -7,6 +7,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
 import org.apache.commons.compress.compressors.gzip.GzipParameters;
@@ -15,7 +17,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 
 public class ChangelogIO
 {
-  private static final String encoding = "UTF-8";
+  private static final Charset encoding = StandardCharsets.ISO_8859_1;
   private File sourceFile;
   private File outputFile;
   
@@ -54,7 +56,7 @@ public class ChangelogIO
     String gzipFile = getGzipFile();
     GzipParameters parameters = new GzipParameters();
     parameters.setCompressionLevel(9);
-    try (InputStream in = new ByteArrayInputStream(outputContent.getBytes(encoding));
+    try (InputStream in = new ByteArrayInputStream(outputContent.getBytes(StandardCharsets.UTF_8));
             OutputStream os = new FileOutputStream(gzipFile);
             BufferedOutputStream out = new BufferedOutputStream(os);
             GzipCompressorOutputStream gzOut = new GzipCompressorOutputStream(out, parameters);)
