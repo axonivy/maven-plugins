@@ -19,6 +19,8 @@ import org.apache.maven.settings.Server;
 import org.apache.maven.shared.model.fileset.FileSet;
 import org.apache.maven.shared.model.fileset.util.FileSetManager;
 
+import ch.ivyteam.ivy.changelog.generator.jira.JiraQuery;
+import ch.ivyteam.ivy.changelog.generator.jira.JiraResponse.Filter;
 import ch.ivyteam.ivy.changelog.generator.jira.JiraResponse.Issue;
 import ch.ivyteam.ivy.changelog.generator.jira.JiraService;
 import ch.ivyteam.ivy.changelog.generator.util.ChangelogIO;
@@ -43,6 +45,10 @@ public class ChangelogGeneratorMojo extends AbstractMojo
   /** comma separated list of jira projects for example: XIVY, IVYPORTAL */
   @Parameter(property = "jiraProjects", defaultValue = "XIVY")
   public String jiraProjects;
+  
+  /** comma separated list of issue fields to define ordering */
+  @Parameter(property = "jira.issue.order", defaultValue = "project,key")
+  public String orderBy;
 
   /** comma separated list of labels which will be parsed as batches for example: security, performance, usability */
   @Parameter(property = "whitelistJiraLabels", defaultValue = "")
@@ -116,7 +122,8 @@ public class ChangelogGeneratorMojo extends AbstractMojo
     try
     {
       JiraService jiraService = new JiraService(jiraServerUri, server, getLog());
-      return jiraService.getIssuesWithFixVersion(fixVersion,jiraProjects);
+      JiraQuery query = new JiraQuery(fixVersion, jiraProjects, orderBy);
+      return jiraService.getIssuesWithFixVersion(query);
     }
     catch (RuntimeException ex)
     {
@@ -154,18 +161,9 @@ public class ChangelogGeneratorMojo extends AbstractMojo
   {
     Map<String, String> tokens = new HashMap<>();
     tokens.put("changelog", expander.expand(issues));
-    tokens.put("changelog#bugs", expander.expand(onlyBugs(issues)));
-    tokens.put("changelog#improvements", expander.expandImprovements(onlyImprovements(issues)));
+    tokens.put("changelog#bugs", expander.expand(Filter.bugs(issues)));
+    tokens.put("changelog#improvements", expander.expandImprovements(Filter.improvements(issues)));
     return tokens;
   }
-
-  private static List<Issue> onlyBugs(List<Issue> issues)
-  {
-    return issues.stream().filter(i -> i.isBug()).collect(Collectors.toList());
-  }
-
-  private static List<Issue> onlyImprovements(List<Issue> issues)
-  {
-    return issues.stream().filter(i -> i.isImprovement()).collect(Collectors.toList());
-  }
+  
 }
