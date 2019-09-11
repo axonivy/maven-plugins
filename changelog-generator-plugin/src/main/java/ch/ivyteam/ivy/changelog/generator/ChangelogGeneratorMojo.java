@@ -2,6 +2,7 @@ package ch.ivyteam.ivy.changelog.generator;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -102,7 +103,7 @@ public class ChangelogGeneratorMojo extends AbstractMojo
       TemplateExpander expander = createExpanderForFile(sourceFile);
       expander.setWordWrap(wordWrap);
       
-      Map<String, String> tokens = generateTokens(issues, expander);
+      Map<String, String> tokens = generateTokens(issues, expander, sourceFile);
       changelog = new TokenReplacer(tokens).replaceTokens(
               changelogHandler.getTemplateContent());
       
@@ -157,13 +158,22 @@ public class ChangelogGeneratorMojo extends AbstractMojo
     return new TemplateExpander(asciiTemplate, asciiTemplate, whitelistJiraLabels);
   }
 
-  private Map<String, String> generateTokens(List<Issue> issues, TemplateExpander expander)
+  private Map<String, String> generateTokens(List<Issue> issues, TemplateExpander expander, File sourceFile)
   {
+    if (sourceFile.getName().equals("ReleaseNotes.txt"))
+    {
+      issues.sort(Comparator.comparingInt(this::getIssueNumber).reversed());
+    }
     Map<String, String> tokens = new HashMap<>();
     tokens.put("changelog", expander.expand(issues));
     tokens.put("changelog#bugs", expander.expand(Filter.bugs(issues)));
     tokens.put("changelog#improvements", expander.expandImprovements(Filter.improvements(issues)));
     return tokens;
   }
-  
+
+  private int getIssueNumber(Issue issue)
+  {
+    String issueNumber = StringUtils.substringAfter(issue.getKey(), issue.getProjectKey());
+    return Integer.valueOf(issueNumber);
+  }
 }
