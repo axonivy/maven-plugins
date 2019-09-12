@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Arrays;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.execution.MavenSession;
@@ -71,13 +72,13 @@ public class TestChangelogGeneratorMojo
     
     assertThat(new File(outputPath + "/changelog.gz")).exists();
   }
-
+  
   @Test
-  public void createSortedReleaseNotes() throws Exception
+  public void createProjectSortedReleaseNotes() throws Exception
   {
     mojo.fixVersion = "7.4.0";
-    mojo.jiraProjects = "XIVY";
-    mojo.asciiTemplate = "${key}";
+    mojo.jiraProjects = "XIVY,IVYPORTAL";
+    mojo.asciiTemplate = "${key} ${type}";
     mojo.fileset.addInclude("ReleaseNotes.txt");
     mojo.execute();
 
@@ -85,16 +86,57 @@ public class TestChangelogGeneratorMojo
     assertThat(releaseNotes).exists();
 
     String issues = StringUtils.substringAfter(readFileContent(releaseNotes), "This is a Leading Edge version.");
-    String[] splitIssues = StringUtils.split(issues, "XIVY-");
+    String portalIssues = StringUtils.substringBeforeLast(issues, "IVYPORTAL");
+    portalIssues = StringUtils.substringAfter(issues, "IVYPORTAL");
+    assertThat(portalIssues)
+            .as("No XIVY and IVYPORTAL issues mixed")
+            .doesNotContain("XIVY-");
+  }
 
+  @Test
+  public void createSortedReleaseNotes() throws Exception
+  {
+    mojo.fixVersion = "7.4.0";
+    mojo.jiraProjects = "XIVY";
+    mojo.asciiTemplate = "${key}:${type};";
+    mojo.fileset.addInclude("ReleaseNotes.txt");
+    mojo.execute();
+
+    File releaseNotes = new File(outputPath + "/ReleaseNotes.txt");
+    assertThat(releaseNotes).exists();
+
+    String issues = StringUtils.substringAfter(readFileContent(releaseNotes), "This is a Leading Edge version.");
+    String[] splitIssues = StringUtils.split(issues, ";");
+    assertCorrectlyOrdered(filterIssuesForType(splitIssues, "Story"));
+    assertCorrectlyOrdered(filterIssuesForType(splitIssues, "Improvement"));
+    assertCorrectlyOrdered(filterIssuesForType(splitIssues, "Bug"));
+    
+    assertThat(StringUtils.substringBeforeLast(issues, "Story")).doesNotContain("Bug", "Improvement");
+    assertThat(StringUtils.substringBeforeLast(issues, "Improvement")).doesNotContain("Bug");
+  }
+
+  private String[] filterIssuesForType(String[] splitIssues, String type)
+  {
+    return Arrays.stream(splitIssues)
+            .filter(issue -> StringUtils.substringAfter(issue, ":").equals(type))
+            .toArray(String[]::new);
+  }
+
+  private void assertCorrectlyOrdered(String[] splitIssues)
+  {
     for (int i = 0; i < splitIssues.length - 1; i++)
     {
-      Integer issueNumber = Integer.valueOf(splitIssues[i]);
-      Integer nextIssueNumber = Integer.valueOf(splitIssues[i + 1]);
+      Integer issueNumber = getIssueNumber(splitIssues[i]);
+      Integer nextIssueNumber = getIssueNumber(splitIssues[i + 1]);
       assertThat(issueNumber)
               .as("Next issue number must be higher")
               .isLessThan(nextIssueNumber);
     }
+  }
+
+  private Integer getIssueNumber(String issue)
+  {
+    return Integer.valueOf(StringUtils.substringBetween(issue, "XIVY-", ":"));
   }
 
   private String readFileContent(File releaseNotes) throws IOException, FileNotFoundException
