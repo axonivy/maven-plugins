@@ -103,7 +103,7 @@ public class ChangelogGeneratorMojo extends AbstractMojo
       TemplateExpander expander = createExpanderForFile(sourceFile);
       expander.setWordWrap(wordWrap);
       
-      Map<String, String> tokens = generateTokens(issues, expander, sourceFile);
+      Map<String, String> tokens = generateTokens(issues, expander);
       changelog = new TokenReplacer(tokens).replaceTokens(
               changelogHandler.getTemplateContent());
       
@@ -158,16 +158,14 @@ public class ChangelogGeneratorMojo extends AbstractMojo
     return new TemplateExpander(asciiTemplate, asciiTemplate, whitelistJiraLabels);
   }
 
-  private Map<String, String> generateTokens(List<Issue> issues, TemplateExpander expander, File sourceFile)
+  private Map<String, String> generateTokens(List<Issue> issues, TemplateExpander expander)
   {
-    if (sourceFile.getName().equals("ReleaseNotes.txt"))
-    {
-      issues.sort(Comparator.comparingInt(this::getIssueNumber).reversed());
-    }
     Map<String, String> tokens = new HashMap<>();
     tokens.put("changelog", expander.expand(issues));
-    tokens.put("changelog#bugs", expander.expand(Filter.bugs(issues)));
     tokens.put("changelog#improvements", expander.expandImprovements(Filter.improvements(issues)));
+
+    issues.sort(Comparator.comparingInt(this::getIssueNumber).reversed());
+    tokens.put("changelog#bugs", expander.expand(Filter.bugs(issues)));
     return tokens;
   }
 
