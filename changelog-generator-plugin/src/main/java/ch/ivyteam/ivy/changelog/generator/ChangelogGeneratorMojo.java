@@ -2,6 +2,7 @@ package ch.ivyteam.ivy.changelog.generator;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -160,10 +161,24 @@ public class ChangelogGeneratorMojo extends AbstractMojo
   private Map<String, String> generateTokens(List<Issue> issues, TemplateExpander expander)
   {
     Map<String, String> tokens = new HashMap<>();
+    tokens.put("changelog#improvements", expander.expandImprovements(Filter.improvements(issues)));
+
+    sortIssues(issues);
     tokens.put("changelog", expander.expand(issues));
     tokens.put("changelog#bugs", expander.expand(Filter.bugs(issues)));
-    tokens.put("changelog#improvements", expander.expandImprovements(Filter.improvements(issues)));
     return tokens;
   }
-  
+
+  private void sortIssues(List<Issue> issues)
+  {
+    issues.sort(Comparator.comparing(Issue::getProjectKey).reversed()
+            .thenComparing(Comparator.comparing(Issue::getType).reversed()
+            .thenComparing(Comparator.comparingInt(this::getIssueNumber).reversed())));
+  }
+
+  private int getIssueNumber(Issue issue)
+  {
+    String issueNumber = StringUtils.substringAfter(issue.getKey(), issue.getProjectKey());
+    return Integer.valueOf(issueNumber);
+  }
 }
