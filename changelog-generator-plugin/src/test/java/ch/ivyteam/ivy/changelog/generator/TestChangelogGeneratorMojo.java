@@ -2,13 +2,13 @@ package ch.ivyteam.ivy.changelog.generator;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Arrays;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecution;
@@ -139,17 +139,8 @@ public class TestChangelogGeneratorMojo
     return Integer.valueOf(StringUtils.substringBetween(issue, "XIVY-", ":"));
   }
 
-  private String readFileContent(File releaseNotes) throws IOException, FileNotFoundException
+  private String readFileContent(File releaseNotes) throws FileNotFoundException, IOException
   {
-    try (BufferedReader br = new BufferedReader(new FileReader(releaseNotes)))
-    {
-      String fileContent = "";
-      String sCurrentLine;
-      while ((sCurrentLine = br.readLine()) != null)
-      {
-        fileContent += sCurrentLine;
-      }
-      return fileContent;
-    }
+    return IOUtils.toString(new FileReader(releaseNotes));
   }
 }
