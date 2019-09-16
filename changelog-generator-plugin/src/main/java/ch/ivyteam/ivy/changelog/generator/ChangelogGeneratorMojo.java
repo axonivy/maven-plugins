@@ -46,6 +46,10 @@ public class ChangelogGeneratorMojo extends AbstractMojo
   /** comma separated list of jira projects for example: XIVY, IVYPORTAL */
   @Parameter(property = "jiraProjects", defaultValue = "XIVY")
   public String jiraProjects;
+
+  /** comma separated list of issue types for example: "Bug", "Story" */
+  @Parameter(property = "issueTypes", defaultValue = "\"Story\",\"Improvement\",\"Bug\"")
+  public String issueTypes;
   
   /** comma separated list of issue fields to define ordering */
   @Parameter(property = "jira.issue.order", defaultValue = "project,key")
@@ -123,7 +127,7 @@ public class ChangelogGeneratorMojo extends AbstractMojo
     try
     {
       JiraService jiraService = new JiraService(jiraServerUri, server, getLog());
-      JiraQuery query = new JiraQuery(fixVersion, jiraProjects, orderBy);
+      JiraQuery query = new JiraQuery(fixVersion, jiraProjects, issueTypes, orderBy);
       return jiraService.getIssuesWithFixVersion(query);
     }
     catch (RuntimeException ex)

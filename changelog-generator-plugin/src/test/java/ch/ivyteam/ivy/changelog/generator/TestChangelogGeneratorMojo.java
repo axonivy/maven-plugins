@@ -92,6 +92,45 @@ public class TestChangelogGeneratorMojo
             .as("No XIVY and IVYPORTAL issues mixed")
             .doesNotContain("XIVY-");
   }
+  
+  @Test
+  public void createPortalReleaseNotes() throws Exception
+  {
+    mojo.fixVersion = "7.4.0";
+    mojo.jiraProjects = "IVYPORTAL";
+    mojo.issueTypes = "\"Story\",\"Improvement\",\"Bug\"";
+    mojo.asciiTemplate = "${key} ${type}";
+    mojo.fileset.addInclude("ReleaseNotes.txt");
+    mojo.execute();
+
+    File releaseNotes = new File(outputPath + "/ReleaseNotes.txt");
+    assertThat(releaseNotes).exists();
+
+    assertThat(readFileContent(releaseNotes))
+            .as("No Technical tasks displayed")
+            .doesNotContain("Technical task");
+  }
+  
+  @Test
+  public void createOnlyBugReleaseNotes() throws Exception
+  {
+    mojo.fixVersion = "7.4.0";
+    mojo.jiraProjects = "XIVY";
+    mojo.issueTypes = "\"Bug\"";
+    mojo.asciiTemplate = "${key} ${type}";
+    mojo.fileset.addInclude("ReleaseNotes.txt");
+    mojo.execute();
+    
+    File releaseNotes = new File(outputPath + "/ReleaseNotes.txt");
+    assertThat(releaseNotes).exists();
+    
+    assertThat(readFileContent(releaseNotes))
+      .as("Only bugs contained")
+      .doesNotContain("Technical task")
+      .doesNotContain("Story")
+      .doesNotContain("Improvement")
+      .contains("Bug");
+  }
 
   @Test
   public void createSortedReleaseNotes() throws Exception
