@@ -70,14 +70,14 @@ public class TestJiraService
   @Test
   public void issuesInOrder()
   {
-    List<Issue> issues = testee.getIssuesWithFixVersion(new JiraQuery("7.4", "XIVY", "project,\"Epic Link\",key"));
+    List<Issue> issues = testee.getIssuesWithFixVersion(new JiraQuery("7.4", "XIVY", "\"Story\",\"Improvement\",\"Bug\"", "project,\"Epic Link\",key"));
     issues = Filter.improvements(issues);
     issues.stream().forEach(System.out::println);
   }
   
   private static JiraQuery query(String version)
   {
-    return new JiraQuery(version, "XIVY", "key");
+    return new JiraQuery(version, "XIVY", "\"Story\",\"Improvement\",\"Bug\"", "key");
   }
   
 }

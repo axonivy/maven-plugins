@@ -5,12 +5,14 @@ public class JiraQuery
 {
   private final String fixVersion;
   private final String projects;
+  private final String issueTypes;
   private final String order;
 
-  public JiraQuery(String fixVersion, String projects, String order)
+  public JiraQuery(String fixVersion, String projects, String issueTypes, String order)
   {
     this.fixVersion = removeEndingZero(fixVersion);
     this.projects = projects;
+    this.issueTypes = issueTypes;
     this.order = order;
   }
 
@@ -48,12 +50,14 @@ public class JiraQuery
     {
       jql.append("fixVersion = ").append(fixVersion);
     }
+    if (issueTypes != null)
+    {
+      appendParameter(jql);
+      jql.append("issuetype in (").append(issueTypes).append(")");
+    }
     if (projects != null)
     {
-      if (jql.length() > 0)
-      {
-        jql.append(" and ");
-      }
+      appendParameter(jql);
       jql.append("project in (").append(projects).append(")");
     }
     if (order != null)
@@ -61,5 +65,13 @@ public class JiraQuery
       jql.append(" order by ").append(order);
     }
     return jql.toString();
+  }
+
+  private void appendParameter(StringBuilder jql)
+  {
+    if (jql.length() > 0)
+    {
+      jql.append(" and ");
+    }
   }
 }
