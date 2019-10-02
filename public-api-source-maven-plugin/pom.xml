@@ -28,6 +28,16 @@
 	    </pluginRepository>
 	</pluginRepositories>
 
+	<repositories>
+	    <repository>
+			<id>tycho-snapshots</id>
+			<url>https://repo.eclipse.org/content/repositories/tycho-snapshots/</url>
+			  <snapshots>
+				  <updatePolicy>always</updatePolicy>
+			  </snapshots>
+		</repository>
+	</repositories>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.apache.maven</groupId>
