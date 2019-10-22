@@ -65,7 +65,7 @@ public class PublicApiClassesFinder
     
     public PublicApiClassVisitor()
     {
-      super(Opcodes.ASM5);
+      super(Opcodes.ASM7);
     }
     
     @Override
