@@ -3,6 +3,7 @@ package ch.ivyteam.maven;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.function.BooleanSupplier;
 
 import javax.xml.xpath.XPathExpressionException;
 
@@ -23,7 +24,50 @@ class PomXmlFileUpdater extends AbstractXmlFileUpdater
     update = new UpdateRun(xmlFile.getName(), version, log, externalBuiltArtifacts);
   }
 
-  void update() throws SAXException, IOException, XPathExpressionException
+  void update() throws SAXException, IOException
+  {
+    update(this::updateAll);
+  }
+  
+  private boolean updateAll()
+  {
+    try
+    {
+
+      boolean changed = false;
+      changed = updateVersion(changed);
+      changed = updateParentVersion(changed);
+      changed = updateDependenciesVersion(changed);
+      changed = updateDependenciesVersionInTychoSurefirePlugin(changed);
+      changed = updateIvyMajorVersionProperty(changed);
+      changed = updateIvyMinorVersionProperty(changed);
+      changed = updateIvyServiceVersionProperty(changed);
+      return changed;
+    }
+    catch (Exception ex)
+    {
+      throw new IllegalStateException(ex);
+    }
+  }
+
+  void updateParentVersoin() throws SAXException, IOException
+  {
+    update(this::updateOnlyParentVersoin);
+  }
+  
+  private boolean updateOnlyParentVersoin()
+  {
+    try
+    {
+      return updateParentVersion(false);
+    }
+    catch (Exception ex)
+    {
+      throw new IllegalStateException(ex);
+    }
+  }
+
+  private void update(BooleanSupplier supplier) throws SAXException, IOException
   {
     if (!xmlFile.exists())
     {
@@ -33,14 +77,7 @@ class PomXmlFileUpdater extends AbstractXmlFileUpdater
     
     readXml();
 
-    boolean changed = false;
-    changed = updateVersion(changed);
-    changed = updateParentVersion(changed);
-    changed = updateDependenciesVersion(changed);
-    changed = updateDependenciesVersionInTychoSurefirePlugin(changed);
-    changed = updateIvyMajorVersionProperty(changed);
-    changed = updateIvyMinorVersionProperty(changed);
-    changed = updateIvyServiceVersionProperty(changed);
+    boolean changed = supplier.getAsBoolean();
 
     if (changed)
     {

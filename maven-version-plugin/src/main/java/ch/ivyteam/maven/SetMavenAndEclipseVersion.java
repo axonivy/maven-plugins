@@ -70,11 +70,16 @@ public class SetMavenAndEclipseVersion extends AbstractMojo
   @Parameter
   FileSet[] pomsToUpdate;
   
+  /** will only update the version of the parent pom  */
+  @Parameter
+  FileSet[] parentPomsToUpdate;
+  
   /**
    * Describes artifacts that should not be touched by this version change
    */
   @Parameter(property="external-artifacts")
   List<String> externalBuiltArtifacts;
+   
   
   @Parameter
   boolean stripBundleVersionOfDependencies;
@@ -105,6 +110,10 @@ public class SetMavenAndEclipseVersion extends AbstractMojo
       for(File pomXml : getFiles(pomsToUpdate))
       {
         updateVersionsInPom(pomXml.getParentFile());
+      }
+      for (File pomXml : getFiles(parentPomsToUpdate))
+      {
+        updateParentVersionInPom(pomXml.getParentFile());
       }
     }
     catch (Exception ex)
@@ -150,6 +159,11 @@ public class SetMavenAndEclipseVersion extends AbstractMojo
   private void updateVersionsInPom(File projectDirectory) throws Exception
   {
     new PomXmlFileUpdater(new File(projectDirectory, "pom.xml"), version, getLog(), externalBuiltArtifacts).update();
+  }
+  
+  private void updateParentVersionInPom(File projectDirectory) throws Exception
+  {
+    new PomXmlFileUpdater(new File(projectDirectory, "pom.xml"), version, getLog(), externalBuiltArtifacts).updateParentVersoin();
   }
 
   private void updateVersionInFeatureXml(File projectDirectory) throws Exception
