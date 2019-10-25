@@ -32,107 +32,67 @@ public class TableInfo
 
   private boolean hasClobColumns;
 
-  /**
-   * Constructor
-   * @param table -
-   */
   private TableInfo(SqlTable table)
   {
     this.table = table;
   }
 
-  /**
-   * @return -
-   */
   public String getQueryClassName()
   {
     return JavaClassGeneratorUtil.getJavaClassName(table) + "Query";
   }
 
-  /**
-   * @return -
-   */
   public String getJavaDataClassName()
   {
     String tableJavaName = JavaClassGeneratorUtil.getJavaClassName(table);
     return "Db"+tableJavaName+"Data";
   }
 
-  /**
-   * @return -
-   */
   public String getJavaClassName()
   {
     return JavaClassGeneratorUtil.getJavaClassName(table);
   }
 
-  /**
-   * @return -
-   */
   public String getBusinessClassName()
   {
     return table.getDatabaseManagementSystemHints(JavaClassGenerator.JAVA).getHintValue(BUSINESS_CLASS);
   }
 
-  /**
-   * @return -
-   */
   public SqlTable getTable()
   {
     return table;
   }
 
-  /**
-   * @return -
-   */
   public String getName()
   {
     return table.getId();
   }
 
-  /**
-   * @return -
-   */
   public boolean getHasStringColumns()
   {
     return hasStringColumns;
   }
 
-  /**
-   * @return -
-   */
   public boolean getHasClobColumns()
   {
     return hasClobColumns;
   }
 
-  /**
-   * @return -
-   */
   public boolean getHasBooleanColumns()
   {
     return hasBooleanColumns;
   }
 
-  /**
-   * @return -
-   */
   public boolean getHasIntegerColumns()
   {
     return hasIntegerColumns;
   }
 
-  /**
-   * @return -
-   */
   public boolean getHasNumberColumns()
   {
     return hasNumberColumns;
   }
 
-  /**
-   * @return -
-   */
   public boolean getHasDateColumns()
   {
     return hasDateColumns;
@@ -143,9 +103,6 @@ public class TableInfo
     return table.getDatabaseManagementSystemHints(JavaClassGenerator.JAVA).isHintSet(JavaClassGenerator.CUSTOM_FIELDS);
   }
 
-  /**
-   * @param columns
-   */
   private void summarizeDataTypes(List<ColumnInfo> columns)
   {
     for (ColumnInfo column : columns)
@@ -177,11 +134,6 @@ public class TableInfo
     }
   }
 
-  /**
-   * @param table
-   * @param meta
-   * @return table info
-   */
   public static TableInfo create(SqlTable table, SqlMeta meta)
   {
     TableInfo tableInfo = new TableInfo(table);

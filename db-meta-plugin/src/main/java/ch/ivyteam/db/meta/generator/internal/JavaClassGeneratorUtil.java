@@ -293,15 +293,12 @@ public final class JavaClassGeneratorUtil
    * @param table the table
    * @return parent key columns
    */
-  @SuppressWarnings("unchecked")
   protected static List<SqlTableColumn> getParentKeyColumns(SqlTable table)
   {
-    String parentKey;
-  
-    parentKey = getParentKey(table);
+    String parentKey = getParentKey(table);
     if (parentKey == null)
     {
-      return Collections.EMPTY_LIST;
+      return Collections.emptyList();
     }
     return Arrays.asList(table.findColumn(parentKey));
   }
@@ -387,7 +384,7 @@ public final class JavaClassGeneratorUtil
    * @return primary key column
    * @throws MetaException
    */
-  public static SqlTableColumn getPrimaryKeyColumn(SqlTable table) throws MetaException
+  public static SqlTableColumn getPrimaryKeyColumn(SqlTable table)
   {
     List<SqlTableColumn> primaryKeys = getPrimaryKeyColumns(table);
     if (primaryKeys.isEmpty())
@@ -435,7 +432,7 @@ public final class JavaClassGeneratorUtil
    */
   protected static List<SqlTableColumn> getPrimaryKeyColumns(SqlTable table)
   {
-    List<SqlTableColumn> columns = new ArrayList<SqlTableColumn>();
+    List<SqlTableColumn> columns = new ArrayList<>();
   
     if (table.getPrimaryKey()==null)
     {
@@ -483,15 +480,9 @@ public final class JavaClassGeneratorUtil
     return view;
   }
   
-  /**
-   * Converts the given comment to java doc
-   * @param comment
-   * @param indent 
-   * @return java doc
-   */
   public static String convertToJavaDoc(String comment, int indent)
   {
-    StringBuilder builder = new StringBuilder(1000);
+    StringBuilder builder = new StringBuilder();
     boolean first = true;
     for (String line : comment.split("\n"))
     {

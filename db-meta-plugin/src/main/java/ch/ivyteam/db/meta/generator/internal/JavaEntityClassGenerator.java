@@ -31,9 +31,6 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
   /** Cache usage limit hint */
   public static final String USAGE_LIMIT = "usageLimit";
 
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.IMetaOutputGenerator#generateMetaOutput(ch.ivyteam.db.meta.model.internal.SqlMeta)
-   */
   @Override
   public void generateMetaOutput(SqlMeta metaDefinition) throws Exception
   {
@@ -56,7 +53,7 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
    * @throws FileNotFoundException 
    * @throws MetaException 
    */
-  private void writeJavaEntityClass(SqlTable table, SqlMeta metaDefinition) throws FileNotFoundException, MetaException
+  private void writeJavaEntityClass(SqlTable table, SqlMeta metaDefinition) throws FileNotFoundException
   {
     String className;
     File javaSourceFile;
@@ -90,10 +87,6 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
     }
   }
 
-  /**
-   * @param pr
-   * @param table
-   */
   private void writeReferenceCheckerClasses(PrintWriter pr, SqlTable table)
   {
     for (SqlTableColumn column : JavaClassGeneratorUtil.getNonPrimaryAndParentKeyAndLobColumns(table))
@@ -102,11 +95,6 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
     }
   }
 
-  /**
-   * @param pr
-   * @param table
-   * @param column
-   */
   private void writeReferenceCheckerClass(PrintWriter pr, SqlTable table, SqlTableColumn column)
   {
     if (table.getDatabaseManagementSystemHints(JavaEntityClassGenerator.CACHE).isHintSet(STRATEGY) &&
@@ -155,11 +143,6 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
  
   }
 
-  /**
-   * @param pr
-   * @param metaDefinition
-   * @param table
-   */
   private void writeCacheTriggerAnnotation(PrintWriter pr, SqlMeta metaDefinition, SqlTable table)
   {
     if (table.getDatabaseManagementSystemHints(JavaEntityClassGenerator.CACHE).isHintSet(STRATEGY) &&
@@ -171,11 +154,6 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
     }
   }
 
-  /**
-   * Writes a cache annotation to the entity class if the table has a CACHE hint
-   * @param pr
-   * @param table
-   */
   private void writeCacheAnnotation(PrintWriter pr, SqlTable table)
   {
     String strategy;
@@ -249,11 +227,6 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
     }
   }
 
-  /**
-   * Writes the {@link #hashCode()} method
-   * @param pr
-   * @param table
-   */
   private void writeHashCode(PrintWriter pr, SqlTable table)
   {
     writeIndent(pr, 2);
@@ -284,12 +257,6 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
     pr.println(); 
   }
 
-  /**
-   * Writes the {@link #equals(Object)} method
-   * @param pr
-   * @param className 
-   * @param table
-   */
   private void writeEquals(PrintWriter pr, String className, SqlTable table)
   {
     writeIndent(pr, 2);
@@ -365,14 +332,7 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
     pr.println(); 
   }
 
-  /**
-   * Write associations
-   * @param pr
-   * @param table
-   * @param metaDefinition
-   * @throws MetaException 
-   */
-  private void writeAssociations(PrintWriter pr, SqlTable table, SqlMeta metaDefinition) throws MetaException
+  private void writeAssociations(PrintWriter pr, SqlTable table, SqlMeta metaDefinition)
   {
     for (SqlTable associationTable : getAssociationTables(table, metaDefinition))
     {
@@ -381,7 +341,7 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
   }
 
   private void writeAssociation(PrintWriter pr, SqlTable table, SqlMeta metaDefinition,
-          SqlTable associationTable) throws MetaException
+          SqlTable associationTable)
   {
     SqlTable foreignTable = null;
     String foreignColumn = null;
@@ -408,7 +368,7 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
   }
 
   private void writeAssociation(PrintWriter pr, SqlTable table, SqlTable foreignTable, SqlTable associationTable, String tableColumn,
-          String foreignColumn) throws MetaException
+          String foreignColumn)
   {
     writeAssociation(pr, table, foreignTable, associationTable, "", tableColumn, foreignColumn);
   }
@@ -439,7 +399,7 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
   }
   
   private void writeAssociation(PrintWriter pr, SqlTable table, SqlTable foreignTable, SqlTable associationTable, String associationPostfix, String tableColumn,
-          String foreignColumn) throws MetaException
+          String foreignColumn)
   {
     String associationTableName;
     String primaryKey = JavaClassGeneratorUtil.getPrimaryKeyColumn(table).getId();
@@ -490,7 +450,7 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
    * @param table
    * @throws MetaException 
    */
-  private void writeGetterSetter(PrintWriter pr, String className, SqlTable table) throws MetaException  
+  private void writeGetterSetter(PrintWriter pr, String className, SqlTable table)  
   {
     for (SqlTableColumn column : JavaClassGeneratorUtil.getNonPrimaryAndParentKeyAndLobColumns(table))
     {
@@ -526,7 +486,7 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
    * @param secondaryKeys
    * @throws MetaException 
    */
-  private void writeGetSecondaryKeys(PrintWriter pr, SqlTable table, String secondaryKeys) throws MetaException
+  private void writeGetSecondaryKeys(PrintWriter pr, SqlTable table, String secondaryKeys)
   {
     boolean first = true;
     SqlTableColumn secondaryKeyColumn;
@@ -680,7 +640,7 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
    * @param setMethods list of set methods
    * @throws MetaException 
    */
-  private void writeAdditionalSetMethods(PrintWriter pr, String className, SqlTable table, String setMethods) throws MetaException
+  private void writeAdditionalSetMethods(PrintWriter pr, String className, SqlTable table, String setMethods)
   {
     List<SqlTableColumn> columns = new ArrayList<SqlTableColumn>();
     SqlTableColumn col;
@@ -1014,7 +974,7 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
    * @param table
    * @throws MetaException 
    */
-  private void writeAttributes(PrintWriter pr, SqlMeta metaDefinition, SqlTable table) throws MetaException
+  private void writeAttributes(PrintWriter pr, SqlMeta metaDefinition, SqlTable table)
   {
     for (SqlTableColumn column : JavaClassGeneratorUtil.getNonPrimaryAndParentKeyColumns(table))
     {
@@ -1030,7 +990,7 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
    * @param column
    * @throws MetaException 
    */
-  private void writeAttribute(PrintWriter pr, SqlMeta metaDefinition, SqlTable table, SqlTableColumn column) throws MetaException
+  private void writeAttribute(PrintWriter pr, SqlMeta metaDefinition, SqlTable table, SqlTableColumn column)
   {
     writeAttributeComment(pr, table, column);
     if (JavaClassGeneratorUtil.isLobColumn(column))
@@ -1100,7 +1060,7 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
    * @param column
    * @throws MetaException 
    */
-  private void writeAttributeComment(PrintWriter pr, SqlTable table, SqlTableColumn column) throws MetaException
+  private void writeAttributeComment(PrintWriter pr, SqlTable table, SqlTableColumn column)
   {
     writeIndent(pr, 2);    
     pr.println("/**");
@@ -1177,7 +1137,7 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
    * @param table 
    * @throws MetaException 
    */
-  private void writeHeader(PrintWriter pr, SqlTable table) throws MetaException
+  private void writeHeader(PrintWriter pr, SqlTable table)
   {
     pr.println("/**");
     pr.println(" * ----------------------------------------------------------------------<br>");

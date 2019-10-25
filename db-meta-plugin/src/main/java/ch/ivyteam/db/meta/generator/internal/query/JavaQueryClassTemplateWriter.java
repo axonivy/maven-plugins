@@ -34,20 +34,11 @@ public class JavaQueryClassTemplateWriter
   private final String packageName;
   private final TableInfo tableInfo;
   
-  /** Configuration for free marker template engine */
   private Configuration cfg;
   private File templateDir;
   private File sourceDir;
   private SqlMeta meta;
 
-  /**
-   * Constructor
-   * @param meta 
-   * @param table
-   * @param packageName 
-   * @param templateDir 
-   * @param sourceDir 
-   */
   public JavaQueryClassTemplateWriter(SqlMeta meta, SqlTable table, String packageName, File templateDir, File sourceDir)
   {
     this.templateDir = templateDir;
@@ -57,10 +48,6 @@ public class JavaQueryClassTemplateWriter
     this.meta = meta;
   }
 
-  /**
-   * @param javaSourceFile
-   * @throws IOException
-   */
   public void writeToFile(File javaSourceFile) throws IOException
   {
     Template temp = getConfiguration().getTemplate(QUERY_CLASS_TEMPLATE);
@@ -77,7 +64,7 @@ public class JavaQueryClassTemplateWriter
 
   private Map<String, Object> getDataMap()
   {
-    Map<String, Object> root = new HashMap<String, Object>();
+    Map<String, Object> root = new HashMap<>();
 
     // add libraries
     root.put("StringUtils", createStringUtilsTemplateModel());
@@ -92,9 +79,6 @@ public class JavaQueryClassTemplateWriter
     return root;
   }
 
-  /**
-   * @return table info
-   */
   TableInfo getTableInfo()
   {
     return tableInfo;
@@ -116,9 +100,6 @@ public class JavaQueryClassTemplateWriter
     return cfg;
   }
   
-  /**
-   * @return model Template model for StringUtils
-   */
   private TemplateHashModel createStringUtilsTemplateModel()
   {
     try

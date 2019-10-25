@@ -27,9 +27,6 @@ import ch.ivyteam.db.meta.model.internal.SqlTable;
  */
 public class SortedTableContentDeleteListGenerator extends AbstractSortedTableContentListGenerator
 {
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.IMetaOutputGenerator#generateMetaOutput(ch.ivyteam.db.meta.model.internal.SqlMeta)
-   */
   @Override
   public void generateMetaOutput(SqlMeta metaDefinition) throws Exception
   {

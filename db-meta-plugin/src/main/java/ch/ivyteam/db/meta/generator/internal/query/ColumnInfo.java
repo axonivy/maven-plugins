@@ -32,11 +32,6 @@ public abstract class ColumnInfo
 {
   private final TableInfo tableInfo;
 
-  /**
-   * @param meta
-   * @param tableInfo
-   * @return -
-   */
   public static List<ColumnInfo> getColumns(SqlMeta meta, TableInfo tableInfo)
   {
     SqlView view = JavaClassGeneratorUtil.getQueryView(meta, tableInfo.getTable());
@@ -49,7 +44,7 @@ public abstract class ColumnInfo
 
   private static List<ColumnInfo> getColumns(TableInfo tableInfo)
   {
-    List<ColumnInfo> result = new ArrayList<ColumnInfo>();
+    List<ColumnInfo> result = new ArrayList<>();
     for(SqlTableColumn column: tableInfo.getTable().getColumns())
     {
       if (! column.getDatabaseManagementSystemHints(JavaClassGenerator.JAVA).isHintSet(JavaClassGenerator.HIDE_FIELD_ON_QUERY))
@@ -75,13 +70,9 @@ public abstract class ColumnInfo
     return result;
   }
 
-  /**
-   * @param columnInfos
-   * @return -
-   */
   public static Set<EnumerationInfo> getEnumerationInfos(List<ColumnInfo> columnInfos)
   {
-    Set<EnumerationInfo> enumerationsInfos = new HashSet<EnumerationInfo>();
+    Set<EnumerationInfo> enumerationsInfos = new HashSet<>();
     for (ColumnInfo column : columnInfos)
     {
       if (column.isEnumeration())
@@ -92,26 +83,16 @@ public abstract class ColumnInfo
     return enumerationsInfos;
   }
 
-  /**
-   * Constructor
-   * @param tableInfo -
-   */
   public ColumnInfo(TableInfo tableInfo)
   {
     this.tableInfo = tableInfo;
   }
 
-  /**
-   * @return -
-   */
   public String getName()
   {
     return getColumn().getId();
   }
 
-  /**
-   * @return Name of the constant to this column fild
-   */
   public String getJavaColumnConstantName()
   {
     StringBuilder builder = new StringBuilder();
@@ -121,34 +102,22 @@ public abstract class ColumnInfo
     return builder.toString();
   }
 
-  /**
-   * @return additional comments
-   */
   public String getAdditionalComments()
   {
     return null;
   }
 
-  /**
-   * @return -
-   */
   public boolean isGroupAndOrderBySupported()
   {
     return true;
   }
 
-  /**
-   * @return -
-   */
   public boolean isSumSupported()
   {
     return !isForeignOrPrimaryKey() &&
       ( supportsIntegerOption() || supportsDecimalOption());
   }
 
-  /**
-   * @return -
-   */
   public boolean isAvgSupported()
   {
     return !isForeignOrPrimaryKey() &&
@@ -159,9 +128,6 @@ public abstract class ColumnInfo
     );
   }
 
-  /**
-   * @return -
-   */
   public boolean isMinSupported()
   {
     return !isForeignKey() &&
@@ -173,9 +139,6 @@ public abstract class ColumnInfo
     );
   }
 
-  /**
-   * @return -
-   */
   public boolean isMaxSupported()
   {
     return !isForeignKey() &&
@@ -187,9 +150,6 @@ public abstract class ColumnInfo
     );
   }
 
-  /**
-   * @return -
-   */
   public boolean supportsDecimalOption()
   {
     DataType dataType = getDataType();
@@ -198,9 +158,6 @@ public abstract class ColumnInfo
            dataType == DataType.NUMBER;
   }
 
-  /**
-   * @return true when the column's values can be mapped to an int data type; false otherwise
-   */
   public boolean supportsIntegerOption()
   {
     if (isEnumeration())
@@ -211,9 +168,6 @@ public abstract class ColumnInfo
     return dataType == DataType.INTEGER || dataType == DataType.BIGINT;
   }
 
-  /**
-   * @return -
-   */
   public boolean supportsStringOption()
   {
     if (isForeignOrPrimaryKey())
@@ -235,9 +189,6 @@ public abstract class ColumnInfo
     return dataType == DataType.CLOB;
   }
 
-  /**
-   * @return -
-   */
   public boolean supportsDateTimeOption()
   {
     if (isForeignOrPrimaryKey())
@@ -249,9 +200,6 @@ public abstract class ColumnInfo
            dataType == DataType.DATETIME;
   }
 
-  /**
-   * @return -
-   */
   public boolean supportsBooleanOption()
   {
     if (isForeignOrPrimaryKey())
@@ -262,9 +210,6 @@ public abstract class ColumnInfo
     return dataType == DataType.BIT;
   }
 
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.query.ColumnInfo#getDataType()
-   */
   private DataType getDataType()
   {
     if (getColumn().getDatabaseManagementSystemHints(JavaClassGenerator.JAVA).isHintSet(JavaClassGenerator.FILTER_QUERY_DATA_TYPE))
@@ -274,22 +219,13 @@ public abstract class ColumnInfo
     return getColumn().getDataType().getDataType();
   }
 
-  /**
-   * @return column
-   */
   protected abstract SqlTableColumn getColumn();
 
-  /**
-   * @return true, if this field is linked to an Enumeration
-   */
   public boolean isEnumeration()
   {
     return getColumn().getDatabaseManagementSystemHints(JavaClassGenerator.JAVA).isHintSet(JavaClassGenerator.ENUM);
   }
 
-  /**
-   * @return Java type name of the enumeration
-   */
   public EnumerationInfo getEnumerationInfo()
   {
     String enumName = getColumn().getDatabaseManagementSystemHints(JavaClassGenerator.JAVA).getHintValue(JavaClassGenerator.ENUM);
@@ -311,9 +247,6 @@ public abstract class ColumnInfo
     return tableInfo.getTable().getPrimaryKey().getPrimaryKeyColumns().contains(getColumn().getId());
   }
   
-  /**
-   * @return table info
-   */
   protected TableInfo getTableInfo()
   {
     return tableInfo;
@@ -339,28 +272,16 @@ public abstract class ColumnInfo
     return useColumnInstead.getId();
   }
 
-  /**
-   * @author rwei
-   * @since Jan 30, 2012
-   */
   private static class TableColumnInfo extends ColumnInfo
   {
     private final SqlTableColumn column;
 
-    /**
-     * Constructor
-     * @param tableInfo
-     * @param column
-     */
     public TableColumnInfo(TableInfo tableInfo, SqlTableColumn column)
     {
       super(tableInfo);
       this.column = column;
     }
 
-    /**
-     * @see ch.ivyteam.db.meta.generator.internal.query.ColumnInfo#getColumn()
-     */
     @Override
     protected SqlTableColumn getColumn()
     {
@@ -368,10 +289,6 @@ public abstract class ColumnInfo
     }
   }
 
-  /**
-   * @author rwei
-   * @since Jan 30, 2012
-   */
   private static class ViewColumnInfo extends ColumnInfo
   {
     private SqlViewColumn column;
@@ -379,14 +296,6 @@ public abstract class ColumnInfo
     private SqlAtom expression;
     private Map<String, String> tableAliases;
 
-    /**
-     * Constructor
-     * @param meta
-     * @param tableAliases 
-     * @param tableInfo
-     * @param column
-     * @param expression 
-     */
     public ViewColumnInfo(SqlMeta meta, Map<String, String> tableAliases, TableInfo tableInfo, SqlViewColumn column, SqlAtom expression)
     {
       super(tableInfo);
@@ -396,9 +305,6 @@ public abstract class ColumnInfo
       this.expression = expression;
     }
 
-    /**
-     * @see ch.ivyteam.db.meta.generator.internal.query.ColumnInfo#getName()
-     */
     @Override
     public String getName()
     {
@@ -410,9 +316,6 @@ public abstract class ColumnInfo
       return column.getId();
     }
 
-    /**
-     * @see ch.ivyteam.db.meta.generator.internal.query.ColumnInfo#getAdditionalComments()
-     */
     @Override
     public String getAdditionalComments()
     {
@@ -430,9 +333,6 @@ public abstract class ColumnInfo
       return null;
     }
 
-    /**
-     * @see ch.ivyteam.db.meta.generator.internal.query.ColumnInfo#getColumn()
-     */
     @Override
     protected SqlTableColumn getColumn()
     {

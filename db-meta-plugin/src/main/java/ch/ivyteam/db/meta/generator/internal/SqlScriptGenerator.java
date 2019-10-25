@@ -77,7 +77,7 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
   private String fComment;
 
   /** Stores the already generated tables */
-  private Set<String> fGeneratedTables = new HashSet<String>();
+  private Set<String> fGeneratedTables = new HashSet<>();
 
   /** 
    * Database System hint datatype:
@@ -207,18 +207,11 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
     return Target.createSingleTargetFile(fOutputFile);
   }
   
-  /**
-   * Sets the fComment to the given parameter
-   * @param comment the fComment to set
-   */
   public void setComment(String comment)
   {
     this.fComment = comment;
   }
 
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.IMetaOutputGenerator#generateMetaOutput(ch.ivyteam.db.meta.model.internal.SqlMeta)
-   */
   @Override
   public void generateMetaOutput(SqlMeta metaDefinition) throws Exception
   {
@@ -260,7 +253,7 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
    * @param tables
    * @throws MetaException
    */
-  public final void generateTables(PrintWriter pr, List<SqlTable> tables) throws MetaException
+  public final void generateTables(PrintWriter pr, List<SqlTable> tables)
   {
     Map<SqlTable, List<SqlForeignKey>> alterTables = new LinkedHashMap<SqlTable, List<SqlForeignKey>>();
 
@@ -285,7 +278,7 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
    * @param foreignKey the foreign key
    * @throws MetaException 
    */
-  public void generateAlterTableAddForeignKey(PrintWriter pr, SqlTable table, SqlForeignKey foreignKey) throws MetaException
+  public void generateAlterTableAddForeignKey(PrintWriter pr, SqlTable table, SqlForeignKey foreignKey)
   {
     pr.print("ALTER TABLE ");
     generateIdentifier(pr, table.getId());
@@ -313,22 +306,8 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
     pr.println();
   }
 
+  public abstract void generateAlterTableAlterColumn(PrintWriter pr, SqlTableColumn newColumn, SqlTable newTable, SqlTableColumn oldColumn);
 
-  /**
-   * Could overridden from different database types
-   * @param pr
-   * @param newColumn 
-   * @param newTable
-   * @param oldColumn 
-   * @throws MetaException 
-   */
-  public abstract void generateAlterTableAlterColumn(PrintWriter pr, SqlTableColumn newColumn, SqlTable newTable, SqlTableColumn oldColumn) throws MetaException;
-
-  /**
-   * @param pr
-   * @param newColumn
-   * @param newTable
-   */
   public abstract void generateAlterTableAddColumn(PrintWriter pr, SqlTableColumn newColumn, SqlTable newTable);
   
   public void generateAlterTableDropColumn(PrintWriter pr, SqlTableColumn droppedColumn, SqlTable newTable)
@@ -336,10 +315,6 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
     GenerateAlterTableUtil.generateAlterTableDropColumn(pr, this, newTable, droppedColumn);    
   }
   
-  /**
-   * @param pr
-   * @param view
-   */
   public void generateDropView(PrintWriter pr, SqlView view)
   {
     pr.print("DROP VIEW ");
@@ -349,13 +324,7 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
     pr.println();
   }
   
-  /**
-   * Generates a view
-   * @param pr the writer
-   * @param view the view
-   * @throws MetaException 
-   */
-  public void generateView(PrintWriter pr, SqlView view) throws MetaException
+  public void generateView(PrintWriter pr, SqlView view)
   {
     boolean first = true;
     pr.print("CREATE VIEW ");
@@ -392,11 +361,6 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
     pr.println();
   }
 
-  /**
-   * @param pr
-   * @param select
-   * @param indent
-   */
   private void generateSelect(PrintWriter pr, SqlSelect select, int indent)
   {
     boolean first = true;
@@ -458,18 +422,12 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
     }
   }
 
-  /**
-   * Generates the given sql view expression 
-   * @param pr the print writer
-   * @param expression the expression that should be generated
-   * @throws MetaException 
-   */
-  protected void generateViewExpression(PrintWriter pr, SqlSelectExpression expression) throws MetaException
+  protected void generateViewExpression(PrintWriter pr, SqlSelectExpression expression)
   {
     generateSqlAtom(pr, expression.getExpression(), expression);
   }
 
-  protected void generateSqlAtom(PrintWriter pr, SqlAtom expression) throws MetaException
+  protected void generateSqlAtom(PrintWriter pr, SqlAtom expression)
   {
     generateSqlAtom(pr, expression, SqlArtifact.UNDEFINED);
   }
@@ -481,7 +439,7 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
    * @param artifact
    * @throws MetaException 
    */
-  protected void generateSqlAtom(PrintWriter pr, SqlAtom expression, SqlArtifact artifact) throws MetaException
+  protected void generateSqlAtom(PrintWriter pr, SqlAtom expression, SqlArtifact artifact)
   {
     if (expression instanceof SqlFullQualifiedColumnName)
     {
@@ -867,7 +825,7 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
    * @param metaDefinition the meta definition
    * @throws MetaException
    */
-  protected void generateTriggers(PrintWriter pr, SqlMeta metaDefinition) throws MetaException
+  protected void generateTriggers(PrintWriter pr, SqlMeta metaDefinition)
   {
     generateForEachStatementDeleteTriggers(pr, metaDefinition);
     generateForEachRowDeleteTriggers(pr, metaDefinition);
@@ -900,7 +858,7 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
    * @return true, if this table has a generated trigger
    * @throws MetaException
    */
-  public boolean hasTrigger(SqlMeta metaDefinition, SqlTable table) throws MetaException
+  public boolean hasTrigger(SqlMeta metaDefinition, SqlTable table)
   {
     boolean hasTriggerStatements = getForEachRowDeleteTriggerInfo(table, metaDefinition).getRight().size() > 0;
     boolean hasForEachStatementDeleteTrigger = getForEachStatementDeleteTrigger(table, metaDefinition).size() > 0;
@@ -913,7 +871,7 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
    * @param metaDefinition
    * @throws MetaException
    */
-  protected void generateForEachRowDeleteTriggers(PrintWriter pr, SqlMeta metaDefinition) throws MetaException
+  protected void generateForEachRowDeleteTriggers(PrintWriter pr, SqlMeta metaDefinition)
   {
     for (SqlTable table : metaDefinition.getArtifacts(SqlTable.class))
     {
@@ -928,7 +886,7 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
    * @param metaDefinition the meta definition
    * @throws MetaException  
    */
-  public final void generateForEachRowDeleteTrigger(PrintWriter pr, SqlTable table, SqlMeta metaDefinition) throws MetaException
+  public final void generateForEachRowDeleteTrigger(PrintWriter pr, SqlTable table, SqlMeta metaDefinition)
   {
     Pair<Boolean, List<SqlDmlStatement>> triggerStatements = getForEachRowDeleteTriggerInfo(table, metaDefinition);
     List<SqlDmlStatement> statements = triggerStatements.getRight(); 
@@ -940,17 +898,11 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
     }
   }
 
-  /**
-   * @param table
-   * @param metaDefinition
-   * @return -
-   * @throws MetaException
-   */
-  private Pair<Boolean, List<SqlDmlStatement>> getForEachRowDeleteTriggerInfo(SqlTable table, SqlMeta metaDefinition) throws MetaException
+  private Pair<Boolean, List<SqlDmlStatement>> getForEachRowDeleteTriggerInfo(SqlTable table, SqlMeta metaDefinition)
   {
     SqlReference reference;
     boolean recursiveTrigger=false;
-    List<SqlDmlStatement> statements = new ArrayList<SqlDmlStatement>();
+    List<SqlDmlStatement> statements = new ArrayList<>();
     // First analyze triggers on all tables   
     for (SqlTable foreignTable : metaDefinition.getArtifacts(SqlTable.class))
     {
@@ -1053,7 +1005,7 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
    * @param metaDefinition
    * @throws MetaException 
    */
-  protected void generateForEachStatementDeleteTriggers(PrintWriter pr, SqlMeta metaDefinition) throws MetaException
+  protected void generateForEachStatementDeleteTriggers(PrintWriter pr, SqlMeta metaDefinition)
   {
     for (SqlTable table : metaDefinition.getArtifacts(SqlTable.class))
     {
@@ -1068,7 +1020,7 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
    * @param metaDefinition
    * @throws MetaException 
    */
-  public final void genrateForEachStatementDeleteTrigger(PrintWriter pr, SqlTable table, SqlMeta metaDefinition) throws MetaException
+  public final void genrateForEachStatementDeleteTrigger(PrintWriter pr, SqlTable table, SqlMeta metaDefinition)
   {
     List<SqlDmlStatement> statements = getForEachStatementDeleteTrigger(table, metaDefinition);
     if (!statements.isEmpty())
@@ -1079,14 +1031,9 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
     }
   }
 
-  /**
-   * @param table
-   * @param metaDefinition
-   * @return -
-   */
   private List<SqlDmlStatement> getForEachStatementDeleteTrigger(SqlTable table, SqlMeta metaDefinition)
   {
-    List<SqlDmlStatement> statements = new ArrayList<SqlDmlStatement>();
+    List<SqlDmlStatement> statements = new ArrayList<>();
     for(SqlTable foreignTable : metaDefinition.getArtifacts(SqlTable.class))
     {
       for (SqlTrigger trigger : foreignTable.getTriggers())        
@@ -1112,7 +1059,7 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
    * @throws MetaException 
    */
   protected void generateForEachRowDeleteTrigger(PrintWriter pr, SqlTable table,
-          List<SqlDmlStatement> triggerStatements, @SuppressWarnings("unused") boolean recursiveTrigger) throws MetaException
+          List<SqlDmlStatement> triggerStatements, @SuppressWarnings("unused") boolean recursiveTrigger)
   {
     pr.print("CREATE TRIGGER ");
     generateTriggerName(pr, table);
@@ -1145,14 +1092,7 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
     }
   }
 
-  /**
-   * Generates a dml statement
-   * @param pr the print write
-   * @param stmt the statement
-   * @param insets the insets
-   * @throws MetaException 
-   */
-  protected void generateDmlStatement(PrintWriter pr, SqlDmlStatement stmt, int insets) throws MetaException
+  protected void generateDmlStatement(PrintWriter pr, SqlDmlStatement stmt, int insets)
   {
     if (stmt instanceof SqlDelete)
     {
@@ -1164,22 +1104,14 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
     }    
   }
 
-  /**
-   * Generates the update statement
-   * @param pr the print writer
-   * @param updateStmt the update statement
-   * @param insets the insets
-   * @throws MetaException 
-   */
-  protected void generateUpdateStatement(PrintWriter pr, SqlUpdate updateStmt, int insets) throws MetaException
+  protected void generateUpdateStatement(PrintWriter pr, SqlUpdate updateStmt, int insets)
   {
-    boolean first = true;
     writeSpaces(pr, insets);
     pr.print("UPDATE ");
     pr.println(updateStmt.getTable());
     writeSpaces(pr, insets);
     pr.print("SET ");
-    first = true;
+    boolean first = true;
     for (SqlUpdateColumnExpression expr: updateStmt.getColumnExpressions())
     {
       if (!first)
@@ -1202,13 +1134,7 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
     }
   }
 
-  /**
-   * Generates a filter expression
-   * @param pr 
-   * @param filterExpression
-   * @throws MetaException 
-   */
-  protected void generateFilterExpression(PrintWriter pr, SqlSimpleExpr filterExpression) throws MetaException
+  protected void generateFilterExpression(PrintWriter pr, SqlSimpleExpr filterExpression)
   {
     if (filterExpression instanceof SqlBinaryRelation)
     {
@@ -1239,14 +1165,7 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
     }
   }
 
-  /**
-   * Generates the delete statement
-   * @param pr the print writer
-   * @param deleteStmt the delete stmt
-   * @param insets the insets
-   * @throws MetaException 
-   */
-  protected void generateDeleteStatement(PrintWriter pr, SqlDelete deleteStmt, int insets) throws MetaException
+  protected void generateDeleteStatement(PrintWriter pr, SqlDelete deleteStmt, int insets)
   {
     writeSpaces(pr, insets);
     pr.print("DELETE FROM ");
@@ -1256,15 +1175,7 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
     generateFilterExpression(pr, deleteStmt.getFilterExpression());
   }
 
-  /**
-   * Generates a table delete trigger. Subclasses may override this method.
-   * @param pr the print writer to generate to
-   * @param table the table which triggers the trigger
-   * @param triggerStatements the statements that have to be executed by the trigger
-   * @throws MetaException 
-   */
-  protected void generateForEachStatementDeleteTrigger(PrintWriter pr, SqlTable table,
-          List<SqlDmlStatement> triggerStatements) throws MetaException
+  protected void generateForEachStatementDeleteTrigger(PrintWriter pr, SqlTable table, List<SqlDmlStatement> triggerStatements)
   {
     pr.print("CREATE TRIGGER ");
     generateTriggerName(pr, table);
@@ -1283,16 +1194,9 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
     generateDelimiter(pr);
   }
 
-  /**
-   * Generates the table
-   * @param pr the writer
-   * @param table the table
-   * @throws MetaException
-   */
-  private void generateTable(PrintWriter pr, SqlTable table, Map<SqlTable, List<SqlForeignKey>> alterTables) throws MetaException
+  private void generateTable(PrintWriter pr, SqlTable table, Map<SqlTable, List<SqlForeignKey>> alterTables)
   {
     boolean firstColumn = true;
-
     generatePreTable(pr, table);
     pr.append("CREATE TABLE ");
     generateIdentifier(pr, table.getId());
@@ -1399,7 +1303,7 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
    */
   public List<SqlIndex> getIndexes(SqlTable table)
   {
-    List<SqlIndex> tableIndexes = new ArrayList<SqlIndex>();
+    List<SqlIndex> tableIndexes = new ArrayList<>();
     for (SqlIndex index : table.getIndexes())
     {
       if (!isDatabaseSystemHintSet(index, NO_INDEX))
@@ -1416,8 +1320,6 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
    */
   public final void addGeneratedTable(String tableName)
   {
-    assert tableName != null : "Parameter tableName must not be null";
-    assert fGeneratedTables.contains(tableName) == false : "Parameter tableName '"+tableName+"' must not yet be generated";
     fGeneratedTables.add(tableName);
   }
 
@@ -1428,7 +1330,6 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
    */
   protected final boolean isTableAlreadyGenerated(String tableName)
   {
-    assert tableName != null : "Parameter tableName must not be null";
     return fGeneratedTables.contains(tableName);
   }
 
@@ -1471,7 +1372,7 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
    * @throws MetaException
    */
   @SuppressWarnings("unused")
-  protected void generatePreTable(PrintWriter pr, SqlTable table) throws MetaException
+  protected void generatePreTable(PrintWriter pr, SqlTable table)
   {
     // Hook for subclasses to add things before the table definition
   }
@@ -1484,7 +1385,7 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
    * @throws MetaException
    */
   @SuppressWarnings("unused")
-  protected void generatePostTable(PrintWriter pr, SqlTable table) throws MetaException
+  protected void generatePostTable(PrintWriter pr, SqlTable table)
   {
     // Hook for subclasses to add things before the table definition
   }
@@ -1497,7 +1398,7 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
    * @throws MetaException
    */
   @SuppressWarnings("unused")
-  protected void generateTableStorage(PrintWriter pr, SqlTable table) throws MetaException
+  protected void generateTableStorage(PrintWriter pr, SqlTable table)
   {
     // Hook for subclasses to add things between the closing parentis and the delimiter
   }
@@ -1799,7 +1700,7 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
    * @param alterTables
    * @throws MetaException 
    */
-  public final void generateColumn(PrintWriter pr, SqlTable table, SqlTableColumn column, Map<SqlTable, List<SqlForeignKey>> alterTables) throws MetaException
+  public final void generateColumn(PrintWriter pr, SqlTable table, SqlTableColumn column, Map<SqlTable, List<SqlForeignKey>> alterTables)
   {
     writeSpaces(pr, 2);
     generateIdentifier(pr, column.getId());
@@ -1875,7 +1776,7 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
    * @param foreignKey the foreign key to generate
    * @throws MetaException 
    */
-  protected void generateForeignKey(PrintWriter pr, SqlForeignKey foreignKey) throws MetaException
+  protected void generateForeignKey(PrintWriter pr, SqlForeignKey foreignKey)
   {
     writeSpaces(pr, 2);
     pr.print("FOREIGN KEY (");
@@ -1942,7 +1843,7 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
    * @param foreignKey The sql foreign key the reference is defined on
    * @throws MetaException 
    */
-  protected void generateReference(PrintWriter pr, SqlReference reference, SqlForeignKey foreignKey) throws MetaException
+  protected void generateReference(PrintWriter pr, SqlReference reference, SqlForeignKey foreignKey)
   {
     pr.append(" REFERENCES ");
     pr.append(getForeignTable(reference, foreignKey));
@@ -1977,7 +1878,7 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
    * @return foreign key action
    * @throws MetaException 
    */
-  protected SqlForeignKeyAction getForeignKeyAction(SqlForeignKey foreignKey) throws MetaException
+  protected SqlForeignKeyAction getForeignKeyAction(SqlForeignKey foreignKey)
   {
     if (isDatabaseSystemHintSet(foreignKey, REFERENCE_ACTION))
     {

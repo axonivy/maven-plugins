@@ -19,9 +19,6 @@ public abstract class AbstractSortedTableContentListGenerator implements IMetaOu
   /** The database system to generate */
   protected String fDatabaseSystem;
   
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.IMetaOutputGenerator#analyseArgs(java.lang.String[])
-   */
   @Override
   public void analyseArgs(String[] generatorArgs) throws Exception
   {

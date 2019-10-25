@@ -76,7 +76,7 @@ public class PostgreSqlSqlScriptGenerator extends SqlScriptGenerator
 
   @Override
   protected void generateForEachRowDeleteTrigger(PrintWriter pr, SqlTable table,
-          List<SqlDmlStatement> triggerStatements, boolean recursiveTrigger) throws MetaException
+          List<SqlDmlStatement> triggerStatements, boolean recursiveTrigger)
   {
     String functionName = table.getId() + "DeleteTriggerFunc()";
 
@@ -200,7 +200,7 @@ public class PostgreSqlSqlScriptGenerator extends SqlScriptGenerator
   {
     return index.getColumns()
             .stream()
-            .filter(column -> this.isVarCharColumn(table, column))
+            .filter(column -> isVarCharColumn(table, column))
             .findAny()
             .isPresent();
   }
@@ -227,15 +227,13 @@ public class PostgreSqlSqlScriptGenerator extends SqlScriptGenerator
   
   @Override
   protected void generateUpdateStatement(PrintWriter pr, SqlUpdate updateStmt, int insets)
-          throws MetaException
   {
-    boolean first = true;
     writeSpaces(pr, insets);
     pr.print("UPDATE ");
     pr.println(updateStmt.getTable());
     writeSpaces(pr, insets);
     pr.print("SET ");
-    first = true;
+    boolean first = true;
     for (SqlUpdateColumnExpression expr: updateStmt.getColumnExpressions())
     {
       if (!first)
@@ -254,7 +252,7 @@ public class PostgreSqlSqlScriptGenerator extends SqlScriptGenerator
   }
   
   @Override
-  public void generateAlterTableAlterColumn(PrintWriter pr, SqlTableColumn newColumn, SqlTable newTable, SqlTableColumn oldColumn) throws MetaException
+  public void generateAlterTableAlterColumn(PrintWriter pr, SqlTableColumn newColumn, SqlTable newTable, SqlTableColumn oldColumn)
   {
     boolean changed = false;
     if (!Objects.equals(newColumn.getDataType(), oldColumn.getDataType()))

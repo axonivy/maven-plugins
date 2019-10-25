@@ -12,19 +12,6 @@ public class SqlScriptUtil
   /**
    * Formats a comma separated list with the entries of the given collection. 
    * The entry of the collection are formated using the {@link java.lang.Object#toString()} method 
-   * @param collection the list to format
-   * @return the formatted string
-   */
-  public static String formatCommaSeparated(Collection<?> collection)
-  {
-    StringBuilder builder = new StringBuilder();
-    formatCommaSeparated(builder, collection);
-    return builder.toString();
-  }
-  
-  /**
-   * Formats a comma separated list with the entries of the given collection. 
-   * The entry of the collection are formated using the {@link java.lang.Object#toString()} method 
    * @param builder the builder to format the list into 
    * @param collection the collection to format
    */
@@ -41,5 +28,4 @@ public class SqlScriptUtil
       builder.append(entry);
     }
   }
-  
 }

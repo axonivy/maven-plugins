@@ -15,23 +15,23 @@ public interface IMetaOutputGenerator
    * @param metaDefinition the meta definition
    * @throws Exception if generation fails
    */
-  public void generateMetaOutput(SqlMeta metaDefinition) throws Exception;
+  void generateMetaOutput(SqlMeta metaDefinition) throws Exception;
 
   /** 
    * Analysis the generator arguments
    * @param generatorArgs generator arguments
    * @throws Exception if analyses fails
    */
-  public void analyseArgs(String[] generatorArgs) throws Exception;
+  void analyseArgs(String[] generatorArgs) throws Exception;
   
   /**
    * Prints a help about the generator arguments
    */
-  public void printHelp();
+  void printHelp();
 
   /**
    * Gets information about the files that are generated when calling {@link #generateMetaOutput(SqlMeta)}
    * @return target
    */
-  public Target getTarget();
+  Target getTarget();
 }
