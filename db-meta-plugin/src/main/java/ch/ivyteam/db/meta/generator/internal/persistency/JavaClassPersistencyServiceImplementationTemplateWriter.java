@@ -16,15 +16,7 @@ public class JavaClassPersistencyServiceImplementationTemplateWriter extends Abs
   private SqlTable table;
   private String entityPackage;
 
-  /**
-   * Constructor
-   * @param table
-   * @param meta
-   * @param targetPackage
-   * @param entityPackage 
-   */
-  public JavaClassPersistencyServiceImplementationTemplateWriter(SqlTable table, SqlMeta meta,
-          String targetPackage, String entityPackage)
+  public JavaClassPersistencyServiceImplementationTemplateWriter(SqlTable table, SqlMeta meta, String targetPackage, String entityPackage)
   {
     super(meta, targetPackage);
     this.table = table;
@@ -35,7 +27,6 @@ public class JavaClassPersistencyServiceImplementationTemplateWriter extends Abs
   protected Map<String, Object> getDataMap()
   {
     Map<String, Object> root = super.getDataMap();
-
     root.put("table", TableInfo.create(table, entityPackage));
     root.put("columns", ColumnInfo.getColumns(table));
     root.put("queryViewColumns", ViewColumnInfo.getViewColumns(table, meta));

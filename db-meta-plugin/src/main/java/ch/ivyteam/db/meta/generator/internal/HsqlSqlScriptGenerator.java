@@ -43,9 +43,6 @@ public class HsqlSqlScriptGenerator extends SqlScriptGenerator
    */
   public static final String TRIGGER_CLASS = String.valueOf("TriggerClass");
 
-  /**
-   * @see SqlScriptGenerator#generateDataType(PrintWriter, DataType)
-   */
   @Override
   protected void generateDataType(PrintWriter pr, DataType dataType)
   {
@@ -63,9 +60,6 @@ public class HsqlSqlScriptGenerator extends SqlScriptGenerator
     }   
   }
   
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#generateDataType(java.io.PrintWriter, ch.ivyteam.db.meta.model.internal.SqlDataType, ch.ivyteam.db.meta.model.internal.SqlArtifact)
-   */
   @Override
   protected void generateDataType(PrintWriter pr, SqlDataType dataType, SqlArtifact artifact)
   {
@@ -79,45 +73,30 @@ public class HsqlSqlScriptGenerator extends SqlScriptGenerator
     }
   }
 
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#getDatabaseComment()
-   */
   @Override
   protected String getDatabaseComment()
   {
     return "HsqlDb";
   }
   
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#isIndexInTableSupported()
-   */
   @Override
   protected boolean isIndexInTableSupported()
   {
     return false;
   }
   
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#isNullBeforeDefaultConstraint()
-   */
   @Override
   protected boolean isNullBeforeDefaultConstraint()
   {
     return false;
   }
   
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#isForeignKeyReferenceInColumnDefinitionSupported()
-   */
   @Override
   public boolean isForeignKeyReferenceInColumnDefinitionSupported()
   {
     return false;
   }
   
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#generateAlterTableAddForeignKey(java.io.PrintWriter, ch.ivyteam.db.meta.model.internal.SqlTable, ch.ivyteam.db.meta.model.internal.SqlForeignKey)
-   */
   @Override
   public void generateAlterTableAddForeignKey(PrintWriter pr, SqlTable table, SqlForeignKey foreignKey) throws MetaException
   {
@@ -132,9 +111,6 @@ public class HsqlSqlScriptGenerator extends SqlScriptGenerator
     pr.println();
   }
 
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#generateSqlCaseExpression(PrintWriter, SqlCaseExpr)
-   */
   @Override
   protected void generateSqlCaseExpression(PrintWriter pr, SqlCaseExpr caseExpr)
   {
@@ -146,10 +122,7 @@ public class HsqlSqlScriptGenerator extends SqlScriptGenerator
     pr.print(caseExpr.getWhenThenList().get(1).getColumnName());
     pr.print(")");
   }
-  
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#generateForEachStatementDeleteTriggers(java.io.PrintWriter, ch.ivyteam.db.meta.model.internal.SqlMeta)
-   */
+
   @Override
   protected void generateForEachStatementDeleteTriggers(PrintWriter pr, SqlMeta metaDefinition)
   {
@@ -173,10 +146,7 @@ public class HsqlSqlScriptGenerator extends SqlScriptGenerator
       }
     }
   }
-  
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#generateForEachRowDeleteTriggers(java.io.PrintWriter, ch.ivyteam.db.meta.model.internal.SqlMeta)
-   */
+
   @Override
   protected void generateForEachRowDeleteTriggers(PrintWriter pr, SqlMeta metaDefinition) throws MetaException
   {
@@ -271,18 +241,12 @@ public class HsqlSqlScriptGenerator extends SqlScriptGenerator
     return dropped;
   }
   
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#getDatabaseSystemNames()
-   */
   @Override
   protected List<String> getDatabaseSystemNames()
   {
     return Arrays.asList(HSQL_DB);
   }
   
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#generateIdentifier(java.io.PrintWriter, java.lang.String)
-   */
   @Override
   protected void generateIdentifier(PrintWriter pr, String identifier)
   {
@@ -293,44 +257,26 @@ public class HsqlSqlScriptGenerator extends SqlScriptGenerator
     super.generateIdentifier(pr, identifier);
   }
 
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#getRowTriggerOldVariableName()
-   */
   @Override
   protected String getRowTriggerOldVariableName()
   {
     return ":old";
   }
   
-  /**
-   * Could overridden from different database types
-   * @param pr
-   * @param newColumn 
-   * @param newTable
-   * @param oldColumn 
-   * @throws MetaException 
-   */
   @Override
-  public void generateAlterTableAlterColumn(PrintWriter pr, SqlTableColumn newColumn, SqlTable newTable, SqlTableColumn oldColumn) throws MetaException
+  public void generateAlterTableAlterColumn(PrintWriter pr, SqlTableColumn newColumn, SqlTable newTable, SqlTableColumn oldColumn)
   {
     GenerateAlterTableUtil.generateAlterTableChangeColumnWithDefaultAndNullConstraints(pr, this, newColumn, newTable, "ALTER COLUMN");
   }
 
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#generateAlterTableAddColumn(java.io.PrintWriter, ch.ivyteam.db.meta.model.internal.SqlTableColumn, ch.ivyteam.db.meta.model.internal.SqlTable)
-   */
   @Override
   public void generateAlterTableAddColumn(PrintWriter pr, SqlTableColumn newColumn, SqlTable newTable)
   {
     GenerateAlterTableUtil.generateAlterTableAddColumn(pr, this, newColumn, newTable, "ADD COLUMN");
   }
   
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#generateAlterTableDropUniqueConstraint(java.io.PrintWriter, ch.ivyteam.db.meta.model.internal.SqlTable, ch.ivyteam.db.meta.model.internal.SqlUniqueConstraint, java.util.List)
-   */
   @Override
-  protected void generateAlterTableDropUniqueConstraint(PrintWriter pr, SqlTable table,
-          SqlUniqueConstraint unique, List<String> createdTemporaryStoredProcedures)
+  protected void generateAlterTableDropUniqueConstraint(PrintWriter pr, SqlTable table, SqlUniqueConstraint unique, List<String> createdTemporaryStoredProcedures)
   {
     pr.print("CALL \"ch.ivyteam.ivy.persistence.db.hsqldb.HsqlStoredProcedure.dropUniqueConstraints\"('"+table.getId()+"')");
   }
@@ -351,5 +297,4 @@ public class HsqlSqlScriptGenerator extends SqlScriptGenerator
     options.foreignKeysOnAlterTable = true;
     return options;
   }
- 
 }

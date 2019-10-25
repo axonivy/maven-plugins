@@ -22,26 +22,17 @@ public class JavaClassPersistencyServiceImplementationGenerator extends JavaClas
   private static final String OPTION_ENTITY_PACKAGE = "entityPackage";
   private String fEntityPackage;
 
-  /**
-   * Constructor
-   */
   public JavaClassPersistencyServiceImplementationGenerator()
   {
     options.addOption(Option.builder().desc("Package where the entity classes are located.").required().hasArg().longOpt(OPTION_ENTITY_PACKAGE).build());
   }
 
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.JavaClassGenerator#analyseAdditionalArgs(org.apache.commons.cli.CommandLine)
-   */
   @Override
   protected void analyseAdditionalArgs(CommandLine commandLine) throws Exception
   {
     fEntityPackage = commandLine.getOptionValue(OPTION_ENTITY_PACKAGE);
   }
 
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.IMetaOutputGenerator#generateMetaOutput(ch.ivyteam.db.meta.model.internal.SqlMeta)
-   */
   @Override
   public void generateMetaOutput(SqlMeta metaDefinition) throws Exception
   {
@@ -64,11 +55,6 @@ public class JavaClassPersistencyServiceImplementationGenerator extends JavaClas
     }
   }
 
-  /**
-   * @param view
-   * @param meta
-   * @throws Exception 
-   */
   private void writeJavaClassPersistencyServiceImplementationGenerator(SqlView view, SqlMeta meta) throws Exception
   {
     JavaClassForViewTemplateWriter templateWriter = new JavaClassForViewTemplateWriter(

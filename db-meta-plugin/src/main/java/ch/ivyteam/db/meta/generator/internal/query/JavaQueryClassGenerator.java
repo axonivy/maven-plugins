@@ -11,8 +11,6 @@ import ch.ivyteam.db.meta.model.internal.MetaException;
 import ch.ivyteam.db.meta.model.internal.SqlMeta;
 import ch.ivyteam.db.meta.model.internal.SqlTable;
 
-/**
- */
 public class JavaQueryClassGenerator extends JavaClassGenerator
 {
   
@@ -21,18 +19,12 @@ public class JavaQueryClassGenerator extends JavaClassGenerator
   private File templateDir;
   private File sourceDir;
 
-  /**
-   * Constructor
-   */
   public JavaQueryClassGenerator()
   {
     options.addOption(Option.builder().desc("Template directory (e.g. for Public API)").required().hasArg().longOpt(OPTION_TEMPLATE_DIR).build());
     options.addOption(Option.builder().desc("Source directory (e.g. for java source templates)").required().hasArg().longOpt(OPTION_SOURCE_DIR).build());
   }
   
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.JavaClassGenerator#analyseAdditionalArgs(org.apache.commons.cli.CommandLine)
-   */
   @Override
   protected void analyseAdditionalArgs(CommandLine commandLine) throws Exception
   {
@@ -46,12 +38,8 @@ public class JavaQueryClassGenerator extends JavaClassGenerator
     {
       throw new IllegalArgumentException("Source directory '"+ sourceDir.getAbsolutePath() +"' does not exist");
     }
-
   }
   
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.IMetaOutputGenerator#generateMetaOutput(ch.ivyteam.db.meta.model.internal.SqlMeta)
-   */
   @Override
   public void generateMetaOutput(SqlMeta metaDefinition) throws Exception
   {

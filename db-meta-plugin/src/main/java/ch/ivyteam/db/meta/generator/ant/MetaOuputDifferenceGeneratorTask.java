@@ -9,13 +9,11 @@ import java.util.Map.Entry;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.ExitStatusException;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.Task;
 
 import ch.ivyteam.db.meta.generator.MetaOutputDifferenceGenerator;
-import ch.ivyteam.db.meta.generator.internal.Db2iSeriesSqlScriptGenerator;
 import ch.ivyteam.db.meta.generator.internal.HsqlSqlScriptGenerator;
 import ch.ivyteam.db.meta.generator.internal.MsSqlServerSqlScriptGenerator;
 import ch.ivyteam.db.meta.generator.internal.MySqlSqlScriptGenerator;
@@ -55,13 +53,12 @@ public class MetaOuputDifferenceGeneratorTask extends Task
     task.setInputTo(new File(persistenePlugin, "meta/SystemDatabase.meta"));
     task.setOldVersionId(String.valueOf(oldVersion));
     
-    Map<String, Class<?>> generators = new LinkedHashMap<String, Class<?>>();
+    Map<String, Class<?>> generators = new LinkedHashMap<>();
     generators.put("Hsql", HsqlSqlScriptGenerator.class);
     generators.put("PostgreSql", PostgreSqlSqlScriptGenerator.class);
     generators.put("MsSqlServer", MsSqlServerSqlScriptGenerator.class);
     generators.put("MySql", MySqlSqlScriptGenerator.class);
     generators.put("Oracle", OracleSqlScriptGenerator.class);
-    generators.put("Db2iSeries", Db2iSeriesSqlScriptGenerator.class);
     
     for (Entry<String, Class<?>> entry : generators.entrySet())
     {
@@ -83,11 +80,8 @@ public class MetaOuputDifferenceGeneratorTask extends Task
     }
   }
 
-  /**
-   * @see org.apache.tools.ant.Task#execute()
-   */
   @Override
-  public void execute() throws BuildException
+  public void execute()
   {
     super.execute();
     

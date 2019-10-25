@@ -299,9 +299,9 @@ public abstract class JavaClassGenerator implements IMetaOutputGenerator
    * @return list of association tables
    * @throws MetaException
    */
-  protected List<SqlTable> getAssociationTables(SqlTable table, SqlMeta metaDefinition) throws MetaException
+  protected List<SqlTable> getAssociationTables(SqlTable table, SqlMeta metaDefinition)
   {
-    List<SqlTable> associationTables = new ArrayList<SqlTable>();
+    List<SqlTable> associationTables = new ArrayList<>();
 
     for (SqlTable associationTable : metaDefinition.getArtifacts(SqlTable.class))
     {

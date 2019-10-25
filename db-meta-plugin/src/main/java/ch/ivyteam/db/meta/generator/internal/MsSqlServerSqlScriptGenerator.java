@@ -30,13 +30,9 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
   private static final String DROP_PRIMARY_CONSTRAINT_STORED_PROCUDRE = "IWA_Drop_PrimaryKey";
   private static final String DROP_FOREIGN_CONSTRAINT_STORED_PROCUDRE = "IWA_Drop_ForeignKey";
   
-  /** The database system */
   public static final String MS_SQL_SERVER = String.valueOf("MsSqlServer");
-  private List<String> dropUniqueForTables = new ArrayList<String>();  
+  private List<String> dropUniqueForTables = new ArrayList<>();  
   
-  /**
-   * @see SqlScriptGenerator#generateDataType(PrintWriter, DataType)
-   */
   @Override
   protected void generateDataType(PrintWriter pr, DataType dataType)
   {
@@ -58,9 +54,6 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
     }   
   }
   
-  /**
-   * @see SqlScriptGenerator#generateDelimiter(PrintWriter)
-   */
   @Override
   protected void generateDelimiter(PrintWriter pr)
   {
@@ -68,31 +61,20 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
     pr.print("GO");
   }
   
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#isIndexInTableSupported()
-   */
   @Override
   protected boolean isIndexInTableSupported()
   {
     return false;
   }
   
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#getRowTriggerOldVariableName()
-   */
   @Override
   protected String getRowTriggerOldVariableName()
   {
     return "deleted";
   }
  
-  /**
-   * @throws MetaException 
-   * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#generateForEachRowDeleteTrigger(java.io.PrintWriter, ch.ivyteam.db.meta.model.internal.SqlTable, java.util.List, boolean)
-   */
   @Override
-  protected void generateForEachRowDeleteTrigger(PrintWriter pr, SqlTable table,
-          List<SqlDmlStatement> triggerStatements, boolean recursiveTrigger) throws MetaException
+  protected void generateForEachRowDeleteTrigger(PrintWriter pr, SqlTable table, List<SqlDmlStatement> triggerStatements, boolean recursiveTrigger)
   {
     pr.print("CREATE TRIGGER ");
     generateTriggerName(pr, table);
@@ -121,12 +103,8 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
     generateDelimiter(pr);
   }
 
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#generateDeleteStatement(java.io.PrintWriter, ch.ivyteam.db.meta.model.internal.SqlDelete, int)
-   */
   @Override
-  protected void generateDeleteStatement(PrintWriter pr, SqlDelete deleteStmt, int insets)
-          throws MetaException
+  protected void generateDeleteStatement(PrintWriter pr, SqlDelete deleteStmt, int insets) throws MetaException
   {
     writeSpaces(pr, insets);
     pr.print("DELETE ");
@@ -139,20 +117,15 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
     generateFilterExpression(pr, deleteStmt.getFilterExpression());
   }
   
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#generateUpdateStatement(java.io.PrintWriter, ch.ivyteam.db.meta.model.internal.SqlUpdate, int)
-   */
   @Override
   protected void generateUpdateStatement(PrintWriter pr, SqlUpdate updateStmt, int insets)
-          throws MetaException
   {
-    boolean first = true;
     writeSpaces(pr, insets);
     pr.print("UPDATE ");
     pr.print(updateStmt.getTable());
     writeSpaces(pr, insets);
     pr.print("SET ");
-    first = true;
+    boolean first = true;
     for (SqlUpdateColumnExpression expr: updateStmt.getColumnExpressions())
     {
       if (!first)
@@ -173,19 +146,15 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
     pr.println(", deleted");
     writeSpaces(pr, insets);
     pr.print("WHERE ");
-    generateFilterExpression(pr, updateStmt.getFilterExpression());  }
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#getDatabaseComment()
-   */
+    generateFilterExpression(pr, updateStmt.getFilterExpression());
+  }
+
   @Override
   protected String getDatabaseComment()
   {
     return "Microsoft SQL Server";
   }
   
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#generatePrefix(java.io.PrintWriter)
-   */
   @Override
   protected void generatePrefix(PrintWriter pr)
   {
@@ -212,9 +181,6 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
     }
   }
 
-  /**
-   * @param pr
-   */
   private void generateAlterDatabaseForSnapshotIsolation(PrintWriter pr)
   {
     generateCommentLine(pr, "");
@@ -228,9 +194,6 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
     generateDelimiter(pr);
   }
   
-  /**
-   * @param pr
-   */
   private void generateAlterDatabaseForRecursiveTriggers(PrintWriter pr)
   {
     generateCommentLine(pr, "");
@@ -264,20 +227,14 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
     }
   }
 
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#getDatabaseSystemNames()
-   */
   @Override
   protected List<String> getDatabaseSystemNames()
   {
     return Arrays.asList(MS_SQL_SERVER);
   }
   
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#generateAlterTableAddForeignKey(java.io.PrintWriter, ch.ivyteam.db.meta.model.internal.SqlTable, ch.ivyteam.db.meta.model.internal.SqlForeignKey)
-   */
   @Override
-  public void generateAlterTableAddForeignKey(PrintWriter pr, SqlTable table, SqlForeignKey foreignKey) throws MetaException
+  public void generateAlterTableAddForeignKey(PrintWriter pr, SqlTable table, SqlForeignKey foreignKey)
   {
     pr.print("ALTER TABLE ");
     generateIdentifier(pr, table.getId());
@@ -290,12 +247,8 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
     pr.println();
   }
 
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#generateAlterTableAlterColumn(java.io.PrintWriter, ch.ivyteam.db.meta.model.internal.SqlTableColumn, ch.ivyteam.db.meta.model.internal.SqlTable, ch.ivyteam.db.meta.model.internal.SqlTableColumn)
-   */
   @Override
-  public void generateAlterTableAlterColumn(PrintWriter pr, SqlTableColumn newColumn, SqlTable newTable,
-          SqlTableColumn oldColumn) throws MetaException
+  public void generateAlterTableAlterColumn(PrintWriter pr, SqlTableColumn newColumn, SqlTable newTable, SqlTableColumn oldColumn)
   {
     GenerateAlterTableUtil.generateAlterTableAlterColumnWithNullConstraints(pr, this, newColumn, newTable, "ALTER COLUMN");
   }  
@@ -313,21 +266,14 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
     }
   }
   
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#generateAlterTableAddColumn(java.io.PrintWriter, ch.ivyteam.db.meta.model.internal.SqlTableColumn, ch.ivyteam.db.meta.model.internal.SqlTable)
-   */
   @Override
   public void generateAlterTableAddColumn(PrintWriter pr, SqlTableColumn newColumn, SqlTable newTable)
   {
     GenerateAlterTableUtil.generateAlterTableAddColumn(pr, this, newColumn, newTable, "ADD");
   }
   
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#generateAlterTableDropUniqueConstraint(java.io.PrintWriter, ch.ivyteam.db.meta.model.internal.SqlTable, ch.ivyteam.db.meta.model.internal.SqlUniqueConstraint, java.util.List)
-   */
   @Override
-  protected void generateAlterTableDropUniqueConstraint(PrintWriter pr, SqlTable table,
-          SqlUniqueConstraint unique, List<String> createdTemporaryStoredProcedures)
+  protected void generateAlterTableDropUniqueConstraint(PrintWriter pr, SqlTable table, SqlUniqueConstraint unique, List<String> createdTemporaryStoredProcedures)
   {
     generateDropUniqueConstraintStoredProcedure(pr, createdTemporaryStoredProcedures);
     
@@ -398,8 +344,7 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
   }
   
   @Override
-  public void generateDropPrimaryKey(PrintWriter pr, SqlTable table, SqlPrimaryKey primaryKey,
-          List<String> createdTemporaryStoredProcedures)
+  public void generateDropPrimaryKey(PrintWriter pr, SqlTable table, SqlPrimaryKey primaryKey, List<String> createdTemporaryStoredProcedures)
   {
     generateDropPrimaryKeyConstraintStoredProcedure(pr, createdTemporaryStoredProcedures);
     pr.print("EXECUTE ");
@@ -442,8 +387,7 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
   }
   
   @Override
-  public void generateAlterTableDropForeignKey(PrintWriter pr, SqlTable table, SqlForeignKey foreignKey,
-          List<String> createdTemporaryStoredProcedures)
+  public void generateAlterTableDropForeignKey(PrintWriter pr, SqlTable table, SqlForeignKey foreignKey, List<String> createdTemporaryStoredProcedures)
   {
     generateDropForeignKeyConstraintStoredProcedure(pr, createdTemporaryStoredProcedures);
     pr.print("EXECUTE ");
@@ -491,12 +435,6 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
     }
   }
 
-  /**
-   * Drops the index
-   * @param pr
-   * @param table 
-   * @param index
-   */
   @Override
   public void generateDropIndex(PrintWriter pr, SqlTable table, SqlIndex index) 
   {

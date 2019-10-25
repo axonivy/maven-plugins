@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import ch.ivyteam.db.meta.model.internal.MetaException;
 import ch.ivyteam.db.meta.model.internal.SqlDataType.DataType;
 import ch.ivyteam.db.meta.model.internal.SqlDmlStatement;
 import ch.ivyteam.db.meta.model.internal.SqlForeignKey;
@@ -36,9 +35,6 @@ public class MySqlSqlScriptGenerator extends SqlScriptGenerator
   private static final String DROP_FOREIGN_KEY_CONSTRAINT_STORED_PROCUDRE = "IWA_Drop_ForeignKey_Constraint";
   public static final String INDEX_COLUMN_LENGTH = "IndexColumnLength";
                                                     
-  /**
-   * @see SqlScriptGenerator#generateDataType(PrintWriter, DataType)
-   */
   @Override
   protected void generateDataType(PrintWriter pr, DataType dataType)
   {
@@ -56,80 +52,50 @@ public class MySqlSqlScriptGenerator extends SqlScriptGenerator
     }   
   }
   
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#isForeignKeyReferenceInColumnDefinitionSupported()
-   */
   @Override
   public boolean isForeignKeyReferenceInColumnDefinitionSupported()
   {
     return false;
   }
   
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#generateTableStorage(java.io.PrintWriter, ch.ivyteam.db.meta.model.internal.SqlTable)
-   */
   @Override
   protected void generateTableStorage(PrintWriter pr, SqlTable table)
   {
     pr.append(" ENGINE={0}");
   }
 
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#getDatabaseComment()
-   */
   @Override
   protected String getDatabaseComment()
   {
     return "MySQL";
   }
   
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#generateComment(java.io.PrintWriter)
-   */
   @Override
   protected void generateComment(PrintWriter pr)
   {
     pr.append("# ");
   }
   
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#getDatabaseSystemNames()
-   */
   @Override
   protected List<String> getDatabaseSystemNames()
   {
     return Arrays.asList(MYSQL);
   }
   
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#getRowTriggerOldVariableName()
-   */
   @Override
   protected String getRowTriggerOldVariableName()
   {
     return "OLD";
   }
   
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#generateIdentifierQuote(java.io.PrintWriter)
-   */
   @Override
   protected void generateIdentifierQuote(PrintWriter pr)
   {
     pr.print("`");
   }
   
- /**
-  * Generates a table row delete trigger. Subclasses may override this method.
-  * @param pr the print writer to generate to
-  * @param table the table which triggers the trigger
-  * @param triggerStatements the statements that have to be executed by the trigger
-  * @param recursiveTrigger flag indicating if this trigger is recursive
- * @throws MetaException 
-  */
   @Override
-  protected void generateForEachRowDeleteTrigger(PrintWriter pr, SqlTable table,
-          List<SqlDmlStatement> triggerStatements, boolean recursiveTrigger) throws MetaException
+  protected void generateForEachRowDeleteTrigger(PrintWriter pr, SqlTable table, List<SqlDmlStatement> triggerStatements, boolean recursiveTrigger)
   {
     pr.print("CREATE TRIGGER ");
     generateTriggerName(pr, table);
@@ -149,22 +115,15 @@ public class MySqlSqlScriptGenerator extends SqlScriptGenerator
     generateDelimiter(pr);
   }
   
-  /**
-   * Generates the update statement
-   * @param pr the print writer
-   * @param updateStmt the update statement
-   * @param insets the insets
-   */
   @Override
   protected void generateUpdateStatement(PrintWriter pr, SqlUpdate updateStmt, int insets)
   {
-    boolean first = true;
     writeSpaces(pr, insets);
     pr.print("UPDATE ");
     pr.println(updateStmt.getTable());
     writeSpaces(pr, insets);
     pr.print("SET ");
-    first = true;
+    boolean first = true;
     for (SqlUpdateColumnExpression expr: updateStmt.getColumnExpressions())
     {
       if (!first)
@@ -182,35 +141,20 @@ public class MySqlSqlScriptGenerator extends SqlScriptGenerator
     pr.print(updateStmt.getFilterExpression());
   }
   
-  /**
-   * Could overridden from different database types
-   * @param pr
-   * @param newColumn 
-   * @param newTable
-   * @param oldColumn 
-   * @throws MetaException 
-   */
   @Override
-  public void generateAlterTableAlterColumn(PrintWriter pr, SqlTableColumn newColumn, SqlTable newTable, SqlTableColumn oldColumn) throws MetaException
+  public void generateAlterTableAlterColumn(PrintWriter pr, SqlTableColumn newColumn, SqlTable newTable, SqlTableColumn oldColumn)
   {
     GenerateAlterTableUtil.generateAlterTableChangeColumnWithDefaultAndNullConstraints(pr, this, newColumn, newTable, "MODIFY");
   }
-  
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#generateAlterTableAddColumn(java.io.PrintWriter, ch.ivyteam.db.meta.model.internal.SqlTableColumn, ch.ivyteam.db.meta.model.internal.SqlTable)
-   */
+
   @Override
   public void generateAlterTableAddColumn(PrintWriter pr, SqlTableColumn newColumn, SqlTable newTable)
   {
     GenerateAlterTableUtil.generateAlterTableAddColumn(pr, this, newColumn, newTable, "ADD COLUMN");
   }
   
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#generateAlterTableDropUniqueConstraint(java.io.PrintWriter, ch.ivyteam.db.meta.model.internal.SqlTable, ch.ivyteam.db.meta.model.internal.SqlUniqueConstraint, java.util.List)
-   */
   @Override
-  protected void generateAlterTableDropUniqueConstraint(PrintWriter pr, SqlTable table,
-          SqlUniqueConstraint unique, List<String> createdTemporaryStoredProcedures)
+  protected void generateAlterTableDropUniqueConstraint(PrintWriter pr, SqlTable table, SqlUniqueConstraint unique, List<String> createdTemporaryStoredProcedures)
   {
     pr.print("ALTER TABLE ");
     generateIdentifier(pr, table.getId());
@@ -219,8 +163,7 @@ public class MySqlSqlScriptGenerator extends SqlScriptGenerator
   }
   
   @Override
-  public void generateAlterTableDropForeignKey(PrintWriter pr, SqlTable table, SqlForeignKey foreignKey,
-          List<String> createdTemporaryStoredProcedures)
+  public void generateAlterTableDropForeignKey(PrintWriter pr, SqlTable table, SqlForeignKey foreignKey, List<String> createdTemporaryStoredProcedures)
   {
     generateDropForeignKeyConstraintStoredProcedure(pr, createdTemporaryStoredProcedures);
     pr.print("CALL ");
@@ -236,8 +179,7 @@ public class MySqlSqlScriptGenerator extends SqlScriptGenerator
     pr.println(); 
   }
 
-  private void generateDropForeignKeyConstraintStoredProcedure(PrintWriter pr,
-          List<String> createdTemporaryStoredProcedures)
+  private void generateDropForeignKeyConstraintStoredProcedure(PrintWriter pr, List<String> createdTemporaryStoredProcedures)
   {
     if (!createdTemporaryStoredProcedures.contains(DROP_FOREIGN_KEY_CONSTRAINT_STORED_PROCUDRE))
     {
@@ -431,12 +373,6 @@ public class MySqlSqlScriptGenerator extends SqlScriptGenerator
     return true;
   }
 
-  
-  /**
-   * Generates a column list
-   * @param pr the writer
-   * @param columns the columns to write
-   */
   protected void generateColumnList(PrintWriter pr, Map<SqlTableColumn, MemoryInfo> columns)
   {
     boolean first = true;

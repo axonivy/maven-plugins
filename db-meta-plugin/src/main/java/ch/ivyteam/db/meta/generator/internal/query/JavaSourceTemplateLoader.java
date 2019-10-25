@@ -19,32 +19,20 @@ import freemarker.cache.TemplateLoader;
  */
 class JavaSourceTemplateLoader implements TemplateLoader
 {
-
   private final File sourceDir;
   private final String packageName;
 
-  /**
-   * Constructor
-   * @param sourceDir
-   * @param packageName 
-   */
   public JavaSourceTemplateLoader(File sourceDir, String packageName)
   {
     this.sourceDir = sourceDir;
     this.packageName = packageName;
   }
 
-  /**
-   * @see freemarker.cache.TemplateLoader#closeTemplateSource(java.lang.Object)
-   */
   @Override
   public void closeTemplateSource(Object arg0) throws IOException
   {
   }
 
-  /**
-   * @see freemarker.cache.TemplateLoader#findTemplateSource(java.lang.String)
-   */
   @Override
   public Object findTemplateSource(String name) throws IOException
   {
@@ -60,9 +48,6 @@ class JavaSourceTemplateLoader implements TemplateLoader
     return new ImmutablePair<File, String>(file, includeTag);
   }
 
-  /**
-   * @see freemarker.cache.TemplateLoader#getLastModified(java.lang.Object)
-   */
   @Override
   public long getLastModified(Object arg0)
   {
@@ -71,9 +56,6 @@ class JavaSourceTemplateLoader implements TemplateLoader
     return source.getLeft().lastModified();
   }
 
-  /**
-   * @see freemarker.cache.TemplateLoader#getReader(java.lang.Object, java.lang.String)
-   */
   @Override
   public Reader getReader(Object templateSource, String encoding) throws IOException
   {

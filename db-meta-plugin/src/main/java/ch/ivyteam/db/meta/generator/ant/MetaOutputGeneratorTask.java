@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.DirectoryScanner;
 import org.apache.tools.ant.ExitStatusException;
 import org.apache.tools.ant.Project;
@@ -31,24 +30,20 @@ public class MetaOutputGeneratorTask extends Task
   private File input;
   
   /** The inputs */
-  private List<FileSet> inputFileSets = new ArrayList<FileSet>();
+  private List<FileSet> inputFileSets = new ArrayList<>();
     
   /** Additional generator arguments */
-  private List<Argument> arguments = new ArrayList<Argument>();
+  private List<Argument> arguments = new ArrayList<>();
 
-  /**
-   * @see org.apache.tools.ant.Task#execute()
-   */
   @Override
-  public void execute() throws BuildException
+  public void execute()
   {
-    DirectoryScanner directoryScanner;
     List<String> args = new ArrayList<String>();
 
     args.add("-sql");
     for (FileSet fileSet : inputFileSets)
     {
-      directoryScanner = fileSet.getDirectoryScanner(getProject());
+      DirectoryScanner directoryScanner = fileSet.getDirectoryScanner(getProject());
       for (String file : directoryScanner.getIncludedFiles())
       {
         args.add(new File(fileSet.getDir(), file).getAbsolutePath());
@@ -153,20 +148,11 @@ public class MetaOutputGeneratorTask extends Task
     return newFileset; 
 
   }
-  
-  /**
-   * Creates a new generator argument
-   * @return argument
-   */
+
   public Argument createGeneratorArg()
   {
-    Argument newArg;
-    
-    newArg = new Argument();
+    Argument newArg = new Argument();
     arguments.add(newArg);
     return newArg;
   }
-  
-  
-  
 }

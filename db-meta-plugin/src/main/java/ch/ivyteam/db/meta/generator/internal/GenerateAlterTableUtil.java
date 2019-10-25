@@ -19,16 +19,7 @@ public class GenerateAlterTableUtil
   {
   }
 
-  /**
-   * @param pr
-   * @param generator
-   * @param newColumn
-   * @param newTable
-   * @param tableChangeTag 
-   * @param columnChangeTag 
-   */
-  public static void generateAlterTableAlterColumnType(PrintWriter pr, SqlScriptGenerator generator, 
-          SqlTableColumn newColumn, SqlTable newTable, String tableChangeTag, String columnChangeTag)
+  public static void generateAlterTableAlterColumnType(PrintWriter pr, SqlScriptGenerator generator, SqlTableColumn newColumn, SqlTable newTable, String tableChangeTag, String columnChangeTag)
   {
     pr.print("ALTER TABLE ");
     generator.generateIdentifier(pr, newTable.getId());
@@ -43,17 +34,7 @@ public class GenerateAlterTableUtil
     generator.generateDelimiter(pr);
   }
   
-  /**
-   * @param pr
-   * @param generator
-   * @param newColumn
-   * @param newTable
-   * @param tableChangeTag 
-   * @param dropNotNullTag 
-   * @param setNotNullTag 
-   */
-  public static void generateAlterTableAlterColumnNotNull(PrintWriter pr, SqlScriptGenerator generator, 
-          SqlTableColumn newColumn, SqlTable newTable, String tableChangeTag, String setNotNullTag, String dropNotNullTag)
+  public static void generateAlterTableAlterColumnNotNull(PrintWriter pr, SqlScriptGenerator generator, SqlTableColumn newColumn, SqlTable newTable, String tableChangeTag, String setNotNullTag, String dropNotNullTag)
   {
     pr.print("ALTER TABLE ");
     generator.generateIdentifier(pr, newTable.getId());
@@ -116,28 +97,12 @@ public class GenerateAlterTableUtil
     generator.generateDelimiter(pr);
   }
 
-  /**
-   * @param pr
-   * @param generator
-   * @param newColumn
-   * @param newTable
-   * @param changeTag 
-   * @throws MetaException 
-   */
   public static void generateAlterTableChangeColumnWithDefaultAndNullConstraints(PrintWriter pr, SqlScriptGenerator generator, 
           SqlTableColumn newColumn, SqlTable newTable, String changeTag) throws MetaException
   {
     generateAlterTableForColumn(pr, generator, newColumn, newTable, changeTag);
   }
   
-  /**
-   * @param pr
-   * @param generator
-   * @param newColumn
-   * @param newTable
-   * @param changeTag 
-   * @throws MetaException 
-   */
   public static void generateAlterTableAddColumn(PrintWriter pr, SqlScriptGenerator generator, 
           SqlTableColumn newColumn, SqlTable newTable, String changeTag) throws MetaException
   {

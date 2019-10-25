@@ -22,7 +22,7 @@ public class ReservedSqlKeywords
 
   static
   {
-    Set<String> reserved = new HashSet<String>(1000);
+    Set<String> reserved = new HashSet<>(1000);
     reserved.add("ABSOLUTE");
     reserved.add("ACTION");
     reserved.add("ACTOR");

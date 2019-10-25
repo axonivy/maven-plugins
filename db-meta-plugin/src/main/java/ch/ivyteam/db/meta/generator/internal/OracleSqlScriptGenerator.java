@@ -29,7 +29,6 @@ import ch.ivyteam.db.meta.model.internal.SqlUpdateColumnExpression;
  */
 public class OracleSqlScriptGenerator extends SqlScriptGenerator
 {
-  /** Oracle */
   public static final String ORACLE = String.valueOf("Oracle");
 
   /** 
@@ -42,9 +41,6 @@ public class OracleSqlScriptGenerator extends SqlScriptGenerator
 
   private boolean alterTable;
   
-  /**
-   * @see SqlScriptGenerator#generateDataType(PrintWriter, DataType)
-   */
   @Override
   protected void generateDataType(PrintWriter pr, DataType dataType)
   {
@@ -73,18 +69,12 @@ public class OracleSqlScriptGenerator extends SqlScriptGenerator
     }   
   }
   
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#isIndexInTableSupported()
-   */
   @Override
   protected boolean isIndexInTableSupported()
   {
     return false;
   }
   
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#generateIndex(java.io.PrintWriter, ch.ivyteam.db.meta.model.internal.SqlTable, ch.ivyteam.db.meta.model.internal.SqlIndex)
-   */
   @Override
   public void generateIndex(PrintWriter pr, SqlTable table, SqlIndex index)
   {
@@ -109,18 +99,12 @@ public class OracleSqlScriptGenerator extends SqlScriptGenerator
     pr.println();    
   }
   
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#isNullBeforeDefaultConstraint()
-   */
   @Override
   protected boolean isNullBeforeDefaultConstraint()
   {
     return false;
   }
   
-  /**
-   * @see SqlScriptGenerator#generateNullConstraint(PrintWriter, boolean, SqlTableColumn)
-   */
   @Override
   protected void generateNullConstraint(PrintWriter pr, boolean canBeNull, SqlTableColumn column)
   {
@@ -131,52 +115,35 @@ public class OracleSqlScriptGenerator extends SqlScriptGenerator
     super.generateNullConstraint(pr, canBeNull, column);
   }
   
-  /**
-   * @see SqlScriptGenerator#generateTableStorage(PrintWriter, SqlTable)
-   */
   @Override
   protected void generateTableStorage(PrintWriter pr, SqlTable table)
   {
     pr.append("\nTABLESPACE {0}");
   }
 
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#getDatabaseComment()
-   */
   @Override
   protected String getDatabaseComment()
   {
     return ORACLE;
   }
   
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#getDatabaseSystemNames()
-   */
   @Override
   protected List<String> getDatabaseSystemNames()
   {
     return Arrays.asList(ORACLE);
   }
   
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#generateForEachRowDeleteTrigger(java.io.PrintWriter, ch.ivyteam.db.meta.model.internal.SqlTable, java.util.List, boolean)
-   */
   @Override
-  protected void generateForEachRowDeleteTrigger(PrintWriter pr, SqlTable table,
-          List<SqlDmlStatement> triggerStatements, boolean recursiveTrigger) throws MetaException
+  protected void generateForEachRowDeleteTrigger(PrintWriter pr, SqlTable table, List<SqlDmlStatement> triggerStatements, boolean recursiveTrigger)
   {
     super.generateForEachRowDeleteTrigger(pr, table, triggerStatements, recursiveTrigger);
     pr.println();
     generateDelimiter(pr);
     pr.println();
   }
-  
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#generateForEachStatementDeleteTrigger(java.io.PrintWriter, ch.ivyteam.db.meta.model.internal.SqlTable, java.util.List)
-   */
+
   @Override
-  protected void generateForEachStatementDeleteTrigger(PrintWriter pr, SqlTable table,
-          List<SqlDmlStatement> triggerStatements) throws MetaException
+  protected void generateForEachStatementDeleteTrigger(PrintWriter pr, SqlTable table, List<SqlDmlStatement> triggerStatements)
   {
     super.generateForEachStatementDeleteTrigger(pr, table, triggerStatements);
     pr.println();
@@ -184,9 +151,6 @@ public class OracleSqlScriptGenerator extends SqlScriptGenerator
     pr.println();    
   }
   
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#generateIdentifier(java.io.PrintWriter, java.lang.String)
-   */
   @Override
   protected void generateIdentifier(PrintWriter pr, String identifier)
   {
@@ -197,9 +161,6 @@ public class OracleSqlScriptGenerator extends SqlScriptGenerator
     super.generateIdentifier(pr, identifier);
   }
   
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#isReservedSqlKeyword(java.lang.String)
-   */
   @Override
   protected boolean isReservedSqlKeyword(String identifier)
   {
@@ -210,12 +171,8 @@ public class OracleSqlScriptGenerator extends SqlScriptGenerator
     return super.isReservedSqlKeyword(identifier);
   }
   
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#generateDeleteStatement(java.io.PrintWriter, ch.ivyteam.db.meta.model.internal.SqlDelete, int)
-   */
   @Override
   protected void generateDeleteStatement(PrintWriter pr, SqlDelete deleteStmt, int insets)
-          throws MetaException
   {
     writeSpaces(pr, insets);
     pr.print("DELETE ");
@@ -224,19 +181,13 @@ public class OracleSqlScriptGenerator extends SqlScriptGenerator
     pr.print("WHERE ");
     generateFilterExpression(pr, deleteStmt.getFilterExpression());
   }
-  
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#getRowTriggerOldVariableName()
-   */
+
   @Override
   protected String getRowTriggerOldVariableName()
   {
     return ":old";
   }
-  
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#generateAlterTableAlterColumn(PrintWriter, SqlTableColumn, SqlTable, SqlTableColumn)
-   */
+
   @Override
   public void generateAlterTableAlterColumn(PrintWriter pr, SqlTableColumn newColumn, SqlTable table, SqlTableColumn oldColumn) throws MetaException
   {
@@ -291,9 +242,6 @@ public class OracleSqlScriptGenerator extends SqlScriptGenerator
     generateDelimiter(pr);
   }
   
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator#generateAlterTableAddColumn(java.io.PrintWriter, ch.ivyteam.db.meta.model.internal.SqlTableColumn, ch.ivyteam.db.meta.model.internal.SqlTable)
-   */
   @Override
   public void generateAlterTableAddColumn(PrintWriter pr, SqlTableColumn newColumn, SqlTable newTable)
   {

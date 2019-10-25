@@ -276,7 +276,6 @@ CREATE TABLE IWA_RestClient
   PRIMARY KEY (RestClientId),
   FOREIGN KEY (ApplicationId) REFERENCES IWA_Application(ApplicationId) ON DELETE CASCADE
     FOR MsSqlServer USE (NoReferenceUseTrigger)
-    FOR Db2iSeries USE (NoReferenceUseTrigger)
     FOR Java USE (AsParent)
 );
 
@@ -307,14 +306,12 @@ CREATE TABLE IWA_LibrarySpecification
   Id VARCHAR(200) NOT NULL,
   -- The resolved runtime library which matches the specification
   ResolvedLibraryId BIGINT REFERENCES IWA_Library(LibraryId) ON DELETE SET NULL
-    FOR Db2iSeries USE (NoReferenceUseTrigger)
     FOR MsSqlServer USE (NoReferenceUseTrigger)
     FOR MySql USE (NoReferenceUseTrigger),
   -- The position of this library specification within all other library specification of a library.
   Position INTEGER NOT NULL,
   PRIMARY KEY (LibrarySpecificationId),
   FOREIGN KEY (LibraryId) REFERENCES IWA_Library(LibraryId) ON DELETE CASCADE
-    FOR Db2iSeries USE (NoReferenceUseTrigger)
     FOR Java USE (AsParent),
   UNIQUE LibrarySpecification_LibraryIdIdIndex (LibraryId, Id)
 )

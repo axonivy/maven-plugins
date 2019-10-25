@@ -55,14 +55,11 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
   /** The output directory */
   private File outputDir;
   /** The open html tags */
-  private Stack<String> htmlTags = new Stack<String>();
+  private Stack<String> htmlTags = new Stack<>();
   /** The row of a table */
   private int fRow;
   private Stack<Map<String, String>> tableAliases = new Stack<>();
   
-  /**
-   * @see IMetaOutputGenerator#analyseArgs(String[])
-   */
   @Override
   public void analyseArgs(String[] generatorArgs) throws Exception
   {
@@ -87,9 +84,6 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
     return Target.createTargetDirectory(outputDir);
   }
 
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.IMetaOutputGenerator#generateMetaOutput(ch.ivyteam.db.meta.model.internal.SqlMeta)
-   */
   @Override
   public void generateMetaOutput(SqlMeta metaDefinition) throws Exception
   {
@@ -99,15 +93,9 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
     writeViews(metaDefinition);
   }
 
-  /**
-   * Writes the style sheet file
-   * @throws FileNotFoundException 
-   */
   private void writeStylesheet() throws FileNotFoundException
   {
-    PrintWriter pr;
-    
-    pr = new NewLinePrintWriter(new File(outputDir, "style.css"));
+    PrintWriter pr = new NewLinePrintWriter(new File(outputDir, "style.css"));
     try
     {
       pr.append("th\n");
@@ -181,7 +169,6 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
       writeTable(metaDefinition, table);
     }  
   }
-  
 
   /**
    * Writes the tables output files
