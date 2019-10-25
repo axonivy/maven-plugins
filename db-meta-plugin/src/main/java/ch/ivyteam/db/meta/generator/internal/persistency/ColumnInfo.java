@@ -21,14 +21,9 @@ import ch.ivyteam.db.meta.model.internal.SqlTableColumn;
  */
 public class ColumnInfo
 {
-  private SqlTableColumn column;
-  private SqlTable table;
+  private final SqlTableColumn column;
+  private final SqlTable table;
 
-  /**
-   * Constructor
-   * @param table 
-   * @param column
-   */
   private ColumnInfo(SqlTable table, SqlTableColumn column)
   {
     this.table = table;
@@ -37,7 +32,7 @@ public class ColumnInfo
   
   static List<ColumnInfo> getColumns(SqlTable table)
   {
-    List<ColumnInfo> columns = new ArrayList<ColumnInfo>();
+    List<ColumnInfo> columns = new ArrayList<>();
     for (SqlTableColumn column : table.getColumns())
     {
       columns.add(new ColumnInfo(table, column));
@@ -45,13 +40,9 @@ public class ColumnInfo
     return columns;
   }
   
-  /**
-   * @param table 
-   * @return columns that are not primary key, parent key and clob or blob columns
-   */
   static List<ColumnInfo> getColumnsWithoutPrimaryParentAndLob(SqlTable table)
   {
-    List<ColumnInfo> columns = new ArrayList<ColumnInfo>();
+    List<ColumnInfo> columns = new ArrayList<>();
     for (SqlTableColumn column : JavaClassGeneratorUtil.getNonPrimaryAndParentKeyColumns(table))
     {
       if (!JavaClassGeneratorUtil.isLobColumn(column))
@@ -62,13 +53,9 @@ public class ColumnInfo
     return columns;
   }
 
-  /**
-   * @param table 
-   * @return columns that are not primary key, parent key columns
-   */
   static List<ColumnInfo> getColumnsWithoutPrimaryAndParent(SqlTable table)
   {
-    List<ColumnInfo> columns = new ArrayList<ColumnInfo>();
+    List<ColumnInfo> columns = new ArrayList<>();
     for (SqlTableColumn column : JavaClassGeneratorUtil.getNonPrimaryAndParentKeyColumns(table))
     {
       columns.add(new ColumnInfo(table, column));
@@ -88,33 +75,21 @@ public class ColumnInfo
     return null;
   }
 
-/**
-   * @return name
-   */
   public String getName()
   {
     return column.getId();
   }
   
-  /**
-   * @return -
-   */
   public String getConstant()
   {
     return new ConstantBuilder(getName()).toConstant();
   }
   
-  /**
-   * @return data type
-   */
   public String getJavaDataType()
   {
     return JavaClassGeneratorUtil.getJavaDataType(column);
   }
   
-  /**
-   * @return key type
-   */
   public String getKeyType()
   {
     if (getJavaDataType().equals("String"))
@@ -131,10 +106,6 @@ public class ColumnInfo
     }
   }
   
-  /**
-   * Gets the data type specific method name
-   * @return method
-   */
   public String getMethod()
   {
     String dataType;
@@ -204,10 +175,6 @@ public class ColumnInfo
      );
   }
 
-  /**
-   * @param clazz
-   * @return -
-   */
   private boolean isDataType(Class<?> clazz)
   {
     return isDataType(getJavaDataType(), clazz);
@@ -219,9 +186,6 @@ public class ColumnInfo
 
   }
 
-  /**
-   * @return -
-   */
   public String getAdditionalReadArgs()
   {
     StringBuilder additionalArgs = new StringBuilder(200);

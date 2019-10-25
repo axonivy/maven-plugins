@@ -16,7 +16,6 @@ import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
-import ch.ivyteam.db.meta.generator.internal.Db2iSeriesSqlScriptGenerator;
 import ch.ivyteam.db.meta.generator.internal.HsqlSqlScriptGenerator;
 import ch.ivyteam.db.meta.generator.internal.MsSqlServerSqlScriptGenerator;
 import ch.ivyteam.db.meta.generator.internal.MySqlSqlScriptGenerator;
@@ -108,27 +107,6 @@ public class TestMetaOutputDifferenceGeneratorMojo
     assertThat(sqlContent)
       .as("In new version column OwnerPassword is dropped.")
       .contains("ALTER TABLE IWA_Application DROP COLUMN OwnerPassword;");
-  }
-
-  @Test
-  public void testAlterColumnIntegerToVarcharDb2iSeries() throws Exception
-  {
-    String sqlContent = execute(Db2iSeriesSqlScriptGenerator.class);
-    assertThat(sqlContent).contains(
-            "-- Changed columns of table IWA_Library\n"+
-            "ALTER TABLE IWA_Library ADD COLUMN\n"+
-            "  Version_temp VARCHAR(50) DEFAULT '' NOT NULL;\n"+
-            "UPDATE IWA_Library\n"+
-            "SET IWA_Library.Version_temp=CHAR(IWA_Library.Version);\n"+
-            "COMMIT;\n"+
-            "ALTER TABLE IWA_Library DROP COLUMN Version;\n"+
-            "ALTER TABLE IWA_Library ADD COLUMN\n"+
-            "  Version VARCHAR(50) DEFAULT '' NOT NULL;\n"+
-            "UPDATE IWA_Library\n"+
-            "SET IWA_Library.Version=IWA_Library.Version_temp;\n"+
-            "COMMIT;\n"+
-            "ALTER TABLE IWA_Library DROP COLUMN Version_temp;\n"
-    );
   }
 
   @Test

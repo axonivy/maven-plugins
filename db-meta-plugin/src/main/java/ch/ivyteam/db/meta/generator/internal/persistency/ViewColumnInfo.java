@@ -15,54 +15,36 @@ import ch.ivyteam.db.meta.model.internal.SqlViewColumn;
  */
 public class ViewColumnInfo
 {
+  private final SqlViewColumn column;
 
-  private SqlViewColumn column;
-
-  /**
-   * Constructor
-   * @param column 
-   */
   private ViewColumnInfo(SqlViewColumn column)
   {
     this.column = column;
   }
   
-  /**
-   * @return name
-   */
   public String getName()
   {
     return column.getId();
   }
   
-  /**
-   * @return view column alias
-   */
   public String getAlias()
   {
     return column.getDatabaseManagementSystemHints(JavaClassGenerator.JAVA).getHintValue(JavaClassGenerator.QUERY_FIELD_NAME);
   }
   
-  /**
-   * @return -
-   */
   public String getConstant()
   {
     return new ConstantBuilder(getName()).toConstant();
   }
 
-  /**
-   * @param table
-   * @param meta
-   * @return query view columns or null
-   */
   public static List<ViewColumnInfo> getViewColumns(SqlTable table, SqlMeta meta)
   {
     String queryView =  table.getDatabaseManagementSystemHints(JavaClassGenerator.JAVA).getHintValue(JavaClassGenerator.QUERY_TABLE_NAME);
-    if (queryView==null)
+    if (queryView == null)
     {
       return null;
     }
+
     SqlView view = meta.findView(queryView);
     if (view == null)
     {
@@ -71,18 +53,13 @@ public class ViewColumnInfo
     return getViewColumns(view);
   }
 
-  /**
-   * @param view
-   * @return -
-   */
   public static List<ViewColumnInfo> getViewColumns(SqlView view)
   {
-    List<ViewColumnInfo> columns = new ArrayList<ViewColumnInfo>();
+    List<ViewColumnInfo> columns = new ArrayList<>();
     for (SqlViewColumn column : view.getColumns())
     {
       columns.add(new ViewColumnInfo(column));
     }
     return columns;
   }
-
 }

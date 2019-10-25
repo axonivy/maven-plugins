@@ -6,20 +6,13 @@ import ch.ivyteam.db.meta.generator.internal.JavaClassGeneratorUtil;
 import ch.ivyteam.db.meta.model.internal.SqlMeta;
 import ch.ivyteam.db.meta.model.internal.SqlView;
 
-
 /**
  * Generates a java class for a view
  */
-public class JavaClassForViewTemplateWriter extends
-        AbstractJavaClassPersistencyServiceImplementationTemplateWriter
+public class JavaClassForViewTemplateWriter extends AbstractJavaClassPersistencyServiceImplementationTemplateWriter
 {
-  private SqlView view;
+  private final SqlView view;
 
-  /**
-   * @param view
-   * @param meta
-   * @param targetPackage
-   */
   public JavaClassForViewTemplateWriter(SqlView view, SqlMeta meta, String targetPackage)
   {
     super(meta, targetPackage);
@@ -41,5 +34,4 @@ public class JavaClassForViewTemplateWriter extends
     map.put("columns",  ViewColumnInfo.getViewColumns(view));
     return map;
   }
-
 }

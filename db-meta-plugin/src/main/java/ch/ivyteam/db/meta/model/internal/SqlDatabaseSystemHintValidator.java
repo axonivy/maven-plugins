@@ -5,8 +5,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import ch.ivyteam.db.meta.generator.internal.Db2SqlScriptGenerator;
-import ch.ivyteam.db.meta.generator.internal.Db2iSeriesSqlScriptGenerator;
 import ch.ivyteam.db.meta.generator.internal.HsqlSqlScriptGenerator;
 import ch.ivyteam.db.meta.generator.internal.JavaClassGenerator;
 import ch.ivyteam.db.meta.generator.internal.JavaEntityClassGenerator;
@@ -25,12 +23,9 @@ import ch.ivyteam.db.meta.generator.internal.query.TableInfo;
  */
 public class SqlDatabaseSystemHintValidator
 {
-  /**  */
   private static final String COMMON_HINT_KEY = "COMMON";
-  /** Known hints */
-  private static final Map<String, Set<String>> HINTS_PER_TYPE = new HashMap<String, Set<String>>();
-  /** Known hint types */
-  private static final Set<String> HINT_TYPES = new HashSet<String>();
+  private static final Map<String, Set<String>> HINTS_PER_TYPE = new HashMap<>();
+  private static final Set<String> HINT_TYPES = new HashSet<>();
 
   static
   {
@@ -74,10 +69,6 @@ public class SqlDatabaseSystemHintValidator
     registerHint(JavaEntityClassGenerator.CACHE, JavaEntityClassGenerator.STRATEGY);
     registerHint(JavaEntityClassGenerator.CACHE, JavaEntityClassGenerator.COUNT_LIMIT);
     registerHint(JavaEntityClassGenerator.CACHE, JavaEntityClassGenerator.USAGE_LIMIT);
-
-    registerType(Db2iSeriesSqlScriptGenerator.DB2_ISERIES);
-
-    registerType(Db2SqlScriptGenerator.DB2);
 
     registerType(HsqlSqlScriptGenerator.HSQL_DB);
     registerHint(HsqlSqlScriptGenerator.HSQL_DB, HsqlSqlScriptGenerator.TRIGGER_CLASS);
