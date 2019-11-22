@@ -61,7 +61,7 @@ public class MySqlSqlScriptGenerator extends SqlScriptGenerator
   @Override
   protected void generateTableStorage(PrintWriter pr, SqlTable table)
   {
-    pr.append(" ENGINE={0}");
+    pr.append(" ENGINE=InnoDB");
   }
 
   @Override
