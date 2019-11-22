@@ -93,7 +93,7 @@ public class OracleSqlScriptGenerator extends SqlScriptGenerator
     generateColumnList(pr, index.getColumns());
     pr.print(")");
     pr.println();
-    pr.print("TABLESPACE {0}");
+    pr.print("TABLESPACE ${tablespace}");
     generateDelimiter(pr);
     pr.println();
     pr.println();    
@@ -118,7 +118,7 @@ public class OracleSqlScriptGenerator extends SqlScriptGenerator
   @Override
   protected void generateTableStorage(PrintWriter pr, SqlTable table)
   {
-    pr.append("\nTABLESPACE {0}");
+    pr.append("\nTABLESPACE ${tablespace}");
   }
 
   @Override

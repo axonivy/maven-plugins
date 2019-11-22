@@ -5,8 +5,8 @@
 	<artifactId>db-meta-plugin</artifactId>
 	<packaging>maven-plugin</packaging>
 
-	<!-- format: ivy-release.databaseversion -->
-	<version>8.0.63-SNAPSHOT</version>
+	<!-- format: <ivy-release>.<databaseversion><counter> -->
+	<version>8.0.631-SNAPSHOT</version>
 
 	<parent>
 		<groupId>ch.ivyteam.ivy</groupId>

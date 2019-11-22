@@ -186,11 +186,11 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
     generateCommentLine(pr, "");
     generateCommentLine(pr, "Alter database so that read operations are not blocked by write operations.");
     generateCommentLine(pr, "");
-    pr.print("ALTER DATABASE [{0}] SET ALLOW_SNAPSHOT_ISOLATION ON");
+    pr.print("ALTER DATABASE [${databaseName}] SET ALLOW_SNAPSHOT_ISOLATION ON");
     generateDelimiter(pr);
     pr.println();
     pr.println();
-    pr.print("ALTER DATABASE [{0}] SET READ_COMMITTED_SNAPSHOT ON");
+    pr.print("ALTER DATABASE [${databaseName}] SET READ_COMMITTED_SNAPSHOT ON");
     generateDelimiter(pr);
   }
   
@@ -199,7 +199,7 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
     generateCommentLine(pr, "");
     generateCommentLine(pr, "Alter database so that recursive triggers work.");
     generateCommentLine(pr, "");
-    pr.print("ALTER DATABASE [{0}] SET RECURSIVE_TRIGGERS ON");
+    pr.print("ALTER DATABASE [${databaseName}] SET RECURSIVE_TRIGGERS ON");
     generateDelimiter(pr);
     pr.println();
   }
