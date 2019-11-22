@@ -19,13 +19,13 @@ CREATE TABLE IWA_Task
   IsExpired NUMBER(1) NOT NULL,
   PRIMARY KEY (TaskId)
 )
-TABLESPACE ${tablespace};
+TABLESPACE ${tablespaceName};
 
 CREATE TABLE IWA_Case
 (
   CaseId NUMBER(20) NOT NULL
 )
-TABLESPACE ${tablespace};
+TABLESPACE ${tablespaceName};
 
 CREATE TABLE IWA_User
 (
@@ -33,7 +33,7 @@ CREATE TABLE IWA_User
   Name VARCHAR2(200),
   FullName VARCHAR2(200) DEFAULT ''
 )
-TABLESPACE ${tablespace};
+TABLESPACE ${tablespaceName};
 
 CREATE TABLE IWA_Role
 (
@@ -41,7 +41,7 @@ CREATE TABLE IWA_Role
   Name VARCHAR2(200),
   DisplayNameTemplate VARCHAR2(200)
 )
-TABLESPACE ${tablespace};
+TABLESPACE ${tablespaceName};
 
 ALTER TABLE IWA_Task ADD
 (
