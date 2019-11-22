@@ -183,7 +183,7 @@ public class TestMetaOutputDifferenceGeneratorMojo
             "  ObjectType VARCHAR2(50) DEFAULT '' NOT NULL,\n"+  // DEFAULT should be ''. In alter table this is ' ' see above.
             "  PRIMARY KEY (BusinessDataId)\n"+
             ")\n"+
-            "TABLESPACE {0};"
+            "TABLESPACE ${tablespaceName};"
     );
   }
   

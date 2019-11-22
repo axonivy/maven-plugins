@@ -18,16 +18,16 @@ GO
 -- 
 -- Alter database so that read operations are not blocked by write operations.
 -- 
-ALTER DATABASE [{0}] SET ALLOW_SNAPSHOT_ISOLATION ON
+ALTER DATABASE [${databaseName}] SET ALLOW_SNAPSHOT_ISOLATION ON
 GO
 
-ALTER DATABASE [{0}] SET READ_COMMITTED_SNAPSHOT ON
+ALTER DATABASE [${databaseName}] SET READ_COMMITTED_SNAPSHOT ON
 GO
 
 -- 
 -- Alter database so that recursive triggers work.
 -- 
-ALTER DATABASE [{0}] SET RECURSIVE_TRIGGERS ON
+ALTER DATABASE [${databaseName}] SET RECURSIVE_TRIGGERS ON
 GO
 
 
