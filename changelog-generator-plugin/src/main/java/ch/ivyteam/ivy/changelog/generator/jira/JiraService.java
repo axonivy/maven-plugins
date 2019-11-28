@@ -33,7 +33,7 @@ public class JiraService
     this.log = log;
   }
   
-  public List<Issue> getIssuesWithFixVersion(JiraQuery query)
+  public List<Issue> queryIssues(JiraQuery query)
   {
     Client client = createClient();
     List<Issue> issues = readIssues(client, query).issues.stream()

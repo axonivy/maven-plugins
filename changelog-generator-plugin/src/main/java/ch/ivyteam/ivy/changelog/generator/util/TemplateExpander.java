@@ -77,7 +77,7 @@ public class TemplateExpander
     values.put("spacesType", generateSpaces(maxTypeLength - issue.getType().length()));
     values.put("uri", issue.getUri());
     values.put("labelsWithHtmlBatches", generateLabels(issue, whitelistedJiraLables));
-    values.put("htmlLinkIcon", "<a href=\"" + issue.getUri() + "\"><span class=\"glyphicon glyphicon-new-window\"></span></a>");
+    values.put("htmlLinkIcon", "<a href=\"" + issue.getUri() + "\" target=\"_blank\"><span class=\"fas fa-link\"></span></a>");
     return values;
   }
 
@@ -87,7 +87,7 @@ public class TemplateExpander
             .map(StringUtils::trimToEmpty)
             .map(String::toLowerCase)
             .filter(i -> whitelistedJiraLables.contains(i))
-            .map(l -> "<span class=\"feature-badge\">" + l + "</span>")
+            .map(l -> "<span class=\"badge badge-pill badge-success\">" + l + "</span>")
             .collect(Collectors.joining(" "));
   }
   

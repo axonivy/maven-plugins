@@ -63,8 +63,7 @@ public class TestChangelogGeneratorMojo
   @Test
   public void createChangelog() throws Exception
   {
-    mojo.fixVersion = "7.2.0";
-    mojo.jiraProjects = "XIVY,IVYPORTAL";
+    mojo.filterBy = "project IN (XIVY,IVYPORTAL) AND fixVersion = 7.2.0";
     mojo.asciiTemplate = "  * ${key} ${summary}";
     mojo.fileset.addInclude("changelog");
     mojo.compression = "gz";
@@ -76,8 +75,7 @@ public class TestChangelogGeneratorMojo
   @Test
   public void createProjectSortedReleaseNotes() throws Exception
   {
-    mojo.fixVersion = "7.4.0";
-    mojo.jiraProjects = "XIVY,IVYPORTAL";
+    mojo.filterBy = "project IN (XIVY,IVYPORTAL) AND fixVersion = 7.4.0";
     mojo.asciiTemplate = "${key} ${type}";
     mojo.fileset.addInclude("ReleaseNotes.txt");
     mojo.execute();
@@ -96,9 +94,7 @@ public class TestChangelogGeneratorMojo
   @Test
   public void createPortalReleaseNotes() throws Exception
   {
-    mojo.fixVersion = "7.4.0";
-    mojo.jiraProjects = "IVYPORTAL";
-    mojo.issueTypes = "\"Story\",\"Improvement\",\"Bug\"";
+    mojo.filterBy = "project = IVYPORTAL AND fixVersion = 7.4.0 AND issuetype in (Story, Improvement, Bug)";
     mojo.asciiTemplate = "${key} ${type}";
     mojo.fileset.addInclude("ReleaseNotes.txt");
     mojo.execute();
@@ -114,9 +110,7 @@ public class TestChangelogGeneratorMojo
   @Test
   public void createOnlyBugReleaseNotes() throws Exception
   {
-    mojo.fixVersion = "7.4.0";
-    mojo.jiraProjects = "XIVY";
-    mojo.issueTypes = "\"Bug\"";
+    mojo.filterBy = "project = XIVY AND fixVersion = 7.4.0 AND issuetype = Bug";
     mojo.asciiTemplate = "${key} ${type}";
     mojo.fileset.addInclude("ReleaseNotes.txt");
     mojo.execute();
@@ -135,8 +129,7 @@ public class TestChangelogGeneratorMojo
   @Test
   public void createSortedReleaseNotes() throws Exception
   {
-    mojo.fixVersion = "7.4.0";
-    mojo.jiraProjects = "XIVY";
+    mojo.filterBy = "project = XIVY AND fixVersion = 7.4.0";
     mojo.asciiTemplate = "${key}:${type};";
     mojo.fileset.addInclude("ReleaseNotes.txt");
     mojo.execute();

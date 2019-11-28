@@ -27,7 +27,7 @@ public class TestTemplateExpander
   {
     TemplateExpander testee = new TemplateExpander("${labelsWithHtmlBatches}", "", "seCurity , performance");
     String expand = testee.expand(createOneIssue());
-    assertThat(expand).isEqualTo("<span class=\"feature-badge\">security</span>");
+    assertThat(expand).isEqualTo("<span class=\"badge badge-pill badge-success\">security</span>");
   }
 
   @Test

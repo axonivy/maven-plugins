@@ -32,14 +32,14 @@ public class TestJiraService
   @Test
   public void getIssuesWithFixVersion_71()
   {
-    List<Issue> issues = testee.getIssuesWithFixVersion(query("7.1"));
+    List<Issue> issues = testee.queryIssues(query("7.1", "key"));
     assertThatXIVY2266isContained(issues);
   }
 
   @Test
   public void getIssuesWithFixVersion_710()
   {
-    List<Issue> issues = testee.getIssuesWithFixVersion(query("7.1.0"));
+    List<Issue> issues = testee.queryIssues(query("7.1.0", "key"));
     assertThatXIVY2266isContained(issues);
   }
   
@@ -55,14 +55,14 @@ public class TestJiraService
   @Test
   public void getIssuesWithFixVersion_703()
   {
-    List<Issue> issues = testee.getIssuesWithFixVersion(query("7.0.3"));
+    List<Issue> issues = testee.queryIssues(query("7.0.3", "key"));
     assertThat(issues).hasSize(6);
   }
 
   @Test
   public void getIssuesWithFixVersion_notValidVersion()
   {
-    assertThatThrownBy(() -> testee.getIssuesWithFixVersion(query("nonExistingVersion")))
+    assertThatThrownBy(() -> testee.queryIssues(query("nonExistingVersion", "key")))
             .isInstanceOf(RuntimeException.class)
             .hasMessageContaining("400 Bad Request");
   }
@@ -70,14 +70,16 @@ public class TestJiraService
   @Test
   public void issuesInOrder()
   {
-    List<Issue> issues = testee.getIssuesWithFixVersion(new JiraQuery("7.4", "XIVY", "\"Story\",\"Improvement\",\"Bug\"", "project,\"Epic Link\",key"));
+    List<Issue> issues = testee.queryIssues(query("7.4", "\"Epic Link\", key"));
     issues = Filter.improvements(issues);
     issues.stream().forEach(System.out::println);
   }
   
-  private static JiraQuery query(String version)
+  private static JiraQuery query(String version, String orderBy)
   {
-    return new JiraQuery(version, "XIVY", "\"Story\",\"Improvement\",\"Bug\"", "key");
+    StringBuilder builder = new StringBuilder("project = XIVY AND issuetype IN (Story, Improvement, Bug)");
+    builder.append(" AND fixVersion = ").append(version);
+    return new JiraQuery(builder.toString(), orderBy);
   }
   
 }

@@ -33,8 +33,7 @@
 						</goals>
 						<configuration>
 							<jiraServerId>axonivy.jira</jiraServerId>
-							<fixVersion>${ivy-version}</fixVersion>
-							<jiraProjects>XIVY,IVYPORTAL</jiraProjects>
+							<jiraQuery>project in (XIVY,IVYPORTAL) AND fixVersion = ${ivy-version}</jiraQuery>
 							<asciiTemplate xml:space="preserve"> ${kind} ${key}${spacesKey} ${type}${spacesType} ${summary}</asciiTemplate>
 							<whitelistJiraLabels>security,performance</whitelistJiraLabels>
 							<compression>gz</compression>

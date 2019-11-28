@@ -1,6 +1,7 @@
 package ch.ivyteam.ivy.changelog.generator;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -39,17 +40,9 @@ public class ChangelogGeneratorMojo extends AbstractMojo
   @Parameter(property = "jiraServerUri", defaultValue = "https://jira.axonivy.com/jira")
   public String jiraServerUri;
 
-  /*** version to generate the changelog from. for example 7.1 or 7.0.3 */
-  @Parameter(property = "fixVersion", required = true)
-  public String fixVersion;
-
-  /** comma separated list of jira projects for example: XIVY, IVYPORTAL */
-  @Parameter(property = "jiraProjects", defaultValue = "XIVY")
-  public String jiraProjects;
-
-  /** comma separated list of issue types for example: "Bug", "Story" */
-  @Parameter(property = "issueTypes", defaultValue = "\"Story\",\"Improvement\",\"Bug\"")
-  public String issueTypes;
+  /*** filter query to run against Jira */
+  @Parameter(property = "filterBy", required = true)
+  public String filterBy;
   
   /** comma separated list of issue fields to define ordering */
   @Parameter(property = "jira.issue.order", defaultValue = "project,key")
@@ -87,7 +80,7 @@ public class ChangelogGeneratorMojo extends AbstractMojo
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
   {
-    getLog().info("generating changelog for fixVersion " + fixVersion + " and jiraProjects " + jiraProjects);
+    getLog().info("generating changelog for filter query '" + filterBy +"', order by " + orderBy);
 
     Server server = session.getSettings().getServer(jiraServerId);
     if (server == null)
@@ -127,8 +120,8 @@ public class ChangelogGeneratorMojo extends AbstractMojo
     try
     {
       JiraService jiraService = new JiraService(jiraServerUri, server, getLog());
-      JiraQuery query = new JiraQuery(fixVersion, jiraProjects, issueTypes, orderBy);
-      return jiraService.getIssuesWithFixVersion(query);
+      JiraQuery query = new JiraQuery(filterBy, orderBy);
+      return jiraService.queryIssues(query);
     }
     catch (RuntimeException ex)
     {
@@ -167,17 +160,19 @@ public class ChangelogGeneratorMojo extends AbstractMojo
     Map<String, String> tokens = new HashMap<>();
     tokens.put("changelog#improvements", expander.expandImprovements(Filter.improvements(issues)));
 
-    sortIssues(issues);
-    tokens.put("changelog", expander.expand(issues));
-    tokens.put("changelog#bugs", expander.expand(Filter.bugs(issues)));
+    List<Issue> sortIssues = sortIssues(issues);
+    tokens.put("changelog", expander.expand(sortIssues));
+    tokens.put("changelog#bugs", expander.expand(Filter.bugs(sortIssues)));
     return tokens;
   }
 
-  private void sortIssues(List<Issue> issues)
+  private List<Issue> sortIssues(List<Issue> issues)
   {
-    issues.sort(Comparator.comparing(Issue::getProjectKey).reversed()
+    List<Issue> sortedIssues = new ArrayList<>(issues);
+    sortedIssues.sort(Comparator.comparing(Issue::getProjectKey).reversed()
             .thenComparing(Comparator.comparing(Issue::getType).reversed()
             .thenComparing(Comparator.comparingInt(this::getIssueNumber).reversed())));
+    return sortedIssues;
   }
 
   private int getIssueNumber(Issue issue)
