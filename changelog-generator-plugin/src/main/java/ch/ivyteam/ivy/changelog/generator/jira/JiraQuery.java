@@ -4,7 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 
 public class JiraQuery
 {
-  private final String TRAILING_MINOR_VERSION_ZEROS ="(\\d+\\.\\d+)(?:(\\.0+))";
+  private static final String TRAILING_MINOR_VERSION_ZEROS ="(\\d+\\.\\d+)(?:(\\.0+))";
   private final String filterBy;
   private final String orderBy;
 
