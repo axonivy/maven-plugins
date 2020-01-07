@@ -171,7 +171,7 @@ public class PublicApiSourceMojo extends OsgiSourceMojo
   }
 
   /**
-   * Overridden since we have another plugin key (<i>ch.ivyteam:public-api-source-maven-plugin</i>)
+   * Overridden since we have another plugin key (<i>ch.ivyteam.maven:public-api-source-maven-plugin</i>)
    * compared to the plugin we extend.
    */
   @Override
@@ -223,7 +223,7 @@ public class PublicApiSourceMojo extends OsgiSourceMojo
 
     // this assumes that sources generation has to be explicitly enabled in
     // pom.xml
-    Plugin plugin = project.getPlugin("ch.ivyteam:public-api-source-maven-plugin");
+    Plugin plugin = project.getPlugin("ch.ivyteam.maven:public-api-source-maven-plugin");
 
     if (plugin == null)
     {

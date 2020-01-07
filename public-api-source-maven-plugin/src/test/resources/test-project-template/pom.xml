@@ -26,7 +26,7 @@
 				</configuration>
 			</plugin>
 			<plugin>
-				<groupId>ch.ivyteam</groupId>
+				<groupId>ch.ivyteam.maven</groupId>
 				<artifactId>public-api-source-maven-plugin</artifactId>
 				<version>0.0.1-SNAPSHOT</version>
 				<executions>
@@ -43,7 +43,7 @@
 		<pluginManagement>
 			<plugins>
 				<plugin>
-					<groupId>ch.ivyteam</groupId>
+					<groupId>ch.ivyteam.maven</groupId>
 					<artifactId>public-api-source-maven-plugin</artifactId>
 					<configuration>
 						<includes>

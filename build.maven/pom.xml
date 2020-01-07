@@ -16,6 +16,7 @@
 		<java.version>1.8</java.version>
 		<maven.version>3.2.3</maven.version>
 		<maven.test.failure.ignore>true</maven.test.failure.ignore>
+		<project.build.sourceEncoding>cp1252</project.build.sourceEncoding>
 	</properties>
 
 	<distributionManagement>
@@ -108,6 +109,30 @@
 					<execution>
 						<id>help-goal</id>
 						<goals><goal>helpmojo</goal></goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>flatten-maven-plugin</artifactId>
+				<version>1.1.0</version>
+				<configuration>
+				</configuration>
+				<executions>
+					<execution>
+						<id>flatten</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>flatten</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>flatten.clean</id>
+						<phase>clean</phase>
+						<goals>
+							<goal>clean</goal>
+						</goals>
 					</execution>
 				</executions>
 			</plugin>

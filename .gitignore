@@ -7,3 +7,5 @@ maven-version-plugin/testIvy
 maven-version-plugin/testProject
 public-api-source-maven-plugin/src/test/resources/test-project-template/bin/*
 /testProject
+
+.flattened-pom.xml

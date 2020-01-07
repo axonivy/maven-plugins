@@ -3,7 +3,6 @@ package ch.ivyteam.maven.public_api_source;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -41,16 +40,12 @@ public class PublicApiClassesFinder
 
   private boolean isPublicApi(File classToCheck)
   {
-    try(InputStream inputStream = classToCheck.toURI().toURL().openStream();)
+    try (InputStream inputStream = classToCheck.toURI().toURL().openStream();)
     {
       PublicApiClassVisitor classVisitor = new PublicApiClassVisitor();
       ClassReader classReader = new ClassReader(inputStream);
       classReader.accept(classVisitor, 0);
       return classVisitor.publicApiAnnotationFound;
-    }
-    catch (MalformedURLException ex)
-    {
-      ex.printStackTrace();
     }
     catch (IOException ex)
     {

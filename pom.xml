@@ -1,11 +1,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>ch.ivyteam.ivy</groupId>
-	<artifactId>ivy.maven.modules</artifactId>
+	<groupId>ch.ivyteam.maven</groupId>
+	<artifactId>modules-all</artifactId>
 	<version>7.2.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
-	<description>Contains all ivy Maven-Plugins as module dependency</description>
 
 	<modules>
 		<module>maven-version-plugin</module>
@@ -20,9 +19,6 @@
 		<module>thirdparty-dependency-readme-plugin</module>
 		<module>changelog-generator-plugin</module>
 		<module>windows-launcher-modifier-plugin</module>		
-		
-		<!-- Parent POMs: must be versioned for full dependency analysis of consuming maven artifacts -->
-		<module>build.maven</module>
 	</modules>
 
 	<build>
