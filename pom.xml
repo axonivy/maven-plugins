@@ -13,18 +13,16 @@
 		<module>image-text-plugin</module>
 		<module>image-dpi-plugin</module>
 		<module>screenshot-html-plugin</module>
-		<module>eclipse-help-plugin</module>
 		<module>db-meta-plugin</module>
 		<module>merge-files-plugin</module>
-		<module>osgi-bundle-doc</module>
+		<module>osgi-bundle-asciidoc-plugin</module>
 		<module>parser-generator-plugin</module>
 		<module>thirdparty-dependency-readme-plugin</module>
 		<module>changelog-generator-plugin</module>
-		<module>windows-launcher-modifier-plugin</module>
-		<module>refresh-eclipse-resources-plugin</module>
+		<module>windows-launcher-modifier-plugin</module>		
 		
 		<!-- Parent POMs: must be versioned for full dependency analysis of consuming maven artifacts -->
-		<module>build.maven/plugin</module>
+		<module>build.maven</module>
 	</modules>
 
 	<build>

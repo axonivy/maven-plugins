@@ -6,10 +6,10 @@
 	<version>0.0.3-SNAPSHOT</version>
 
 	<parent>
-		<groupId>ch.ivyteam.ivy</groupId>
-		<artifactId>build.maven.plugin</artifactId>
+		<groupId>ch.ivyteam.maven</groupId>
+		<artifactId>maven-config</artifactId>
 		<version>1.0.0-SNAPSHOT</version>
-		<relativePath>../build.maven/plugin</relativePath>
+		<relativePath>../build.maven</relativePath>
 	</parent>
 
 	<dependencies>
