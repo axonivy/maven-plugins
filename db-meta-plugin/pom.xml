@@ -57,7 +57,7 @@
 			<version>1.6.1</version>
 		</dependency>
     <dependency>
-      <groupId>ch.ivyteam</groupId>
+      <groupId>ch.ivyteam.maven</groupId>
       <artifactId>parser-generator-plugin</artifactId>
       <version>0.0.1-SNAPSHOT</version>
     </dependency>
@@ -87,7 +87,7 @@
 	<build>
 		<plugins>
       <plugin>
-        <groupId>ch.ivyteam</groupId>
+        <groupId>ch.ivyteam.maven</groupId>
         <artifactId>parser-generator-plugin</artifactId>
         <version>0.0.1-SNAPSHOT</version>
         <executions>
@@ -117,13 +117,9 @@
 							<pluginExecutions>
 								<pluginExecution>
 									<pluginExecutionFilter>
-										<groupId>ch.ivyteam</groupId>
-										<artifactId>
-											parser-generator-plugin
-										</artifactId>
-										<versionRange>
-											[0.0.1-SNAPSHOT,)
-										</versionRange>
+										<groupId>ch.ivyteam.maven</groupId>
+										<artifactId>parser-generator-plugin</artifactId>
+										<versionRange>[0.0.1-SNAPSHOT,)</versionRange>
 										<goals>
 											<goal>generate-parser</goal>
 										</goals>
