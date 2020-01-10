@@ -1,8 +1,0 @@
-Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: TestProject
-Bundle-SymbolicName: ch.ivyteam.testProject
-Bundle-Version: 1.0.0.qualifier
-Bundle-ClassPath: .
-Bundle-Vendor: ivyTeam AG
-Export-Package: ch.ivyteam.test
