@@ -32,8 +32,7 @@ public class TestMetaOutputGeneratorMojoContent
   public void before() throws Exception
   {
     mojo = mojoRule.getMojo();
-    mojoRule.setVariableValueToObject(mojo, "outputDirectory",
-            new File(mojoRule.getProject().getBasedir(), "generated"));
+    mojoRule.setVariableValueToObject(mojo, "outputDirectory", mojoRule.getProject().getBasedir());
     mojoRule.setVariableValueToObject(mojo, "inputDirectory",
             new File(mojoRule.getProject().getBasedir(), "meta"));
   }
@@ -42,7 +41,7 @@ public class TestMetaOutputGeneratorMojoContent
   public void testInsertIntoWithValuesIsGenerated() throws Exception
   {
     mojoRule.setVariableValueToObject(mojo, "generatorClass", OracleSqlScriptGenerator.class.getName());
-    mojoRule.setVariableValueToObject(mojo, "outputFile", getProjectFile(GENERATED_ORACLE_SQL));
+    mojoRule.setVariableValueToObject(mojo, "outputFile", GENERATED_ORACLE_SQL);
     mojo.execute();
     String sqlContent = getProjectFileContent(GENERATED_ORACLE_SQL);
     assertThat(sqlContent)
@@ -53,7 +52,7 @@ public class TestMetaOutputGeneratorMojoContent
   public void testInsertIntoWithSelectIsGenerated() throws Exception
   {
     mojoRule.setVariableValueToObject(mojo, "generatorClass", OracleSqlScriptGenerator.class.getName());
-    mojoRule.setVariableValueToObject(mojo, "outputFile", getProjectFile(GENERATED_ORACLE_SQL));
+    mojoRule.setVariableValueToObject(mojo, "outputFile", GENERATED_ORACLE_SQL);
     mojo.execute();
     String sqlContent = getProjectFileContent(GENERATED_ORACLE_SQL);
     assertThat(sqlContent)
@@ -64,7 +63,7 @@ public class TestMetaOutputGeneratorMojoContent
   public void testInsertIntoWithValuesIsGeneratedMsSql() throws Exception
   {
     mojoRule.setVariableValueToObject(mojo, "generatorClass", MsSqlServerSqlScriptGenerator.class.getName());
-    mojoRule.setVariableValueToObject(mojo, "outputFile", getProjectFile(GENERATED_MSSQL_SQL));
+    mojoRule.setVariableValueToObject(mojo, "outputFile", GENERATED_MSSQL_SQL);
     mojo.execute();
     String sqlContent = getProjectFileContent(GENERATED_MSSQL_SQL);
     assertThat(sqlContent)
@@ -76,7 +75,7 @@ public class TestMetaOutputGeneratorMojoContent
   public void testInsertIntoWithSelectIsGeneratedMsSql() throws Exception
   {
     mojoRule.setVariableValueToObject(mojo, "generatorClass", MsSqlServerSqlScriptGenerator.class.getName());
-    mojoRule.setVariableValueToObject(mojo, "outputFile", getProjectFile(GENERATED_MSSQL_SQL));
+    mojoRule.setVariableValueToObject(mojo, "outputFile", GENERATED_MSSQL_SQL);
     mojo.execute();
     String sqlContent = getProjectFileContent(GENERATED_MSSQL_SQL);
     assertThat(sqlContent)
@@ -92,7 +91,7 @@ public class TestMetaOutputGeneratorMojoContent
     mojoRule.setVariableValueToObject(mojo, "arguments", args);
     mojo.execute();
     
-    String dataContent = getProjectFileContent("generated/ch/ivy/data/BusinessDataData.java");
+    String dataContent = getProjectFileContent("ch/ivy/data/BusinessDataData.java");
     
     assertThat(dataContent)
     .contains("BusinessDataData setVersion(");
@@ -105,7 +104,7 @@ public class TestMetaOutputGeneratorMojoContent
     mojoRule.setVariableValueToObject(mojo, "arguments", args);
     mojo.execute();
     
-    String dbContent = getProjectFileContent("generated/ch/ivy/db/DbBusinessDataData.java");
+    String dbContent = getProjectFileContent("ch/ivy/db/DbBusinessDataData.java");
     
     // Test for the different methods, if the freemaker (ftl) generation fails, some methods are typically missing.
     assertThat(dbContent)

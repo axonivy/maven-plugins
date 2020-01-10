@@ -1,7 +1,6 @@
 package ch.ivyteam.db.meta.generator.maven;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.List;
@@ -31,8 +30,11 @@ public class MetaOutputDifferenceGeneratorMojo extends AbstractMojo
   @Parameter(required = true)
   private String generatorClass;
   
+  @Parameter(defaultValue="${project.build.directory}/generated")
+  private File outputDirectory;
+  
   @Parameter
-  private File output;
+  private String outputFile;
 
   @Parameter
   private FileSet inputFrom;
@@ -54,17 +56,19 @@ public class MetaOutputDifferenceGeneratorMojo extends AbstractMojo
 
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
-  {    
-    if (fileIsUpToDate())
+  {
+    File output = new File(outputDirectory, outputFile);
+
+    if (fileIsUpToDate(output))
     {
       getLog().info("Output file "+getAbsolutePath(output)+" is up to date. Nothing to do.");
       return;
     }
     try
     {
-      logGenerating();
-      generate();
-      logSuccess();
+      logGenerating(output);
+      generate(output);
+      logSuccess(output);
     }
     catch(Exception ex)
     {
@@ -73,11 +77,11 @@ public class MetaOutputDifferenceGeneratorMojo extends AbstractMojo
     }
     finally
     {
-      refresh();
+      refresh(output);
     }
   }
 
-  private void generate() throws Exception, FileNotFoundException
+  private void generate(File output) throws Exception
   {    
     SqlMeta metaFrom = MetaOutputDifferenceGenerator.parseMetaDefinitions(getInputFromFiles());
     SqlMeta metaTo = MetaOutputDifferenceGenerator.parseMetaDefinitions(getInputToFiles());
@@ -128,7 +132,7 @@ public class MetaOutputDifferenceGeneratorMojo extends AbstractMojo
     return baseDir;
   }
 
-  private boolean fileIsUpToDate()
+  private boolean fileIsUpToDate(File output)
   {
     if (!output.exists())
     {
@@ -158,23 +162,23 @@ public class MetaOutputDifferenceGeneratorMojo extends AbstractMojo
     return latestInputFileChange;
   }
 
-  private void refresh()
+  private void refresh(File output)
   {
     getLog().debug("Refresh '" + getAbsolutePath(output) + "'");
     buildContext.refresh(output);
   }
   
-  private void logGenerating()
+  private void logGenerating(File output)
   {
     getLog().info("Generating meta output difference " + getAbsolutePath(output) + " using generator class "+ generatorClass +" ...");
   }
 
-  private void logSuccess()
+  private void logSuccess(File output)
   {
     getLog().info("Meta output difference " + getAbsolutePath(output) + " sucessful generated.");
   }
 
-  private String getAbsolutePath(File file)
+  private static String getAbsolutePath(File file)
   {
     if (file == null)
     {

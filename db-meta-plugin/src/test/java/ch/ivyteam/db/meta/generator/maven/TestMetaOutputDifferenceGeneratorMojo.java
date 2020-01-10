@@ -35,11 +35,11 @@ public class TestMetaOutputDifferenceGeneratorMojo
   {
     mojo = mojoRule.getMojo();
     FileSet inputFrom = new FileSet();
-    inputFrom.setDirectory(mojoRule.getProject().getBasedir().getAbsolutePath());
+    inputFrom.setDirectory(getOutputDirectory().getAbsolutePath());
     inputFrom.setIncludes(Arrays.asList("oldVersionMeta/simpleTestV0.meta"));
     mojoRule.setVariableValueToObject(mojo, "inputFrom", inputFrom);
     FileSet inputTo = new FileSet();
-    inputTo.setDirectory(mojoRule.getProject().getBasedir().getAbsolutePath());
+    inputTo.setDirectory(getOutputDirectory().getAbsolutePath());
     inputTo.setIncludes(Arrays.asList("meta/simpleTest.meta"));
 
     mojoRule.setVariableValueToObject(mojo, "inputTo", inputTo); 
@@ -241,15 +241,21 @@ public class TestMetaOutputDifferenceGeneratorMojo
   {
     String outputFile = "convert"+generatorClass.getSimpleName()+".sql";
     mojoRule.setVariableValueToObject(mojo, "generatorClass", generatorClass.getName());
-    mojoRule.setVariableValueToObject(mojo, "output", getProjectFile(outputFile));
+    mojoRule.setVariableValueToObject(mojo, "outputDirectory", getOutputDirectory());
+    mojoRule.setVariableValueToObject(mojo, "outputFile", outputFile);
     mojo.execute();
     String sqlContent = getProjectFileContent(outputFile);
     return sqlContent;
   }
 
+  private File getOutputDirectory()
+  {
+    return mojoRule.getProject().getBasedir();
+  }
+
   private File getProjectFile(String path)
   {
-    return new File(mojoRule.getProject().getBasedir(), path);
+    return new File(getOutputDirectory(), path);
   }
 
   private String getProjectFileContent(String path) throws IOException

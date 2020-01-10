@@ -30,11 +30,11 @@ public class MetaOutputGeneratorMojo extends AbstractMojo
   @Parameter(required = true)
   private String generatorClass;
   
-  @Parameter(defaultValue="${project.build.directory}/generated-sources/meta")
+  @Parameter(defaultValue="${project.build.directory}/generated")
   private File outputDirectory;
   
   @Parameter
-  private File outputFile;
+  private String outputFile;
   
   @Parameter(defaultValue="meta")
   private File inputDirectory;
@@ -113,7 +113,7 @@ public class MetaOutputGeneratorMojo extends AbstractMojo
     if (outputFile != null)
     {
       args.add("-outputFile");
-      args.add(outputFile.getAbsolutePath());
+      args.add(new File(outputDirectory, outputFile).getAbsolutePath());        
     }
     else
     {

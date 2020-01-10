@@ -69,7 +69,7 @@ public class TestMetaOutputGeneratorMojo
   public void executeWithFile() throws IllegalAccessException, MojoExecutionException, MojoFailureException
   {
     mojoRule.setVariableValueToObject(mojo, "generatorClass", OracleSqlScriptGenerator.class.getName());
-    mojoRule.setVariableValueToObject(mojo, "outputFile", getProjectFile("generated/oracle.sql"));
+    mojoRule.setVariableValueToObject(mojo, "outputFile", "oracle.sql");
     mojo.execute();
     assertThatProjectFile("generated/oracle.sql").exists();
   }
@@ -78,9 +78,9 @@ public class TestMetaOutputGeneratorMojo
   public void fileUpToDate() throws IllegalAccessException, MojoExecutionException, MojoFailureException, IOException
   {
     mojoRule.setVariableValueToObject(mojo, "generatorClass", OracleSqlScriptGenerator.class.getName());
-    File sqlFile = getProjectFile("generated/oracle.sql");
-    mojoRule.setVariableValueToObject(mojo, "outputFile", sqlFile);
+    mojoRule.setVariableValueToObject(mojo, "outputFile", "oracle.sql");
         
+    File sqlFile = getProjectFile("generated/oracle.sql");
     FileUtils.touch(sqlFile);
     sqlFile.setLastModified(RECENT_TIME_STAMP);
     
@@ -92,9 +92,9 @@ public class TestMetaOutputGeneratorMojo
   public void fileNotUpToDate() throws IllegalAccessException, MojoExecutionException, MojoFailureException, IOException
   {
     mojoRule.setVariableValueToObject(mojo, "generatorClass", OracleSqlScriptGenerator.class.getName());
+    mojoRule.setVariableValueToObject(mojo, "outputFile", "oracle.sql");
+
     File sqlFile = getProjectFile("generated/oracle.sql");
-    mojoRule.setVariableValueToObject(mojo, "outputFile", sqlFile);
-        
     FileUtils.touch(sqlFile);
     sqlFile.setLastModified(OLD_TIME_STAMP);
     
