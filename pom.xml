@@ -8,7 +8,6 @@
 
 	<modules>
 		<module>maven-version-plugin</module>
-		<module>public-api-source-maven-plugin</module>
 		<module>image-text-plugin</module>
 		<module>image-dpi-plugin</module>
 		<module>screenshot-html-plugin</module>
