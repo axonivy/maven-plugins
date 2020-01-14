@@ -1,10 +1,127 @@
 <!doctype html>
 <html lang="en">
 <head>
-	<meta charset="utf-8">
-	<title>Overview</title>
+  <meta charset="utf-8">
+  <title>Overview</title>
 </head>
 <body>
-{generated.img.tag.location}
+  <script src="https://cdn.jsdelivr.net/npm/imagediff@1.0.8/imagediff.min.js"></script>
+
+  <style>
+    span {
+      display:inline-block;
+      width:33%;
+      text-align:center;
+    }
+  </style>
+
+  <form action="javascript:insertRefImages()">
+    <input id="refImgUrl" type="text">
+    <input type="submit" value="Load">
+  </form> 
+
+  {generated.img.tag.location}
+
+  <script>
+    var refImgUrl = document.getElementById("refImgUrl");
+    var imageWidth = '33%';
+
+    function insertRefImages()
+    {
+      removeElementsWithClass("refImg");
+      removeElementsWithClass("diffImg");
+
+      var imgsLive = document.body.getElementsByTagName("img");
+      var imgs = [...imgsLive];
+
+      for (let img of imgs)
+      {
+        var refImg = document.createElement('img');
+        refImg.src = refImgUrl.value + "{artifact.target.path}" + img.getAttribute('src');
+        refImg.className = "refImg";
+
+        img.after(refImg);
+
+        refImg.onload = (function(im, refIm)
+        {
+          return function()
+        {
+          addDiffImg(im, refIm);
+        };})(img, refImg);
+      }
+    }
+
+    function removeElementsWithClass(className)
+    {
+      var elementsLive = document.body.getElementsByClassName(className);
+      var elements = [...elementsLive];
+    
+      for (let element of elements)
+      {
+        element.parentNode.removeChild(element);
+      }
+    }
+
+    function addTitle(text)
+    {
+      var span = document.createElement('span');
+      var node = document.createElement('a');
+      node.text = text;
+      span.appendChild(node);
+      return span;
+    }
+
+    function addDiffImg(img, refImg)
+    {
+      if (img.width == 0 || refImg.width == 0)
+      {
+        return;
+      }
+      img.style.width = 'auto';
+      refImg.style.width = 'auto';
+
+      var diff = imagediff.diff(img, refImg); 
+      var canvas = imagediff.createCanvas(diff.width, diff.height);
+      var context = canvas.getContext('2d');
+      context.putImageData(diff, 0, 0);
+
+      refImg.after(context.canvas);
+
+      img.style.width = imageWidth;
+      refImg.style.width = imageWidth;
+      canvas.style.width = imageWidth;
+      canvas.className = "diffImg";
+    }
+
+    function wrapImgTagInDiv()
+    {
+      var imgsLive = document.body.getElementsByTagName("img");
+      var imgs = [...imgsLive];
+
+      for (let img of imgs)
+      {
+        var divTag = document.createElement('div');
+        document.body.replaceChild(divTag, img);
+        divTag.appendChild(addTitle("Screenshot"));
+        divTag.appendChild(addTitle("Reference"));
+        divTag.appendChild(addTitle("Diff"));
+        divTag.appendChild(img);
+      }
+    }
+
+    function fillMasterUrl()
+    {
+      var currentUrl = window.location.href;
+      var index = currentUrl.indexOf("job", currentUrl.indexOf("job") + 1);
+      var buildUrl = currentUrl.substring(0, index);
+      var masterUrl = buildUrl + "job/master/lastSuccessfulBuild";
+      refImgUrl.value = masterUrl;
+    }
+
+    wrapImgTagInDiv();
+    fillMasterUrl();
+
+    window.onload = insertRefImages;
+  </script>
 </body>
 </html>
