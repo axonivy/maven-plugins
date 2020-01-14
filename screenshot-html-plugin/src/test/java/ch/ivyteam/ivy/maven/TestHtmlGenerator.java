@@ -33,8 +33,12 @@ public class TestHtmlGenerator
   @Test
   public void generateHtml()
   {
-    String html = new HtmlGenerator(GenerateImageHtmlMojo.REPLACE_TAG, images, Paths.get("/tmp"), log).generate();
+    String template = GenerateImageHtmlMojo.REPLACE_TAG_IMG + "\n" + GenerateImageHtmlMojo.REPLACE_TAG_TARGET_PATH;
+    String artifactTargetPath = "artifactTargetPath";
+    
+    String html = new HtmlGenerator(template, artifactTargetPath, images, Paths.get("/tmp"), log).generate();
     assertThat(html).contains(newImgFolder, nameTab, conditionTab);
+    assertThat(html).contains(artifactTargetPath);
     assertThat(log.getWarnings()).isEmpty();
     assertThat(log.getDebug().toString()).contains(nameTab, conditionTab);
   }
