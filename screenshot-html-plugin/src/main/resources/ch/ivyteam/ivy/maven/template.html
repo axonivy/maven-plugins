@@ -13,17 +13,25 @@
       width:33%;
       text-align:center;
     }
+    .textbox {width:50%;}
   </style>
 
   <form action="javascript:insertRefImages()">
-    <input id="refImgUrl" type="text">
+    <input id="refImgUrl" class="textbox" type="text">
     <input type="submit" value="Load">
-  </form> 
+  </form>
+
+  <form action="javascript:removeIdentical()">
+    Tolerance in pixels
+    <input id="toleranceInput" type="text" value="0">
+    <input type="submit" value="Remove similar images">
+  </form>
 
   {generated.img.tag.location}
 
   <script>
     var refImgUrl = document.getElementById("refImgUrl");
+    var toleranceInput = document.getElementById("toleranceInput");
     var imageWidth = '33%';
 
     function insertRefImages()
@@ -100,7 +108,9 @@
 
       for (let img of imgs)
       {
+        img.className = "screenshotImg";
         var divTag = document.createElement('div');
+        divTag.className = "imageDiv";
         document.body.replaceChild(divTag, img);
         divTag.appendChild(addTitle("Screenshot"));
         divTag.appendChild(addTitle("Reference"));
@@ -116,6 +126,35 @@
       var buildUrl = currentUrl.substring(0, index);
       var masterUrl = buildUrl + "job/master/lastSuccessfulBuild";
       refImgUrl.value = masterUrl;
+    }
+
+    function removeIdentical()
+    {
+      var divsLive = document.getElementsByClassName("imageDiv");
+      var divs = [...divsLive];
+
+      for (let div of divs)
+      {
+        var screenshot = div.getElementsByClassName("screenshotImg")[0];
+        var reference = div.getElementsByClassName("refImg")[0];
+
+        screenshot.style.width = 'auto';
+        reference.style.width = 'auto';
+
+        var identical = false;
+        if (screenshot.width == reference.width)
+        {
+          identical = imagediff.equal(screenshot, reference , toleranceInput.value);
+        }
+
+        screenshot.style.width = imageWidth;
+        reference.style.width = imageWidth;
+
+        if (identical)
+        {
+          div.parentNode.removeChild(div);
+        }
+      }
     }
 
     wrapImgTagInDiv();
