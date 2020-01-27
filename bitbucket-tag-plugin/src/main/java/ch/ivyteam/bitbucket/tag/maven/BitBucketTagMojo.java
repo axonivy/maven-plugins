@@ -5,7 +5,6 @@ import java.util.List;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.settings.Server;
@@ -15,7 +14,7 @@ import ch.ivyteam.bitbucket.BitBucketClient;
 import ch.ivyteam.bitbucket.model.commit.Commit;
 import ch.ivyteam.bitbucket.model.tag.Tag;
 
-@Mojo(name="bitbucket-tag", defaultPhase=LifecyclePhase.GENERATE_SOURCES)
+@Mojo(name="bitbucket-tag")
 public class BitBucketTagMojo extends AbstractMojo
 {  
   static final String GOAL = "tag";

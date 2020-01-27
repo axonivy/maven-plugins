@@ -130,7 +130,6 @@ public class BitBucketClient
   public static void main(String[] args)
   {    
     BitBucketClient client = new BitBucketClient(args[0], args[1]);
-    client.deleteTag("ivy-core-branch-70", "v7.0.21");
     String branch = args.length == 4 ? args[3] : "master";
     try(Scanner scanner = new Scanner(System.in))
     {
