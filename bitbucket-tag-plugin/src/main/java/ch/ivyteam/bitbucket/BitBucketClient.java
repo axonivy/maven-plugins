@@ -123,7 +123,7 @@ public class BitBucketClient
   {
     if (response.getStatusInfo().getFamily() != Family.SUCCESSFUL)
     {
-      throw new RuntimeException(message);
+      throw new RuntimeException(message+". Status Code "+response.getStatusInfo().getStatusCode() +"  "+response.getStatusInfo().getReasonPhrase());
     }
   }
 
