@@ -18,9 +18,9 @@ pipeline {
     stage('build and deploy') {
       steps {
         script {
-          if (env.BRANCH_NAME == 'master')
+          if (env.BRANCH_NAME == 'release/8.0')
           {
-	          maven cmd: 'deploy sonar:sonar -Dsonar.host.url=https://sonar.ivyteam.io -Dsonar.projectKey=ivy-maven-plugins -Dsonar.projectName=ivy-maven-plugins'
+	          maven cmd: 'deploy'
 	        }
           else
           {
