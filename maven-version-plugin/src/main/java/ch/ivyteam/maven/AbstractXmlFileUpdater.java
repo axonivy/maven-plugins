@@ -3,6 +3,7 @@ package ch.ivyteam.maven;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -48,6 +49,10 @@ public class AbstractXmlFileUpdater
   
   protected List<Node> getChildNodes(Node parentNode, String nodeName)
   {
+    if (parentNode == null)
+    {
+      return Collections.emptyList();
+    }
     NodeList children = parentNode.getChildNodes();
     List<Node> childNodes = new ArrayList<>();
     for (int pos=0; pos < children.getLength(); pos++)
