@@ -127,30 +127,54 @@ public class BitBucketClient
     }
   }
 
+  /**
+   * Options:
+   * add userName password tagRelease [branch]
+   * remove userName password tagRelease
+   * @param args
+   */
   public static void main(String[] args)
-  {    
-    BitBucketClient client = new BitBucketClient(args[0], args[1]);
-    String branch = args.length == 4 ? args[3] : "master";
-    try(Scanner scanner = new Scanner(System.in))
+  {       
+    BitBucketClient client = new BitBucketClient(args[1], args[2]);
+    if ("add".equals(args[0]))
     {
-      for(String repository : client.getRepositories())
+      String branch = args.length == 5 ? args[4] : "master";
+      try(Scanner scanner = new Scanner(System.in))
       {
-        Commit commit = client.getLastCommit(repository, branch);
-        if (commit != null)
+        for(String repository : client.getRepositories())
         {
-          System.out.println();
-          System.out.println("Repository "+repository+": "+commit.getShortDisplayString());
-          System.out.println("Tag?");
-          
-          String answer = scanner.nextLine();
-          if (answer.equalsIgnoreCase("y"))
+          Commit commit = client.getLastCommit(repository, branch);
+          if (commit != null)
           {
-            client.addTag(repository, new Tag("v"+args[2], "Release "+args[2], commit));
+            System.out.println();
+            System.out.println("Repository "+repository+": "+commit.getShortDisplayString());
+            System.out.println("Tag?");
+            
+            String answer = scanner.nextLine();
+            if (answer.equalsIgnoreCase("y"))
+            {
+              client.addTag(repository, new Tag("v"+args[3], "Release "+args[3], commit));
+            }
+          }
+          else
+          {
+            System.out.println("No commit found on repository "+repository);
           }
         }
-        else
+      }
+    }
+    else if ("delete".equalsIgnoreCase(args[0]))
+    {
+      for (String repos : client.getRepositories())
+      {
+        try
         {
-          System.out.println("No commit found on repository "+repository);
+          System.out.println("Delete tag v"+args[3]+" on repository "+repos);
+          client.deleteTag(repos, "v"+args[3]);
+        }
+        catch(Exception ex)
+        {
+          System.err.println("Cannot delete tag v"+args[3]+" on repository "+repos);
         }
       }
     }
