@@ -3,7 +3,6 @@ package ch.ivyteam.bitbucket;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Scanner;
 
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.Client;
@@ -32,16 +31,10 @@ public class BitBucketClient
   private static final String BITBUCKET_ACCESS_TOKEN_URL = "https://bitbucket.org/site/oauth2/access_token";
   private final Client client;
   private final WebTarget target;
-  private static final ClientIdentifier CLIENT_IDENTIFIER = new ClientIdentifier("4ZNbXJBbDQffWEFq2a", "ntEgXZGSJ8JmZSZWdFXg8usGduMsb4Rg");
 
   public BitBucketClient(String clientId, String clientSecret)
   {
-    this(new ClientIdentifier(clientId, clientSecret));
-  }
-  
-  private BitBucketClient(ClientIdentifier clientIdentifier)  
-  {
-    String accessToken = authenticateWithOAuth2(clientIdentifier);
+    String accessToken = authenticateWithOAuth2(new ClientIdentifier(clientId, clientSecret));
 
     client = ClientBuilder.newClient();
     client.register(OAuth2ClientSupport.feature(accessToken));
@@ -71,7 +64,7 @@ public class BitBucketClient
             .build();
 
     // use client identifier client id and secret to authenticate against Bitbucket (Basic Authentication) 
-    HttpAuthenticationFeature basic = HttpAuthenticationFeature.basic(CLIENT_IDENTIFIER.getClientId(), clientIdentifier.getClientSecret());
+    HttpAuthenticationFeature basic = HttpAuthenticationFeature.basic(clientIdentifier.getClientId(), clientIdentifier.getClientSecret());
     oAuthClient.register(basic);
 
     // requests to authenticate with client id and secret
@@ -174,59 +167,6 @@ public class BitBucketClient
     if (response.getStatusInfo().getFamily() != Family.SUCCESSFUL)
     {
       throw new RuntimeException(message+". Status Code "+response.getStatusInfo().getStatusCode() +"  "+response.getStatusInfo().getReasonPhrase());
-    }
-  }
-
-  /**
-   * Options:
-   * add userName password tagRelease [branch]
-   * remove userName password tagRelease
-   * @param args
-   */
-  public static void main(String[] args)
-  {       
-    BitBucketClient client = new BitBucketClient(CLIENT_IDENTIFIER);
-    if ("add".equals(args[0]))
-    {
-      String branch = args.length == 3 ? args[2] : "master";
-      try(Scanner scanner = new Scanner(System.in))
-      {
-        for(String repository : client.getRepositories())
-        {
-          Commit commit = client.getLastCommit(repository, branch);
-          if (commit != null)
-          {
-            System.out.println();
-            System.out.println("Repository "+repository+": "+commit.getShortDisplayString());
-            System.out.println("Tag?");
-            
-            String answer = scanner.nextLine();
-            if (answer.equalsIgnoreCase("y"))
-            {
-              client.addTag(repository, new Tag("v"+args[1], "Release "+args[1], commit));
-            }
-          }
-          else
-          {
-            System.out.println("No commit found on repository "+repository);
-          }
-        }
-      }
-    }
-    else if ("delete".equalsIgnoreCase(args[0]))
-    {
-      for (String repos : client.getRepositories())
-      {
-        try
-        {
-          System.out.println("Delete tag v"+args[1]+" on repository "+repos);
-          client.deleteTag(repos, "v"+args[1]);
-        }
-        catch(Exception ex)
-        {
-          System.err.println("Cannot delete tag v"+args[1]+" on repository "+repos);
-        }
-      }
     }
   }
 }
