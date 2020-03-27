@@ -1,6 +1,7 @@
 package ch.ivyteam.bitbucket.tag.maven;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -43,20 +44,36 @@ public class BitBucketTagMojo extends AbstractMojo
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
   {
-    if (repositories.isEmpty())
-    {
-      throw new MojoExecutionException("No repositories defined to tag");
-    }
     Server server = settings.getServer(serverId);
     if (server == null)
     {
       throw new MojoExecutionException("No server with id "+serverId+" found");
     }
     BitBucketClient client = new BitBucketClient(server.getUsername(), server.getPassword());
-    for (String repository : repositories)
+    List<String> repos = repositories;
+    if (repos.isEmpty())
+    {
+      repos = getAllRepositoriesThatHaveGivenBranch(client); 
+    }
+
+    for (String repository : repos)
     {
       addTag(client, repository);
     }
+  }
+
+  private List<String> getAllRepositoriesThatHaveGivenBranch(BitBucketClient client)
+  {
+    List<String> repos = client.getRepositories();
+    return repos
+       .stream()
+       .filter(repo -> hasBranch(client, repo))
+       .collect(Collectors.toList());
+  }
+
+  private boolean hasBranch(BitBucketClient client, String repo)
+  {
+    return client.getBranches(repo).contains(branch);
   }
 
   private void addTag(BitBucketClient client, String repository) throws MojoExecutionException
