@@ -30,10 +30,10 @@ public class BitBucketClientCli
 
   /**
    * Options:
-   * {clientId} {secret} add tag {tagRelease} {repository} [branch]
-   * {clientId} {secret} remove tag {tagRelease} {repository}
-   * {clientId} {secret} list repos
-   * {clientId} {secret} list branches repo
+   * {client id} {client secret} add tag {tagRelease} {repository} [branch]
+   * {client id} {client secret} remove tag {tagRelease} {repository}
+   * {client id} {client secret} list repos
+   * {client id} {client secret} list branches repo
    * help
    * @param args
    */
@@ -182,12 +182,12 @@ public class BitBucketClientCli
 
   private void printAddHelp()
   {
-    System.out.println(" add tag <tagName> <repo> [<branch>]");
+    System.out.println(" <client id> <client secret> add tag <tagName> <repo> [<branch>]");
   }
   
   private void printRemoveHelp()
   {
-    System.out.println(" remove tag <tagName> <repo>");
+    System.out.println(" <client id> <client secret> remove tag <tagName> <repo>");
   }
 
   private void printListHelp()
@@ -198,11 +198,11 @@ public class BitBucketClientCli
 
   private void printListReposHelp()
   {
-    System.out.println(" list repos");
+    System.out.println(" <client id> <client secret> list repos");
   }
 
   private void printListBranchesHelp()
   {
-    System.out.println(" list branches <repo>");
+    System.out.println(" <client id> <client secret> list branches <repo>");
   }
 }
