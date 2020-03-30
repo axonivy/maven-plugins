@@ -27,6 +27,10 @@
     <input type="submit" value="Remove similar images">
   </form>
 
+  <form action="javascript:hideRefImages()">
+    <input type="submit" value="Toggle references">
+  </form>
+
   {generated.img.tag.location}
 
   <script>
@@ -70,9 +74,10 @@
       }
     }
 
-    function addTitle(text)
+    function addTitle(text, clazz)
     {
       var span = document.createElement('span');
+      span.classList.add(clazz)
       var node = document.createElement('a');
       node.text = text;
       span.appendChild(node);
@@ -112,9 +117,9 @@
         var divTag = document.createElement('div');
         divTag.className = "imageDiv";
         document.body.replaceChild(divTag, img);
-        divTag.appendChild(addTitle("Screenshot"));
-        divTag.appendChild(addTitle("Reference"));
-        divTag.appendChild(addTitle("Diff"));
+        divTag.appendChild(addTitle("Screenshot", "screenshotTitle"));
+        divTag.appendChild(addTitle("Reference", "refTitle"));
+        divTag.appendChild(addTitle("Diff", "diffTitle"));
         divTag.appendChild(img);
       }
     }
@@ -154,6 +159,17 @@
         {
           div.parentNode.removeChild(div);
         }
+      }
+    }
+
+    function hideRefImages()
+    {
+      var liveElements = document.querySelectorAll('.refImg, .refTitle');
+      var elements = [...liveElements];
+
+      for (let element of elements)
+      {
+        element.style.display = element.style.display === 'none' ? '' : 'none';
       }
     }
 
