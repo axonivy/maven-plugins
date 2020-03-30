@@ -27,6 +27,7 @@ import ch.ivyteam.bitbucket.model.commit.Commits;
 import ch.ivyteam.bitbucket.model.repo.Repositories;
 import ch.ivyteam.bitbucket.model.repo.Repository;
 import ch.ivyteam.bitbucket.model.tag.Tag;
+import ch.ivyteam.bitbucket.model.tag.Tags;
 
 public class BitBucketClient 
 {
@@ -112,13 +113,13 @@ public class BitBucketClient
   
   public List<String> getBranches(String repository)
   {
-    List<String> branches = new ArrayList<>();
-    Branches brnchs = null;
+    List<String> branchNames = new ArrayList<>();
+    Branches branches = null;
     do
     {
-      if (brnchs == null)
+      if (branches == null)
       {
-        brnchs = target
+        branches = target
             .path(repository)
             .path("refs")
             .path("branches")
@@ -127,19 +128,18 @@ public class BitBucketClient
       }
       else
       {
-        brnchs = client
-                .target(brnchs.getNext())
+        branches = client
+                .target(branches.getNext())
                 .request()
                 .get(Branches.class);
       }
-      brnchs.getValues()
+      branches.getValues()
           .stream()
           .map(Branch::getName)
-          .forEach(branches::add);
-    } while (brnchs.getNext() != null);
-    return branches;
+          .forEach(branchNames::add);
+    } while (branches.getNext() != null);
+    return branchNames;
   }
-
 
   public List<Commit> getLastCommits(String repository, String branch)
   {
@@ -157,6 +157,46 @@ public class BitBucketClient
     {
       return Collections.emptyList();
     }
+  }
+  
+  public List<Commit> getCommitsSince(String repository, String branch, String sinceCommit, int maxCommits)
+  {
+    List<Commit> commits = new ArrayList<>();
+    Commits cmmts = null;
+    do
+    {
+      if (cmmts == null)
+      {
+        cmmts = target
+            .path(repository)
+            .path("commits")
+            .path(branch)
+            .queryParam("pagelen", "100")
+            .request()
+            .get(Commits.class);
+      }
+      else
+      {
+        cmmts = client
+                .target(cmmts.getNext())
+                .queryParam("pagelen", "100")
+                .request()
+                .get(Commits.class);
+      }
+      for (Commit commit : cmmts.getValues())
+      {
+        if (commit.getHash().equals(sinceCommit))
+        {
+          return commits;
+        }
+        if (commits.size() > maxCommits)
+        {
+          return Collections.emptyList();
+        }
+        commits.add(commit);
+      }
+    } while (cmmts.getNext() != null);
+    return commits;
   }
 
   public Commit getLastCommit(String repository, String branch)
@@ -194,6 +234,55 @@ public class BitBucketClient
       checkResponse(response, "Failed to delete tag "+tagName+" from repository "+repository);
     }
   }  
+  
+  public List<String> getTags(String repository)
+  {
+    List<String> tagNames = new ArrayList<>();
+    Tags tags = null;
+    do
+    {
+      if (tags == null)
+      {
+        tags = target
+            .path(repository)
+            .path("refs")
+            .path("tags")
+            .request()
+            .get(Tags.class);
+      }
+      else
+      {
+        tags = client
+                .target(tags.getNext())
+                .request()
+                .get(Tags.class);
+      }
+      tags.getValues()
+          .stream()
+          .map(Tag::getName)
+          .forEach(tagNames::add);
+    } while (tags.getNext() != null);
+    return tagNames;
+  }
+  
+  public Tag getTag(String repository, String tag)
+  {
+    try
+    {
+      return target
+          .path(repository)
+          .path("refs")
+          .path("tags")
+          .path(tag)
+          .request()
+          .get(Tag.class);
+    }
+    catch(NotFoundException ex)
+    {
+      return null;
+    }
+  }
+
 
   private void checkResponse(Response response, String message)
   {
