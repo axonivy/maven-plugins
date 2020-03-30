@@ -20,6 +20,8 @@ import org.glassfish.jersey.client.oauth2.ClientIdentifier;
 import org.glassfish.jersey.client.oauth2.OAuth2ClientSupport;
 import org.glassfish.jersey.client.oauth2.TokenResult;
 
+import ch.ivyteam.bitbucket.model.branch.Branch;
+import ch.ivyteam.bitbucket.model.branch.Branches;
 import ch.ivyteam.bitbucket.model.commit.Commit;
 import ch.ivyteam.bitbucket.model.commit.Commits;
 import ch.ivyteam.bitbucket.model.repo.Repositories;
@@ -107,6 +109,37 @@ public class BitBucketClient
     } while (repos.getNext() != null);
     return repositories;
   }
+  
+  public List<String> getBranches(String repository)
+  {
+    List<String> branches = new ArrayList<>();
+    Branches brnchs = null;
+    do
+    {
+      if (brnchs == null)
+      {
+        brnchs = target
+            .path(repository)
+            .path("refs")
+            .path("branches")
+            .request()
+            .get(Branches.class);
+      }
+      else
+      {
+        brnchs = client
+                .target(brnchs.getNext())
+                .request()
+                .get(Branches.class);
+      }
+      brnchs.getValues()
+          .stream()
+          .map(Branch::getName)
+          .forEach(branches::add);
+    } while (brnchs.getNext() != null);
+    return branches;
+  }
+
 
   public List<Commit> getLastCommits(String repository, String branch)
   {
@@ -160,7 +193,7 @@ public class BitBucketClient
     {
       checkResponse(response, "Failed to delete tag "+tagName+" from repository "+repository);
     }
-  }
+  }  
 
   private void checkResponse(Response response, String message)
   {
