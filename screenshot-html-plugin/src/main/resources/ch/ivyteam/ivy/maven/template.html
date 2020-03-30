@@ -8,11 +8,7 @@
   <script src="https://cdn.jsdelivr.net/npm/imagediff@1.0.8/imagediff.min.js"></script>
 
   <style>
-    span {
-      display:inline-block;
-      width:33%;
-      text-align:center;
-    }
+    td {text-align:center;}
     .textbox {width:50%;}
   </style>
 
@@ -27,7 +23,7 @@
     <input type="submit" value="Remove similar images">
   </form>
 
-  <form action="javascript:hideRefImages()">
+  <form action="javascript:toggleRefImages()">
     <input type="submit" value="Toggle references">
   </form>
 
@@ -36,7 +32,7 @@
   <script>
     var refImgUrl = document.getElementById("refImgUrl");
     var toleranceInput = document.getElementById("toleranceInput");
-    var imageWidth = '33%';
+    var imageWidth = '100%';
 
     function insertRefImages()
     {
@@ -52,7 +48,8 @@
         refImg.src = refImgUrl.value + "{artifact.target.path}" + img.getAttribute('src');
         refImg.className = "refImg";
 
-        img.after(refImg);
+        var table = img.parentNode.parentNode;
+        table.getElementsByClassName("referenceCol")[0].appendChild(refImg);
 
         refImg.onload = (function(im, refIm)
         {
@@ -74,14 +71,23 @@
       }
     }
 
-    function addTitle(text, clazz)
+    function createTitles()
     {
-      var span = document.createElement('span');
-      span.classList.add(clazz)
-      var node = document.createElement('a');
-      node.text = text;
-      span.appendChild(node);
-      return span;
+      var titleRow = document.createElement("tr");
+      titleRow.appendChild(createTitle("Screenshot"));
+      titleRow.appendChild(createTitle("Reference"));
+      titleRow.appendChild(createTitle("Diff"));
+      return titleRow;
+    }
+
+    function createTitle(text)
+    {
+      var titleCol = document.createElement("td");
+      titleCol.className = text.toLowerCase() + "Col";
+      var title = document.createElement('a');
+      title.text = text;
+      titleCol.appendChild(title);
+      return titleCol;
     }
 
     function addDiffImg(img, refImg)
@@ -98,7 +104,8 @@
       var context = canvas.getContext('2d');
       context.putImageData(diff, 0, 0);
 
-      refImg.after(context.canvas);
+      var table = img.parentNode.parentNode;
+      table.getElementsByClassName("diffCol")[0].appendChild(context.canvas);
 
       img.style.width = imageWidth;
       refImg.style.width = imageWidth;
@@ -106,7 +113,7 @@
       canvas.className = "diffImg";
     }
 
-    function wrapImgTagInDiv()
+    function wrapImgsInTables()
     {
       var imgsLive = document.body.getElementsByTagName("img");
       var imgs = [...imgsLive];
@@ -114,13 +121,27 @@
       for (let img of imgs)
       {
         img.className = "screenshotImg";
-        var divTag = document.createElement('div');
-        divTag.className = "imageDiv";
-        document.body.replaceChild(divTag, img);
-        divTag.appendChild(addTitle("Screenshot", "screenshotTitle"));
-        divTag.appendChild(addTitle("Reference", "refTitle"));
-        divTag.appendChild(addTitle("Diff", "diffTitle"));
-        divTag.appendChild(img);
+        var table = document.createElement('table');
+        table.className = "imageTable";
+        document.body.replaceChild(table, img);
+        table.appendChild(createTitles());
+
+        var row = document.createElement("tr");
+
+        var screenshotCol = document.createElement("td");
+        screenshotCol.className = "screenshotCol";
+
+        var referenceCol = document.createElement("td");
+        referenceCol.className = "referenceCol";
+
+        var diffCol = document.createElement("td");
+        diffCol.className = "diffCol";
+
+        screenshotCol.appendChild(img);
+        row.appendChild(screenshotCol);
+        row.appendChild(referenceCol);
+        row.appendChild(diffCol);
+        table.appendChild(row);
       }
     }
 
@@ -135,13 +156,13 @@
 
     function removeIdentical()
     {
-      var divsLive = document.getElementsByClassName("imageDiv");
-      var divs = [...divsLive];
+      var tablesLive = document.getElementsByClassName("imageTable");
+      var tables = [...tablesLive];
 
-      for (let div of divs)
+      for (let table of tables)
       {
-        var screenshot = div.getElementsByClassName("screenshotImg")[0];
-        var reference = div.getElementsByClassName("refImg")[0];
+        var screenshot = table.getElementsByClassName("screenshotImg")[0];
+        var reference = table.getElementsByClassName("refImg")[0];
 
         screenshot.style.width = 'auto';
         reference.style.width = 'auto';
@@ -157,14 +178,14 @@
 
         if (identical)
         {
-          div.parentNode.removeChild(div);
+          table.parentNode.removeChild(table);
         }
       }
     }
 
-    function hideRefImages()
+    function toggleRefImages()
     {
-      var liveElements = document.querySelectorAll('.refImg, .refTitle');
+      var liveElements = document.querySelectorAll('.refImg, .referenceCol');
       var elements = [...liveElements];
 
       for (let element of elements)
@@ -173,7 +194,7 @@
       }
     }
 
-    wrapImgTagInDiv();
+    wrapImgsInTables();
     fillMasterUrl();
 
     window.onload = insertRefImages;
