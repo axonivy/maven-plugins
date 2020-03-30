@@ -114,12 +114,12 @@ public class BitBucketClient
   public List<String> getBranches(String repository)
   {
     List<String> branchNames = new ArrayList<>();
-    Branches brnches = null;
+    Branches branches = null;
     do
     {
-      if (brnches == null)
+      if (branches == null)
       {
-        brnches = target
+        branches = target
             .path(repository)
             .path("refs")
             .path("branches")
@@ -128,16 +128,16 @@ public class BitBucketClient
       }
       else
       {
-        brnches = client
-                .target(brnches.getNext())
+        branches = client
+                .target(branches.getNext())
                 .request()
                 .get(Branches.class);
       }
-      brnches.getValues()
+      branches.getValues()
           .stream()
           .map(Branch::getName)
           .forEach(branchNames::add);
-    } while (brnches.getNext() != null);
+    } while (branches.getNext() != null);
     return branchNames;
   }
 
