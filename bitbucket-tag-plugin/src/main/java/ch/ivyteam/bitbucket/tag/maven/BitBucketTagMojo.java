@@ -32,7 +32,7 @@ public class BitBucketTagMojo extends AbstractMojo
   @Parameter(property="branch", defaultValue="master")
   private String branch;
   
-  @Parameter(required = true, property="repositories")
+  @Parameter(property="repositories")
   private List<String> repositories;
   
   @Parameter( defaultValue = "${settings}", readonly = true, required = true )
