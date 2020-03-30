@@ -1,12 +1,19 @@
 package ch.ivyteam.bitbucket.model.tag;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import ch.ivyteam.bitbucket.model.commit.Commit;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Tag
 {
   private String name;
   private String message;
   private Target target;
+  
+  public Tag()
+  {
+  }
   
   public Tag(String name, String message, Commit target)
   {
