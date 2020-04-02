@@ -10,4 +10,7 @@ Changes in @versionFull@.@revision@, @date@
 --------------------------------------------------------------------------------
 
 This is a Leading Edge version.
+
+@upgradeRecommendation@
+
 @changelog@
