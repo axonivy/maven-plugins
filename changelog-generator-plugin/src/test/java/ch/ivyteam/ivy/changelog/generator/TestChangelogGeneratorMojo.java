@@ -12,6 +12,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecution;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.testing.MojoRule;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.settings.Server;
@@ -145,6 +147,42 @@ public class TestChangelogGeneratorMojo
     
     assertThat(StringUtils.substringBeforeLast(issues, "Story")).doesNotContain("Bug", "Improvement");
     assertThat(StringUtils.substringBeforeLast(issues, "Improvement")).doesNotContain("Bug");
+  }
+
+  @Test
+  public void createReleaseNotesWithUpgradRecommended() throws Exception
+  {
+    String recommendation = createReleaseNotesAndReadRecommendation("7.4.0");
+    assertThat(recommendation).contains("We recommend to install this update release because it fixes stability issues!");
+  }
+
+  @Test
+  public void createReleaseNotesWithUpgradeCritical() throws Exception
+  {
+    String recommendation = createReleaseNotesAndReadRecommendation("8.0.4");
+    assertThat(recommendation).contains("We strongly recommend to install this update release because it fixes security issues!");
+  }
+  
+  @Test
+  public void createReleaseNotesWithUpgradeSuggested() throws Exception
+  {
+    String recommendation = createReleaseNotesAndReadRecommendation("8.0.3");
+    assertThat(recommendation).contains("We suggest to install this update release if you are suffering from any of these issues.");
+  }
+
+  private String createReleaseNotesAndReadRecommendation(String version)
+          throws MojoExecutionException, MojoFailureException, FileNotFoundException, IOException
+  {
+    mojo.filterBy = "project = XIVY AND fixVersion = "+version;
+    mojo.asciiTemplate = "${key}:${type};";
+    mojo.fileset.addInclude("ReleaseNotes.txt");
+    mojo.execute();
+
+    File releaseNotes = new File(outputPath + "/ReleaseNotes.txt");
+    assertThat(releaseNotes).exists();
+
+    String recommendation = StringUtils.substringAfter(readFileContent(releaseNotes), "This is a Leading Edge version.");
+    return recommendation;
   }
 
   private String[] filterIssuesForType(String[] splitIssues, String type)
