@@ -5,34 +5,111 @@
   <title>Overview</title>
 </head>
 <body>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/imagediff@1.0.8/imagediff.min.js"></script>
 
   <style>
-    span {
-      display:inline-block;
-      width:33%;
-      text-align:center;
+    td {text-align:center;}
+    .input-group>.input-group-prepend {flex: 0 0 10%;}
+    .input-group .input-group-text {width: 100%;}
+    #toggleReferenceImagesBtn {
+      position: fixed;
+      top: 20px;
+      right: 20px;
     }
-    .textbox {width:50%;}
   </style>
 
-  <form action="javascript:insertRefImages()">
-    <input id="refImgUrl" class="textbox" type="text">
-    <input type="submit" value="Load">
-  </form>
+  <form>
+    <br>
+    <div class="input-group form-group col-10">
+      <div class="input-group-prepend">
+        <span class="input-group-text">Reference build:</span>
+      </div>
+      <input id="refUrl" class="form-control" list="refUrls" onfocus="value = ''"></input>
+      <datalist id="refUrls"></datalist>
 
-  <form action="javascript:removeIdentical()">
-    Tolerance in pixels
-    <input id="toleranceInput" type="text" value="0">
-    <input type="submit" value="Remove similar images">
+      <input id="refBuild" class="form-control col-1" list="refBuilds" onfocus="value = ''"></input>
+      <datalist id="refBuilds"></datalist>
+      <div class="input-group-append">
+        <button id="refUrlBtn" type="button" class="btn btn-outline-secondary">Load</button>
+      </div>
+    </div>
+    
+    <div class="input-group form-group col-6">
+      <div class="input-group-prepend">
+        <span class="input-group-text">Tolerance in pixel:</span>
+      </div>
+      <input id="toleranceInput" type="text" class="form-control" value='0'>
+      <div class="input-group-append">
+        <button id="removeIdenticalBtn" type="button" class="btn btn-outline-secondary">Remove</button>
+      </div>
+    </div>
+
+    <div>
+      <button id="toggleReferenceImagesBtn" type="button" class="btn btn-outline-secondary">
+        References
+      </button>
+    </div>
   </form>
 
   {generated.img.tag.location}
 
   <script>
-    var refImgUrl = document.getElementById("refImgUrl");
+    var refUrls = document.getElementById("refUrls");
+    var refBuilds = document.getElementById("refBuilds");
     var toleranceInput = document.getElementById("toleranceInput");
-    var imageWidth = '33%';
+    var imageWidth = '100%';
+
+    $('#refUrl').on('change', function()
+    {
+      fillRefBuilds();
+    });
+
+    $('#refUrlBtn').on('click', function(event)
+    {
+      insertRefImages();
+    });
+
+    $('#removeIdenticalBtn').on('click', function(event)
+    {
+      var tablesLive = document.getElementsByClassName("imageTable");
+      var tables = [...tablesLive];
+
+      for (let table of tables)
+      {
+        var screenshot = table.getElementsByClassName("screenshotImg")[0];
+        var reference = table.getElementsByClassName("refImg")[0];
+
+        screenshot.style.width = 'auto';
+        reference.style.width = 'auto';
+
+        var identical = false;
+        if (screenshot.width == reference.width)
+        {
+          identical = imagediff.equal(screenshot, reference , toleranceInput.value);
+        }
+
+        screenshot.style.width = imageWidth;
+        reference.style.width = imageWidth;
+
+        if (identical)
+        {
+          table.parentNode.removeChild(table);
+        }
+      }
+    });
+
+    $('#toggleReferenceImagesBtn').on('click', function(event)
+    {
+      var liveElements = document.querySelectorAll('.refImg, .referenceCol');
+      var elements = [...liveElements];
+
+      for (let element of elements)
+      {
+        element.style.display = element.style.display === 'none' ? '' : 'none';
+      }
+    });
 
     function insertRefImages()
     {
@@ -45,10 +122,11 @@
       for (let img of imgs)
       {
         var refImg = document.createElement('img');
-        refImg.src = refImgUrl.value + "{artifact.target.path}" + img.getAttribute('src');
+        refImg.src = refUrl.value + refBuild.value + "/" + "{artifact.target.path}" + img.getAttribute('src');
         refImg.className = "refImg";
 
-        img.after(refImg);
+        var table = img.parentNode.parentNode;
+        table.getElementsByClassName("referenceCol")[0].appendChild(refImg);
 
         refImg.onload = (function(im, refIm)
         {
@@ -70,15 +148,6 @@
       }
     }
 
-    function addTitle(text)
-    {
-      var span = document.createElement('span');
-      var node = document.createElement('a');
-      node.text = text;
-      span.appendChild(node);
-      return span;
-    }
-
     function addDiffImg(img, refImg)
     {
       if (img.width == 0 || refImg.width == 0)
@@ -93,7 +162,8 @@
       var context = canvas.getContext('2d');
       context.putImageData(diff, 0, 0);
 
-      refImg.after(context.canvas);
+      var table = img.parentNode.parentNode;
+      table.getElementsByClassName("diffCol")[0].appendChild(context.canvas);
 
       img.style.width = imageWidth;
       refImg.style.width = imageWidth;
@@ -101,7 +171,7 @@
       canvas.className = "diffImg";
     }
 
-    function wrapImgTagInDiv()
+    function wrapImgsInTables()
     {
       var imgsLive = document.body.getElementsByTagName("img");
       var imgs = [...imgsLive];
@@ -109,58 +179,105 @@
       for (let img of imgs)
       {
         img.className = "screenshotImg";
-        var divTag = document.createElement('div');
-        divTag.className = "imageDiv";
-        document.body.replaceChild(divTag, img);
-        divTag.appendChild(addTitle("Screenshot"));
-        divTag.appendChild(addTitle("Reference"));
-        divTag.appendChild(addTitle("Diff"));
-        divTag.appendChild(img);
+        var table = document.createElement('table');
+        table.className = "imageTable";
+        document.body.replaceChild(table, img);
+        table.appendChild(createTitles());
+
+        var row = document.createElement("tr");
+
+        var screenshotCol = document.createElement("td");
+        screenshotCol.className = "screenshotCol";
+
+        var referenceCol = document.createElement("td");
+        referenceCol.className = "referenceCol";
+
+        var diffCol = document.createElement("td");
+        diffCol.className = "diffCol";
+
+        screenshotCol.appendChild(img);
+        row.appendChild(screenshotCol);
+        row.appendChild(referenceCol);
+        row.appendChild(diffCol);
+        table.appendChild(row);
       }
     }
 
-    function fillMasterUrl()
+    function createTitles()
     {
-      var currentUrl = window.location.href;
-      var index = currentUrl.indexOf("job", currentUrl.indexOf("job") + 1);
-      var buildUrl = currentUrl.substring(0, index);
-      var masterUrl = buildUrl + "job/master/lastSuccessfulBuild";
-      refImgUrl.value = masterUrl;
+      var titleRow = document.createElement("tr");
+      titleRow.appendChild(createTitle("Screenshot"));
+      titleRow.appendChild(createTitle("Reference"));
+      titleRow.appendChild(createTitle("Diff"));
+      return titleRow;
     }
 
-    function removeIdentical()
+    function createTitle(text)
     {
-      var divsLive = document.getElementsByClassName("imageDiv");
-      var divs = [...divsLive];
+      var titleCol = document.createElement("td");
+      titleCol.className = text.toLowerCase() + "Col";
+      var title = document.createElement('a');
+      title.text = text;
+      titleCol.appendChild(title);
+      return titleCol;
+    }
 
-      for (let div of divs)
+    function fillRefUrls()
+    {
+      var json = $.getJSON("{jenkins.job.url}" + "/api/json", function(data)
       {
-        var screenshot = div.getElementsByClassName("screenshotImg")[0];
-        var reference = div.getElementsByClassName("refImg")[0];
-
-        screenshot.style.width = 'auto';
-        reference.style.width = 'auto';
-
-        var identical = false;
-        if (screenshot.width == reference.width)
+        $.each(data.jobs, function(_, job)
         {
-          identical = imagediff.equal(screenshot, reference , toleranceInput.value);
-        }
-
-        screenshot.style.width = imageWidth;
-        reference.style.width = imageWidth;
-
-        if (identical)
-        {
-          div.parentNode.removeChild(div);
-        }
-      }
+          if (job.color == "notbuilt")
+          {
+            return;
+          }
+          var refUrl = document.createElement('option');
+          refUrl.text = job.url;
+          refUrls.appendChild(refUrl);
+        });
+        selectBranch("job/master")
+      });
     }
 
-    wrapImgTagInDiv();
-    fillMasterUrl();
+    function selectBranch(branchName)
+    {
+      for (var i = 0; i < refUrls.options.length; i++)
+      {
+        var url = refUrls.options[i].text;
+        if(url.includes(branchName))
+        {
+          refUrl.value = url;
+          break;
+        }
+      }
+      fillRefBuilds();
+    }
 
-    window.onload = insertRefImages;
+    function fillRefBuilds()
+    {
+      refBuilds.querySelectorAll("*").forEach(node => node.remove());
+      var json = $.getJSON(refUrl.value + "/api/json", function(data)
+      {
+        $.each(data.builds.slice(0, 20), function(_, build)
+        {
+          var refBuild = document.createElement('option');
+          refBuild.text = build.number;
+          refBuilds.appendChild(refBuild);
+        });
+        refBuild.value = refBuilds.options[0].value;
+        insertRefImages();
+      });
+    }
+
+    function documentReady()
+    {
+      wrapImgsInTables();
+      fillRefUrls();
+    }
+
+    window.onload = documentReady;
+
   </script>
 </body>
 </html>
