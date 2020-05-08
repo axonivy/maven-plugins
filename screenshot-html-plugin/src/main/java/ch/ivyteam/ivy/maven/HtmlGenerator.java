@@ -11,6 +11,7 @@ public class HtmlGenerator
 {
 
   private final String templateHtml;
+  private final String jenkinsJobUrl;
   private final String artifactTargetPath;
   private final List<File> imageFiles;
   private final Path rootDir;
@@ -19,9 +20,10 @@ public class HtmlGenerator
   private StringBuilder imgTagBuilder;
   private String lastParent;
 
-  public HtmlGenerator(String template, String artifactTargetPath, List<File> imageFiles, Path rootDir, Log log)
+  public HtmlGenerator(String template, String jenkinsJobUrl, String artifactTargetPath, List<File> imageFiles, Path rootDir, Log log)
   {
     this.templateHtml = template;
+    this.jenkinsJobUrl = jenkinsJobUrl;
     this.artifactTargetPath = artifactTargetPath;
     this.imageFiles = imageFiles;
     this.rootDir = rootDir;
@@ -35,6 +37,7 @@ public class HtmlGenerator
     imageFiles.stream().forEach(this::appendImage);
     
     String filledTemplate = StringUtils.replace(templateHtml, GenerateImageHtmlMojo.REPLACE_TAG_IMG, imgTagBuilder.toString());
+    filledTemplate = StringUtils.replace(filledTemplate, GenerateImageHtmlMojo.REPLACE_TAG_JENKINS_URL, jenkinsJobUrl);
     return StringUtils.replace(filledTemplate, GenerateImageHtmlMojo.REPLACE_TAG_TARGET_PATH, artifactTargetPath);
   }
   

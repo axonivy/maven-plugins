@@ -33,12 +33,17 @@ public class TestHtmlGenerator
   @Test
   public void generateHtml()
   {
-    String template = GenerateImageHtmlMojo.REPLACE_TAG_IMG + "\n" + GenerateImageHtmlMojo.REPLACE_TAG_TARGET_PATH;
-    String artifactTargetPath = "artifactTargetPath";
+    String template = GenerateImageHtmlMojo.REPLACE_TAG_IMG + "\n" +
+                      GenerateImageHtmlMojo.REPLACE_TAG_TARGET_PATH  + "\n" +
+                      GenerateImageHtmlMojo.REPLACE_TAG_JENKINS_URL;
     
-    String html = new HtmlGenerator(template, artifactTargetPath, images, Paths.get("/tmp"), log).generate();
+    String artifactTargetPath = "artifactTargetPath";
+    String jenkinsJobUrl = "jenkinsJobUrl";
+    
+    String html = new HtmlGenerator(template, jenkinsJobUrl, artifactTargetPath, images, Paths.get("/tmp"), log).generate();
     assertThat(html).contains(newImgFolder, nameTab, conditionTab);
     assertThat(html).contains(artifactTargetPath);
+    assertThat(html).contains(jenkinsJobUrl);
     assertThat(log.getWarnings()).isEmpty();
     assertThat(log.getDebug().toString()).contains(nameTab, conditionTab);
   }

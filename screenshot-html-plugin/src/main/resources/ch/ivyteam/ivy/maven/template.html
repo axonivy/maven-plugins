@@ -11,7 +11,7 @@
 
   <style>
     td {text-align:center;}
-    .input-group>.input-group-prepend {flex: 0 0 20%;}
+    .input-group>.input-group-prepend {flex: 0 0 10%;}
     .input-group .input-group-text {width: 100%;}
     #toggleReferenceImagesBtn {
       position: fixed;
@@ -22,11 +22,15 @@
 
   <form>
     <br>
-    <div class="input-group form-group col-6">
+    <div class="input-group form-group col-10">
       <div class="input-group-prepend">
-        <span class="input-group-text">Reference build url:</span>
+        <span class="input-group-text">Reference build:</span>
       </div>
-      <input id="refImgUrl" type="text" class="form-control">
+      <input id="refUrl" class="form-control" list="refUrls" onfocus="value = ''"></input>
+      <datalist id="refUrls"></datalist>
+
+      <input id="refBuild" class="form-control col-1" list="refBuilds" onfocus="value = ''"></input>
+      <datalist id="refBuilds"></datalist>
       <div class="input-group-append">
         <button id="refUrlBtn" type="button" class="btn btn-outline-secondary">Load</button>
       </div>
@@ -52,13 +56,59 @@
   {generated.img.tag.location}
 
   <script>
-    var refImgUrl = document.getElementById("refImgUrl");
+    var refUrls = document.getElementById("refUrls");
+    var refBuilds = document.getElementById("refBuilds");
     var toleranceInput = document.getElementById("toleranceInput");
     var imageWidth = '100%';
+
+    $('#refUrl').on('change', function()
+    {
+      fillRefBuilds();
+    });
 
     $('#refUrlBtn').on('click', function(event)
     {
       insertRefImages();
+    });
+
+    $('#removeIdenticalBtn').on('click', function(event)
+    {
+      var tablesLive = document.getElementsByClassName("imageTable");
+      var tables = [...tablesLive];
+
+      for (let table of tables)
+      {
+        var screenshot = table.getElementsByClassName("screenshotImg")[0];
+        var reference = table.getElementsByClassName("refImg")[0];
+
+        screenshot.style.width = 'auto';
+        reference.style.width = 'auto';
+
+        var identical = false;
+        if (screenshot.width == reference.width)
+        {
+          identical = imagediff.equal(screenshot, reference , toleranceInput.value);
+        }
+
+        screenshot.style.width = imageWidth;
+        reference.style.width = imageWidth;
+
+        if (identical)
+        {
+          table.parentNode.removeChild(table);
+        }
+      }
+    });
+
+    $('#toggleReferenceImagesBtn').on('click', function(event)
+    {
+      var liveElements = document.querySelectorAll('.refImg, .referenceCol');
+      var elements = [...liveElements];
+
+      for (let element of elements)
+      {
+        element.style.display = element.style.display === 'none' ? '' : 'none';
+      }
     });
 
     function insertRefImages()
@@ -72,7 +122,7 @@
       for (let img of imgs)
       {
         var refImg = document.createElement('img');
-        refImg.src = refImgUrl.value + "{artifact.target.path}" + img.getAttribute('src');
+        refImg.src = refUrl.value + refBuild.value + "/" + "{artifact.target.path}" + img.getAttribute('src');
         refImg.className = "refImg";
 
         var table = img.parentNode.parentNode;
@@ -172,59 +222,62 @@
       return titleCol;
     }
 
-    $('#removeIdenticalBtn').on('click', function(event)
+    function fillRefUrls()
     {
-      var tablesLive = document.getElementsByClassName("imageTable");
-      var tables = [...tablesLive];
-
-      for (let table of tables)
+      var json = $.getJSON("{jenkins.job.url}" + "/api/json", function(data)
       {
-        var screenshot = table.getElementsByClassName("screenshotImg")[0];
-        var reference = table.getElementsByClassName("refImg")[0];
-
-        screenshot.style.width = 'auto';
-        reference.style.width = 'auto';
-
-        var identical = false;
-        if (screenshot.width == reference.width)
+        $.each(data.jobs, function(_, job)
         {
-          identical = imagediff.equal(screenshot, reference , toleranceInput.value);
-        }
-
-        screenshot.style.width = imageWidth;
-        reference.style.width = imageWidth;
-
-        if (identical)
-        {
-          table.parentNode.removeChild(table);
-        }
-      }
-    });
-
-    $('#toggleReferenceImagesBtn').on('click', function(event)
-    {
-      var liveElements = document.querySelectorAll('.refImg, .referenceCol');
-      var elements = [...liveElements];
-
-      for (let element of elements)
-      {
-        element.style.display = element.style.display === 'none' ? '' : 'none';
-      }
-    });
-
-    function fillMasterUrl()
-    {
-      var currentUrl = window.location.href;
-      var index = currentUrl.indexOf("job", currentUrl.indexOf("job") + 1);
-      var buildUrl = currentUrl.substring(0, index);
-      var masterUrl = buildUrl + "job/master/lastSuccessfulBuild";
-      refImgUrl.value = masterUrl;
+          if (job.color == "notbuilt")
+          {
+            return;
+          }
+          var refUrl = document.createElement('option');
+          refUrl.text = job.url;
+          refUrls.appendChild(refUrl);
+        });
+        selectBranch("job/master")
+      });
     }
 
-    wrapImgsInTables();
-    fillMasterUrl();
+    function selectBranch(branchName)
+    {
+      for (var i = 0; i < refUrls.options.length; i++)
+      {
+        var url = refUrls.options[i].text;
+        if(url.includes(branchName))
+        {
+          refUrl.value = url;
+          break;
+        }
+      }
+      fillRefBuilds();
+    }
 
-    window.onload = insertRefImages;
+    function fillRefBuilds()
+    {
+      refBuilds.querySelectorAll("*").forEach(node => node.remove());
+      var json = $.getJSON(refUrl.value + "/api/json", function(data)
+      {
+        $.each(data.builds.slice(0, 20), function(_, build)
+        {
+          var refBuild = document.createElement('option');
+          refBuild.text = build.number;
+          refBuilds.appendChild(refBuild);
+        });
+        refBuild.value = refBuilds.options[0].value;
+        insertRefImages();
+      });
+    }
+
+    function documentReady()
+    {
+      wrapImgsInTables();
+      fillRefUrls();
+    }
+
+    window.onload = documentReady;
+
   </script>
 </body>
 </html>
