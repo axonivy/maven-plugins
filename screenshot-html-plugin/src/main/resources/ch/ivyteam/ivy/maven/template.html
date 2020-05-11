@@ -245,7 +245,9 @@
 
     function fillRefUrls()
     {
-      var json = $.getJSON("{jenkins.job.url}" + "/api/json", function(data)
+      var url = window.location;
+      var jenkinsJobUrl = url.protocol + "//" + url.hostname + url.pathname.split('/', 3).join('/') + "/api/json";
+      var json = $.getJSON(jenkinsJobUrl, function(data)
       {
         $.each(data.jobs, function(_, job)
         {
