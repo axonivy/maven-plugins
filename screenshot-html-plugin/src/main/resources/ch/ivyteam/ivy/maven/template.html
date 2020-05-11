@@ -66,6 +66,11 @@
       fillRefBuilds();
     });
 
+    $('#refBuild').on('change', function()
+    {
+      insertRefImages();
+    });
+
     $('#refUrlBtn').on('click', function(event)
     {
       insertRefImages();
@@ -234,6 +239,7 @@
           }
           var refUrl = document.createElement('option');
           refUrl.text = job.url;
+          refUrl.label = job.name;
           refUrls.appendChild(refUrl);
         });
         selectBranch("job/master")
