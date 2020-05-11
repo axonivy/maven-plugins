@@ -271,7 +271,14 @@
           refBuild.text = build.number;
           refBuilds.appendChild(refBuild);
         });
+
         refBuild.value = refBuilds.options[0].value;
+
+        // Autofill previous build if we compare branch with itself
+        if (window.location.href.includes($('#refUrl').val()))
+        {
+          refBuild.value = refBuilds.options[1].value;
+        }
         insertRefImages();
       });
     }
