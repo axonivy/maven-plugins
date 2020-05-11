@@ -26,10 +26,10 @@
       <div class="input-group-prepend">
         <span class="input-group-text">Reference build:</span>
       </div>
-      <input id="refUrl" class="form-control" list="refUrls" onfocus="value = ''"></input>
+      <input id="refUrl" class="form-control" list="refUrls"></input>
       <datalist id="refUrls"></datalist>
 
-      <input id="refBuild" class="form-control col-1" list="refBuilds" onfocus="value = ''"></input>
+      <input id="refBuild" class="form-control col-1" list="refBuilds"></input>
       <datalist id="refBuilds"></datalist>
       <div class="input-group-append">
         <button id="refUrlBtn" type="button" class="btn btn-outline-secondary">Load</button>
@@ -60,6 +60,7 @@
     var refBuilds = document.getElementById("refBuilds");
     var toleranceInput = document.getElementById("toleranceInput");
     var imageWidth = '100%';
+    var lastInputVal = '';
 
     $('#refUrl').on('change', function()
     {
@@ -69,6 +70,21 @@
     $('#refBuild').on('change', function()
     {
       insertRefImages();
+    });
+
+    $('#refUrl, #refBuild').on('focus', function(event)
+    {
+      lastInputVal = event.target.value;
+      event.target.value = '';
+    });
+    
+    $('#refUrl, #refBuild').on('focusout', function(event)
+    {
+      var newValue = event.target.value;
+      if (!newValue)
+      {
+        event.target.value = lastInputVal;
+      }
     });
 
     $('#refUrlBtn').on('click', function(event)
