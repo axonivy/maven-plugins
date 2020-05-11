@@ -26,10 +26,10 @@
       <div class="input-group-prepend">
         <span class="input-group-text">Reference build:</span>
       </div>
-      <input id="refUrl" class="form-control" list="refUrls" onfocus="value = ''"></input>
+      <input id="refUrl" class="form-control" list="refUrls"></input>
       <datalist id="refUrls"></datalist>
 
-      <input id="refBuild" class="form-control col-1" list="refBuilds" onfocus="value = ''"></input>
+      <input id="refBuild" class="form-control col-1" list="refBuilds"></input>
       <datalist id="refBuilds"></datalist>
       <div class="input-group-append">
         <button id="refUrlBtn" type="button" class="btn btn-outline-secondary">Load</button>
@@ -60,10 +60,31 @@
     var refBuilds = document.getElementById("refBuilds");
     var toleranceInput = document.getElementById("toleranceInput");
     var imageWidth = '100%';
+    var lastInputVal = '';
 
     $('#refUrl').on('change', function()
     {
       fillRefBuilds();
+    });
+
+    $('#refBuild').on('change', function()
+    {
+      insertRefImages();
+    });
+
+    $('#refUrl, #refBuild').on('focus', function(event)
+    {
+      lastInputVal = event.target.value;
+      event.target.value = '';
+    });
+    
+    $('#refUrl, #refBuild').on('focusout', function(event)
+    {
+      var newValue = event.target.value;
+      if (!newValue)
+      {
+        event.target.value = lastInputVal;
+      }
     });
 
     $('#refUrlBtn').on('click', function(event)
@@ -224,7 +245,9 @@
 
     function fillRefUrls()
     {
-      var json = $.getJSON("{jenkins.job.url}" + "/api/json", function(data)
+      var url = window.location;
+      var jenkinsJobUrl = url.protocol + "//" + url.hostname + url.pathname.split('/', 3).join('/') + "/api/json";
+      var json = $.getJSON(jenkinsJobUrl, function(data)
       {
         $.each(data.jobs, function(_, job)
         {
@@ -234,6 +257,7 @@
           }
           var refUrl = document.createElement('option');
           refUrl.text = job.url;
+          refUrl.label = job.name;
           refUrls.appendChild(refUrl);
         });
         selectBranch("job/master")
@@ -265,7 +289,14 @@
           refBuild.text = build.number;
           refBuilds.appendChild(refBuild);
         });
+
         refBuild.value = refBuilds.options[0].value;
+
+        // Autofill previous build if we compare branch with itself
+        if (window.location.href.includes($('#refUrl').val()))
+        {
+          refBuild.value = refBuilds.options[1].value;
+        }
         insertRefImages();
       });
     }

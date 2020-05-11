@@ -38,12 +38,10 @@ public class TestHtmlGenerator
                       GenerateImageHtmlMojo.REPLACE_TAG_JENKINS_URL;
     
     String artifactTargetPath = "artifactTargetPath";
-    String jenkinsJobUrl = "jenkinsJobUrl";
     
-    String html = new HtmlGenerator(template, jenkinsJobUrl, artifactTargetPath, images, Paths.get("/tmp"), log).generate();
+    String html = new HtmlGenerator(template, artifactTargetPath, images, Paths.get("/tmp"), log).generate();
     assertThat(html).contains(newImgFolder, nameTab, conditionTab);
     assertThat(html).contains(artifactTargetPath);
-    assertThat(html).contains(jenkinsJobUrl);
     assertThat(log.getWarnings()).isEmpty();
     assertThat(log.getDebug().toString()).contains(nameTab, conditionTab);
   }

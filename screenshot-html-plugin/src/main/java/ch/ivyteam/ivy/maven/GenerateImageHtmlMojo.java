@@ -37,11 +37,6 @@ public class GenerateImageHtmlMojo extends AbstractMojo
    * If you define your own template this parameter is accessible in the template via {artifact.target.path}*/
   @Parameter(property = "artifact.target.path", defaultValue = "artifact/target/")
   String artifactTargetPath;
-  
-  /** The URL of the Jenkins job i.e. https://jenkins.ivyteam.io/job/myJob
-   * If you define your own template this parameter is accessible in the template via {jenkins.job.url}*/
-  @Parameter(property = "jenkins.job.url")
-  String jenkinsJobUrl;
 
   /** Images to include in generated html, this directory can have sub-directories */
   @Parameter(property="include.imgs")
@@ -60,7 +55,7 @@ public class GenerateImageHtmlMojo extends AbstractMojo
     getLog().info("Generating " + outputFile);
     
     String templateString = readTemplate();
-    String outputHtml = new HtmlGenerator(templateString, jenkinsJobUrl, artifactTargetPath, imageFiles, Paths.get(images.getDirectory()), getLog()).generate();
+    String outputHtml = new HtmlGenerator(templateString, artifactTargetPath, imageFiles, Paths.get(images.getDirectory()), getLog()).generate();
     writeHtmlFile(outputHtml);
   }
 
