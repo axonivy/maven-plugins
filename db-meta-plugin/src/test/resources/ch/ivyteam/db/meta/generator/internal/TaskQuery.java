@@ -225,6 +225,15 @@ public class TaskQuery extends Query<ch.ivyteam.ivy.workflow.ITask>
     @Reviewed(date="17.1.2012", reviewers="bb,fs,rwei")
     public IStringColumnFilterQuery currentActivatorDisplayName();
 
+    /**
+     * <p>Prepares a where statement for the column <code>IsUnassigned</code>.<br>
+     * Must be followed by a call to a condition method.</p>
+     * @return query for further composition
+     */
+    @PublicAPI(IvyScriptVisibility.EXPERT)
+    @Reviewed(date="17.1.2012", reviewers="bb,fs,rwei")
+    public IBooleanColumnFilterQuery isUnassigned();
+
   }
 
   /**
@@ -318,6 +327,17 @@ public class TaskQuery extends Query<ch.ivyteam.ivy.workflow.ITask>
     public IStringColumnFilterQuery currentActivatorDisplayName()
     {
       return new StringColumnFilterQuery(this, DbTaskData.QueryView.VIEW_COLUMN_CURRENT_ACTIVATOR_DISPLAY_NAME);
+    }
+
+    /**
+     * @see ch.ivyteam.meta.query.TaskQuery.IFilterableColumns#isUnassigned()
+     */
+    @PublicAPI(IvyScriptVisibility.EXPERT)
+    @Reviewed(date="17.1.2012", reviewers="bb,fs,rwei")
+    @Override
+    public IBooleanColumnFilterQuery isUnassigned()
+    {
+      return new BooleanColumnFilterQuery(this, DbTaskData.QueryView.VIEW_COLUMN_IS_UNASSIGNED);
     }
 
   }
@@ -1136,6 +1156,66 @@ public class TaskQuery extends Query<ch.ivyteam.ivy.workflow.ITask>
   }
 
 
+  /**
+   * Provides filter functionality for a boolean column of {@link ch.ivyteam.ivy.workflow.ITask}
+   */
+  @PublicAPI(IvyScriptVisibility.EXPERT)
+  @Reviewed(date="17.1.2012", reviewers="bb,fs,rwei")
+  public interface IBooleanColumnFilterQuery extends IColumnFilterQuery
+  {
+    /**
+     * <p>Adds a filter condition that selects rows with the given <code>value</code>.</p>
+     * <p>SQL part: <code>[column] = [value]</code> or <code>[column] IS NULL</code></p>
+     * @param value
+     * @return query for further composition
+     */
+    @PublicAPI(IvyScriptVisibility.EXPERT)
+    @Reviewed(date="17.1.2012", reviewers="bb,fs,rwei")
+    public FilterLink isEqual(Boolean value);
+
+    /**
+     * <p>Adds a filter condition that selects rows that do not have the given <code>value</code>.</p>
+     * <p>SQL part: <code>[column] &lt;&gt; [value]</code> or <code>[column] IS NOT NULL</code></p>
+     * @param value
+     * @return query for further composition
+     */
+    @PublicAPI(IvyScriptVisibility.EXPERT)
+    @Reviewed(date="17.1.2012", reviewers="bb,fs,rwei")
+    public FilterLink isNotEqual(Boolean value);
+  }
+
+  /**
+   * Provides filter functionality for a boolean column of {@link ch.ivyteam.ivy.workflow.ITask}
+   */
+  private static class BooleanColumnFilterQuery extends ColumnFilterQuery implements IBooleanColumnFilterQuery
+  {
+    private BooleanColumnFilterQuery(Query<ch.ivyteam.ivy.workflow.ITask> parentQuery,  ColumnName column)
+    {
+      super(parentQuery, column);
+    }
+
+    /**
+     * @see ch.ivyteam.meta.query.TaskQuery.IBooleanColumnFilterQuery#isEqual(Boolean)
+     */
+    @Override
+    public FilterLink isEqual(Boolean value)
+    {
+      endColumnFilter();
+      getQueryBuilder().equal(getColumn(), value);
+      return new FilterLink(this);
+    }
+
+    /**
+     * @see ch.ivyteam.meta.query.TaskQuery.IBooleanColumnFilterQuery#isNotEqual(Boolean)
+     */
+    @Override
+    public FilterLink isNotEqual(Boolean value)
+    {
+      endColumnFilter();
+      getQueryBuilder().unequal(getColumn(), value);
+      return new FilterLink(this);
+    }
+  }
 
   /**
    * Links a where condition with another.
@@ -1376,6 +1456,15 @@ public class TaskQuery extends Query<ch.ivyteam.ivy.workflow.ITask>
     @Reviewed(date="17.1.2012", reviewers="bb,fs,rwei")
     public GroupByQuery currentActivatorDisplayName();
 
+    /**
+     * <p>Groups the result of the query by the field <code>IsUnassigned</code>.</p>
+     * <p>SQL part: <code>GROUP BY IsUnassigned</code></p>
+     * @return query for further composition
+     */
+    @PublicAPI(IvyScriptVisibility.EXPERT)
+    @Reviewed(date="17.1.2012", reviewers="bb,fs,rwei")
+    public GroupByQuery isUnassigned();
+
   }
 
   /**
@@ -1436,6 +1525,18 @@ public class TaskQuery extends Query<ch.ivyteam.ivy.workflow.ITask>
     public GroupByQuery currentActivatorDisplayName()
     {
       getQueryBuilder().groupBy(DbTaskData.QueryView.VIEW_COLUMN_CURRENT_ACTIVATOR_DISPLAY_NAME, "CurrentActivatorDisplayName");
+      return this;
+    }
+
+    /**
+     * @see ch.ivyteam.meta.query.TaskQuery.IGroupByQueryColumns#isUnassigned()
+     */
+    @PublicAPI(IvyScriptVisibility.EXPERT)
+    @Reviewed(date="17.1.2012", reviewers="bb,fs,rwei")
+    @Override
+    public GroupByQuery isUnassigned()
+    {
+      getQueryBuilder().groupBy(DbTaskData.QueryView.VIEW_COLUMN_IS_UNASSIGNED, "IsUnassigned");
       return this;
     }
 
@@ -1509,6 +1610,21 @@ public class TaskQuery extends Query<ch.ivyteam.ivy.workflow.ITask>
     @Reviewed(date="17.1.2012", reviewers="bb,fs,rwei")
     public OrderByColumnQuery currentActivatorDisplayName();
 
+    /**
+     * <p>Adds an order by statement for the column <code>IsUnassigned</code> in the default direction ascending.<br>
+     * To change the order to descending use <code>isUnassigned().descending()</code></p>
+     * <p><b>Example:</b><br>
+     * <code><pre>TaskQuery.create().orderBy().isUnassigned()</pre></code>
+     * </p>
+     * <p>SQL part: <code>ORDER BY IsUnassigned ASC</code></p>
+     * @return query for further composition
+     * @see OrderByColumnQuery#descending()
+     * @see OrderByColumnQuery#ascending()
+     */
+    @PublicAPI(IvyScriptVisibility.EXPERT)
+    @Reviewed(date="17.1.2012", reviewers="bb,fs,rwei")
+    public OrderByColumnQuery isUnassigned();
+
   }
 
   /**
@@ -1566,6 +1682,17 @@ public class TaskQuery extends Query<ch.ivyteam.ivy.workflow.ITask>
     public OrderByColumnQuery currentActivatorDisplayName()
     {
       return new OrderByColumnQuery(this, DbTaskData.QueryView.VIEW_COLUMN_CURRENT_ACTIVATOR_DISPLAY_NAME);
+    }
+
+    /**
+     * @see ch.ivyteam.meta.query.TaskQuery.IOrderByQueryColumns#isUnassigned()
+     */
+    @PublicAPI(IvyScriptVisibility.EXPERT)
+    @Reviewed(date="17.1.2012", reviewers="bb,fs,rwei")
+    @Override
+    public OrderByColumnQuery isUnassigned()
+    {
+      return new OrderByColumnQuery(this, DbTaskData.QueryView.VIEW_COLUMN_IS_UNASSIGNED);
     }
 
   }

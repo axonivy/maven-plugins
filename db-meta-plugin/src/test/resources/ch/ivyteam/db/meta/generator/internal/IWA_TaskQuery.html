@@ -688,6 +688,70 @@
           
         </td>
       </tr>
+      <tr>
+        <td class="odd">
+          <a name="IsUnassigned">
+          </a>
+          IsUnassigned
+        </td>
+        <td class="odd">
+          CASE 
+          <br/>
+           WHEN 
+          <a href="IWA_Task.html">
+            IWA_Task
+          </a>
+          .
+          <a href="IWA_Task.html#ActivatorRoleId">
+            ActivatorRoleId
+          </a>
+          IS
+          NULL
+          AND
+          <a href="IWA_Task.html">
+            IWA_Task
+          </a>
+          .
+          <a href="IWA_Task.html#ActivatorUserId">
+            ActivatorUserId
+          </a>
+          IS
+          NULL
+           THEN 
+          1
+          <br/>
+           WHEN 
+          <a href="IWA_Task.html">
+            IWA_Task
+          </a>
+          .
+          <a href="IWA_Task.html#ActivatorUserId">
+            ActivatorUserId
+          </a>
+          IS NOT
+          NULL
+          AND
+          <a href="IWA_User.html">
+            ActivatorUser
+          </a>
+          .
+          <a href="ActivatorUser.html#UserState">
+            UserState
+          </a>
+          >
+          0
+           THEN 
+          1
+          <br/>
+           ELSE 
+          0
+          <br/>
+          END
+        </td>
+        <td class="odd">
+          
+        </td>
+      </tr>
     </table>
     <h2>
       Select
