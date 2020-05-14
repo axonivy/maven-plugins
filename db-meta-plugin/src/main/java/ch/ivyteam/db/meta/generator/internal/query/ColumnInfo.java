@@ -14,8 +14,10 @@ import ch.ivyteam.db.meta.generator.internal.JavaClassGeneratorUtil;
 import ch.ivyteam.db.meta.model.internal.SqlAtom;
 import ch.ivyteam.db.meta.model.internal.SqlCaseExpr;
 import ch.ivyteam.db.meta.model.internal.SqlComplexCaseExpr;
+import ch.ivyteam.db.meta.model.internal.SqlDataType;
 import ch.ivyteam.db.meta.model.internal.SqlDataType.DataType;
 import ch.ivyteam.db.meta.model.internal.SqlFullQualifiedColumnName;
+import ch.ivyteam.db.meta.model.internal.SqlLiteral;
 import ch.ivyteam.db.meta.model.internal.SqlMeta;
 import ch.ivyteam.db.meta.model.internal.SqlTable;
 import ch.ivyteam.db.meta.model.internal.SqlTableColumn;
@@ -353,6 +355,18 @@ public abstract class ColumnInfo
         if (atom instanceof SqlFullQualifiedColumnName)
         {
           return getColumn((SqlFullQualifiedColumnName) atom);
+        }
+        else if (atom instanceof SqlLiteral)
+        {
+          SqlLiteral sqlLiteral = (SqlLiteral) atom;
+          String typeName = sqlLiteral.getValue().getClass().getSimpleName();
+          return new SqlTableColumn(column.getId(),
+                                    new SqlDataType(DataType.valueOf(typeName.toUpperCase())),
+                                    false,
+                                    sqlLiteral,
+                                    null,
+                                    column.getDatabaseManagementSystemHints(),
+                                    column.getComment());
         }
         throw new IllegalStateException("Unsupported view expression "+expression);
       }

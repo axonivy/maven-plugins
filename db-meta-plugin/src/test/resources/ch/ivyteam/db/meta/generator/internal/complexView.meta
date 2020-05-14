@@ -24,6 +24,7 @@ CREATE TABLE IWA_User
   -- Name of the user. The name identifies a user within a web application.
   Name VARCHAR(200) NOT NULL
     FOR Oracle USE (ConvertEmptyStringToNull),
+  UserState INTEGER NOT NULL DEFAULT 0,
   -- Full name of the user.
   FullName VARCHAR(200) DEFAULT ''
 );  
@@ -44,7 +45,9 @@ CREATE VIEW IWA_TaskQuery
   TaskId,
   ActivatorDisplayName,
   ExpiryActivatorDisplayName,
-  CurrentActivatorDisplayName
+  CurrentActivatorDisplayName,
+  IsUnassigned
+    FOR Java USE (FilterQueryDataType='BIT')
 )
 AS SELECT 
   IWA_Task.TaskId,
@@ -69,7 +72,11 @@ AS SELECT
 	WHEN IWA_Task.IsExpired = 0 AND IWA_Task.ActivatorUserId IS NOT NULL AND LENGTH(ActivatorUser.FullName) = 0 THEN ActivatorUser.Name
 	WHEN IWA_Task.IsExpired = 0 AND IWA_Task.ActivatorRoleId IS NOT NULL AND LENGTH(ActivatorRole.DisplayNameTemplate) > 0 THEN ActivatorRole.DisplayNameTemplate
 	WHEN IWA_Task.IsExpired = 0 AND IWA_Task.ActivatorRoleId IS NOT NULL AND LENGTH(ActivatorRole.DisplayNameTemplate) = 0 THEN ActivatorRole.Name
-	END
+	END, 
+  CASE 
+    WHEN IWA_Task.ActivatorRoleId IS NULL AND IWA_Task.ActivatorUserId IS NULL THEN 1
+    WHEN IWA_Task.ActivatorUserId IS NOT NULL AND ActivatorUser.UserState > 0 THEN 1
+    ELSE 0 END
 FROM IWA_Task
 INNER JOIN IWA_Case ON IWA_Task.CaseId = IWA_Case.CaseId 
 LEFT OUTER JOIN IWA_User ActivatorUser ON IWA_Task.ActivatorUserId = ActivatorUser.UserId 
