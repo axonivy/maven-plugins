@@ -447,7 +447,9 @@ public class MetaOutputDifferenceGenerator
       {
         return;
       }
-      for (SqlTableColumn col : getChangedColumnsWithDefaultConstraint(newTable, oldTable))
+      List<SqlTableColumn> affectedColumns = getChangedColumnsWithDefaultConstraint(newTable, oldTable);
+      affectedColumns.addAll(getDroppedColumnsWithDefaultConstraint(newTable, oldTable));
+      for (SqlTableColumn col : affectedColumns)
       {
         generator.generateDropDefaultConstraint(pr, oldTable, col);
       }
@@ -458,6 +460,19 @@ public class MetaOutputDifferenceGenerator
       List<SqlTableColumn> result = new ArrayList<>();
       Map<SqlTableColumn, SqlTableColumn> changedColumns = findChangedColumns(newTable, oldTable);
       for (SqlTableColumn changedColumn : changedColumns.keySet())
+      {
+        if (changedColumn.getDefaultValue() != null)
+        {
+          result.add(changedColumn);
+        }
+      }
+      return result;
+    }
+
+    private List<SqlTableColumn> getDroppedColumnsWithDefaultConstraint(SqlTable newTable, SqlTable oldTable)
+    {
+      List<SqlTableColumn> result = new ArrayList<>();
+      for (SqlTableColumn changedColumn : findDroppedColumns(newTable, oldTable))
       {
         if (changedColumn.getDefaultValue() != null)
         {
