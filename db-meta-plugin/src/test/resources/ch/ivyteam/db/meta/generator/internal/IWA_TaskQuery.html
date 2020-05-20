@@ -50,6 +50,67 @@
       </tr>
       <tr>
         <td class="odd">
+          <a name="ActivatorName">
+          </a>
+          ActivatorName
+        </td>
+        <td class="odd">
+          CASE 
+          <br/>
+           WHEN 
+          <a href="IWA_Task.html">
+            IWA_Task
+          </a>
+          .
+          <a href="IWA_Task.html#ActivatorUserId">
+            ActivatorUserId
+          </a>
+          IS NOT
+          NULL
+           THEN 
+          CONCAT
+          (
+          #
+          , 
+          <a href="IWA_User.html">
+            ActivatorUser
+          </a>
+          .
+          <a href="ActivatorUser.html#Name">
+            Name
+          </a>
+          )
+          <br/>
+           WHEN 
+          <a href="IWA_Task.html">
+            IWA_Task
+          </a>
+          .
+          <a href="IWA_Task.html#ActivatorRoleId">
+            ActivatorRoleId
+          </a>
+          IS NOT
+          NULL
+           THEN 
+          <a href="IWA_Role.html">
+            ActivatorRole
+          </a>
+          .
+          <a href="ActivatorRole.html#Name">
+            Name
+          </a>
+          <br/>
+           ELSE 
+          NULL
+          <br/>
+          END
+        </td>
+        <td class="odd">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="odd">
           <a name="ActivatorDisplayName">
           </a>
           ActivatorDisplayName

@@ -67,6 +67,7 @@ ALTER TABLE IWA_Task ADD
 CREATE VIEW IWA_TaskQuery
 (
   TaskId,
+  ActivatorName,
   ActivatorDisplayName,
   ExpiryActivatorDisplayName,
   CurrentActivatorDisplayName,
@@ -75,6 +76,7 @@ CREATE VIEW IWA_TaskQuery
 AS
   SELECT
     IWA_Task.TaskId,
+    CASE WHEN IWA_Task.ActivatorUserId IS NOT NULL THEN CONCAT('#', ActivatorUser.Name) WHEN IWA_Task.ActivatorRoleId IS NOT NULL THEN ActivatorRole.Name ELSE NULL END,
     CASE WHEN IWA_Task.ActivatorUserId IS NOT NULL AND LENGTH(TRIM(ActivatorUser.FullName)) > 0 THEN ActivatorUser.FullName WHEN IWA_Task.ActivatorUserId IS NOT NULL AND LENGTH(TRIM(ActivatorUser.FullName)) = 0 THEN ActivatorUser.Name WHEN IWA_Task.ActivatorRoleId IS NOT NULL AND LENGTH(TRIM(ActivatorRole.DisplayNameTemplate)) > 0 THEN ActivatorRole.DisplayNameTemplate WHEN IWA_Task.ActivatorRoleId IS NOT NULL AND LENGTH(TRIM(ActivatorRole.DisplayNameTemplate)) = 0 THEN ActivatorRole.Name END,
     CASE WHEN IWA_Task.ExpiryActivatorUserId IS NOT NULL AND LENGTH(TRIM(ExpiryActivatorUser.FullName)) > 0 THEN ExpiryActivatorUser.FullName WHEN IWA_Task.ExpiryActivatorUserId IS NOT NULL AND LENGTH(TRIM(ExpiryActivatorUser.FullName)) = 0 THEN ExpiryActivatorUser.Name WHEN IWA_Task.ExpiryActivatorRoleId IS NOT NULL AND LENGTH(TRIM(ExpiryActivatorRole.DisplayNameTemplate)) > 0 THEN ExpiryActivatorRole.DisplayNameTemplate WHEN IWA_Task.ExpiryActivatorRoleId IS NOT NULL AND LENGTH(TRIM(ExpiryActivatorRole.DisplayNameTemplate)) = 0 THEN ExpiryActivatorRole.Name ELSE NULL END,
     CASE WHEN IWA_Task.IsExpired = 1 AND IWA_Task.ExpiryActivatorUserId IS NOT NULL AND LENGTH(TRIM(ExpiryActivatorUser.FullName)) > 0 THEN ExpiryActivatorUser.FullName WHEN IWA_Task.IsExpired = 1 AND IWA_Task.ExpiryActivatorUserId IS NOT NULL AND LENGTH(TRIM(ExpiryActivatorUser.FullName)) = 0 THEN ExpiryActivatorUser.Name WHEN IWA_Task.IsExpired = 1 AND IWA_Task.ExpiryActivatorRoleId IS NOT NULL AND LENGTH(TRIM(ExpiryActivatorRole.DisplayNameTemplate)) > 0 THEN ExpiryActivatorRole.DisplayNameTemplate WHEN IWA_Task.IsExpired = 1 AND IWA_Task.ExpiryActivatorRoleId IS NOT NULL AND LENGTH(TRIM(ExpiryActivatorRole.DisplayNameTemplate)) = 0 THEN ExpiryActivatorRole.Name WHEN IWA_Task.IsExpired = 0 AND IWA_Task.ActivatorUserId IS NOT NULL AND LENGTH(TRIM(ActivatorUser.FullName)) > 0 THEN ActivatorUser.FullName WHEN IWA_Task.IsExpired = 0 AND IWA_Task.ActivatorUserId IS NOT NULL AND LENGTH(TRIM(ActivatorUser.FullName)) = 0 THEN ActivatorUser.Name WHEN IWA_Task.IsExpired = 0 AND IWA_Task.ActivatorRoleId IS NOT NULL AND LENGTH(TRIM(ActivatorRole.DisplayNameTemplate)) > 0 THEN ActivatorRole.DisplayNameTemplate WHEN IWA_Task.IsExpired = 0 AND IWA_Task.ActivatorRoleId IS NOT NULL AND LENGTH(TRIM(ActivatorRole.DisplayNameTemplate)) = 0 THEN ActivatorRole.Name END,

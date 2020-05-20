@@ -43,6 +43,7 @@ CREATE TABLE IWA_Role
 CREATE VIEW IWA_TaskQuery
 (
   TaskId,
+  ActivatorName,
   ActivatorDisplayName,
   ExpiryActivatorDisplayName,
   CurrentActivatorDisplayName,
@@ -51,6 +52,10 @@ CREATE VIEW IWA_TaskQuery
 )
 AS SELECT 
   IWA_Task.TaskId,
+  CASE 
+    WHEN IWA_Task.ActivatorUserId IS NOT NULL THEN CONCAT('#', ActivatorUser.Name)
+    WHEN IWA_Task.ActivatorRoleId IS NOT NULL THEN ActivatorRole.Name
+    ELSE NULL END,
   CASE 
 	WHEN IWA_Task.ActivatorUserId IS NOT NULL AND LENGTH(ActivatorUser.FullName) > 0 THEN ActivatorUser.FullName
 	WHEN IWA_Task.ActivatorUserId IS NOT NULL AND LENGTH(ActivatorUser.FullName) = 0 THEN ActivatorUser.Name
