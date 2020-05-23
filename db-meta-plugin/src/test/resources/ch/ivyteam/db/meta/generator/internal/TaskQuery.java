@@ -199,6 +199,15 @@ public class TaskQuery extends Query<ch.ivyteam.ivy.workflow.ITask>
     public IIntegerColumnFilterQuery taskId();
 
     /**
+     * <p>Prepares a where statement for the column <code>ActivatorName</code>.<br>
+     * Must be followed by a call to a condition method.</p>
+     * @return query for further composition
+     */
+    @PublicAPI(IvyScriptVisibility.EXPERT)
+    @Reviewed(date="17.1.2012", reviewers="bb,fs,rwei")
+    public IStringColumnFilterQuery activatorName();
+
+    /**
      * <p>Prepares a where statement for the column <code>ActivatorDisplayName</code>.<br>
      * Must be followed by a call to a condition method.</p>
      * @return query for further composition
@@ -294,6 +303,17 @@ public class TaskQuery extends Query<ch.ivyteam.ivy.workflow.ITask>
     public IIntegerColumnFilterQuery taskId()
     {
       return new IntegerColumnFilterQuery(this, DbTaskData.QueryView.VIEW_COLUMN_TASK_ID);
+    }
+
+    /**
+     * @see ch.ivyteam.meta.query.TaskQuery.IFilterableColumns#activatorName()
+     */
+    @PublicAPI(IvyScriptVisibility.EXPERT)
+    @Reviewed(date="17.1.2012", reviewers="bb,fs,rwei")
+    @Override
+    public IStringColumnFilterQuery activatorName()
+    {
+      return new StringColumnFilterQuery(this, DbTaskData.QueryView.VIEW_COLUMN_ACTIVATOR_NAME);
     }
 
     /**
@@ -1430,6 +1450,15 @@ public class TaskQuery extends Query<ch.ivyteam.ivy.workflow.ITask>
     public GroupByQuery taskId();
 
     /**
+     * <p>Groups the result of the query by the field <code>ActivatorName</code>.</p>
+     * <p>SQL part: <code>GROUP BY ActivatorName</code></p>
+     * @return query for further composition
+     */
+    @PublicAPI(IvyScriptVisibility.EXPERT)
+    @Reviewed(date="17.1.2012", reviewers="bb,fs,rwei")
+    public GroupByQuery activatorName();
+
+    /**
      * <p>Groups the result of the query by the field <code>ActivatorDisplayName</code>.</p>
      * <p>SQL part: <code>GROUP BY ActivatorDisplayName</code></p>
      * @return query for further composition
@@ -1489,6 +1518,18 @@ public class TaskQuery extends Query<ch.ivyteam.ivy.workflow.ITask>
     public GroupByQuery taskId()
     {
       getQueryBuilder().groupBy(DbTaskData.QueryView.VIEW_COLUMN_TASK_ID, "TaskId");
+      return this;
+    }
+
+    /**
+     * @see ch.ivyteam.meta.query.TaskQuery.IGroupByQueryColumns#activatorName()
+     */
+    @PublicAPI(IvyScriptVisibility.EXPERT)
+    @Reviewed(date="17.1.2012", reviewers="bb,fs,rwei")
+    @Override
+    public GroupByQuery activatorName()
+    {
+      getQueryBuilder().groupBy(DbTaskData.QueryView.VIEW_COLUMN_ACTIVATOR_NAME, "ActivatorName");
       return this;
     }
 
@@ -1564,6 +1605,21 @@ public class TaskQuery extends Query<ch.ivyteam.ivy.workflow.ITask>
     @PublicAPI(IvyScriptVisibility.EXPERT)
     @Reviewed(date="17.1.2012", reviewers="bb,fs,rwei")
     public OrderByColumnQuery taskId();
+
+    /**
+     * <p>Adds an order by statement for the column <code>ActivatorName</code> in the default direction ascending.<br>
+     * To change the order to descending use <code>activatorName().descending()</code></p>
+     * <p><b>Example:</b><br>
+     * <code><pre>TaskQuery.create().orderBy().activatorName()</pre></code>
+     * </p>
+     * <p>SQL part: <code>ORDER BY ActivatorName ASC</code></p>
+     * @return query for further composition
+     * @see OrderByColumnQuery#descending()
+     * @see OrderByColumnQuery#ascending()
+     */
+    @PublicAPI(IvyScriptVisibility.EXPERT)
+    @Reviewed(date="17.1.2012", reviewers="bb,fs,rwei")
+    public OrderByColumnQuery activatorName();
 
     /**
      * <p>Adds an order by statement for the column <code>ActivatorDisplayName</code> in the default direction ascending.<br>
@@ -1649,6 +1705,17 @@ public class TaskQuery extends Query<ch.ivyteam.ivy.workflow.ITask>
     public OrderByColumnQuery taskId()
     {
       return new OrderByColumnQuery(this, DbTaskData.QueryView.VIEW_COLUMN_TASK_ID);
+    }
+
+    /**
+     * @see ch.ivyteam.meta.query.TaskQuery.IOrderByQueryColumns#activatorName()
+     */
+    @PublicAPI(IvyScriptVisibility.EXPERT)
+    @Reviewed(date="17.1.2012", reviewers="bb,fs,rwei")
+    @Override
+    public OrderByColumnQuery activatorName()
+    {
+      return new OrderByColumnQuery(this, DbTaskData.QueryView.VIEW_COLUMN_ACTIVATOR_NAME);
     }
 
     /**
@@ -1783,6 +1850,24 @@ public class TaskQuery extends Query<ch.ivyteam.ivy.workflow.ITask>
     public AggregationQuery maxTaskId();
 
     /**
+     * <p>Adds a result column <code>MinActivatorName</code> to the query, that contains the minimum value of the field <code>ActivatorName</code> of all (grouped) rows.</p>
+     * <p>SQL part: <code>MIN(ActivatorName) AS MinActivatorName</code></p>
+     * @return query for further composition
+     */
+    @PublicAPI(IvyScriptVisibility.EXPERT)
+    @Reviewed(date="16.01.2012", reviewers="mda,bb,fs")
+    public AggregationQuery minActivatorName();
+
+    /**
+     * <p>Adds a result column <code>MaxActivatorName</code> to the query, that contains the maximum value of the field <code>ActivatorName</code> of all (grouped) rows.</p>
+     * <p>SQL part: <code>MAX(ActivatorName) AS MaxActivatorName</code></p>
+     * @return query for further composition
+     */
+    @PublicAPI(IvyScriptVisibility.EXPERT)
+    @Reviewed(date="16.01.2012", reviewers="mda,bb,fs")
+    public AggregationQuery maxActivatorName();
+
+    /**
      * <p>Adds a result column <code>MinActivatorDisplayName</code> to the query, that contains the minimum value of the field <code>ActivatorDisplayName</code> of all (grouped) rows.</p>
      * <p>SQL part: <code>MIN(ActivatorDisplayName) AS MinActivatorDisplayName</code></p>
      * @return query for further composition
@@ -1888,6 +1973,30 @@ public class TaskQuery extends Query<ch.ivyteam.ivy.workflow.ITask>
     public AggregationQuery maxTaskId()
     {
       getQueryBuilder().addMax(DbTaskData.QueryView.VIEW_COLUMN_TASK_ID, "MaxTaskId");
+      return this;
+    }
+
+    /**
+     * @see ch.ivyteam.meta.query.TaskQuery.IAggregationQuery#minActivatorName()
+     */
+    @Override
+    @PublicAPI(IvyScriptVisibility.EXPERT)
+    @Reviewed(date="16.01.2012", reviewers="mda,bb,fs")
+    public AggregationQuery minActivatorName()
+    {
+      getQueryBuilder().addMin(DbTaskData.QueryView.VIEW_COLUMN_ACTIVATOR_NAME, "MinActivatorName");
+      return this;
+    }
+
+    /**
+     * @see ch.ivyteam.meta.query.TaskQuery.IAggregationQuery#maxActivatorName()
+     */
+    @Override
+    @PublicAPI(IvyScriptVisibility.EXPERT)
+    @Reviewed(date="16.01.2012", reviewers="mda,bb,fs")
+    public AggregationQuery maxActivatorName()
+    {
+      getQueryBuilder().addMax(DbTaskData.QueryView.VIEW_COLUMN_ACTIVATOR_NAME, "MaxActivatorName");
       return this;
     }
 

@@ -30,16 +30,17 @@ public class TestComplexView
   {
     SqlMeta meta = parse();
     SqlView view = meta.getArtifacts(SqlView.class).get(0);
-    System.out.println("generated:\n"+view);
 
     assertThat(view.toString()).isEqualTo("CREATE VIEW IWA_TaskQuery(\n" + 
             "  TaskId,\n" + 
+            "  ActivatorName,\n" +
             "  ActivatorDisplayName,\n" + 
             "  ExpiryActivatorDisplayName,\n" + 
             "  CurrentActivatorDisplayName,\n" + 
             "  IsUnassigned)\n" + 
             "AS SELECT\n"+
             "  IWA_Task.TaskId,\n" + 
+            "  CASE WHEN IWA_Task.ActivatorUserId IS NOT NULL THEN CONCAT(#,ActivatorUser.Name) WHEN IWA_Task.ActivatorRoleId IS NOT NULL THEN ActivatorRole.Name ELSE NULL END,\n" +
             "  CASE WHEN IWA_Task.ActivatorUserId IS NOT NULL AND LENGTH(ActivatorUser.FullName)>0 THEN ActivatorUser.FullName WHEN IWA_Task.ActivatorUserId IS NOT NULL AND LENGTH(ActivatorUser.FullName)=0 THEN ActivatorUser.Name WHEN IWA_Task.ActivatorRoleId IS NOT NULL AND LENGTH(ActivatorRole.DisplayNameTemplate)>0 THEN ActivatorRole.DisplayNameTemplate WHEN IWA_Task.ActivatorRoleId IS NOT NULL AND LENGTH(ActivatorRole.DisplayNameTemplate)=0 THEN ActivatorRole.Name END,\n" + 
             "  CASE WHEN IWA_Task.ExpiryActivatorUserId IS NOT NULL AND LENGTH(ExpiryActivatorUser.FullName)>0 THEN ExpiryActivatorUser.FullName WHEN IWA_Task.ExpiryActivatorUserId IS NOT NULL AND LENGTH(ExpiryActivatorUser.FullName)=0 THEN ExpiryActivatorUser.Name WHEN IWA_Task.ExpiryActivatorRoleId IS NOT NULL AND LENGTH(ExpiryActivatorRole.DisplayNameTemplate)>0 THEN ExpiryActivatorRole.DisplayNameTemplate WHEN IWA_Task.ExpiryActivatorRoleId IS NOT NULL AND LENGTH(ExpiryActivatorRole.DisplayNameTemplate)=0 THEN ExpiryActivatorRole.Name ELSE NULL END,\n" + 
             "  CASE WHEN IWA_Task.IsExpired=1 AND IWA_Task.ExpiryActivatorUserId IS NOT NULL AND LENGTH(ExpiryActivatorUser.FullName)>0 THEN ExpiryActivatorUser.FullName WHEN IWA_Task.IsExpired=1 AND IWA_Task.ExpiryActivatorUserId IS NOT NULL AND LENGTH(ExpiryActivatorUser.FullName)=0 THEN ExpiryActivatorUser.Name WHEN IWA_Task.IsExpired=1 AND IWA_Task.ExpiryActivatorRoleId IS NOT NULL AND LENGTH(ExpiryActivatorRole.DisplayNameTemplate)>0 THEN ExpiryActivatorRole.DisplayNameTemplate WHEN IWA_Task.IsExpired=1 AND IWA_Task.ExpiryActivatorRoleId IS NOT NULL AND LENGTH(ExpiryActivatorRole.DisplayNameTemplate)=0 THEN ExpiryActivatorRole.Name WHEN IWA_Task.IsExpired=0 AND IWA_Task.ActivatorUserId IS NOT NULL AND LENGTH(ActivatorUser.FullName)>0 THEN ActivatorUser.FullName WHEN IWA_Task.IsExpired=0 AND IWA_Task.ActivatorUserId IS NOT NULL AND LENGTH(ActivatorUser.FullName)=0 THEN ActivatorUser.Name WHEN IWA_Task.IsExpired=0 AND IWA_Task.ActivatorRoleId IS NOT NULL AND LENGTH(ActivatorRole.DisplayNameTemplate)>0 THEN ActivatorRole.DisplayNameTemplate WHEN IWA_Task.IsExpired=0 AND IWA_Task.ActivatorRoleId IS NOT NULL AND LENGTH(ActivatorRole.DisplayNameTemplate)=0 THEN ActivatorRole.Name END,\n" +

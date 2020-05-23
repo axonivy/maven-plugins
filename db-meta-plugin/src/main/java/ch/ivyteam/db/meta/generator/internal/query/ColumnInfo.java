@@ -17,6 +17,7 @@ import ch.ivyteam.db.meta.model.internal.SqlComplexCaseExpr;
 import ch.ivyteam.db.meta.model.internal.SqlDataType;
 import ch.ivyteam.db.meta.model.internal.SqlDataType.DataType;
 import ch.ivyteam.db.meta.model.internal.SqlFullQualifiedColumnName;
+import ch.ivyteam.db.meta.model.internal.SqlFunction;
 import ch.ivyteam.db.meta.model.internal.SqlLiteral;
 import ch.ivyteam.db.meta.model.internal.SqlMeta;
 import ch.ivyteam.db.meta.model.internal.SqlTable;
@@ -364,6 +365,16 @@ public abstract class ColumnInfo
                                     new SqlDataType(DataType.valueOf(typeName.toUpperCase())),
                                     false,
                                     sqlLiteral,
+                                    null,
+                                    column.getDatabaseManagementSystemHints(),
+                                    column.getComment());
+        }
+        else if (atom instanceof SqlFunction)
+        {
+          return new SqlTableColumn(column.getId(),
+                                    new SqlDataType(DataType.VARCHAR),
+                                    false,
+                                    null,
                                     null,
                                     column.getDatabaseManagementSystemHints(),
                                     column.getComment());
