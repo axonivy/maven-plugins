@@ -151,6 +151,7 @@ public class MetaOutputDifferenceGenerator
     generateDropViews(pr);
     indexes.generateDropIndexesOfRemovedIndexes(pr);
     triggers.generateDropTriggersOfChangedTables(pr);
+    triggers.generateDropTriggersOfDeletedTriggers(pr);
     foreignKeys.generateDropForeignKeysReferencingChangedOrDeletedColumns(pr);
     
     generateDropTableOfDeletedTables(pr);
@@ -706,6 +707,18 @@ public class MetaOutputDifferenceGenerator
       }
     }
     
+    void generateDropTriggersOfDeletedTriggers(PrintWriter pr)
+    {
+      Map<SqlTable, SqlTable> tablesWithChangedTriggers = findTablesWithDeletedTriggers();
+      
+      for (SqlTable oldTableWithTrigger : tablesWithChangedTriggers.values())
+      {
+        pr.println();
+        generator.generateCommentLine(pr, "Drop trigger that has been deleted");
+        generator.generateDropTrigger(pr, oldTableWithTrigger, metaDefinitionFrom);
+      }
+    }
+    
     void generateCreateTriggersOfAddedTriggers(PrintWriter pr)
     {
       Map<SqlTable, SqlTable> tablesWithAddedTriggers = findTablesWithAddedTriggers();
@@ -774,6 +787,23 @@ public class MetaOutputDifferenceGenerator
       return tablesOfChangedTriggers;
     }
     
+    private Map<SqlTable, SqlTable> findTablesWithDeletedTriggers()
+    {
+      Map<SqlTable, SqlTable> tablesOfDeletedTriggers = new LinkedHashMap<>();
+      // check all common tables if they have triggers which have been deleted
+      for (Entry<SqlTable, SqlTable> comonTable : findCommonTables().entrySet())
+      {
+        SqlTable newTable = comonTable.getKey();
+        SqlTable oldTable = comonTable.getValue();
+        if (hasTriggerDeleted(newTable, oldTable))
+        {
+          tablesOfDeletedTriggers.put(newTable, oldTable);
+        }
+      }
+
+      return tablesOfDeletedTriggers;
+    }
+    
     private boolean hasTriggerChanged(SqlTable newTable, SqlTable oldTable)
     {
       if (newTable == null || oldTable == null)
@@ -793,6 +823,26 @@ public class MetaOutputDifferenceGenerator
         return false;
       }
       return !toOut.toString().equals(fromOut.toString()); 
+    }
+    
+    private boolean hasTriggerDeleted(SqlTable newTable, SqlTable oldTable)
+    {
+      if (newTable == null || oldTable == null)
+      {
+        return true;
+      }
+      
+      StringWriter fromOut = new StringWriter();
+      StringWriter toOut = new StringWriter();
+
+      generateTrigger(new PrintWriter(fromOut), newTable, metaDefinitionFrom);
+      generateTrigger(new PrintWriter(toOut), oldTable, metaDefinitionTo);
+      
+      if (StringUtils.isBlank(toOut.toString()) && !StringUtils.isBlank(fromOut.toString()))
+      {
+        return true;
+      }
+      return false; 
     }
     
     private boolean hasAddedTrigger(SqlTable newTable, SqlTable oldTable)
