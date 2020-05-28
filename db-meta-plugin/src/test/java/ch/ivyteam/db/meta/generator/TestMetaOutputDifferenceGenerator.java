@@ -16,6 +16,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
+import ch.ivyteam.db.meta.generator.internal.OracleSqlScriptGenerator;
 import ch.ivyteam.db.meta.generator.internal.PostgreSqlSqlScriptGenerator;
 import ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator;
 import ch.ivyteam.db.meta.model.internal.SqlMeta;
@@ -45,17 +46,28 @@ public class TestMetaOutputDifferenceGenerator
   @Test
   public void postgre() throws Exception
   {
+    runDiffGeneratorTest(PostgreSqlSqlScriptGenerator.class.getName(), "postgre");
+  }
+  
+  @Test
+  public void oracle() throws Exception
+  {
+    runDiffGeneratorTest(OracleSqlScriptGenerator.class.getName(), "oracle");
+  }
+  
+  private void runDiffGeneratorTest(String generatorName, String dbName) throws Exception
+  {
     SqlMeta metaFrom = MetaOutputDifferenceGenerator.parseMetaDefinitions(new File(TESTS_DIRECTORY, testName+"_from.meta"));
     SqlMeta metaTo = MetaOutputDifferenceGenerator.parseMetaDefinitions(new File(TESTS_DIRECTORY, testName+"_to.meta"));
     
     try (StringWriter sw = new StringWriter(); PrintWriter pr = new PrintWriter(sw))
     {
-      SqlScriptGenerator scriptGenerator = MetaOutputDifferenceGenerator.findGeneratorClass(PostgreSqlSqlScriptGenerator.class.getName());
+      SqlScriptGenerator scriptGenerator = MetaOutputDifferenceGenerator.findGeneratorClass(generatorName);
       MetaOutputDifferenceGenerator differenceGenerator = new MetaOutputDifferenceGenerator(metaFrom, metaTo, null, scriptGenerator, 2);
       
       differenceGenerator.generate(pr);
-      
-      String assertOutput = normalizeLineEnds(FileUtils.readFileToString(new File(TESTS_DIRECTORY, testName+"_postgre.sql")));
+
+      String assertOutput = normalizeLineEnds(FileUtils.readFileToString(new File(TESTS_DIRECTORY, testName + "_" + dbName + ".sql")));
       String testee = removeHeaderAndUpdateVersion(sw.toString());
       assertThat(testee).isEqualTo(assertOutput);
     }

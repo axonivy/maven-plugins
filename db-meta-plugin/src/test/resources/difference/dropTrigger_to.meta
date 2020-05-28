@@ -1,0 +1,18 @@
+CREATE TABLE User
+(
+  UserId BIGINT NOT NULL,
+  Name VARCHAR(200) NOT NULL,
+  PRIMARY KEY (UserId)
+);
+
+CREATE TABLE Test
+(
+  TestId BIGINT NOT NULL,
+  WorkerUserId BIGINT REFERENCES User(UserId) ON DELETE SET NULL
+    FOR MySql USE (NoReferenceUseTrigger)
+    FOR MsSqlServer USE (NoReferenceUseTrigger)
+    FOR PostgreSql USE (NoReferenceUseTrigger),
+  State INTEGER NOT NULL,
+  
+  PRIMARY KEY (TestId)
+);
