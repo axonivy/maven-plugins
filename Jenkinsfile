@@ -1,25 +1,28 @@
 pipeline {
-  agent {
-    docker {
-      image 'maven:3.5.2-jdk-8'
-    }
-  }
-  triggers {
-    pollSCM '@hourly'
-    cron '@midnight'
-  }
-  stages {
-    stage('build and deploy') {
-      steps {
-        script {
-          maven cmd: 'clean deploy -Dmaven.test.failure.ignore=true'
-        }
-      }
-      post {
-        success {
-          junit '**/target/surefire-reports/**/*.xml' 
-        }
+    agent {
+      docker {
+        image 'maven:3.6.3-jdk-8'
       }
     }
-  }
-}
+  
+    options {
+      buildDiscarder(logRotator(numToKeepStr: '30', artifactNumToKeepStr: '1'))
+    }
+  
+    triggers {
+      cron '@midnight'
+    }
+  
+    stages {
+      stage('build') {
+        steps {
+          script {
+            def phase = env.BRANCH_NAME == 'release/7.0' ? 'deploy' : 'verify'
+            maven cmd: "clean ${phase}"
+          }
+          junit testDataPublishers: [[$class: 'StabilityTestDataPublisher']], testResults: '**/target/surefire-reports/**/*.xml'
+          archiveArtifacts '**/target/*.jar'
+        }      
+      }
+    }
+ }
