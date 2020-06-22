@@ -8,8 +8,7 @@
 
 	<modules>
 		<module>maven-version-plugin</module>
-		<module>image-text-plugin</module>
-		<module>image-dpi-plugin</module>
+		<module>image-text-plugin</module>		
 		<module>screenshot-html-plugin</module>
 		<module>db-meta-plugin</module>
 		<module>merge-files-plugin</module>
