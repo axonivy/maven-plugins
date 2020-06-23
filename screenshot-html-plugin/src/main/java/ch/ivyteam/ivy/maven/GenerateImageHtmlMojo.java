@@ -26,6 +26,7 @@ public class GenerateImageHtmlMojo extends AbstractMojo
   static final String GOAL = "generate-html";
   static final String REPLACE_TAG_IMG = "{generated.img.tag.location}";
   static final String REPLACE_TAG_TARGET_PATH = "{artifact.target.path}";
+  static final String REPLACE_TAG_JENKINS_URL = "{jenkins.job.url}";
 
   /** Custom html template to use around generated images, add {generated.img.tag.location} inside template 
    * to define location for generated <img> tags. If not defined a default template is used */
@@ -34,7 +35,7 @@ public class GenerateImageHtmlMojo extends AbstractMojo
   
   /** The URL path to the artifact target folder which contains the reference images.
    * If you define your own template this parameter is accessible in the template via {artifact.target.path}*/
-  @Parameter(property = "artifact.target.path", defaultValue = "/artifact/target/")
+  @Parameter(property = "artifact.target.path", defaultValue = "artifact/target/")
   String artifactTargetPath;
 
   /** Images to include in generated html, this directory can have sub-directories */

@@ -33,7 +33,10 @@ public class TestHtmlGenerator
   @Test
   public void generateHtml()
   {
-    String template = GenerateImageHtmlMojo.REPLACE_TAG_IMG + "\n" + GenerateImageHtmlMojo.REPLACE_TAG_TARGET_PATH;
+    String template = GenerateImageHtmlMojo.REPLACE_TAG_IMG + "\n" +
+                      GenerateImageHtmlMojo.REPLACE_TAG_TARGET_PATH  + "\n" +
+                      GenerateImageHtmlMojo.REPLACE_TAG_JENKINS_URL;
+    
     String artifactTargetPath = "artifactTargetPath";
     
     String html = new HtmlGenerator(template, artifactTargetPath, images, Paths.get("/tmp"), log).generate();
