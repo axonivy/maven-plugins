@@ -3,7 +3,11 @@ package ch.ivyteam.db.meta.generator.internal;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -84,7 +88,7 @@ public class Triggers
   private List<SqlDmlStatement> getForEachStatementDeleteTrigger(SqlTable table, SqlMeta metaDefinition)
   {
     List<SqlDmlStatement> statements = new ArrayList<>();
-    for(SqlTable foreignTable : metaDefinition.getArtifacts(SqlTable.class))
+    for(SqlTable foreignTable : getTablesInDeleteOrder(metaDefinition))
     {
       for (SqlTrigger trigger : foreignTable.getTriggers())        
       {   
@@ -155,20 +159,51 @@ public class Triggers
   {
     boolean recursiveTrigger=false;
     List<SqlDmlStatement> statements = new ArrayList<>();
-    // First analyze triggers on all tables   
-    for (SqlTable foreignTable : metaDefinition.getArtifacts(SqlTable.class))
+    List<SqlTable> foreignTables = metaDefinition.getArtifacts(SqlTable.class);
+    // First add explicit triggers defined on all tables   
+    for (SqlTable foreignTable : foreignTables)
     {
       addTriggerStatements(table, foreignTable, statements);
     }
-    // Second analyze foreign keys on all tables 
-    for (SqlTable foreignTable : metaDefinition.getArtifacts(SqlTable.class))
+    
+    // Second add update statements of foreign keys for all tables 
+    for (SqlTable foreignTable : foreignTables)
     {
-      recursiveTrigger = addForeignKeyStatements(table, foreignTable, recursiveTrigger, statements);
+      recursiveTrigger = addForeignKeyUpdateStatements(table, foreignTable, recursiveTrigger, statements);
     }
 
-    // Third analyze the my foreign keys for ON DELETE THIS CASCADE
+    // Third add delete statements of foreign keys for all tables 
+    Map<SqlTable, List<SqlDmlStatement>> statementsPerTable = new HashMap<>();
+    for (SqlTable foreignTable : foreignTables)
+    {
+      recursiveTrigger = addForeignKeyDeleteStatements(table, foreignTable, recursiveTrigger, statementsPerTable);
+    }
+    statements.addAll(inCorrectDeleteOrder(statementsPerTable, metaDefinition));
+    
+    // Forth add the my foreign keys for ON DELETE THIS CASCADE
     addForeignKeyDeleteThisCascadeStatements(table, statements);
     return new ImmutablePair<>(recursiveTrigger, statements);
+  }
+
+  private Collection<? extends SqlDmlStatement> inCorrectDeleteOrder(
+          Map<SqlTable, List<SqlDmlStatement>> statementsPerTable, SqlMeta metaDefinition)
+  {
+    if (statementsPerTable.isEmpty())
+    {
+      return Collections.emptyList();
+    }
+    List<SqlTable> deleteTables = new TablesSortedByDeleteOrder(dbHints, metaDefinition).byDeleteOrder(statementsPerTable.keySet());
+    List<SqlDmlStatement> result = new ArrayList<>();
+    for (SqlTable table : deleteTables)
+    {
+      result.addAll(statementsPerTable.get(table));
+    }
+    return result;
+  }
+
+  private List<SqlTable> getTablesInDeleteOrder(SqlMeta metaDefinition)
+  {
+    return new TablesSortedByDeleteOrder(dbHints, metaDefinition).byDeleteOrder();
   }
 
   private void addTriggerStatements(SqlTable table, SqlTable foreignTable, List<SqlDmlStatement> statements)
@@ -183,29 +218,37 @@ public class Triggers
     }
   }
 
-  private boolean addForeignKeyStatements(SqlTable table, SqlTable foreignTable, boolean recursiveTrigger, List<SqlDmlStatement> statements)
+  private boolean addForeignKeyUpdateStatements(SqlTable table, SqlTable foreignTable,
+          boolean recursiveTrigger, List<SqlDmlStatement> statements)
   {
     for (SqlForeignKey foreignKey : foreignTable.getForeignKeys())
     {
-      if (shouldGenerateTriggerFor(table, foreignKey))
+      if (shouldGenerateTriggerFor(table, foreignKey) &&
+          foreignKeys.getAction(foreignKey) == SqlForeignKeyAction.ON_DELETE_SET_NULL)
       {
-        if (foreignKeys.getAction(foreignKey) == SqlForeignKeyAction.ON_DELETE_CASCADE)
+        if (foreignTable.getId().equals(table.getId()))
         {
-          if (foreignTable.getId().equals(table.getId()))
-          {
-            recursiveTrigger = true;
-          }
-          statements.add(createDeleteStatement(foreignTable, foreignKey));
+          recursiveTrigger = true;
+        }              
+        statements.add(createUpdateStatement(foreignTable, foreignKey));
+      }
+    }
+    return recursiveTrigger;
+  }
 
-        }
-        else if (foreignKeys.getAction(foreignKey) == SqlForeignKeyAction.ON_DELETE_SET_NULL)
+  private boolean addForeignKeyDeleteStatements(SqlTable table, SqlTable foreignTable, boolean recursiveTrigger, Map<SqlTable, List<SqlDmlStatement>> statementsPerTable)
+  {
+    for (SqlForeignKey foreignKey : foreignTable.getForeignKeys())
+    {
+      if (shouldGenerateTriggerFor(table, foreignKey) &&
+          foreignKeys.getAction(foreignKey) == SqlForeignKeyAction.ON_DELETE_CASCADE)
+      {
+        if (foreignTable.getId().equals(table.getId()))
         {
-          if (foreignTable.getId().equals(table.getId()))
-          {
-            recursiveTrigger = true;
-          }              
-          statements.add(createUpdateStatement(foreignTable, foreignKey));
+          recursiveTrigger = true;
         }
+        List<SqlDmlStatement> statements = statementsPerTable.computeIfAbsent(foreignTable, key -> new ArrayList<>());
+        statements.add(createDeleteStatement(foreignTable, foreignKey));
       }
     }
     return recursiveTrigger;
