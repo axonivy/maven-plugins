@@ -4,6 +4,8 @@ import static org.fest.assertions.api.Assertions.assertThat;
 
 import org.junit.Test;
 
+import ch.ivyteam.db.meta.generator.internal.mssql.MsSqlServerSqlScriptGenerator;
+
 /**
  * Regression test for Issue #23610
  * @author rwei

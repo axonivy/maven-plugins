@@ -11,7 +11,7 @@ import org.codehaus.plexus.util.StringUtils;
 import ch.ivyteam.db.meta.generator.internal.ConstantBuilder;
 import ch.ivyteam.db.meta.generator.internal.JavaClassGenerator;
 import ch.ivyteam.db.meta.generator.internal.JavaClassGeneratorUtil;
-import ch.ivyteam.db.meta.generator.internal.OracleSqlScriptGenerator;
+import ch.ivyteam.db.meta.generator.internal.oracle.OracleSqlScriptGenerator;
 import ch.ivyteam.db.meta.model.internal.SqlDataType.DataType;
 import ch.ivyteam.db.meta.model.internal.SqlTable;
 import ch.ivyteam.db.meta.model.internal.SqlTableColumn;

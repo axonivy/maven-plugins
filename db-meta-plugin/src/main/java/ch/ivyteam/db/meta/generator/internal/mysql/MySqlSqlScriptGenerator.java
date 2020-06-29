@@ -1,24 +1,27 @@
-package ch.ivyteam.db.meta.generator.internal;
+package ch.ivyteam.db.meta.generator.internal.mysql;
 
 import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
+import ch.ivyteam.db.meta.generator.internal.Comments;
+import ch.ivyteam.db.meta.generator.internal.DbHints;
+import ch.ivyteam.db.meta.generator.internal.Delimiter;
+import ch.ivyteam.db.meta.generator.internal.DmlStatements;
+import ch.ivyteam.db.meta.generator.internal.ForeignKeys;
+import ch.ivyteam.db.meta.generator.internal.GenerateAlterTableUtil;
+import ch.ivyteam.db.meta.generator.internal.Identifiers;
+import ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator;
+import ch.ivyteam.db.meta.generator.internal.Triggers;
 import ch.ivyteam.db.meta.model.internal.SqlDataType.DataType;
-import ch.ivyteam.db.meta.model.internal.SqlDmlStatement;
-import ch.ivyteam.db.meta.model.internal.SqlForeignKey;
 import ch.ivyteam.db.meta.model.internal.SqlIndex;
 import ch.ivyteam.db.meta.model.internal.SqlTable;
 import ch.ivyteam.db.meta.model.internal.SqlTableColumn;
 import ch.ivyteam.db.meta.model.internal.SqlUniqueConstraint;
-import ch.ivyteam.db.meta.model.internal.SqlUpdate;
-import ch.ivyteam.db.meta.model.internal.SqlUpdateColumnExpression;
 
 /**
  * Generates the sql script for MySql database systems
@@ -27,14 +30,38 @@ import ch.ivyteam.db.meta.model.internal.SqlUpdateColumnExpression;
 public class MySqlSqlScriptGenerator extends SqlScriptGenerator
 {
   private static final int MAX_INDEX_SIZE_IN_BYTES  = 767;
-  private static final Set<String> RESERVED_WORDS_MYSQL = new HashSet<>(Arrays.asList("SYSTEM"));
   
   /** Database System */
   public static final String MYSQL = String.valueOf("MySql");
   
-  private static final String DROP_FOREIGN_KEY_CONSTRAINT_STORED_PROCUDRE = "IWA_Drop_ForeignKey_Constraint";
+  static final String DROP_FOREIGN_KEY_CONSTRAINT_STORED_PROCUDRE = "IWA_Drop_ForeignKey_Constraint";
   public static final String INDEX_COLUMN_LENGTH = "IndexColumnLength";
-                                                    
+  private static final Identifiers IDENTIFIERS = new Identifiers("`", false, Arrays.asList("SYSTEM"));
+  private static final Comments COMMENTS = new Comments("# ");
+           
+  public MySqlSqlScriptGenerator()
+  {
+    super(MYSQL, Delimiter.STANDARD, IDENTIFIERS, COMMENTS);
+  }
+  
+  @Override
+  protected DmlStatements createDmlStatementsGenerator(DbHints hints, Delimiter delim, Identifiers ident)
+  {
+    return new MySqlDmlStatements(hints, delim, ident);
+  }
+  
+  @Override
+  protected Triggers createTriggersGenerator(DbHints hints, Delimiter delim, DmlStatements dmlStmts, ForeignKeys fKeys)
+  {
+    return new MySqlTriggers(hints, delim, dmlStmts, fKeys);
+  }
+  
+  @Override
+  protected ForeignKeys createForeignKeysGenerator(DbHints hints, Delimiter delim, Identifiers ident, Comments cmmnts)
+  {
+    return new MySqlForeignKeys(hints, delim, ident, cmmnts);
+  }
+  
   @Override
   protected void generateDataType(PrintWriter pr, DataType dataType)
   {
@@ -53,12 +80,6 @@ public class MySqlSqlScriptGenerator extends SqlScriptGenerator
   }
   
   @Override
-  public boolean isForeignKeyReferenceInColumnDefinitionSupported()
-  {
-    return false;
-  }
-  
-  @Override
   protected void generateTableStorage(PrintWriter pr, SqlTable table)
   {
     pr.append(" ENGINE=InnoDB");
@@ -69,77 +90,7 @@ public class MySqlSqlScriptGenerator extends SqlScriptGenerator
   {
     return "MySQL";
   }
-  
-  @Override
-  protected void generateComment(PrintWriter pr)
-  {
-    pr.append("# ");
-  }
-  
-  @Override
-  protected List<String> getDatabaseSystemNames()
-  {
-    return Arrays.asList(MYSQL);
-  }
-  
-  @Override
-  protected String getRowTriggerOldVariableName()
-  {
-    return "OLD";
-  }
-  
-  @Override
-  protected void generateIdentifierQuote(PrintWriter pr)
-  {
-    pr.print("`");
-  }
-  
-  @Override
-  protected void generateForEachRowDeleteTrigger(PrintWriter pr, SqlTable table, List<SqlDmlStatement> triggerStatements, boolean recursiveTrigger)
-  {
-    pr.print("CREATE TRIGGER ");
-    generateTriggerName(pr, table);
-    pr.println();
-    pr.print("AFTER DELETE ON ");
-    pr.println(table.getId());
-    pr.println("FOR EACH ROW");
-    pr.println("BEGIN");
-    for (SqlDmlStatement stmt : triggerStatements)
-    {
-      generateDmlStatement(pr, stmt, 2);
-      generateDelimiter(pr);
-      pr.println();
-      pr.println();
-    }
-    pr.println("END");
-    generateDelimiter(pr);
-  }
-  
-  @Override
-  protected void generateUpdateStatement(PrintWriter pr, SqlUpdate updateStmt, int insets)
-  {
-    writeSpaces(pr, insets);
-    pr.print("UPDATE ");
-    pr.println(updateStmt.getTable());
-    writeSpaces(pr, insets);
-    pr.print("SET ");
-    boolean first = true;
-    for (SqlUpdateColumnExpression expr: updateStmt.getColumnExpressions())
-    {
-      if (!first)
-      {
-        pr.print(", ");
-      }
-      first = false;
-      pr.print(expr.getColumnName());
-      pr.print('=');
-      pr.print(expr.getExpression());
-    }
-    pr.println();
-    writeSpaces(pr, insets);
-    pr.print("WHERE ");
-    pr.print(updateStmt.getFilterExpression());
-  }
+      
   
   @Override
   public void generateAlterTableAlterColumn(PrintWriter pr, SqlTableColumn newColumn, SqlTable newTable, SqlTableColumn oldColumn)
@@ -157,78 +108,20 @@ public class MySqlSqlScriptGenerator extends SqlScriptGenerator
   protected void generateAlterTableDropUniqueConstraint(PrintWriter pr, SqlTable table, SqlUniqueConstraint unique, List<String> createdTemporaryStoredProcedures)
   {
     pr.print("ALTER TABLE ");
-    generateIdentifier(pr, table.getId());
+    identifiers.generate(pr, table.getId());
     pr.print(" DROP INDEX ");
-    generateIdentifier(pr, unique.getColumns().get(0));
-  }
-  
-  @Override
-  public void generateAlterTableDropForeignKey(PrintWriter pr, SqlTable table, SqlForeignKey foreignKey, List<String> createdTemporaryStoredProcedures)
-  {
-    generateDropForeignKeyConstraintStoredProcedure(pr, createdTemporaryStoredProcedures);
-    pr.print("CALL ");
-    pr.print(DROP_FOREIGN_KEY_CONSTRAINT_STORED_PROCUDRE);
-    pr.print("(");
-    pr.print("SCHEMA()"); 
-    pr.print(", '");
-    pr.print(table.getId()); 
-    pr.print("', '");
-    pr.print(foreignKey.getColumnName());
-    pr.print("')");    
-    generateDelimiter(pr);
-    pr.println(); 
-  }
-
-  private void generateDropForeignKeyConstraintStoredProcedure(PrintWriter pr, List<String> createdTemporaryStoredProcedures)
-  {
-    if (!createdTemporaryStoredProcedures.contains(DROP_FOREIGN_KEY_CONSTRAINT_STORED_PROCUDRE))
-    {
-      createdTemporaryStoredProcedures.add(DROP_FOREIGN_KEY_CONSTRAINT_STORED_PROCUDRE);
-      
-      generateCommentLine(pr, "Store Procedure to drop a foreign key constraint");
-
-      pr.print("CREATE PROCEDURE ");
-      pr.print(DROP_FOREIGN_KEY_CONSTRAINT_STORED_PROCUDRE);
-      pr.println("(fk_schema VARCHAR(64), fk_table VARCHAR(64), fk_column VARCHAR(64))");
-      pr.println("BEGIN");
-      pr.println("  WHILE EXISTS(");
-      pr.println("    SELECT * FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE");
-      pr.println("    WHERE REFERENCED_COLUMN_NAME IS NOT NULL");
-      pr.println("      AND CAST(TABLE_SCHEMA AS CHAR CHARACTER SET ascii) COLLATE ascii_general_ci = CAST(fk_schema AS CHAR CHARACTER SET ascii)");
-      pr.println("      AND CAST(TABLE_NAME AS CHAR CHARACTER SET ascii) COLLATE ascii_general_ci = CAST(fk_table AS CHAR CHARACTER SET ascii)");
-      pr.println("      AND CAST(COLUMN_NAME AS CHAR CHARACTER SET ascii) COLLATE ascii_general_ci = CAST(fk_column AS CHAR CHARACTER SET ascii)");
-      pr.println("  ) ");
-      pr.println("  DO");
-      pr.println("    BEGIN");
-      pr.println("      SET @sqlstmt = (");
-      pr.println("        SELECT CONCAT('ALTER TABLE ',TABLE_SCHEMA,'.',TABLE_NAME,' DROP FOREIGN KEY ',CONSTRAINT_NAME)");
-      pr.println("        FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE");
-      pr.println("        WHERE REFERENCED_COLUMN_NAME IS NOT NULL");
-      pr.println("          AND CAST(TABLE_SCHEMA AS CHAR CHARACTER SET ascii) COLLATE ascii_general_ci = CAST(fk_schema AS CHAR CHARACTER SET ascii)");
-      pr.println("          AND CAST(TABLE_NAME AS CHAR CHARACTER SET ascii) COLLATE ascii_general_ci = CAST(fk_table AS CHAR CHARACTER SET ascii)");
-      pr.println("          AND CAST(COLUMN_NAME AS CHAR CHARACTER SET ascii) COLLATE ascii_general_ci = CAST(fk_column AS CHAR CHARACTER SET ascii)");
-      pr.println("        LIMIT 1");
-      pr.println("      );");
-      pr.println("      PREPARE stmt1 FROM @sqlstmt;");
-      pr.println("      EXECUTE stmt1;");
-      pr.println("    END;");
-      pr.println("  END WHILE;");
-      pr.println("END;");
-      generateDelimiter(pr);
-      pr.println();
-      pr.println();
-    }
+    identifiers.generate(pr, unique.getColumns().get(0));
   }
   
   @Override
   public void generateDropIndex(PrintWriter pr, SqlTable table, SqlIndex index)
   {
     pr.print("DROP INDEX ");
-    generateIdentifier(pr, getIndexName(index));
+    identifiers.generate(pr, getIndexName(index));
     pr.println(); 
     pr.print("ON ");
-    generateIdentifier(pr, table.getId());
-    generateDelimiter(pr);
+    identifiers.generate(pr, table.getId());
+    delimiter.generate(pr);
     pr.println(); 
   }
   
@@ -286,7 +179,7 @@ public class MySqlSqlScriptGenerator extends SqlScriptGenerator
   
   private Map<SqlTableColumn, Integer> getColumnLengthHints(SqlTable table, SqlIndex index)
   {
-    String lengthHintStr = getDatabaseSystemHintValue(index,  INDEX_COLUMN_LENGTH);
+    String lengthHintStr = dbHints.INDEX_COLUMN_LENGTH.value(index);
     if (lengthHintStr == null)
     {
       return Collections.emptyMap();
@@ -296,7 +189,7 @@ public class MySqlSqlScriptGenerator extends SqlScriptGenerator
     if (lengthHints.length != index.getColumns().size())
     {
       throw new IllegalArgumentException(
-              "Hint "+INDEX_COLUMN_LENGTH+" on index "+index.getId()+" in table "+table.getId()+
+              "Hint "+dbHints.INDEX_COLUMN_LENGTH.name()+" on index "+index.getId()+" in table "+table.getId()+
               " contains "+lengthHints.length+" arguments expected are "+index.getColumns().size());
     }
     Map<SqlTableColumn, Integer> columnLengthHints = new HashMap<>();
@@ -348,14 +241,14 @@ public class MySqlSqlScriptGenerator extends SqlScriptGenerator
           Map<SqlTableColumn, MemoryInfo> bytesPerColumn)
   {
     pr.print("CREATE INDEX ");
-    generateIdentifier(pr, getIndexName(index));
+    identifiers.generate(pr, getIndexName(index));
     pr.println();
     pr.print("ON ");
     pr.print(table.getId());
     pr.print(" (");
     generateColumnList(pr, bytesPerColumn);
     pr.print(")");
-    generateDelimiter(pr);
+    delimiter.generate(pr);
     pr.println();
     pr.println();    
   }
@@ -363,9 +256,9 @@ public class MySqlSqlScriptGenerator extends SqlScriptGenerator
   private boolean generateIndexInTable(PrintWriter pr, SqlIndex index,
           Map<SqlTableColumn, MemoryInfo> bytesPerColumn)
   {
-    writeSpaces(pr, 2);
+    spaces.generate(pr, 2);
     pr.print("INDEX ");
-    generateIdentifier(pr, getIndexName(index));
+    identifiers.generate(pr, getIndexName(index));
     pr.print(' ');
     pr.print('(');
     generateColumnList(pr, bytesPerColumn);
@@ -383,7 +276,7 @@ public class MySqlSqlScriptGenerator extends SqlScriptGenerator
         pr.append(", ");
       }
       first = false;
-      generateIdentifier(pr, column.getId());
+      identifiers.generate(pr, column.getId());
       MemoryInfo memoryInfo = columns.get(column);
       if (column.getDataType().getLength() != memoryInfo.length)
       {
@@ -430,17 +323,7 @@ public class MySqlSqlScriptGenerator extends SqlScriptGenerator
     }
     return 0;
   }
-  
-  @Override
-  protected boolean isReservedSqlKeyword(String identifier)
-  {
-    if (RESERVED_WORDS_MYSQL.contains(identifier.toUpperCase()))
-    {
-      return true;
-    }
-    return super.isReservedSqlKeyword(identifier);
-  }
-  
+    
   @Override
   public RecreateOptions getRecreateOptions()
   {

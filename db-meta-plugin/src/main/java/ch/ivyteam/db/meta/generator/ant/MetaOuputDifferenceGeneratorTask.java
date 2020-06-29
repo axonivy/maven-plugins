@@ -14,13 +14,13 @@ import org.apache.tools.ant.Project;
 import org.apache.tools.ant.Task;
 
 import ch.ivyteam.db.meta.generator.MetaOutputDifferenceGenerator;
-import ch.ivyteam.db.meta.generator.internal.HsqlSqlScriptGenerator;
-import ch.ivyteam.db.meta.generator.internal.MsSqlServerSqlScriptGenerator;
-import ch.ivyteam.db.meta.generator.internal.MySqlSqlScriptGenerator;
 import ch.ivyteam.db.meta.generator.internal.NewLinePrintWriter;
-import ch.ivyteam.db.meta.generator.internal.OracleSqlScriptGenerator;
-import ch.ivyteam.db.meta.generator.internal.PostgreSqlSqlScriptGenerator;
 import ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator;
+import ch.ivyteam.db.meta.generator.internal.hsql.HsqlSqlScriptGenerator;
+import ch.ivyteam.db.meta.generator.internal.mssql.MsSqlServerSqlScriptGenerator;
+import ch.ivyteam.db.meta.generator.internal.mysql.MySqlSqlScriptGenerator;
+import ch.ivyteam.db.meta.generator.internal.oracle.OracleSqlScriptGenerator;
+import ch.ivyteam.db.meta.generator.internal.postgresql.PostgreSqlSqlScriptGenerator;
 import ch.ivyteam.db.meta.model.internal.SqlMeta;
 
 /**

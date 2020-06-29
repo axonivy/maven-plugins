@@ -16,8 +16,8 @@ import org.junit.Test;
 
 import ch.ivyteam.db.meta.generator.internal.JavaClassPersistencyServiceImplementationGenerator;
 import ch.ivyteam.db.meta.generator.internal.JavaEntityClassGenerator;
-import ch.ivyteam.db.meta.generator.internal.MsSqlServerSqlScriptGenerator;
-import ch.ivyteam.db.meta.generator.internal.OracleSqlScriptGenerator;
+import ch.ivyteam.db.meta.generator.internal.mssql.MsSqlServerSqlScriptGenerator;
+import ch.ivyteam.db.meta.generator.internal.oracle.OracleSqlScriptGenerator;
 
 public class TestMetaOutputGeneratorMojoContent
 {

@@ -1,4 +1,4 @@
-package ch.ivyteam.db.meta.generator.internal;
+package ch.ivyteam.db.meta.generator.internal.oracle;
 
 import java.io.PrintWriter;
 import java.util.Arrays;
@@ -7,18 +7,23 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 
+import ch.ivyteam.db.meta.generator.internal.Comments;
+import ch.ivyteam.db.meta.generator.internal.DbHints;
+import ch.ivyteam.db.meta.generator.internal.Delimiter;
+import ch.ivyteam.db.meta.generator.internal.DmlStatements;
+import ch.ivyteam.db.meta.generator.internal.ForeignKeys;
+import ch.ivyteam.db.meta.generator.internal.GenerateAlterTableUtil;
+import ch.ivyteam.db.meta.generator.internal.Identifiers;
+import ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator;
+import ch.ivyteam.db.meta.generator.internal.Triggers;
 import ch.ivyteam.db.meta.model.internal.MetaException;
 import ch.ivyteam.db.meta.model.internal.SqlDataType;
 import ch.ivyteam.db.meta.model.internal.SqlDataType.DataType;
-import ch.ivyteam.db.meta.model.internal.SqlDelete;
-import ch.ivyteam.db.meta.model.internal.SqlDmlStatement;
-import ch.ivyteam.db.meta.model.internal.SqlForeignKey;
 import ch.ivyteam.db.meta.model.internal.SqlFullQualifiedColumnName;
 import ch.ivyteam.db.meta.model.internal.SqlFunction;
 import ch.ivyteam.db.meta.model.internal.SqlIndex;
 import ch.ivyteam.db.meta.model.internal.SqlTable;
 import ch.ivyteam.db.meta.model.internal.SqlTableColumn;
-import ch.ivyteam.db.meta.model.internal.SqlTableId;
 import ch.ivyteam.db.meta.model.internal.SqlUniqueConstraint;
 import ch.ivyteam.db.meta.model.internal.SqlUpdate;
 import ch.ivyteam.db.meta.model.internal.SqlUpdateColumnExpression;
@@ -38,8 +43,32 @@ public class OracleSqlScriptGenerator extends SqlScriptGenerator
    * Persistency layer will read NULL values as "". 
    */
   public static final String CONVERT_EMPTY_STRING_TO_NULL = "ConvertEmptyStringToNull";
+  private static final Identifiers IDENTIFIERS = new OracleIdentifiers();
 
   private boolean alterTable;
+  
+  public OracleSqlScriptGenerator()
+  {
+    super(ORACLE, Delimiter.STANDARD, IDENTIFIERS, Comments.STANDARD);
+  }
+  
+  @Override
+  protected DmlStatements createDmlStatementsGenerator(DbHints hints, Delimiter delim, Identifiers ident)
+  {
+    return new OracleDmlStatements(hints, delim, ident);
+  }
+  
+  @Override
+  protected Triggers createTriggersGenerator(DbHints hints, Delimiter delim, DmlStatements dmlStmts, ForeignKeys fKeys)
+  {
+    return new OracleTriggers(hints, delim, dmlStmts, fKeys);
+  }
+  
+  @Override
+  protected ForeignKeys createForeignKeysGenerator(DbHints hints, Delimiter delim, Identifiers ident, Comments cmmnts)
+  {
+    return new OracleForeignKeys(hints, delim, ident, cmmnts);
+  }
   
   @Override
   protected void generateDataType(PrintWriter pr, DataType dataType)
@@ -79,14 +108,7 @@ public class OracleSqlScriptGenerator extends SqlScriptGenerator
   public void generateIndex(PrintWriter pr, SqlTable table, SqlIndex index)
   {
     pr.print("CREATE INDEX ");
-    if (isDatabaseSystemHintSet(index, INDEX_NAME))
-    {
-      pr.println(getDatabaseSystemHintValue(index, INDEX_NAME));
-    }
-    else
-    {
-      pr.println(index.getId());
-    }
+    pr.println(getIndexName(index));
     pr.print("ON ");
     pr.print(table.getId());
     pr.print(" (");
@@ -94,7 +116,7 @@ public class OracleSqlScriptGenerator extends SqlScriptGenerator
     pr.print(")");
     pr.println();
     pr.print("TABLESPACE ${tablespaceName}");
-    generateDelimiter(pr);
+    delimiter.generate(pr);
     pr.println();
     pr.println();    
   }
@@ -108,7 +130,7 @@ public class OracleSqlScriptGenerator extends SqlScriptGenerator
   @Override
   protected void generateNullConstraint(PrintWriter pr, boolean canBeNull, SqlTableColumn column)
   {
-    if (isDatabaseSystemHintSet(column, CONVERT_EMPTY_STRING_TO_NULL))
+    if (dbHints.CONVERT_EMPTY_STRING_TO_NULL.isSet(column))
     {
       canBeNull = true; 
     }
@@ -125,67 +147,6 @@ public class OracleSqlScriptGenerator extends SqlScriptGenerator
   protected String getDatabaseComment()
   {
     return ORACLE;
-  }
-  
-  @Override
-  protected List<String> getDatabaseSystemNames()
-  {
-    return Arrays.asList(ORACLE);
-  }
-  
-  @Override
-  protected void generateForEachRowDeleteTrigger(PrintWriter pr, SqlTable table, List<SqlDmlStatement> triggerStatements, boolean recursiveTrigger)
-  {
-    super.generateForEachRowDeleteTrigger(pr, table, triggerStatements, recursiveTrigger);
-    pr.println();
-    generateDelimiter(pr);
-    pr.println();
-  }
-
-  @Override
-  protected void generateForEachStatementDeleteTrigger(PrintWriter pr, SqlTable table, List<SqlDmlStatement> triggerStatements)
-  {
-    super.generateForEachStatementDeleteTrigger(pr, table, triggerStatements);
-    pr.println();
-    generateDelimiter(pr);
-    pr.println();    
-  }
-  
-  @Override
-  protected void generateIdentifier(PrintWriter pr, String identifier)
-  {
-    if (isReservedSqlKeyword(identifier))
-    {
-      identifier = identifier.toUpperCase();
-    }
-    super.generateIdentifier(pr, identifier);
-  }
-  
-  @Override
-  protected boolean isReservedSqlKeyword(String identifier)
-  {
-    if (identifier.equalsIgnoreCase("State"))
-    {
-      return false;
-    }
-    return super.isReservedSqlKeyword(identifier);
-  }
-  
-  @Override
-  protected void generateDeleteStatement(PrintWriter pr, SqlDelete deleteStmt, int insets)
-  {
-    writeSpaces(pr, insets);
-    pr.print("DELETE ");
-    pr.println(deleteStmt.getTable());
-    writeSpaces(pr, insets);
-    pr.print("WHERE ");
-    generateFilterExpression(pr, deleteStmt.getFilterExpression());
-  }
-
-  @Override
-  protected String getRowTriggerOldVariableName()
-  {
-    return ":old";
   }
 
   @Override
@@ -238,8 +199,8 @@ public class OracleSqlScriptGenerator extends SqlScriptGenerator
     )));
     SqlUpdate updateStmt = new SqlUpdate(
             table.getId(), columnExpressions, null, Collections.emptyList(), null);
-    generateUpdateStatement(pr, updateStmt , 0);
-    generateDelimiter(pr);
+    dmlStatements.generateUpdate(pr, updateStmt , 0);
+    delimiter.generate(pr);
   }
   
   @Override
@@ -264,7 +225,7 @@ public class OracleSqlScriptGenerator extends SqlScriptGenerator
       if (column.getDefaultValue() != null && "".equals(column.getDefaultValue().getValue()) && !column.isCanBeNull())
       {
         pr.append(" DEFAULT ");
-        generateValue(pr, " ");
+        dmlStatements.generateValue(pr, " ");
         return;
       }
     }
@@ -283,23 +244,6 @@ public class OracleSqlScriptGenerator extends SqlScriptGenerator
   }
   
   @Override
-  public void generateAlterTableDropForeignKey(PrintWriter pr, SqlTable table, SqlForeignKey foreignKey,
-          List<String> createdTemporaryStoredProcedures)
-  {
-    pr.println("DECLARE");
-    pr.println("FK_NAME VARCHAR(30);");
-    pr.println("BEGIN");
-    pr.println("  SELECT UC.CONSTRAINT_NAME INTO FK_NAME");
-    pr.println("  FROM USER_CONSTRAINTS UC INNER JOIN USER_CONS_COLUMNS UCC ON UC.CONSTRAINT_NAME = UCC.CONSTRAINT_NAME");
-    pr.println("  WHERE UC.CONSTRAINT_TYPE='R' AND UC.TABLE_NAME='"+table.getId().toUpperCase()+"' AND UCC.COLUMN_NAME='"+foreignKey.getColumnName().toUpperCase()+"';");
-    pr.println();
-    pr.println("  EXECUTE IMMEDIATE 'ALTER TABLE "+table.getId()+" DROP CONSTRAINT ' || FK_NAME;");
-    pr.println("END;");
-    pr.println(";");
-    pr.println();
-  }
-  
-  @Override
   public RecreateOptions getRecreateOptions()
   {
     RecreateOptions options = super.getRecreateOptions();
@@ -307,30 +251,4 @@ public class OracleSqlScriptGenerator extends SqlScriptGenerator
     options.foreignKeysOnAlterTable=true;
     return options;
   }
-  
-  @Override
-  protected void generateSqlTableId(PrintWriter pr, SqlTableId tableId)
-  {
-    generateIdentifier(pr, tableId.getName());
-    if (tableId.getAlias() != null)
-    {
-      pr.write(" ");
-      generateIdentifier(pr, tableId.getAlias());
-    }
-  }
-  
-  @Override
-  protected SqlFunction convertFunction(SqlFunction function)
-  {
-    if ("LENGTH".equals(function.getName()) && 
-        function.getArguments().size() == 1 && 
-        function.getArguments().get(0) instanceof SqlFullQualifiedColumnName)
-    {
-      // A better implementation would be to check if the column is varchar and nullable! 
-      // in this case our oracle implementation converts "" -> " " and we have to use TRIM so that LENGTH(...) > 0 is correct
-      return new SqlFunction(function.getName(), new SqlFunction("TRIM", function.getArguments()));
-    }
-    return super.convertFunction(function);
-  }
-
 }
