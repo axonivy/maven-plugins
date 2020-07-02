@@ -14,6 +14,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
+import ch.ivyteam.db.meta.generator.internal.hsql.HsqlSqlScriptGenerator;
+import ch.ivyteam.db.meta.generator.internal.mssql.MsSqlServerSqlScriptGenerator;
+import ch.ivyteam.db.meta.generator.internal.oracle.OracleSqlScriptGenerator;
 import ch.ivyteam.db.meta.generator.internal.query.JavaQueryClassGenerator;
 import ch.ivyteam.db.meta.model.internal.SqlMeta;
 import ch.ivyteam.db.meta.model.internal.SqlView;

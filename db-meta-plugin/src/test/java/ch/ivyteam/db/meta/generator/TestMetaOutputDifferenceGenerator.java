@@ -16,9 +16,9 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import ch.ivyteam.db.meta.generator.internal.OracleSqlScriptGenerator;
-import ch.ivyteam.db.meta.generator.internal.PostgreSqlSqlScriptGenerator;
 import ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator;
+import ch.ivyteam.db.meta.generator.internal.oracle.OracleSqlScriptGenerator;
+import ch.ivyteam.db.meta.generator.internal.postgresql.PostgreSqlSqlScriptGenerator;
 import ch.ivyteam.db.meta.model.internal.SqlMeta;
 
 @RunWith(Parameterized.class)

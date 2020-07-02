@@ -13,7 +13,7 @@
 	<packaging>maven-plugin</packaging>
 	
 	<!-- format: <ivy-release>.<databaseversion><counter> -->
-	<version>9.1.674-SNAPSHOT</version>
+	<version>9.1.675-SNAPSHOT</version>
 
 	<dependencies>
 		<dependency>

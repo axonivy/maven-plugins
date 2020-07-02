@@ -3,7 +3,6 @@ package ch.ivyteam.db.meta.generator.internal;
 import java.io.File;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -12,54 +11,26 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
-
 import ch.ivyteam.db.meta.generator.Target;
+import ch.ivyteam.db.meta.generator.internal.mssql.MsSqlServerSqlScriptGenerator;
 import ch.ivyteam.db.meta.model.internal.MetaException;
 import ch.ivyteam.db.meta.model.internal.SqlArtifact;
-import ch.ivyteam.db.meta.model.internal.SqlAtom;
-import ch.ivyteam.db.meta.model.internal.SqlBinaryRelation;
-import ch.ivyteam.db.meta.model.internal.SqlCaseExpr;
-import ch.ivyteam.db.meta.model.internal.SqlComplexCaseExpr;
-import ch.ivyteam.db.meta.model.internal.SqlComplexWhenThen;
 import ch.ivyteam.db.meta.model.internal.SqlDataType;
 import ch.ivyteam.db.meta.model.internal.SqlDataType.DataType;
 import ch.ivyteam.db.meta.model.internal.SqlDatabaseSystemHints;
-import ch.ivyteam.db.meta.model.internal.SqlDelete;
-import ch.ivyteam.db.meta.model.internal.SqlDmlStatement;
 import ch.ivyteam.db.meta.model.internal.SqlForeignKey;
-import ch.ivyteam.db.meta.model.internal.SqlForeignKeyAction;
-import ch.ivyteam.db.meta.model.internal.SqlFullQualifiedColumnName;
-import ch.ivyteam.db.meta.model.internal.SqlFunction;
 import ch.ivyteam.db.meta.model.internal.SqlIndex;
-import ch.ivyteam.db.meta.model.internal.SqlInsert;
 import ch.ivyteam.db.meta.model.internal.SqlInsertWithSelect;
 import ch.ivyteam.db.meta.model.internal.SqlInsertWithValues;
-import ch.ivyteam.db.meta.model.internal.SqlJoinTable;
-import ch.ivyteam.db.meta.model.internal.SqlLiteral;
-import ch.ivyteam.db.meta.model.internal.SqlLogicalExpression;
 import ch.ivyteam.db.meta.model.internal.SqlMeta;
-import ch.ivyteam.db.meta.model.internal.SqlNot;
-import ch.ivyteam.db.meta.model.internal.SqlNull;
-import ch.ivyteam.db.meta.model.internal.SqlParent;
 import ch.ivyteam.db.meta.model.internal.SqlPrimaryKey;
-import ch.ivyteam.db.meta.model.internal.SqlReference;
 import ch.ivyteam.db.meta.model.internal.SqlSelect;
-import ch.ivyteam.db.meta.model.internal.SqlSelectExpression;
-import ch.ivyteam.db.meta.model.internal.SqlSimpleExpr;
 import ch.ivyteam.db.meta.model.internal.SqlTable;
 import ch.ivyteam.db.meta.model.internal.SqlTableColumn;
 import ch.ivyteam.db.meta.model.internal.SqlTableContentDefinition;
-import ch.ivyteam.db.meta.model.internal.SqlTableId;
-import ch.ivyteam.db.meta.model.internal.SqlTrigger;
 import ch.ivyteam.db.meta.model.internal.SqlUniqueConstraint;
-import ch.ivyteam.db.meta.model.internal.SqlUpdate;
-import ch.ivyteam.db.meta.model.internal.SqlUpdateColumnExpression;
 import ch.ivyteam.db.meta.model.internal.SqlView;
 import ch.ivyteam.db.meta.model.internal.SqlViewColumn;
-import ch.ivyteam.db.meta.model.internal.SqlWhenThen;
 
 /**
  * Generates sql scripts out of the sql meta information
@@ -67,9 +38,6 @@ import ch.ivyteam.db.meta.model.internal.SqlWhenThen;
  */
 public abstract class SqlScriptGenerator implements IMetaOutputGenerator
 {
-  /** The default row trigger old variable name */
-  private static final String DEFAULT_ROW_TRIGGER_OLD_VARIABLE_NAME = "OLD";
-
   /** The output file */
   protected File fOutputFile;
 
@@ -167,7 +135,27 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
    * Use to override the default column value 
    */
   public static final String DEFAULT_VALUE = "DefaultValue";
-
+  
+  protected final DbHints dbHints;
+  public final Triggers triggers; 
+  protected final Delimiter delimiter;
+  protected final Spaces spaces = new Spaces();
+  public final ForeignKeys foreignKeys;
+  public final Identifiers identifiers;
+  public final Comments comments;
+  public final DmlStatements dmlStatements;
+  
+  protected SqlScriptGenerator(String databaseSystemName, Delimiter delimiter, Identifiers identifiers, Comments comments)
+  {
+    this.dbHints = new DbHints(databaseSystemName);
+    this.delimiter = delimiter;
+    this.identifiers = identifiers;
+    this.comments = comments;
+    this.dmlStatements = createDmlStatementsGenerator(dbHints, delimiter, identifiers);
+    this.foreignKeys = createForeignKeysGenerator(dbHints, delimiter, identifiers, comments);
+    this.triggers = createTriggersGenerator(dbHints, delimiter, dmlStatements, foreignKeys);
+  }
+    
   /**
    * @see IMetaOutputGenerator#analyseArgs(String[])
    */
@@ -212,6 +200,21 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
     this.fComment = comment;
   }
 
+  protected DmlStatements createDmlStatementsGenerator(DbHints hints, Delimiter delim, Identifiers ident)
+  {
+    return new DmlStatements(hints, delim, ident);
+  }
+  
+  protected ForeignKeys createForeignKeysGenerator(DbHints hints, Delimiter delim, Identifiers ident, Comments cmmnts)
+  {
+    return new ForeignKeys(hints, delim, ident, cmmnts);
+  }
+
+  protected Triggers createTriggersGenerator(DbHints hints, Delimiter delim, DmlStatements dmlStmts, ForeignKeys fKeys)
+  {
+    return new Triggers(hints, delim, dmlStmts, fKeys);
+  }
+  
   @Override
   public void generateMetaOutput(SqlMeta metaDefinition) throws Exception
   {
@@ -234,16 +237,16 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
       generateView(pr, view);
     }
 
-    generateTriggers(pr, metaDefinition);
+    triggers.generateCreate(pr, metaDefinition);
 
     for (SqlInsertWithValues insert : metaDefinition.getArtifacts(SqlInsertWithValues.class))
     {
-      generateInsert(pr, insert);
+      dmlStatements.generateInsert(pr, insert);
     }
 
     for (SqlInsertWithSelect insert : metaDefinition.getArtifacts(SqlInsertWithSelect.class))
     {
-      generateInsertWithSelect(pr, insert);
+      dmlStatements.generateInsertWithSelect(pr, insert);
     }
   }
 
@@ -266,44 +269,9 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
       SqlTable table = entry.getKey();
       for (SqlForeignKey foreignKey : entry.getValue())
       {
-        generateAlterTableAddForeignKey(pr, table, foreignKey);
+        foreignKeys.generateAlterTableAdd(pr, table, foreignKey);
       }
     }
-  }
-
-  /**
-   * Generates an alter table add foreign key statement
-   * @param pr
-   * @param table the table 
-   * @param foreignKey the foreign key
-   * @throws MetaException 
-   */
-  public void generateAlterTableAddForeignKey(PrintWriter pr, SqlTable table, SqlForeignKey foreignKey)
-  {
-    pr.print("ALTER TABLE ");
-    generateIdentifier(pr, table.getId());
-    pr.println(" ADD");
-    pr.println("(");
-    pr.print(" FOREIGN KEY (");
-    pr.print(foreignKey.getColumnName());
-    pr.print(")");
-    generateReference(pr, foreignKey.getReference(), foreignKey);
-    pr.println();
-    pr.print(")");
-    generateDelimiter(pr);
-    pr.println();
-    pr.println();
-  }
-  
-  public void generateAlterTableDropForeignKey(PrintWriter pr, SqlTable table, SqlForeignKey foreignKey, @SuppressWarnings("unused") List<String> createdTemporaryStoredProcedures)
-  {
-    pr.print("ALTER TABLE ");
-    generateIdentifier(pr, table.getId());
-    pr.print(" DROP FOREIGN KEY ");
-    pr.print(foreignKey.getId());
-    generateDelimiter(pr);
-    pr.println();
-    pr.println();
   }
 
   public abstract void generateAlterTableAlterColumn(PrintWriter pr, SqlTableColumn newColumn, SqlTable newTable, SqlTableColumn oldColumn);
@@ -319,7 +287,7 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
   {
     pr.print("DROP VIEW ");
     pr.print(view.getId());
-    generateDelimiter(pr);
+    delimiter.generate(pr);
     pr.println();
     pr.println();
   }
@@ -339,8 +307,8 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
         pr.println(",");
       }
       first = false;
-      writeSpaces(pr, 2);
-      generateIdentifier(pr, column.getId());
+      spaces.generate(pr, 2);
+      identifiers.generate(pr, column.getId());
     }
     pr.println();
     pr.println(")");
@@ -354,208 +322,11 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
         pr.println("UNION ALL");
       }
       first = false;
-      generateSelect(pr, select, 2);
+      dmlStatements.generateSelect(pr, select, 2);
     }
-    generateDelimiter(pr);
+    delimiter.generate(pr);
     pr.println();
     pr.println();
-  }
-
-  private void generateSelect(PrintWriter pr, SqlSelect select, int indent)
-  {
-    boolean first = true;
-    writeSpaces(pr, indent);
-    pr.println("SELECT");
-    for (SqlSelectExpression expression : select.getExpressions())
-    {
-      if (!first)
-      {
-        pr.println(",");
-      }
-      first = false;
-      writeSpaces(pr, indent+2);
-      generateViewExpression(pr, expression);      
-    }
-    pr.println();
-    writeSpaces(pr, indent);
-    pr.print("FROM ");
-    first = true;
-    for (SqlJoinTable joinTable : select.getJoinTables())
-    {
-      if (!first )
-      {
-        if (joinTable.getJoinKind() != null)
-        {
-          pr.print("\n    ");
-          pr.print(joinTable.getJoinKind());
-          pr.print(" ");
-        }
-        else
-        {
-          pr.print(",\n    ");
-        }
-      }
-      first = false;
-      generateSqlTableId(pr, joinTable.getTable());
-      if (joinTable.getJoinCondition() != null)
-      {
-        pr.print(" ON ");
-        generateFilterExpression(pr, joinTable.getJoinCondition());
-      }
-    }
-    if (select.getCondition() != null)
-    {
-      pr.println();
-      writeSpaces(pr, indent);
-      pr.print("WHERE ");
-      generateFilterExpression(pr, select.getCondition());
-    }
-  }
-
-  protected void generateSqlTableId(PrintWriter pr, SqlTableId tableId)
-  {
-    generateIdentifier(pr, tableId.getName());
-    if (tableId.getAlias() != null)
-    {
-      pr.print(" AS ");
-      generateIdentifier(pr, tableId.getAlias());
-    }
-  }
-
-  protected void generateViewExpression(PrintWriter pr, SqlSelectExpression expression)
-  {
-    generateSqlAtom(pr, expression.getExpression(), expression);
-  }
-
-  protected void generateSqlAtom(PrintWriter pr, SqlAtom expression)
-  {
-    generateSqlAtom(pr, expression, SqlArtifact.UNDEFINED);
-  }
-  
-  /**
-   * Generates a sql atom
-   * @param pr
-   * @param expression
-   * @param artifact
-   * @throws MetaException 
-   */
-  protected void generateSqlAtom(PrintWriter pr, SqlAtom expression, SqlArtifact artifact)
-  {
-    if (expression instanceof SqlFullQualifiedColumnName)
-    {
-      generateFullQualifiedColumnName(pr, (SqlFullQualifiedColumnName)expression);
-    }
-    else if (expression instanceof SqlCaseExpr)
-    {
-      generateSqlCaseExpression(pr, (SqlCaseExpr)expression);
-    }
-    else if (expression instanceof SqlComplexCaseExpr)
-    {
-      generateSqlComplexCaseExpression(pr, (SqlComplexCaseExpr) expression);
-    }
-    else if (expression instanceof SqlLiteral)
-    {
-      generateValue(pr, ((SqlLiteral)expression).getValue(), artifact);
-    }
-    else if (expression instanceof SqlFunction)
-    {
-      generateSqlFunction(pr, (SqlFunction) expression);
-    }
-    else
-    {
-      throw new MetaException("Unknown expression "+expression);
-    }
-  }
-
-  /**
-   * Generates a case expression
-   * @param pr
-   * @param caseExpr
-   */
-  protected void generateSqlCaseExpression(PrintWriter pr, SqlCaseExpr caseExpr)
-  {
-    pr.print("CASE ");
-    generateFullQualifiedColumnName(pr, caseExpr.getColumnName());
-    
-    for (SqlWhenThen whenThen : caseExpr.getWhenThenList())
-    {
-      pr.print(' ');
- 
-      pr.print("WHEN ");
-      generateValue(pr, whenThen.getLiteral());
-      pr.print(" THEN ");
-      generateFullQualifiedColumnName(pr, whenThen.getColumnName());
-    }
-    pr.print(" END");
-  }
-
-  /**
-   * Generates a complex case expression
-   * @param pr
-   * @param caseExpr
-   */
-  protected void generateSqlComplexCaseExpression(PrintWriter pr, SqlComplexCaseExpr caseExpr)
-  {
-    pr.print("CASE");
-    for (SqlComplexWhenThen whenThen : caseExpr.getWhenThenList())
-    {
-      pr.print(' ');
-      pr.print("WHEN ");
-      generateFilterExpression(pr, whenThen.getCondition());
-      pr.print(" THEN ");
-      generateSqlAtom(pr, whenThen.getAction());
-    }
-    if (caseExpr.getElseAction() != null)
-    {
-      pr.print(" ELSE ");
-      generateSqlAtom(pr, caseExpr.getElseAction());
-    }
-    pr.print(" END");
-  }
-
-  /**
-   * Generates a full qualified column name
-   * @param pr 
-   * @param fullQualifiedColumnName
-   */
-  protected void generateFullQualifiedColumnName(PrintWriter pr, SqlFullQualifiedColumnName fullQualifiedColumnName)
-  {
-    if (fullQualifiedColumnName.getTable() != null)
-    {
-      if (DEFAULT_ROW_TRIGGER_OLD_VARIABLE_NAME.equals(fullQualifiedColumnName.getTable()))
-      {
-        pr.print(getRowTriggerOldVariableName());
-      }
-      else
-      {
-        generateIdentifier(pr, fullQualifiedColumnName.getTable());
-      }
-      pr.print('.');
-    }
-    generateIdentifier(pr, fullQualifiedColumnName.getColumn());
-  }
-  
-  protected void generateSqlFunction(PrintWriter pr, SqlFunction function)
-  {
-    function = convertFunction(function);
-    pr.print(function.getName());
-    pr.print("(");
-    boolean first = true;
-    for(SqlAtom argument : function.getArguments())
-    {
-      if (!first)
-      {
-        pr.print(", ");
-      }
-      first = false;
-      generateSqlAtom(pr, argument);
-    }
-    pr.print(")");
-  }
-
-  protected SqlFunction convertFunction(SqlFunction function)
-  {
-    return function;
   }
 
   /**
@@ -584,29 +355,29 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
   {
     if (fComment != null)
     {
-      generateCommentLine(pr,
+      comments.generate(pr,
               "---------------------------------------------------------------------------------");
-      generateCommentLine(pr, "");
+      comments.generate(pr, "");
       for (String comment : fComment.split("\n"))
       {
-        generateCommentLine(pr, comment);
+        comments.generate(pr, comment);
       }
-      generateCommentLine(pr, "");
+      comments.generate(pr, "");
     }
-    generateCommentLine(pr,
+    comments.generate(pr,
             "---------------------------------------------------------------------------------");
-    generateCommentLine(pr, "");
-    generateCommentLine(pr,
+    comments.generate(pr, "");
+    comments.generate(pr,
             "This script was automatically generated. Do not edit it. Instead edit the source file");
-    generateCommentLine(pr, "");
-    generateCommentLine(pr,
+    comments.generate(pr, "");
+    comments.generate(pr,
             "---------------------------------------------------------------------------------");
-    generateCommentLine(pr, "Database: " + getDatabaseComment());
-    generateCommentLine(pr,
+    comments.generate(pr, "Database: " + getDatabaseComment());
+    comments.generate(pr,
             "---------------------------------------------------------------------------------");
-    generateCommentLine(pr, "Copyright:");
-    generateCommentLine(pr, "AXON IVY AG, Baarerstrasse 12, 6300 Zug");
-    generateCommentLine(pr,
+    comments.generate(pr, "Copyright:");
+    comments.generate(pr, "AXON IVY AG, Baarerstrasse 12, 6300 Zug");
+    comments.generate(pr,
             "---------------------------------------------------------------------------------");
     pr.append('\n');
   }
@@ -619,11 +390,11 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
   public void generateVersionUpdate(PrintWriter pr, int newVersionId)
   {
     pr.println();
-    generateCommentLine(pr, "");
-    generateCommentLine(pr, "Update Version");
-    generateCommentLine(pr, "");
+    comments.generate(pr, "");
+    comments.generate(pr, "Update Version");
+    comments.generate(pr, "");
     pr.append("UPDATE IWA_Version SET Version=" + newVersionId);
-    generateDelimiter(pr);
+    delimiter.generate(pr);
     pr.println();
   }
   
@@ -648,10 +419,10 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
     
     if (newVersionId == 32)
     {
-      generateCommentLine(pr, "Issue 23540: Deletion of a PMV must remove/delete associated library");
+      comments.generate(pr, "Issue 23540: Deletion of a PMV must remove/delete associated library");
       pr.append("DELETE FROM IWA_Library " +
       		"WHERE ProcessModelVersionId IN (SELECT ProcessModelVersionId FROM IWA_ProcessModelVersion WHERE ReleaseState=4)"); // ReleaseState=DELETED    
-      generateDelimiter(pr);
+      delimiter.generate(pr);
       pr.println();
       pr.println();
     }
@@ -673,163 +444,6 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
    * @return database name
    */
   protected abstract String getDatabaseComment();
-
-  /**
-   * Gets the database system names that are valid for the generator
-   * @return list with the valid database system names
-   */
-  protected abstract List<String> getDatabaseSystemNames();
-  
-  /**
-   * Checks if the given database system hint is set on the given sql artifact.
-   * All database systems returned by {@link #getDatabaseSystemNames()} are considered.
-   * @param artifact the artifact on which to check if the hint is set
-   * @param hint the database system hint to check
-   * @return true if hint is set, otherwise false
-   */
-  protected boolean isDatabaseSystemHintSet(SqlArtifact artifact, String hint)
-  {
-    for (String databaseSystem : getDatabaseSystemNames())
-    {
-      if (artifact.getDatabaseManagementSystemHints(databaseSystem).isHintSet(hint))
-      {
-        return true;
-      }
-    }
-    return false;
-  }
-  
-  /**
-   * Gets the value of the given database system hint on the given sql artifact.
-   * All database systems returned by {@link #getDatabaseSystemNames()} are considered.
-   * If the hint is set on multiple valid database systems the first found is returned. 
-   * @param artifact the artifact on which the hint value is get
-   * @param hint the database system hint 
-   * @return hint value.
-   */
-  protected String getDatabaseSystemHintValue(SqlArtifact artifact, String hint)
-  {
-    for (String databaseSystem : getDatabaseSystemNames())
-    {
-      if (artifact.getDatabaseManagementSystemHints(databaseSystem).isHintSet(hint))
-      {
-        return artifact.getDatabaseManagementSystemHints(databaseSystem).getHintValue(hint);
-      }
-    }
-    return null;
-  }
-  
-  /**
-   * Generates the database system hint value 
-   * @param pr the print writer
-   * @param artifact the artifact
-   * @param hint the hint 
-   */
-  protected void generateDatabaseManagementHintValue(PrintWriter pr, SqlArtifact artifact, String hint)
-  {
-    pr.print(getDatabaseSystemHintValue(artifact, hint));
-  }
-  
-
-  /**
-   * Generates a comment line
-   * @param pr the writer
-   * @param comment the comment to generate
-   */
-  public final void generateCommentLine(PrintWriter pr, String comment)
-  {
-    generateComment(pr);
-    pr.append(comment);
-    pr.println();
-  }
-
-  /**
-   * Generates a comment
-   * @param pr the writer
-   */
-  protected void generateComment(PrintWriter pr)
-  {
-    pr.append("-- ");
-  }
-
-  /**
-   * Generates an insert statement
-   * @param pr the writer to write to
-   * @param insert the insert statement
-   */
-  public void generateInsert(PrintWriter pr, SqlInsertWithValues insert)
-  {
-    generateInsertInto(pr, insert);
-    pr.append(" VALUES (");
-    boolean first = true;
-    for (SqlLiteral value : insert.getValues())
-    {
-      if (!first)
-      {
-        pr.append(", ");
-      }
-      first = false;
-      generateValue(pr, value.getValue());
-    }
-    pr.append(")");
-    generateDelimiter(pr);
-    pr.append("\n\n");
-  }
-
-  private void generateInsertInto(PrintWriter pr, SqlInsert insert)
-  {
-    pr.append("INSERT INTO ");
-    pr.append(insert.getTable());
-    pr.append(" (");
-    pr.append(StringUtils.join(insert.getColumns(), ", "));
-    pr.append(")");
-  }
-  
-
-  public void generateInsertWithSelect(PrintWriter pr, SqlInsertWithSelect insert)
-  {
-    generateInsertInto(pr, insert);
-    pr.append("\n");
-    generateSelect(pr, insert.getSelect(), 0);
-    generateDelimiter(pr);
-    pr.append("\n\n");
-  }
-  
-  public void generateDelete(PrintWriter pr, SqlInsertWithValues insert)
-  {
-    pr.append("DELETE FROM ");
-    pr.append(insert.getTable());
-    pr.append(" WHERE ");
-    
-    boolean first = true;
-    for (int pos = 0; pos < insert.getColumns().size(); pos++)
-    {
-      if (!first)
-      {
-        pr.append(" AND ");
-      }
-      first = false;
-      String column = insert.getColumns().get(pos);
-      pr.append(column);
-      pr.append("=");
-      Object value = insert.getValues().get(pos).getValue();
-      generateValue(pr, value);      
-    }
-    generateDelimiter(pr);
-    pr.append("\n\n");
-  }
-
-  /**
-   * Generates the trigger definitions.
-   * @param pr the print writer
-   * @param metaDefinition the meta definition
-   * @throws MetaException
-   */
-  protected void generateTriggers(PrintWriter pr, SqlMeta metaDefinition)
-  {
-    generateForEachStatementDeleteTriggers(pr, metaDefinition);
-    generateForEachRowDeleteTriggers(pr, metaDefinition);
-  }
   
   /**
    * Generate drop table for the given table
@@ -839,359 +453,9 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
   public final void generateDropTable(PrintWriter pr, SqlTable table)
   {
     pr.write("DROP TABLE ");
-    generateIdentifier(pr, table.getId());
-    generateDelimiter(pr);
+    identifiers.generate(pr, table.getId());
+    delimiter.generate(pr);
     pr.println(); 
-  }
-  
-  public void generateDropTrigger(PrintWriter pr, SqlTable table, @SuppressWarnings("unused") SqlMeta metaDefinitionFrom)
-  {
-    pr.write("DROP TRIGGER ");
-    generateTriggerName(pr, table);
-    generateDelimiter(pr);
-    pr.println(); 
-  }
-
-  /**
-   * @param metaDefinition
-   * @param table
-   * @return true, if this table has a generated trigger
-   * @throws MetaException
-   */
-  public boolean hasTrigger(SqlMeta metaDefinition, SqlTable table)
-  {
-    boolean hasTriggerStatements = getForEachRowDeleteTriggerInfo(table, metaDefinition).getRight().size() > 0;
-    boolean hasForEachStatementDeleteTrigger = getForEachStatementDeleteTrigger(table, metaDefinition).size() > 0;
-    return hasTriggerStatements || hasForEachStatementDeleteTrigger;
-  }
-  
-  /**
-   * Generate for each row delete triggers. Subclasses may override this method
-   * @param pr
-   * @param metaDefinition
-   * @throws MetaException
-   */
-  protected void generateForEachRowDeleteTriggers(PrintWriter pr, SqlMeta metaDefinition)
-  {
-    for (SqlTable table : metaDefinition.getArtifacts(SqlTable.class))
-    {
-      generateForEachRowDeleteTrigger(pr, table, metaDefinition);
-    }
-  }
-
-  /**
-   * generate for each row delete trigger
-   * @param pr the print writer
-   * @param table the table 
-   * @param metaDefinition the meta definition
-   * @throws MetaException  
-   */
-  public final void generateForEachRowDeleteTrigger(PrintWriter pr, SqlTable table, SqlMeta metaDefinition)
-  {
-    Pair<Boolean, List<SqlDmlStatement>> triggerStatements = getForEachRowDeleteTriggerInfo(table, metaDefinition);
-    List<SqlDmlStatement> statements = triggerStatements.getRight(); 
-    if (!statements.isEmpty())
-    {
-      generateForEachRowDeleteTrigger(pr, table, statements, triggerStatements.getLeft());
-      pr.println();
-      pr.println();
-    }
-  }
-
-  private Pair<Boolean, List<SqlDmlStatement>> getForEachRowDeleteTriggerInfo(SqlTable table, SqlMeta metaDefinition)
-  {
-    SqlReference reference;
-    boolean recursiveTrigger=false;
-    List<SqlDmlStatement> statements = new ArrayList<>();
-    // First analyze triggers on all tables   
-    for (SqlTable foreignTable : metaDefinition.getArtifacts(SqlTable.class))
-    {
-      for (SqlTrigger trigger : foreignTable.getTriggers())
-      {
-        if (trigger.getTableName().equals(table.getId()))
-        {
-          if (!isDatabaseSystemHintSet(trigger, TRIGGER_EXECUTE_FOR_EACH_STATEMENT))
-          {
-            statements.addAll(trigger.getStatementsForEachRow());
-          }  
-        }
-      }
-    }
-    // Second analyze foreign keys on all tables 
-    for (SqlTable foreignTable : metaDefinition.getArtifacts(SqlTable.class))
-    {
-      for (SqlForeignKey foreignKey : foreignTable.getForeignKeys())
-      {
-        reference = foreignKey.getReference();
-        if ((reference.getForeignTable().equals(table.getId()))&&
-            (getForeignKeyAction(foreignKey) != null))
-        {
-          if ((!isForeignKeySupported(foreignKey)&&(!isDatabaseSystemHintSet(foreignKey, NO_REFERENCE)))||
-               isDatabaseSystemHintSet(foreignKey, NO_ACTION_USE_TRIGGER))
-          {
-            if (getForeignKeyAction(foreignKey) == SqlForeignKeyAction.ON_DELETE_CASCADE)
-            {
-              if (foreignTable.getId().equals(table.getId()))
-              {
-                recursiveTrigger = true;
-              }
-              statements.add(
-                      new SqlDelete(foreignTable.getId(), 
-                              new SqlBinaryRelation(
-                                      new SqlFullQualifiedColumnName(
-                                              foreignTable.getId(),
-                                              foreignKey.getColumnName()), 
-                                      "=",
-                                      new SqlFullQualifiedColumnName(
-                                              DEFAULT_ROW_TRIGGER_OLD_VARIABLE_NAME, 
-                                              foreignKey.getReference().getForeignColumn()))));
-
-            }
-            else if (getForeignKeyAction(foreignKey) == SqlForeignKeyAction.ON_DELETE_SET_NULL)
-            {
-              if (foreignTable.getId().equals(table.getId()))
-              {
-                recursiveTrigger = true;
-              }              
-              statements.add(
-                      new SqlUpdate(
-                              foreignTable.getId(),
-                              Arrays.asList(
-                                      new SqlUpdateColumnExpression(foreignKey.getColumnName(),
-                                        new SqlLiteral(SqlNull.getInstance()))),
-                              new SqlBinaryRelation(
-                                      new SqlFullQualifiedColumnName(
-                                              foreignTable.getId(),
-                                              foreignKey.getColumnName()), 
-                                      "=",
-                                      new SqlFullQualifiedColumnName(
-                                              DEFAULT_ROW_TRIGGER_OLD_VARIABLE_NAME, 
-                                              foreignKey.getReference().getForeignColumn())), null, null));
-            }
-          }
-        }
-      }
-    }
-
-    // Third analyze the my foreign keys for ON DELETE THIS CASCADE
-    for (SqlForeignKey foreignKey : table.getForeignKeys())
-    {
-      if ((!isDatabaseSystemHintSet(foreignKey, NO_REFERENCE))&&
-          (getForeignKeyAction(foreignKey) == SqlForeignKeyAction.ON_DELETE_THIS_CASCADE))
-      {
-        statements.add(new SqlDelete(foreignKey.getReference().getForeignTable(),
-                new SqlBinaryRelation(new SqlFullQualifiedColumnName(foreignKey.getReference()
-                        .getForeignTable(), foreignKey.getReference().getForeignColumn()), "=",
-                        new SqlFullQualifiedColumnName(DEFAULT_ROW_TRIGGER_OLD_VARIABLE_NAME, foreignKey
-                                .getColumnName()))));
-      }
-    }
-    return new ImmutablePair<Boolean, List<SqlDmlStatement>>(recursiveTrigger, statements);
-  }
-
-  /**
-   * Gets the name of the OLD table name in row triggers that can be used to reference the values of the
-   * deleted row
-   * @return OLD table name
-   */
-  protected String getRowTriggerOldVariableName()
-  {
-    return ":old";
-  }
-
-  /**
-   * Generate for each statement delete trigger. Subclasses may override this method
-   * @param pr
-   * @param metaDefinition
-   * @throws MetaException 
-   */
-  protected void generateForEachStatementDeleteTriggers(PrintWriter pr, SqlMeta metaDefinition)
-  {
-    for (SqlTable table : metaDefinition.getArtifacts(SqlTable.class))
-    {
-      genrateForEachStatementDeleteTrigger(pr, table, metaDefinition);
-    }
-  }
-
-  /**
-   * Generate for each statement delete trigger. Subclasses may override this method
-   * @param pr
-   * @param table
-   * @param metaDefinition
-   * @throws MetaException 
-   */
-  public final void genrateForEachStatementDeleteTrigger(PrintWriter pr, SqlTable table, SqlMeta metaDefinition)
-  {
-    List<SqlDmlStatement> statements = getForEachStatementDeleteTrigger(table, metaDefinition);
-    if (!statements.isEmpty())
-    {
-      generateForEachStatementDeleteTrigger(pr, table, statements);
-      pr.println();
-      pr.println();
-    }
-  }
-
-  private List<SqlDmlStatement> getForEachStatementDeleteTrigger(SqlTable table, SqlMeta metaDefinition)
-  {
-    List<SqlDmlStatement> statements = new ArrayList<>();
-    for(SqlTable foreignTable : metaDefinition.getArtifacts(SqlTable.class))
-    {
-      for (SqlTrigger trigger : foreignTable.getTriggers())        
-      {   
-        if (trigger.getTableName().equals(table.getId()))
-        {  
-          if (isDatabaseSystemHintSet(trigger, TRIGGER_EXECUTE_FOR_EACH_STATEMENT))
-          {
-            statements = trigger.getStatementsForEachStatement();
-          }
-        }
-      }
-    }
-    return statements;
-  }
-
-  /**
-   * Generates a table row delete trigger. Subclasses may override this method.
-   * @param pr the print writer to generate to
-   * @param table the table which triggers the trigger
-   * @param triggerStatements the statements that have to be executed by the trigger
-   * @param recursiveTrigger flag indicating if this trigger is recursive
-   * @throws MetaException 
-   */
-  protected void generateForEachRowDeleteTrigger(PrintWriter pr, SqlTable table,
-          List<SqlDmlStatement> triggerStatements, @SuppressWarnings("unused") boolean recursiveTrigger)
-  {
-    pr.print("CREATE TRIGGER ");
-    generateTriggerName(pr, table);
-    pr.println();
-    pr.print("AFTER DELETE ON ");
-    pr.println(table.getId());
-    pr.println("FOR EACH ROW");    
-    pr.println("BEGIN");
-    for (SqlDmlStatement stmt : triggerStatements)
-    {
-      generateDmlStatement(pr, stmt, 2);
-      generateDelimiter(pr);
-      pr.println();
-      pr.println();
-    }
-    pr.print("END");
-    generateDelimiter(pr);
-  }
-
-  protected void generateTriggerName(PrintWriter pr, SqlTable table)
-  {
-    if (isDatabaseSystemHintSet(table, DELETE_TRIGGER_NAME))
-    {
-      pr.print(getDatabaseSystemHintValue(table, DELETE_TRIGGER_NAME));
-    }
-    else
-    {
-      pr.print(table.getId());
-      pr.print("DeleteTrigger");
-    }
-  }
-
-  protected void generateDmlStatement(PrintWriter pr, SqlDmlStatement stmt, int insets)
-  {
-    if (stmt instanceof SqlDelete)
-    {
-      generateDeleteStatement(pr, (SqlDelete)stmt, insets);
-    }
-    else if (stmt instanceof SqlUpdate)
-    {
-      generateUpdateStatement(pr, (SqlUpdate)stmt, insets);
-    }    
-  }
-
-  protected void generateUpdateStatement(PrintWriter pr, SqlUpdate updateStmt, int insets)
-  {
-    writeSpaces(pr, insets);
-    pr.print("UPDATE ");
-    pr.println(updateStmt.getTable());
-    writeSpaces(pr, insets);
-    pr.print("SET ");
-    boolean first = true;
-    for (SqlUpdateColumnExpression expr: updateStmt.getColumnExpressions())
-    {
-      if (!first)
-      {
-        pr.print(", ");
-      }
-      first = false;
-      pr.print(updateStmt.getTable());
-      pr.print('.');
-      pr.print(expr.getColumnName());
-      pr.print('=');
-      pr.print(expr.getExpression());
-    }
-    if (updateStmt.getFilterExpression() != null)
-    {
-      pr.println();
-      writeSpaces(pr, insets);
-      pr.print("WHERE ");
-      generateFilterExpression(pr, updateStmt.getFilterExpression());
-    }
-  }
-
-  protected void generateFilterExpression(PrintWriter pr, SqlSimpleExpr filterExpression)
-  {
-    if (filterExpression instanceof SqlBinaryRelation)
-    {
-      generateSqlAtom(pr, ((SqlBinaryRelation)filterExpression).getFirst());
-      pr.print(' ');
-      pr.print(((SqlBinaryRelation)filterExpression).getOperator());
-      pr.print(' ');
-      generateSqlAtom(pr, ((SqlBinaryRelation)filterExpression).getSecond());      
-    }
-    else if (filterExpression instanceof SqlLogicalExpression)
-    {
-      generateFilterExpression(pr, ((SqlLogicalExpression)filterExpression).getFirst());
-      pr.print(' ');
-      pr.print(((SqlLogicalExpression)filterExpression).getOperator());
-      pr.print(' ');
-      generateFilterExpression(pr, ((SqlLogicalExpression)filterExpression).getSecond());
-    }
-    else if (filterExpression instanceof SqlNot)
-    {
-      pr.print("NOT ");
-      generateFilterExpression(pr, ((SqlNot)filterExpression).getExpression());      
-    }
-    else if (filterExpression instanceof SqlParent)
-    {
-      pr.print('(');
-      generateFilterExpression(pr, ((SqlParent)filterExpression).getExpression());
-      pr.print(')');
-    }
-  }
-
-  protected void generateDeleteStatement(PrintWriter pr, SqlDelete deleteStmt, int insets)
-  {
-    writeSpaces(pr, insets);
-    pr.print("DELETE FROM ");
-    pr.println(deleteStmt.getTable());
-    writeSpaces(pr, insets);
-    pr.print("WHERE ");
-    generateFilterExpression(pr, deleteStmt.getFilterExpression());
-  }
-
-  protected void generateForEachStatementDeleteTrigger(PrintWriter pr, SqlTable table, List<SqlDmlStatement> triggerStatements)
-  {
-    pr.print("CREATE TRIGGER ");
-    generateTriggerName(pr, table);
-    pr.println();
-    pr.print("AFTER DELETE ON ");
-    pr.println(table.getId());
-    pr.println("BEGIN");
-    for (SqlDmlStatement stmt : triggerStatements)
-    {
-      generateDmlStatement(pr, stmt, 2);
-      generateDelimiter(pr);
-      pr.println();
-      pr.println();
-    }
-    pr.print("END");
-    generateDelimiter(pr);
   }
 
   private void generateTable(PrintWriter pr, SqlTable table, Map<SqlTable, List<SqlForeignKey>> alterTables)
@@ -1199,7 +463,7 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
     boolean firstColumn = true;
     generatePreTable(pr, table);
     pr.append("CREATE TABLE ");
-    generateIdentifier(pr, table.getId());
+    identifiers.generate(pr, table.getId());
     pr.append("\n");
     pr.append("(\n");
     for (SqlTableColumn column : table.getColumns())
@@ -1219,24 +483,24 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
       }
       firstColumn = firstColumn || !generatePrimaryKey(pr, table.getPrimaryKey());
     }
-    if (!isForeignKeyReferenceInColumnDefinitionSupported())
+    if (!foreignKeys.isReferenceInColumnDefinitionSupported())
     {
-      for (SqlForeignKey foreignKey : table.getForeignKeys())
+      for (SqlForeignKey fKey : table.getForeignKeys())
       {
-        if (isForeignKeySupported(foreignKey))
+        if (foreignKeys.isSupported(fKey))
         {
-          if (isTableAlreadyGenerated(foreignKey.getReference().getForeignTable()))
+          if (isTableAlreadyGenerated(fKey.getReference().getForeignTable()))
           {
             if (!firstColumn)
             {
               pr.append(",\n");
             }
             firstColumn = false;
-            generateForeignKey(pr, foreignKey);
+            foreignKeys.generate(pr, fKey);
           }
           else
           {
-            addAlterTableAddForeignKey(alterTables, table, foreignKey);
+            addAlterTableAddForeignKey(alterTables, table, fKey);
           }
         }
       }
@@ -1269,7 +533,7 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
     pr.append("\n");
     pr.append(')');
     generateTableStorage(pr, table);
-    generateDelimiter(pr);
+    delimiter.generate(pr);
     pr.append("\n\n");
     generatePostTable(pr, table);
     if (table.getPrimaryKey() != null)
@@ -1306,7 +570,7 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
     List<SqlIndex> tableIndexes = new ArrayList<>();
     for (SqlIndex index : table.getIndexes())
     {
-      if (!isDatabaseSystemHintSet(index, NO_INDEX))
+      if (!dbHints.NO_INDEX.isSet(index))
       {
         tableIndexes.add(index);
       }
@@ -1350,7 +614,7 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
    */
   public boolean isUniqueConstraintOutsideTableSupported(SqlUniqueConstraint uniqueConstraint)
   {
-    return isDatabaseSystemHintSet(uniqueConstraint, USE_UNIQUE_INDEX);
+    return dbHints.USE_UNIQUE_INDEX.isSet(uniqueConstraint);
   }
 
   /**
@@ -1361,7 +625,7 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
    */
   public boolean isUniqueConstraintInTableSupported(SqlUniqueConstraint uniqueConstraint)
   {
-    return !isDatabaseSystemHintSet(uniqueConstraint, USE_UNIQUE_INDEX) && !isDatabaseSystemHintSet(uniqueConstraint, NO_UNIQUE);
+    return !dbHints.USE_UNIQUE_INDEX.isSet(uniqueConstraint) && !dbHints.NO_UNIQUE.isSet(uniqueConstraint);
   }
 
   /**
@@ -1414,7 +678,7 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
    */
   protected boolean generateUniqueConstraint(PrintWriter pr, SqlUniqueConstraint unique)
   {
-    writeSpaces(pr, 2);
+    spaces.generate(pr, 2);
     pr.print("UNIQUE ");
     pr.print('(');
     generateColumnList(pr, unique.getColumns());
@@ -1434,9 +698,9 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
    */
   protected boolean generateIndexInTable(PrintWriter pr, @SuppressWarnings("unused") SqlTable table, SqlIndex index)
   {
-    writeSpaces(pr, 2);
+    spaces.generate(pr, 2);
     pr.print("INDEX ");
-    generateIdentifier(pr, getIndexName(index));
+    identifiers.generate(pr, getIndexName(index));
     pr.print(' ');
     pr.print('(');
     generateColumnList(pr, index.getColumns());
@@ -1459,7 +723,7 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
         pr.append(", ");
       }
       first = false;
-      generateIdentifier(pr, column);
+      identifiers.generate(pr, column);
     }
   }
 
@@ -1512,14 +776,14 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
           SqlTable table, SqlIndex index)
   {
     pr.print("CREATE INDEX ");
-    generateIdentifier(pr, getIndexName(index));
+    identifiers.generate(pr, getIndexName(index));
     pr.println();
     pr.print("ON ");
-    generateIdentifier(pr, table.getId());
+    identifiers.generate(pr, table.getId());
     pr.print(" (");
     generateColumnList(pr, index.getColumns());
     pr.print(")");
-    generateDelimiter(pr);
+    delimiter.generate(pr);
     pr.println();
     pr.println();    
   }
@@ -1529,14 +793,8 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
    */
   protected String getIndexName(SqlIndex index)
   {
-    if (isDatabaseSystemHintSet(index, INDEX_NAME))
-    {
-      return getDatabaseSystemHintValue(index, INDEX_NAME);
-    }
-    else
-    {
-      return index.getId();
-    }
+    return dbHints.INDEX_NAME.valueIfSet(index)
+        .orElse(index.getId());
   }
 
   
@@ -1559,7 +817,7 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
     pr.print(" (");
     generateColumnList(pr, unique.getColumns());
     pr.print(')');
-    generateDelimiter(pr);
+    delimiter.generate(pr);
     pr.println();
   }
   
@@ -1583,11 +841,11 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
   protected void generateUniqueConstraintInTable(PrintWriter pr, SqlTable table, SqlUniqueConstraint unique)
   {
     pr.print("ALTER TABLE ");
-    generateIdentifier(pr, table.getId());
+    identifiers.generate(pr, table.getId());
     pr.print(" ADD UNIQUE (");
     generateColumnList(pr, unique.getColumns());
     pr.print(")");
-    generateDelimiter(pr);
+    delimiter.generate(pr);
     pr.println();
   }
   
@@ -1614,7 +872,7 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
     {
       generateAlterTableDropUniqueConstraint(pr, table, unique, createdTemporaryStoredProcedures);
     }
-    generateDelimiter(pr);
+    delimiter.generate(pr);
     pr.println();
   }
   
@@ -1630,7 +888,7 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
           SqlUniqueConstraint unique, @SuppressWarnings("unused") List<String> createdTemporaryStoredProcedures)
   {
     pr.print("ALTER TABLE ");
-    generateIdentifier(pr, table.getId());
+    identifiers.generate(pr, table.getId());
     pr.print(" DROP UNIQUE (");
     generateColumnList(pr, unique.getColumns());
     pr.print(")");
@@ -1647,9 +905,9 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
   protected void generateDropUniqueIndex(PrintWriter pr, SqlTable table, SqlUniqueConstraint unique, @SuppressWarnings("unused") List<String> createdTemporaryStoredProcedures)
   {
     pr.print("ALTER TABLE ");
-    generateIdentifier(pr, table.getId());
+    identifiers.generate(pr, table.getId());
     pr.print(" DROP INDEX ");
-    generateIdentifier(pr, getUniqueConstraintName(unique));
+    identifiers.generate(pr, getUniqueConstraintName(unique));
   }
 
   /** 
@@ -1658,14 +916,8 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
    */
   protected final String getUniqueConstraintName(SqlUniqueConstraint unique)
   {
-    if (getDatabaseSystemHintValue(unique, USE_UNIQUE_INDEX)!=null)
-    {
-      return getDatabaseSystemHintValue(unique, USE_UNIQUE_INDEX);
-    }
-    else
-    {
-      return unique.getId();
-    }
+    return dbHints.USE_UNIQUE_INDEX.valueIfSet(unique)
+        .orElse(unique.getId());
   }
 
   /**
@@ -1676,20 +928,11 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
    */
   protected boolean generatePrimaryKey(PrintWriter pr, SqlPrimaryKey primaryKey)
   {
-    writeSpaces(pr, 2);
+    spaces.generate(pr, 2);
     pr.append("PRIMARY KEY (");
     generateColumnList(pr, primaryKey.getPrimaryKeyColumns());
     pr.append(")");
     return true;
-  }
-
-  /**
-   * Generates a statement delimiter
-   * @param pr
-   */
-  protected void generateDelimiter(PrintWriter pr)
-  {
-    pr.append(';');
   }
 
   /**
@@ -1702,8 +945,8 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
    */
   public final void generateColumn(PrintWriter pr, SqlTable table, SqlTableColumn column, Map<SqlTable, List<SqlForeignKey>> alterTables)
   {
-    writeSpaces(pr, 2);
-    generateIdentifier(pr, column.getId());
+    spaces.generate(pr, 2);
+    identifiers.generate(pr, column.getId());
     pr.append(' ');
     generateDataType(pr, column.getDataType(), column);
     if (isNullBeforeDefaultConstraint())
@@ -1717,12 +960,12 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
       generateNullConstraint(pr, column.isCanBeNull(), column);      
     }
     if ((column.getReference()!=null)&&
-        (isForeignKeyReferenceInColumnDefinitionSupported())&&            
-        (isForeignKeySupported(table.findForeignKey(column))))
+        (foreignKeys.isReferenceInColumnDefinitionSupported())&&            
+        (foreignKeys.isSupported(table.findForeignKey(column))))
     {
       if (isTableAlreadyGenerated(column.getReference().getForeignTable()))
       {
-        generateReference(pr, column.getReference(), table.findForeignKey(column));
+        foreignKeys.generateReference(pr, column.getReference(), table.findForeignKey(column));
       }
       else
       {
@@ -1731,86 +974,6 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
     }    
   }
   
-  /**
-   * Generates an identifier 
-   * @param pr the print writer
-   * @param identifier the identifier
-   */
-  protected void generateIdentifier(PrintWriter pr, String identifier)
-  {
-    if (isReservedSqlKeyword(identifier))
-    {
-      generateIdentifierQuote(pr);
-      pr.print(identifier);
-      generateIdentifierQuote(pr);
-    }
-    else
-    {
-      pr.print(identifier);
-    }
-  }
-
-  /**
-   * Generates an identifier quote
-   * @param pr print writer
-   */
-  protected void generateIdentifierQuote(PrintWriter pr)
-  {
-    pr.print("\"");
-  }
-
-  /**
-   * Checks if the given identifier is a reserved sql keyword
-   * @param identifier the identifer to check
-   * @return true is it is a reserved sql word, otherwise false
-   */
-  protected boolean isReservedSqlKeyword(String identifier)
-  {
-    return ReservedSqlKeywords.get().contains(identifier.toUpperCase());
-  }
-
-  /**
-   * Generates the foreign key definition. This method is only called if method {@link #isForeignKeyReferenceInColumnDefinitionSupported()} 
-   * returns false.
-   * @param pr the print writer
-   * @param foreignKey the foreign key to generate
-   * @throws MetaException 
-   */
-  protected void generateForeignKey(PrintWriter pr, SqlForeignKey foreignKey)
-  {
-    writeSpaces(pr, 2);
-    pr.print("FOREIGN KEY (");
-    generateIdentifier(pr, foreignKey.getColumnName());
-    pr.print(")");
-    generateReference(pr, foreignKey.getReference(), foreignKey);
-  }
-
-  /**
-   * Is foreign Key reference in column definition supported. If this method returns 
-   * true the method {@link #generateReference(PrintWriter, SqlReference, SqlForeignKey)} will be called
-   * during the column definition generation. If it returns false the method will not be called instead
-   * the method {@link #generateForeignKey(PrintWriter, SqlForeignKey)} will be called after the column generation.</br>
-   * Subclasses may override this method if foreign key reference in column definitions are not 
-   * supported and instead foreign key should be declared outside the column definition.
-   * @return true if it supported, false if not
-   * @see #generateReference(PrintWriter, SqlReference, SqlForeignKey)
-   * @see #generateForeignKey(PrintWriter, SqlForeignKey)
-   */
-  public boolean isForeignKeyReferenceInColumnDefinitionSupported()
-  {
-    return true;
-  }
-
-  /**
-   * Is foreign key supported. Subclasses that does not support foreign keys may override this method an return false
-   * @param foreignKey the foreign key
-   * @return true if they are supported, false if not
-   */
-  public boolean isForeignKeySupported(SqlForeignKey foreignKey)
-  {
-    return !(isDatabaseSystemHintSet(foreignKey, NO_REFERENCE_USE_TRIGGER)||isDatabaseSystemHintSet(foreignKey, NO_REFERENCE));
-  }
-
   /**
    * Should the null / not null constraint be generated before the default value of a column
    * @return true if null should be before default, false otherwise
@@ -1836,79 +999,6 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
     foreignKeys.add(foreignKey);
   }
 
-  /**
-   * Generates a reference
-   * @param pr the writer
-   * @param reference the reference
-   * @param foreignKey The sql foreign key the reference is defined on
-   * @throws MetaException 
-   */
-  protected void generateReference(PrintWriter pr, SqlReference reference, SqlForeignKey foreignKey)
-  {
-    pr.append(" REFERENCES ");
-    pr.append(getForeignTable(reference, foreignKey));
-    pr.append('(');
-    pr.append(reference.getForeignColumn());
-    pr.append(')');
-    if ((getForeignKeyAction(foreignKey) != null)&&
-        (!isDatabaseSystemHintSet(foreignKey, NO_ACTION_USE_TRIGGER))&&
-        (!isDatabaseSystemHintSet(foreignKey, NO_ACTION)))
-    {
-      switch(getForeignKeyAction(foreignKey))
-      {
-        case ON_DELETE_CASCADE:
-          pr.append(' ');
-          pr.append("ON DELETE CASCADE");
-          break;
-        case ON_DELETE_SET_NULL:
-          pr.append(' ');
-          pr.append("ON DELETE SET NULL");
-          break;
-        case ON_DELETE_THIS_CASCADE:
-          // do not generate this action because sql does not offer it.
-          // this action must be implemented with triggers!
-          break;
-      }
-    }
-  }
-
-  /**
-   * Gets the foreign key action of the given foreign key
-   * @param foreignKey the foreign key
-   * @return foreign key action
-   * @throws MetaException 
-   */
-  protected SqlForeignKeyAction getForeignKeyAction(SqlForeignKey foreignKey)
-  {
-    if (isDatabaseSystemHintSet(foreignKey, REFERENCE_ACTION))
-    {
-      for (SqlForeignKeyAction action : SqlForeignKeyAction.values())
-      {
-        if (action.toString().equals(getDatabaseSystemHintValue(foreignKey, REFERENCE_ACTION)))
-        {
-          return action;
-        }
-      }
-      throw new MetaException("Unknown Foreign Key Action '"+getDatabaseSystemHintValue(foreignKey, REFERENCE_ACTION));
-    }
-      
-    return foreignKey.getReference().getForeignKeyAction();
-  }
-
-  /**
-   * Gets the foreign table of a reference
-   * @param reference the reference 
-   * @param artifact the artifact the reference was declared on
-   * @return foreign table
-   */
-  protected String getForeignTable(SqlReference reference, SqlArtifact artifact)
-  {
-    if (isDatabaseSystemHintSet(artifact, FOREIGN_TABLE))
-    {
-      return getDatabaseSystemHintValue(artifact, FOREIGN_TABLE);
-    }
-    return reference.getForeignTable();
-  }
 
   /**
    * Generate null constraint
@@ -1930,54 +1020,11 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
     if (column.getDefaultValue() != null)
     {
       pr.append(" DEFAULT ");
-      if (isDatabaseSystemHintSet(column, DEFAULT_VALUE))
-      {
-        generateValue(pr, getDatabaseSystemHintValue(column, DEFAULT_VALUE));
-      }
-      else
-      {
-        generateValue(pr, column.getDefaultValue().getValue());
-      }
+      dmlStatements.generateValue(pr, 
+          dbHints.DEFAULT_VALUE.valueIfSet(column)
+            .map(value -> (Object)value)
+            .orElse(column.getDefaultValue().getValue()));
     }
-  }
-
-  protected void generateValue(PrintWriter pr, Object value)
-  {
-    generateValue(pr, value, SqlArtifact.UNDEFINED);
-  }
-  
-  /**
-   * Generates a value
-   * @param pr the writer
-   * @param value the value to generate
-   * @param artifact 
-   */
-  protected void generateValue(PrintWriter pr, Object value, SqlArtifact artifact)
-  {
-    if (value == SqlNull.getInstance())
-    {
-      generateNULL(pr, artifact);
-    }
-    else if (value instanceof String)
-    {
-      pr.append("'");
-      pr.append(value.toString());
-      pr.append("'");
-    }
-    else
-    {
-      pr.append(value.toString());
-    }
-  }
-
-  /**
-   * Generate NULL value 
-   * @param pr
-   * @param artifact
-   */
-  protected void generateNULL(PrintWriter pr, @SuppressWarnings("unused") SqlArtifact artifact)
-  {
-    pr.append("NULL");
   }
 
   /**
@@ -1988,9 +1035,9 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
    */
   protected void generateDataType(PrintWriter pr, SqlDataType dataType, SqlArtifact artifact)
   {
-    if (isDatabaseSystemHintSet(artifact, DATA_TYPE))
+    if (dbHints.DATA_TYPE.isSet(artifact))
     {
-      generateDatabaseManagementHintValue(pr, artifact, DATA_TYPE);
+      dbHints.DATA_TYPE.generate(pr, artifact);
     }
     else
     {
@@ -2020,19 +1067,6 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
   }
 
   /**
-   * Prints spaces
-   * @param pr
-   * @param numberOfSpaces
-   */
-  protected void writeSpaces(PrintWriter pr, int numberOfSpaces)
-  {
-    for (int pos = 0; pos < numberOfSpaces; pos++)
-    {
-      pr.append(" ");
-    }
-  }
-
-  /**
    * @see IMetaOutputGenerator#printHelp()
    */
   @Override
@@ -2059,8 +1093,8 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
   public void generateDropStoredProcedures(PrintWriter pr, String storedProcedureId)
   {
     pr.print("DROP PROCEDURE ");
-    generateIdentifier(pr, storedProcedureId);
-    generateDelimiter(pr);
+    identifiers.generate(pr, storedProcedureId);
+    delimiter.generate(pr);
     pr.println();
   }
 
@@ -2073,8 +1107,8 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
   public void generateDropIndex(PrintWriter pr, @SuppressWarnings("unused") SqlTable table, SqlIndex index) 
   {
     pr.print("DROP INDEX ");
-    generateIdentifier(pr, getIndexName(index));
-    generateDelimiter(pr);
+    identifiers.generate(pr, getIndexName(index));
+    delimiter.generate(pr);
     pr.println(); 
   }
 
@@ -2089,8 +1123,8 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
   public void generateDropPrimaryKey(PrintWriter pr, SqlTable table, SqlPrimaryKey primaryKey, @SuppressWarnings("unused") List<String> createdTemporaryStoredProcedures)
   {
     pr.print("DROP PRIMARY KEY ");
-    generateIdentifier(pr, table.getId()+"."+primaryKey.getId());
-    generateDelimiter(pr);
+    identifiers.generate(pr, table.getId()+"."+primaryKey.getId());
+    delimiter.generate(pr);
     pr.println();
   }
 
@@ -2101,7 +1135,7 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
     pr.print(" ADD PRIMARY KEY (");
     generateColumnList(pr, primaryKey.getPrimaryKeyColumns());
     pr.append(")");
-    generateDelimiter(pr); 
+    delimiter.generate(pr); 
     
   }
 
@@ -2121,7 +1155,7 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
     pr.println("SET @cmd = 'ALTER TABLE "+table.getId()+" DROP CONSTRAINT '");
     pr.println("+ @defname");
     pr.println("EXEC(@cmd)");
-    generateDelimiter(pr);
+    delimiter.generate(pr);
     pr.println();
   }
 
@@ -2130,7 +1164,7 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
     pr.print("ALTER TABLE "+table.getId()+" ADD CONSTRAINT DEF"+table.getId()+col.getId()+" ");
     generateDefaultValue(pr, col);
     pr.print(" FOR "+col.getId());
-    generateDelimiter(pr);
+    delimiter.generate(pr);
     pr.println();
   }
   

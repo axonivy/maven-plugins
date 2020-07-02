@@ -15,7 +15,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import ch.ivyteam.db.meta.generator.internal.HtmlDocGenerator;
-import ch.ivyteam.db.meta.generator.internal.OracleSqlScriptGenerator;
+import ch.ivyteam.db.meta.generator.internal.oracle.OracleSqlScriptGenerator;
 
 public class TestMetaOutputGeneratorMojo
 {

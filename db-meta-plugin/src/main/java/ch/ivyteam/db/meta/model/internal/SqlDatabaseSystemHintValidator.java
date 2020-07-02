@@ -5,14 +5,14 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import ch.ivyteam.db.meta.generator.internal.HsqlSqlScriptGenerator;
 import ch.ivyteam.db.meta.generator.internal.JavaClassGenerator;
 import ch.ivyteam.db.meta.generator.internal.JavaEntityClassGenerator;
-import ch.ivyteam.db.meta.generator.internal.MsSqlServerSqlScriptGenerator;
-import ch.ivyteam.db.meta.generator.internal.MySqlSqlScriptGenerator;
-import ch.ivyteam.db.meta.generator.internal.OracleSqlScriptGenerator;
-import ch.ivyteam.db.meta.generator.internal.PostgreSqlSqlScriptGenerator;
 import ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator;
+import ch.ivyteam.db.meta.generator.internal.hsql.HsqlSqlScriptGenerator;
+import ch.ivyteam.db.meta.generator.internal.mssql.MsSqlServerSqlScriptGenerator;
+import ch.ivyteam.db.meta.generator.internal.mysql.MySqlSqlScriptGenerator;
+import ch.ivyteam.db.meta.generator.internal.oracle.OracleSqlScriptGenerator;
+import ch.ivyteam.db.meta.generator.internal.postgresql.PostgreSqlSqlScriptGenerator;
 import ch.ivyteam.db.meta.generator.internal.query.TableInfo;
 
 /**
@@ -71,9 +71,6 @@ public class SqlDatabaseSystemHintValidator
     registerHint(JavaEntityClassGenerator.CACHE, JavaEntityClassGenerator.USAGE_LIMIT);
 
     registerType(HsqlSqlScriptGenerator.HSQL_DB);
-    registerHint(HsqlSqlScriptGenerator.HSQL_DB, HsqlSqlScriptGenerator.TRIGGER_CLASS);
-    registerHint(HsqlSqlScriptGenerator.HSQL_DB, HsqlSqlScriptGenerator.TRIGGER_NAME_POST_FIX);
-    registerHint(HsqlSqlScriptGenerator.HSQL_DB, HsqlSqlScriptGenerator.ADDITIONAL_TRIGGERS_FOR_TABLES);
 
     registerType(MsSqlServerSqlScriptGenerator.MS_SQL_SERVER);
 
@@ -86,7 +83,7 @@ public class SqlDatabaseSystemHintValidator
     registerType(PostgreSqlSqlScriptGenerator.POSTGRESQL);
     registerHint(PostgreSqlSqlScriptGenerator.POSTGRESQL, PostgreSqlSqlScriptGenerator.CAST);
   }
-  
+    
   private static void registerHint(String type, String hint)
   {
     Set<String> databaseManagementSystemHint = HINTS_PER_TYPE.get(type);

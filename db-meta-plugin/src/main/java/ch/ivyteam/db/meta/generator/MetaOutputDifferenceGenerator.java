@@ -188,7 +188,7 @@ public class MetaOutputDifferenceGenerator
     {
       return;
     }
-    generator.generateCommentLine(pr, "Drop temporary created stored procedures needed for conversion");
+    generator.comments.generate(pr, "Drop temporary created stored procedures needed for conversion");
     for (String storedProcedureId : createdTemporaryStoredProcedures)
     {
       generator.generateDropStoredProcedures(pr, storedProcedureId);
@@ -209,10 +209,10 @@ public class MetaOutputDifferenceGenerator
       {
         if (first)
         {
-          generator.generateCommentLine(pr, "Delete removed default table content");
+          generator.comments.generate(pr, "Delete removed default table content");
         }
         first = false;
-        generator.generateDelete(pr, fromSqlInsert);
+        generator.dmlStatements.generateDelete(pr, fromSqlInsert);
       }
     }    
   }
@@ -231,7 +231,7 @@ public class MetaOutputDifferenceGenerator
       {
         if (first)
         {
-          generator.generateCommentLine(pr, "Add new added default table content");
+          generator.comments.generate(pr, "Add new added default table content");
         }
         first = false;
         pr.append(toInsertStmt);
@@ -259,7 +259,7 @@ public class MetaOutputDifferenceGenerator
   private String getInsertStmt(SqlInsertWithValues sqlInsert)
   {
     StringWriter output = new StringWriter();
-    generator.generateInsert(new PrintWriter(output), sqlInsert);
+    generator.dmlStatements.generateInsert(new PrintWriter(output), sqlInsert);
     return output.toString();
   }
 
@@ -301,7 +301,7 @@ public class MetaOutputDifferenceGenerator
         return;
       }
       pr.println();
-      generator.generateCommentLine(pr, "Create new indexes of table " + newTable.getId());
+      generator.comments.generate(pr, "Create new indexes of table " + newTable.getId());
       for (SqlIndex addedIndex : addedIndexes)
       {
         generator.generateIndex(pr, newTable, addedIndex);
@@ -330,7 +330,7 @@ public class MetaOutputDifferenceGenerator
         return;
       }
       pr.println();
-      generator.generateCommentLine(pr, "Drop indexes which depend on changed columns");
+      generator.comments.generate(pr, "Drop indexes which depend on changed columns");
       for (SqlIndex sqlIndex : changedIndexes)
       {
         generator.generateDropIndex(pr, oldTable, sqlIndex);
@@ -381,7 +381,7 @@ public class MetaOutputDifferenceGenerator
         return;
       }
       pr.println();
-      generator.generateCommentLine(pr, "Drop removed indexes of table " + newTable.getId());
+      generator.comments.generate(pr, "Drop removed indexes of table " + newTable.getId());
       for (SqlIndex sqlIndex : changedIndexes)
       {
         generator.generateDropIndex(pr, oldTable, sqlIndex);
@@ -419,7 +419,7 @@ public class MetaOutputDifferenceGenerator
         return;
       }
       pr.println();
-      generator.generateCommentLine(pr, "Create index which depend on changed columns");
+      generator.comments.generate(pr, "Create index which depend on changed columns");
       for (SqlIndex sqlIndex : changedIndexes)
       {
         generator.generateIndex(pr, newTable, sqlIndex);
@@ -520,12 +520,12 @@ public class MetaOutputDifferenceGenerator
       Set<SqlUniqueConstraint> alreadyRecreatedUniqueConstraints = getUniqueConstraintsToRecreate(newTable, oldTable);
       
       pr.println();
-      generator.generateCommentLine(pr, "Create new unique constraint of table " + newTable.getId());
+      generator.comments.generate(pr, "Create new unique constraint of table " + newTable.getId());
       for (SqlUniqueConstraint addedUnique : addedUniques)
       {
         if (alreadyRecreatedUniqueConstraints.contains(addedUnique))
         {
-          generator.generateCommentLine(pr, "Skipping generation of constraint '" + addedUnique + "'."
+          generator.comments.generate(pr, "Skipping generation of constraint '" + addedUnique + "'."
                   + " It was already re-generated in this script.");
         }
         else
@@ -571,7 +571,7 @@ public class MetaOutputDifferenceGenerator
         return;
       }
       pr.println();
-      generator.generateCommentLine(pr, "Drop unique constraint which depend on changed columns or was deleted");
+      generator.comments.generate(pr, "Drop unique constraint which depend on changed columns or was deleted");
       for (SqlUniqueConstraint uniqueConstraint : changedUniqueConstraints)
       {
         generator.generateDropUniqueConstraint(pr, oldTable, uniqueConstraint, createdTemporaryStoredProcedures);
@@ -625,7 +625,7 @@ public class MetaOutputDifferenceGenerator
         return;
       }
       pr.println();
-      generator.generateCommentLine(pr, "Create unique constraints which depend on changed columns");
+      generator.comments.generate(pr, "Create unique constraints which depend on changed columns");
       for (SqlUniqueConstraint uniqueConstraint : uniqueConstraints)
       {
         generator.generateAddUniqueConstraint(pr, newTable, uniqueConstraint);
@@ -678,18 +678,18 @@ public class MetaOutputDifferenceGenerator
   {
     void generateTrigger(PrintWriter pr, SqlTable table, SqlMeta metaDefinition)
     {
-      generator.genrateForEachStatementDeleteTrigger(pr, table, metaDefinition);
-      generator.generateForEachRowDeleteTrigger(pr, table, metaDefinition);
+      generator.triggers.createForEachStatementDeleteTrigger(pr, table, metaDefinition);
+      generator.triggers.createForEachRowDeleteTrigger(pr, table, metaDefinition);
     }
 
     public void generateCreateTriggersOfAddedTables(PrintWriter pr)
     {
       for (SqlTable addedTable : findAddedTables())
       {
-        if (generator.hasTrigger(metaDefinitionTo, addedTable))
+        if (generator.triggers.hasTrigger(metaDefinitionTo, addedTable))
         {
           pr.println();
-          generator.generateCommentLine(pr, "Create trigger which depend on new added table "+addedTable.getId());
+          generator.comments.generate(pr, "Create trigger which depend on new added table "+addedTable.getId());
           triggers.generateTrigger(pr, addedTable, metaDefinitionTo);
         }
       }
@@ -702,8 +702,8 @@ public class MetaOutputDifferenceGenerator
       for (SqlTable oldTableWithTrigger : tablesWithChangedTriggers.values())
       {
         pr.println();
-        generator.generateCommentLine(pr, "Drop trigger which depend on changed table(s)");
-        generator.generateDropTrigger(pr, oldTableWithTrigger, metaDefinitionFrom);
+        generator.comments.generate(pr, "Drop trigger which depend on changed table(s)");
+        generator.triggers.generateDrop(pr, oldTableWithTrigger);
       }
     }
     
@@ -714,8 +714,8 @@ public class MetaOutputDifferenceGenerator
       for (SqlTable oldTableWithTrigger : tablesWithChangedTriggers.values())
       {
         pr.println();
-        generator.generateCommentLine(pr, "Drop trigger that has been deleted");
-        generator.generateDropTrigger(pr, oldTableWithTrigger, metaDefinitionFrom);
+        generator.comments.generate(pr, "Drop trigger that has been deleted");
+        generator.triggers.generateDrop(pr, oldTableWithTrigger);
       }
     }
     
@@ -725,7 +725,7 @@ public class MetaOutputDifferenceGenerator
       for (SqlTable newTableWithTrigger : tablesWithAddedTriggers.keySet())
       {
         pr.println();
-        generator.generateCommentLine(pr, "Create new triggers on existing table(s)");
+        generator.comments.generate(pr, "Create new triggers on existing table(s)");
         generateTrigger(pr, newTableWithTrigger, metaDefinitionTo);
       }
     }
@@ -737,7 +737,7 @@ public class MetaOutputDifferenceGenerator
       for (SqlTable newTableWithTrigger : tablesWithChangedTriggers.keySet())
       {
         pr.println();
-        generator.generateCommentLine(pr, "Recreate trigger which depend on changed table(s)");
+        generator.comments.generate(pr, "Recreate trigger which depend on changed table(s)");
         generateTrigger(pr, newTableWithTrigger, metaDefinitionTo);
       }
     }
@@ -778,7 +778,7 @@ public class MetaOutputDifferenceGenerator
         {
           SqlTable newTable = comonTable.getKey();
           SqlTable oldTable = comonTable.getValue();
-          if (generator.hasTrigger(metaDefinitionTo, newTable))
+          if (generator.triggers.hasTrigger(metaDefinitionTo, newTable))
           {
             tablesOfChangedTriggers.put(newTable, oldTable);
           }
@@ -874,9 +874,9 @@ public class MetaOutputDifferenceGenerator
       List<Pair<SqlTable, SqlForeignKey>> referencingColumns = getForeignKeysReferencingChangedColumns();
       for (Pair<SqlTable, SqlForeignKey> pair : referencingColumns)
       {
-        if (generator.isForeignKeySupported(pair.getRight()))
+        if (generator.foreignKeys.isSupported(pair.getRight()))
         {
-          generator.generateAlterTableAddForeignKey(pr, pair.getLeft(), pair.getRight());
+          generator.foreignKeys.generateAlterTableAdd(pr, pair.getLeft(), pair.getRight());
         }
       }
     }
@@ -893,9 +893,9 @@ public class MetaOutputDifferenceGenerator
       referencingColumns.addAll(getForeignKeysReferencingDroppedTables());
       for (Pair<SqlTable, SqlForeignKey> pair : referencingColumns)
       {
-        if (generator.isForeignKeySupported(pair.getRight()))
+        if (generator.foreignKeys.isSupported(pair.getRight()))
         {
-          generator.generateAlterTableDropForeignKey(pr, pair.getLeft(), pair.getRight(),
+          generator.foreignKeys.generateAlterTableDrop(pr, pair.getLeft(), pair.getRight(),
                   createdTemporaryStoredProcedures);
         }
       }
@@ -944,7 +944,7 @@ public class MetaOutputDifferenceGenerator
 
     void generateAlterForeignKeys(PrintWriter pr, SqlTable newTable, SqlTable oldTable)
     {
-      if (generator.isForeignKeyReferenceInColumnDefinitionSupported())
+      if (generator.foreignKeys.isReferenceInColumnDefinitionSupported())
       {
         return;
       }
@@ -953,10 +953,10 @@ public class MetaOutputDifferenceGenerator
       if (!addedForeignKeys.isEmpty())
       {
         pr.println();
-        generator.generateCommentLine(pr, "Create added foreign keys of table " + newTable.getId());
+        generator.comments.generate(pr, "Create added foreign keys of table " + newTable.getId());
         for (SqlForeignKey sqlForeignKey : addedForeignKeys)
         {
-          generator.generateAlterTableAddForeignKey(pr, newTable, sqlForeignKey);
+          generator.foreignKeys.generateAlterTableAdd(pr, newTable, sqlForeignKey);
         }
       }
 
@@ -965,10 +965,10 @@ public class MetaOutputDifferenceGenerator
       if (!removedForeignKeys.isEmpty())
       {
         pr.println();
-        generator.generateCommentLine(pr, "Remove foreign keys of table " + newTable.getId());
+        generator.comments.generate(pr, "Remove foreign keys of table " + newTable.getId());
         for (SqlForeignKey sqlForeignKey : removedForeignKeys)
         {
-          generator.generateAlterTableDropForeignKey(pr, newTable, sqlForeignKey, createdTemporaryStoredProcedures);
+          generator.foreignKeys.generateAlterTableDrop(pr, newTable, sqlForeignKey, createdTemporaryStoredProcedures);
         }
       }
     }
@@ -995,7 +995,7 @@ public class MetaOutputDifferenceGenerator
       List<SqlForeignKey> newForeignKeys = newTable.getForeignKeys();
       for (SqlForeignKey newForeignKey : newForeignKeys)
       {
-        if (generator.isForeignKeySupported(newForeignKey))
+        if (generator.foreignKeys.isSupported(newForeignKey))
         {
           SqlForeignKey oldForeignKey = oldTable.findForeignKey(newForeignKey.getId());
           if (!isForeignKey(oldForeignKey))
@@ -1013,7 +1013,7 @@ public class MetaOutputDifferenceGenerator
       {
         return false;
       }
-      return generator.isForeignKeySupported(foreignKey);
+      return generator.foreignKeys.isSupported(foreignKey);
     }
   }
   
@@ -1027,18 +1027,18 @@ public class MetaOutputDifferenceGenerator
     
     for (SqlTable deletedTable : deletedTables)
     {
-      if (generator.hasTrigger(metaDefinitionFrom, deletedTable))
+      if (generator.triggers.hasTrigger(metaDefinitionFrom, deletedTable))
       {
         pr.println();
-        generator.generateCommentLine(pr, "Drop trigger of no longer exisiting table");
-        generator.generateDropTrigger(pr, deletedTable, metaDefinitionFrom);
+        generator.comments.generate(pr, "Drop trigger of no longer exisiting table");
+        generator.triggers.generateDrop(pr, deletedTable);
       }
     }
     
     for (SqlTable deletedTable : deletedTables)
     {
       pr.println();
-      generator.generateCommentLine(pr, "Drop no longer exisiting table");
+      generator.comments.generate(pr, "Drop no longer exisiting table");
       generator.generateDropTable(pr, deletedTable);
     }
   }
@@ -1053,7 +1053,7 @@ public class MetaOutputDifferenceGenerator
       return;
     }
     pr.println();
-    generator.generateCommentLine(pr, "Create new added tables");
+    generator.comments.generate(pr, "Create new added tables");
     generator.generateTables(pr, addedTables);
   }
 
@@ -1101,7 +1101,7 @@ public class MetaOutputDifferenceGenerator
       return;
     }
     pr.println();
-    generator.generateCommentLine(pr, "Dropped columns of table " + newTable.getId());
+    generator.comments.generate(pr, "Dropped columns of table " + newTable.getId());
     for (SqlTableColumn droppedColumn : droppedColumns)
     {
       generator.generateAlterTableDropColumn(pr, droppedColumn, newTable);
@@ -1115,7 +1115,7 @@ public class MetaOutputDifferenceGenerator
     if (changedColumns.size() > 0)
     {
       pr.println();
-      generator.generateCommentLine(pr, "Changed columns of table " + newTable.getId());
+      generator.comments.generate(pr, "Changed columns of table " + newTable.getId());
       for (Entry<SqlTableColumn, SqlTableColumn> changedColumn : changedColumns.entrySet())
       {
         SqlTableColumn newColumn = changedColumn.getKey();
@@ -1134,7 +1134,7 @@ public class MetaOutputDifferenceGenerator
       return;
     }
     pr.println();
-    generator.generateCommentLine(pr, "Added columns of table " + newTable.getId());
+    generator.comments.generate(pr, "Added columns of table " + newTable.getId());
     for (SqlTableColumn addedColumn : addedColumns)
     {
       generator.generateAlterTableAddColumn(pr, addedColumn, newTable);
@@ -1147,7 +1147,7 @@ public class MetaOutputDifferenceGenerator
     Set<SqlView> changedViews = findChangedViews();
     if (!changedViews.isEmpty())
     {
-      generator.generateCommentLine(pr, "Drop views which has a new definition or depend on changed tables");
+      generator.comments.generate(pr, "Drop views which has a new definition or depend on changed tables");
       for (SqlView sqlView : changedViews)
       {
         generator.generateDropView(pr, sqlView);
@@ -1174,7 +1174,7 @@ public class MetaOutputDifferenceGenerator
     if (!views.isEmpty())
     {
       pr.println();
-      generator.generateCommentLine(pr, commentLine);
+      generator.comments.generate(pr, commentLine);
       for (SqlView sqlView : views)
       {
         generator.generateView(pr, sqlView);

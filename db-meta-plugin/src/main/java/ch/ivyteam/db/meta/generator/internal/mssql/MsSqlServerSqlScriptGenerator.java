@@ -1,24 +1,25 @@
-package ch.ivyteam.db.meta.generator.internal;
+package ch.ivyteam.db.meta.generator.internal.mssql;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-import ch.ivyteam.db.meta.model.internal.MetaException;
+import ch.ivyteam.db.meta.generator.internal.Comments;
+import ch.ivyteam.db.meta.generator.internal.DbHints;
+import ch.ivyteam.db.meta.generator.internal.Delimiter;
+import ch.ivyteam.db.meta.generator.internal.DmlStatements;
+import ch.ivyteam.db.meta.generator.internal.ForeignKeys;
+import ch.ivyteam.db.meta.generator.internal.GenerateAlterTableUtil;
+import ch.ivyteam.db.meta.generator.internal.Identifiers;
+import ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator;
+import ch.ivyteam.db.meta.generator.internal.Triggers;
 import ch.ivyteam.db.meta.model.internal.SqlDataType.DataType;
-import ch.ivyteam.db.meta.model.internal.SqlDelete;
-import ch.ivyteam.db.meta.model.internal.SqlDmlStatement;
-import ch.ivyteam.db.meta.model.internal.SqlForeignKey;
-import ch.ivyteam.db.meta.model.internal.SqlFunction;
 import ch.ivyteam.db.meta.model.internal.SqlIndex;
 import ch.ivyteam.db.meta.model.internal.SqlMeta;
 import ch.ivyteam.db.meta.model.internal.SqlPrimaryKey;
 import ch.ivyteam.db.meta.model.internal.SqlTable;
 import ch.ivyteam.db.meta.model.internal.SqlTableColumn;
 import ch.ivyteam.db.meta.model.internal.SqlUniqueConstraint;
-import ch.ivyteam.db.meta.model.internal.SqlUpdate;
-import ch.ivyteam.db.meta.model.internal.SqlUpdateColumnExpression;
 
 /**
  * Generates the sql script for Microsoft SQL Server database systems
@@ -28,10 +29,34 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
 {
   private static final String DROP_UNIQUE_CONSTRAINT_STORED_PROCUDRE  = "IWA_Drop_Unique"; 
   private static final String DROP_PRIMARY_CONSTRAINT_STORED_PROCUDRE = "IWA_Drop_PrimaryKey";
-  private static final String DROP_FOREIGN_CONSTRAINT_STORED_PROCUDRE = "IWA_Drop_ForeignKey";
+  static final String DROP_FOREIGN_CONSTRAINT_STORED_PROCUDRE = "IWA_Drop_ForeignKey";
+  private static final Delimiter DELIMITER = new Delimiter("\nGO");
+  public static final String MS_SQL_SERVER = String.valueOf("MsSqlServer");  
+  private List<String> dropUniqueForTables = new ArrayList<>();
   
-  public static final String MS_SQL_SERVER = String.valueOf("MsSqlServer");
-  private List<String> dropUniqueForTables = new ArrayList<>();  
+  
+  public MsSqlServerSqlScriptGenerator()
+  {
+    super(MS_SQL_SERVER, DELIMITER, Identifiers.STANDARD, Comments.STANDARD);
+  }
+  
+  @Override
+  protected DmlStatements createDmlStatementsGenerator(DbHints hints, Delimiter delim, Identifiers ident)
+  {
+    return new MsSqlDmlStatements(hints, delim, ident);
+  }
+  
+  @Override
+  protected Triggers createTriggersGenerator(DbHints hints, Delimiter delim, DmlStatements dmlStmts, ForeignKeys fKeys)
+  {
+    return new MsSqlTriggers(hints, delim, dmlStmts, fKeys);
+  }
+  
+  @Override
+  protected ForeignKeys createForeignKeysGenerator(DbHints hints, Delimiter delim, Identifiers ident, Comments cmmnts)
+  {
+    return new MsSqlForeignKeys(hints, delim, ident, cmmnts);
+  }
   
   @Override
   protected void generateDataType(PrintWriter pr, DataType dataType)
@@ -53,101 +78,14 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
         break;
     }   
   }
-  
-  @Override
-  protected void generateDelimiter(PrintWriter pr)
-  {
-    pr.println();
-    pr.print("GO");
-  }
-  
+    
   @Override
   protected boolean isIndexInTableSupported()
   {
     return false;
   }
   
-  @Override
-  protected String getRowTriggerOldVariableName()
-  {
-    return "deleted";
-  }
- 
-  @Override
-  protected void generateForEachRowDeleteTrigger(PrintWriter pr, SqlTable table, List<SqlDmlStatement> triggerStatements, boolean recursiveTrigger)
-  {
-    pr.print("CREATE TRIGGER ");
-    generateTriggerName(pr, table);
-    pr.println();
-    pr.print("  ON ");
-    pr.print(table.getId());
-    pr.println(" FOR DELETE AS");
-    if (recursiveTrigger)
-    {
-      pr.println("  IF (@@ROWCOUNT > 0)");
-      pr.println("  BEGIN");
-    }
-    pr.println();
-    
-    for (SqlDmlStatement stmt : triggerStatements)
-    {
-      generateDmlStatement(pr, stmt, recursiveTrigger?4:2);
-      pr.println();
-      pr.println();
-    }        
-    if (recursiveTrigger)
-    {
-      writeSpaces(pr, 2);
-      pr.print("  END");
-    }
-    generateDelimiter(pr);
-  }
 
-  @Override
-  protected void generateDeleteStatement(PrintWriter pr, SqlDelete deleteStmt, int insets) throws MetaException
-  {
-    writeSpaces(pr, insets);
-    pr.print("DELETE ");
-    pr.print(deleteStmt.getTable());
-    pr.print(" FROM ");
-    pr.print(deleteStmt.getTable());
-    pr.println(", deleted");
-    writeSpaces(pr, insets);
-    pr.print("WHERE ");
-    generateFilterExpression(pr, deleteStmt.getFilterExpression());
-  }
-  
-  @Override
-  protected void generateUpdateStatement(PrintWriter pr, SqlUpdate updateStmt, int insets)
-  {
-    writeSpaces(pr, insets);
-    pr.print("UPDATE ");
-    pr.print(updateStmt.getTable());
-    writeSpaces(pr, insets);
-    pr.print("SET ");
-    boolean first = true;
-    for (SqlUpdateColumnExpression expr: updateStmt.getColumnExpressions())
-    {
-      if (!first)
-      {
-        pr.print(", ");
-      }
-      first = false;
-      pr.print(updateStmt.getTable());
-      pr.print('.');
-      pr.print(expr.getColumnName());
-      pr.print('=');
-      pr.print(expr.getExpression());
-    }
-    pr.println();
-    writeSpaces(pr, insets);
-    pr.print("FROM ");
-    pr.print(updateStmt.getTable());
-    pr.println(", deleted");
-    writeSpaces(pr, insets);
-    pr.print("WHERE ");
-    generateFilterExpression(pr, updateStmt.getFilterExpression());
-  }
 
   @Override
   protected String getDatabaseComment()
@@ -161,11 +99,11 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
     if (fOutputFile.getName().indexOf("Base")<0)
     {
       pr.print("COMMIT");
-      generateDelimiter(pr);
+      delimiter.generate(pr);
       pr.println();
       pr.println();
       pr.print("SET IMPLICIT_TRANSACTIONS OFF");
-      generateDelimiter(pr);
+      delimiter.generate(pr);
       pr.println();
       pr.println();
       generateAlterDatabaseForSnapshotIsolation(pr);
@@ -175,7 +113,7 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
       pr.println();
       pr.println();
       pr.print("SET IMPLICIT_TRANSACTIONS ON");
-      generateDelimiter(pr);
+      delimiter.generate(pr);
       pr.println();
       pr.println();
     }
@@ -183,24 +121,24 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
 
   private void generateAlterDatabaseForSnapshotIsolation(PrintWriter pr)
   {
-    generateCommentLine(pr, "");
-    generateCommentLine(pr, "Alter database so that read operations are not blocked by write operations.");
-    generateCommentLine(pr, "");
+    comments.generate(pr, "");
+    comments.generate(pr, "Alter database so that read operations are not blocked by write operations.");
+    comments.generate(pr, "");
     pr.print("ALTER DATABASE [${databaseName}] SET ALLOW_SNAPSHOT_ISOLATION ON");
-    generateDelimiter(pr);
+    delimiter.generate(pr);
     pr.println();
     pr.println();
     pr.print("ALTER DATABASE [${databaseName}] SET READ_COMMITTED_SNAPSHOT ON");
-    generateDelimiter(pr);
+    delimiter.generate(pr);
   }
   
   private void generateAlterDatabaseForRecursiveTriggers(PrintWriter pr)
   {
-    generateCommentLine(pr, "");
-    generateCommentLine(pr, "Alter database so that recursive triggers work.");
-    generateCommentLine(pr, "");
+    comments.generate(pr, "");
+    comments.generate(pr, "Alter database so that recursive triggers work.");
+    comments.generate(pr, "");
     pr.print("ALTER DATABASE [${databaseName}] SET RECURSIVE_TRIGGERS ON");
-    generateDelimiter(pr);
+    delimiter.generate(pr);
     pr.println();
   }
   
@@ -211,7 +149,7 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
     if (newVersionId == 29)
     {
       pr.print("COMMIT TRANSACTION");
-      generateDelimiter(pr);
+      delimiter.generate(pr);
       pr.println(); 
       generateAlterDatabaseForSnapshotIsolation(pr);
       pr.println();
@@ -219,33 +157,14 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
     if (newVersionId == 39)
     {
       pr.print("COMMIT TRANSACTION");
-      generateDelimiter(pr);
+      delimiter.generate(pr);
       pr.println(); 
       pr.println(); 
       generateAlterDatabaseForRecursiveTriggers(pr);
       pr.println();
     }
   }
-
-  @Override
-  protected List<String> getDatabaseSystemNames()
-  {
-    return Arrays.asList(MS_SQL_SERVER);
-  }
   
-  @Override
-  public void generateAlterTableAddForeignKey(PrintWriter pr, SqlTable table, SqlForeignKey foreignKey)
-  {
-    pr.print("ALTER TABLE ");
-    generateIdentifier(pr, table.getId());
-    pr.print(" ADD FOREIGN KEY (");
-    pr.print(foreignKey.getColumnName());
-    pr.print(")");
-    generateReference(pr, foreignKey.getReference(), foreignKey);
-    generateDelimiter(pr);
-    pr.println();
-    pr.println();
-  }
 
   @Override
   public void generateAlterTableAlterColumn(PrintWriter pr, SqlTableColumn newColumn, SqlTable newTable, SqlTableColumn oldColumn)
@@ -299,7 +218,7 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
     {
       createdTemporaryStoredProcedures.add(DROP_UNIQUE_CONSTRAINT_STORED_PROCUDRE);
       
-      generateCommentLine(pr, "Store Procedure to drop a unique constraint");
+      comments.generate(pr, "Store Procedure to drop a unique constraint");
 
       pr.print("CREATE PROCEDURE ");
       pr.println(DROP_UNIQUE_CONSTRAINT_STORED_PROCUDRE);
@@ -337,7 +256,7 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
       pr.println("END");
       pr.println("CLOSE uq_cursor");
       pr.print("DEALLOCATE uq_cursor");
-      generateDelimiter(pr);
+      delimiter.generate(pr);
       pr.println();
       pr.println();
     }
@@ -353,7 +272,7 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
     pr.print(" @tableName='");           
     pr.print(table.getId()); 
     pr.print("'");    
-    generateDelimiter(pr);
+    delimiter.generate(pr);
     pr.println(); 
   } 
   
@@ -363,7 +282,7 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
     {
       createdTemporaryStoredProcedures.add(DROP_PRIMARY_CONSTRAINT_STORED_PROCUDRE);
       
-      generateCommentLine(pr, "Store Procedure to drop a primary key constraint");
+      comments.generate(pr, "Store Procedure to drop a primary key constraint");
 
       pr.print("CREATE PROCEDURE ");
       pr.println(DROP_PRIMARY_CONSTRAINT_STORED_PROCUDRE);
@@ -380,67 +299,19 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
       pr.println("  'ALTER TABLE [dbo].['+@tableName+']");
       pr.println("    DROP CONSTRAINT ['+@PkName+']'");
       pr.println("EXEC(@dropSql)");
-      generateDelimiter(pr); 
+      delimiter.generate(pr); 
       pr.println();
       pr.println();
     }
   }
   
-  @Override
-  public void generateAlterTableDropForeignKey(PrintWriter pr, SqlTable table, SqlForeignKey foreignKey, List<String> createdTemporaryStoredProcedures)
-  {
-    generateDropForeignKeyConstraintStoredProcedure(pr, createdTemporaryStoredProcedures);
-    pr.print("EXECUTE ");
-    pr.print(DROP_FOREIGN_CONSTRAINT_STORED_PROCUDRE);
-    pr.print("");
-    pr.print(" @tableName='");           
-    pr.print(table.getId());
-    pr.print("', @columnName='");           
-    pr.print(foreignKey.getColumnName()); 
-    pr.print("'");    
-    generateDelimiter(pr);
-    pr.println(); 
-  } 
-  
-  private void generateDropForeignKeyConstraintStoredProcedure(PrintWriter pr, List<String> createdTemporaryStoredProcedures)
-  {
-    if (!createdTemporaryStoredProcedures.contains(DROP_FOREIGN_CONSTRAINT_STORED_PROCUDRE))
-    {
-      createdTemporaryStoredProcedures.add(DROP_FOREIGN_CONSTRAINT_STORED_PROCUDRE);
-      
-      generateCommentLine(pr, "Store Procedure to drop a unique constraint");
-
-      pr.print("CREATE PROCEDURE ");
-      pr.println(DROP_FOREIGN_CONSTRAINT_STORED_PROCUDRE);
-      pr.println("@tableName varchar(100),");
-      pr.println("@columnName varchar(100)");
-      pr.println("AS");
-      pr.println("DECLARE @fkName Varchar(255)");
-      pr.println("SET @fkName= (");
-      pr.println("  SELECT fk.name");
-      pr.println("  FROM sys.foreign_keys fk");
-      pr.println("  INNER JOIN sys.foreign_key_columns fkc ON fkc.constraint_object_id = fk.object_id");
-      pr.println("  INNER JOIN sys.columns c1 ON fkc.parent_column_id = c1.column_id AND fkc.parent_object_id = c1.object_id");
-      pr.println("  INNER JOIN sys.columns c2 ON fkc.referenced_column_id = c2.column_id AND fkc.referenced_object_id = c2.object_id");
-      pr.println("  WHERE OBJECT_NAME(fk.parent_object_id)=@tableName AND c2.name=@columnName");
-      pr.println(")" );
-      pr.println("DECLARE @dropSql varchar(4000)");
-      pr.println("SET @dropSql=");
-      pr.println("  'ALTER TABLE [dbo].['+@tableName+']");
-      pr.println("    DROP CONSTRAINT ['+@fkName+']'");
-      pr.println("EXEC(@dropSql)");
-      generateDelimiter(pr); 
-      pr.println();
-      pr.println();
-    }
-  }
 
   @Override
   public void generateDropIndex(PrintWriter pr, SqlTable table, SqlIndex index) 
   {
     pr.print("DROP INDEX ");
-    generateIdentifier(pr, table.getId()+"."+getIndexName(index));
-    generateDelimiter(pr);
+    identifiers.generate(pr, table.getId()+"."+getIndexName(index));
+    delimiter.generate(pr);
     pr.println(); 
   }
   
@@ -486,7 +357,7 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
       pr.println("DROP INDEX IWA_ContentManagementSystem.IWA_ContentManagementSystem_AppIdIndex;");
       pr.println("CREATE INDEX IWA_ContentManagementSystem_ApplicationIdIndex ON IWA_ContentManagementSystem(ApplicationId);");
       pr.println("END");
-      generateDelimiter(pr);
+      delimiter.generate(pr);
       pr.println();
       
       pr.println("IF EXISTS (");
@@ -499,7 +370,7 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
       pr.println("DROP INDEX IWA_IntermediateEvent.IWA_IntermediateEvent_AppId;");
       pr.println("CREATE INDEX IWA_IntermediateEvent_ApplicationId ON IWA_IntermediateEvent(ApplicationId);");
       pr.println("END");
-      generateDelimiter(pr);
+      delimiter.generate(pr);
       pr.println();
       
       pr.println("IF EXISTS (");
@@ -512,19 +383,8 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
       pr.println("DROP INDEX IWA_ContentManagementSystem.IWA_ContentManagementSystem_ProcessModelVersionIdIndex;");
       pr.println("CREATE INDEX IWA_ContentManagementSystem_ProcessModelVersionId ON IWA_ContentManagementSystem(ProcessModelVersionId);");
       pr.println("END");
-      generateDelimiter(pr);
+      delimiter.generate(pr);
       pr.println();
     }
   }
-  
-  @Override
-  protected SqlFunction convertFunction(SqlFunction function)
-  {
-    if ("LENGTH".equalsIgnoreCase(function.getName()))
-    {
-      return new SqlFunction("LEN", function.getArguments());
-    }
-    return function;
-  }
-    
 }
