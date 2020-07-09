@@ -17,6 +17,7 @@ import ch.ivyteam.ivy.workflow.internal.query.TaskQueryExecutorProvider;
 
 /**
  *
+ * This view's base table has legacy security member fields!
  */
 @PublicAPI(IvyScriptVisibility.EXPERT)
 @Reviewed(date="17.1.2012", reviewers="bb,fs,rwei")

@@ -103,6 +103,11 @@ public class TableInfo
     return table.getDatabaseManagementSystemHints(JavaClassGenerator.JAVA).isHintSet(JavaClassGenerator.CUSTOM_FIELDS);
   }
 
+  public boolean getHasSecurityMemberLegacyFields()
+  {
+    return table.getDatabaseManagementSystemHints(JavaClassGenerator.JAVA).isHintSet(JavaClassGenerator.SECURITY_MEMBER_LEGACY_FIELDS);
+  }
+
   private void summarizeDataTypes(List<ColumnInfo> columns)
   {
     for (ColumnInfo column : columns)

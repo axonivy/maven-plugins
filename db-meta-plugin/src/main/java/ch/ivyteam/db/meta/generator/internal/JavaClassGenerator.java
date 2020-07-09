@@ -112,6 +112,9 @@ public abstract class JavaClassGenerator implements IMetaOutputGenerator
   /** Table has custom field, defined in separate associated table(s). */
   public static final String CUSTOM_FIELDS = "CustomFields";
 
+  /** Table has legacy security member fields, defined in either Role or User table. */
+  public static final String SECURITY_MEMBER_LEGACY_FIELDS = "SecurityMemberLegacyFields";
+
   /**
    * @see ch.ivyteam.db.meta.generator.internal.IMetaOutputGenerator#analyseArgs(java.lang.String[])
    */

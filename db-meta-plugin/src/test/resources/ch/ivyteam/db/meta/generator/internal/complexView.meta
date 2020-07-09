@@ -10,7 +10,8 @@ CREATE TABLE IWA_Task
 )
 FOR Java USE(
   QueryTableName='IWA_TaskQuery', 
-  BusinessClass='ch.ivyteam.ivy.workflow.ITask');
+  BusinessClass='ch.ivyteam.ivy.workflow.ITask', 
+  SecurityMemberLegacyFields);
 
 CREATE TABLE IWA_Case
 (
