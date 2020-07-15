@@ -200,6 +200,25 @@ public class TaskQuery extends Query<ch.ivyteam.ivy.workflow.ITask>
     public IIntegerColumnFilterQuery taskId();
 
     /**
+     * <p>Prepares a where statement for the column <code>ActivatorUserId</code>.<br>
+     * Must be followed by a call to a condition method.</p>
+     * <p>This is a virtual column. It contains the same value as the column <code>UserId</code> of the referenced <code>User</code>.</p><br>
+     * @return query for further composition
+     */
+    @PublicAPI(IvyScriptVisibility.EXPERT)
+    @Reviewed(date="17.1.2012", reviewers="bb,fs,rwei")
+    public IIntegerColumnFilterQuery activatorUserId();
+
+    /**
+     * <p>Prepares a where statement for the column <code>ActivatorId</code>.<br>
+     * Must be followed by a call to a condition method.</p>
+     * @return query for further composition
+     */
+    @PublicAPI(IvyScriptVisibility.EXPERT)
+    @Reviewed(date="17.1.2012", reviewers="bb,fs,rwei")
+    public IStringColumnFilterQuery activatorId();
+
+    /**
      * <p>Prepares a where statement for the column <code>ActivatorName</code>.<br>
      * Must be followed by a call to a condition method.</p>
      * @return query for further composition
@@ -304,6 +323,28 @@ public class TaskQuery extends Query<ch.ivyteam.ivy.workflow.ITask>
     public IIntegerColumnFilterQuery taskId()
     {
       return new IntegerColumnFilterQuery(this, DbTaskData.QueryView.VIEW_COLUMN_TASK_ID);
+    }
+
+    /**
+     * @see ch.ivyteam.meta.query.TaskQuery.IFilterableColumns#activatorUserId()
+     */
+    @PublicAPI(IvyScriptVisibility.EXPERT)
+    @Reviewed(date="17.1.2012", reviewers="bb,fs,rwei")
+    @Override
+    public IIntegerColumnFilterQuery activatorUserId()
+    {
+      return new IntegerColumnFilterQuery(this, DbTaskData.QueryView.VIEW_COLUMN_ACTIVATOR_USER_ID);
+    }
+
+    /**
+     * @see ch.ivyteam.meta.query.TaskQuery.IFilterableColumns#activatorId()
+     */
+    @PublicAPI(IvyScriptVisibility.EXPERT)
+    @Reviewed(date="17.1.2012", reviewers="bb,fs,rwei")
+    @Override
+    public IStringColumnFilterQuery activatorId()
+    {
+      return new StringColumnFilterQuery(this, DbTaskData.QueryView.VIEW_COLUMN_ACTIVATOR_ID);
     }
 
     /**
@@ -1451,6 +1492,25 @@ public class TaskQuery extends Query<ch.ivyteam.ivy.workflow.ITask>
     public GroupByQuery taskId();
 
     /**
+     * <p>Groups the result of the query by the field <code>ActivatorUserId</code>.</p>
+     * <p>SQL part: <code>GROUP BY ActivatorUserId</code></p>
+     * <p>This is a virtual column. It contains the same value as the column <code>UserId</code> of the referenced <code>User</code>.</p><br>
+     * @return query for further composition
+     */
+    @PublicAPI(IvyScriptVisibility.EXPERT)
+    @Reviewed(date="17.1.2012", reviewers="bb,fs,rwei")
+    public GroupByQuery activatorUserId();
+
+    /**
+     * <p>Groups the result of the query by the field <code>ActivatorId</code>.</p>
+     * <p>SQL part: <code>GROUP BY ActivatorId</code></p>
+     * @return query for further composition
+     */
+    @PublicAPI(IvyScriptVisibility.EXPERT)
+    @Reviewed(date="17.1.2012", reviewers="bb,fs,rwei")
+    public GroupByQuery activatorId();
+
+    /**
      * <p>Groups the result of the query by the field <code>ActivatorName</code>.</p>
      * <p>SQL part: <code>GROUP BY ActivatorName</code></p>
      * @return query for further composition
@@ -1519,6 +1579,30 @@ public class TaskQuery extends Query<ch.ivyteam.ivy.workflow.ITask>
     public GroupByQuery taskId()
     {
       getQueryBuilder().groupBy(DbTaskData.QueryView.VIEW_COLUMN_TASK_ID, "TaskId");
+      return this;
+    }
+
+    /**
+     * @see ch.ivyteam.meta.query.TaskQuery.IGroupByQueryColumns#activatorUserId()
+     */
+    @PublicAPI(IvyScriptVisibility.EXPERT)
+    @Reviewed(date="17.1.2012", reviewers="bb,fs,rwei")
+    @Override
+    public GroupByQuery activatorUserId()
+    {
+      getQueryBuilder().groupBy(DbTaskData.QueryView.VIEW_COLUMN_ACTIVATOR_USER_ID, "ActivatorUserId");
+      return this;
+    }
+
+    /**
+     * @see ch.ivyteam.meta.query.TaskQuery.IGroupByQueryColumns#activatorId()
+     */
+    @PublicAPI(IvyScriptVisibility.EXPERT)
+    @Reviewed(date="17.1.2012", reviewers="bb,fs,rwei")
+    @Override
+    public GroupByQuery activatorId()
+    {
+      getQueryBuilder().groupBy(DbTaskData.QueryView.VIEW_COLUMN_ACTIVATOR_ID, "ActivatorId");
       return this;
     }
 
@@ -1606,6 +1690,37 @@ public class TaskQuery extends Query<ch.ivyteam.ivy.workflow.ITask>
     @PublicAPI(IvyScriptVisibility.EXPERT)
     @Reviewed(date="17.1.2012", reviewers="bb,fs,rwei")
     public OrderByColumnQuery taskId();
+
+    /**
+     * <p>Adds an order by statement for the column <code>ActivatorUserId</code> in the default direction ascending.<br>
+     * To change the order to descending use <code>activatorUserId().descending()</code></p>
+     * <p><b>Example:</b><br>
+     * <code><pre>TaskQuery.create().orderBy().activatorUserId()</pre></code>
+     * </p>
+     * <p>SQL part: <code>ORDER BY ActivatorUserId ASC</code></p>
+     * <p>This is a virtual column. It contains the same value as the column <code>UserId</code> of the referenced <code>User</code>.</p><br>
+     * @return query for further composition
+     * @see OrderByColumnQuery#descending()
+     * @see OrderByColumnQuery#ascending()
+     */
+    @PublicAPI(IvyScriptVisibility.EXPERT)
+    @Reviewed(date="17.1.2012", reviewers="bb,fs,rwei")
+    public OrderByColumnQuery activatorUserId();
+
+    /**
+     * <p>Adds an order by statement for the column <code>ActivatorId</code> in the default direction ascending.<br>
+     * To change the order to descending use <code>activatorId().descending()</code></p>
+     * <p><b>Example:</b><br>
+     * <code><pre>TaskQuery.create().orderBy().activatorId()</pre></code>
+     * </p>
+     * <p>SQL part: <code>ORDER BY ActivatorId ASC</code></p>
+     * @return query for further composition
+     * @see OrderByColumnQuery#descending()
+     * @see OrderByColumnQuery#ascending()
+     */
+    @PublicAPI(IvyScriptVisibility.EXPERT)
+    @Reviewed(date="17.1.2012", reviewers="bb,fs,rwei")
+    public OrderByColumnQuery activatorId();
 
     /**
      * <p>Adds an order by statement for the column <code>ActivatorName</code> in the default direction ascending.<br>
@@ -1706,6 +1821,28 @@ public class TaskQuery extends Query<ch.ivyteam.ivy.workflow.ITask>
     public OrderByColumnQuery taskId()
     {
       return new OrderByColumnQuery(this, DbTaskData.QueryView.VIEW_COLUMN_TASK_ID);
+    }
+
+    /**
+     * @see ch.ivyteam.meta.query.TaskQuery.IOrderByQueryColumns#activatorUserId()
+     */
+    @PublicAPI(IvyScriptVisibility.EXPERT)
+    @Reviewed(date="17.1.2012", reviewers="bb,fs,rwei")
+    @Override
+    public OrderByColumnQuery activatorUserId()
+    {
+      return new OrderByColumnQuery(this, DbTaskData.QueryView.VIEW_COLUMN_ACTIVATOR_USER_ID);
+    }
+
+    /**
+     * @see ch.ivyteam.meta.query.TaskQuery.IOrderByQueryColumns#activatorId()
+     */
+    @PublicAPI(IvyScriptVisibility.EXPERT)
+    @Reviewed(date="17.1.2012", reviewers="bb,fs,rwei")
+    @Override
+    public OrderByColumnQuery activatorId()
+    {
+      return new OrderByColumnQuery(this, DbTaskData.QueryView.VIEW_COLUMN_ACTIVATOR_ID);
     }
 
     /**

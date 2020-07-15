@@ -336,11 +336,19 @@ public abstract class ColumnInfo
           tableName = tableAliases.get(tableName);
         }
         SqlTable foreignTable = meta.findTable(tableName);
+        if (foreignTable == null)
+        {
+          throw new IllegalStateException("Could not find table "+ tableName);
+        }
         if (getTableInfo().getTable().equals(foreignTable))
         {
           return false;
         }
         // primary key of a joined table -> handle same as a foreign key
+        if (foreignTable.getPrimaryKey() == null)
+        {
+          return false;
+        }
         return foreignTable.getPrimaryKey().getPrimaryKeyColumns().contains(columnName.getColumn());
       }
       return false;
