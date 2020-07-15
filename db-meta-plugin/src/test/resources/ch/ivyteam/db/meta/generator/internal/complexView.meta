@@ -1,6 +1,7 @@
 CREATE TABLE IWA_Task
 (
   TaskId BIGINT NOT NULL,
+  ActivatorId VARCHAR(200) REFERENCES IWA_SecurityMember(SecurityMemberId),
   ActivatorRoleId BIGINT REFERENCES IWA_Role(RoleId) ON DELETE SET NULL,
   ActivatorUserId BIGINT REFERENCES IWA_User(UserId) ON DELETE SET NULL,
   ExpiryActivatorRoleId BIGINT REFERENCES IWA_Role(RoleId) ON DELETE SET NULL,
@@ -17,6 +18,16 @@ CREATE TABLE IWA_Case
 (
   CaseId BIGINT NOT NULL
 );
+
+CREATE TABLE IWA_SecurityMember
+(
+  -- Identifies the user.
+  SecurityMemberId VARCHAR(200) NOT NULL,
+  -- Name of the user. The name identifies a user within a web application.
+  Name VARCHAR(200) NOT NULL
+    FOR Oracle USE (ConvertEmptyStringToNull),  
+  PRIMARY KEY (SecurityMemberId)
+);  
   
 CREATE TABLE IWA_User
 (
@@ -27,7 +38,8 @@ CREATE TABLE IWA_User
     FOR Oracle USE (ConvertEmptyStringToNull),
   UserState INTEGER NOT NULL DEFAULT 0,
   -- Full name of the user.
-  FullName VARCHAR(200) DEFAULT ''
+  FullName VARCHAR(200) DEFAULT '',
+  PRIMARY KEY (UserId)
 );  
   
 CREATE TABLE IWA_Role
@@ -44,6 +56,8 @@ CREATE TABLE IWA_Role
 CREATE VIEW IWA_TaskQuery
 (
   TaskId,
+  ActivatorUserId,
+  ActivatorId,
   ActivatorName,
   ActivatorDisplayName,
   ExpiryActivatorDisplayName,
@@ -53,6 +67,8 @@ CREATE VIEW IWA_TaskQuery
 )
 AS SELECT 
   IWA_Task.TaskId,
+  IWA_User.UserId,
+  IWA_Task.ActivatorId,
   CASE 
     WHEN IWA_Task.ActivatorUserId IS NOT NULL THEN CONCAT('#', ActivatorUser.Name)
     WHEN IWA_Task.ActivatorRoleId IS NOT NULL THEN ActivatorRole.Name
