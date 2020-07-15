@@ -3,10 +3,18 @@ package ${packageName};
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Arrays;
 import ch.ivyteam.ivy.persistence.IPersistentObject;
 import ch.ivyteam.ivy.persistence.IPersistentTransaction;
-import ch.ivyteam.ivy.persistence.KeyType;
 import ch.ivyteam.ivy.persistence.PersistencyException;
+import ch.ivyteam.ivy.persistence.restricted.db.meta.KeyType;
+import ch.ivyteam.ivy.persistence.restricted.db.meta.Table;
+import ch.ivyteam.ivy.persistence.restricted.db.meta.TableColumn;
+import ch.ivyteam.ivy.persistence.restricted.db.meta.TableColumn.Type;
+import ch.ivyteam.ivy.persistence.restricted.db.meta.TableColumn.Option;
+<#if table.query??>
+import ch.ivyteam.ivy.persistence.restricted.db.meta.ViewColumn;
+</#if>
 import ch.ivyteam.ivy.persistence.db.DatabasePersistencyService;
 import ch.ivyteam.ivy.persistence.db.DatabaseTableClassPersistencyService;
 import ch.ivyteam.db.sql.ColumnName;
@@ -33,12 +41,7 @@ public class Db${table.simpleEntityClass} extends DatabaseTableClassPersistencyS
 <#if table.query??>  
   /** The Name of the table to use in the query */
   public static final String QUERY_TABLENAME = "${table.query}";
-<#else>
-  /** The Name of the table to use in the query */
-  public static final String QUERY_TABLENAME = "${table.name}";
 </#if>
-  /** Prefix of the table name */
-  private static final String PREFIX_TABLENAME = "IWA_";
   /** Name of the primary key column */
   private static final String PRIMARY_KEY_COLUMN_NAME = "${table.primaryKey.name}";
   /** Full qualified name of the parent key column  */
@@ -76,59 +79,34 @@ public class Db${table.simpleEntityClass} extends DatabaseTableClassPersistencyS
   {
     super(database, 
       ${table.simpleEntityClass}.class,
-      PREFIX_TABLENAME,
-      TABLENAME,
-      QUERY_TABLENAME,
-      KeyType.${table.primaryKey.keyType},
-      PRIMARY_KEY_COLUMN_NAME,
-<#if table.parentKey??>
-      PARENT_FOREIGN_KEY_COLUMN_NAME,
+      new Table(
+        TABLENAME, 
+        KeyType.${table.primaryKey.keyType},
+        Arrays.asList( 
+<#list columns as column>
+  <#if column.isPrimaryKey()>
+          new TableColumn(PRIMARY_KEY_COLUMN, Type.${table.primaryKey.sqlDataType}, Option.PRIMARY_KEY)<#if column_has_next>,</#if>
+  <#elseif column.isParentKey()>
+          new TableColumn(PARENT_FOREIGN_KEY_COLUMN, Type.${table.primaryKey.sqlDataType}, Option.PARENT_KEY)<#if column_has_next>,</#if>
+  <#else> 
+          new TableColumn(COLUMN_${column.constant}, Type.${column.sqlDataType}<#if column.isOptimisticLockingColumn()>, Option.USE_FOR_OPTIMISTICAL_LOCKING</#if><#if column.isLob()>, Option.LARGE_OBJECT</#if>)<#if column_has_next>,</#if>
+  </#if>         
+</#list>
+<#if table.query??>
+        ),
 <#else>
-      null, // parent foreign key
-</#if> 
-      new String[]{ // all columns
-        PRIMARY_KEY_COLUMN_NAME,
-<#if table.parentKey??>
-        PARENT_FOREIGN_KEY_COLUMN_NAME,
-</#if>      
-<#list columnsWithoutPrimaryAndParent as column>
-        COLUMN_NAME_${column.constant}<#if column_has_next>,</#if>
-</#list>
-      },
-      new String[]{ // long binary (blob) columns
-<#list longBinaryColumns as column>
-        COLUMN_NAME_${column.constant}<#if column_has_next>,</#if>
-</#list>
-      },
-      new String[]{ // long character (clob) columns
-<#list longCharacterColumns as column>
-        COLUMN_NAME_${column.constant}<#if column_has_next>,</#if>
-</#list>
-      },
-<#if queryViewColumns??> 
-      new String[]{ // view columns
+        )
+</#if>        
+<#if table.query??>
+        QUERY_TABLENAME,
+        Arrays.asList( 
    <#list queryViewColumns as column>
-        QueryView.VIEW_COLUMN_NAME_${column.constant}<#if column_has_next>,</#if>
+          new ViewColumn(QueryView.VIEW_COLUMN_${column.constant}<#if column.alias??>, "${column.alias}"</#if>)<#if column_has_next>,</#if>
   </#list>
-      },
-      new String[]{  // view column aliases
-  <#list queryViewColumns as column>
-    <#if column.alias??>
-        "${column.alias}"<#if column_has_next>,</#if> // alias for ${column.name}
-    <#else>
-        null<#if column_has_next>,</#if>
-    </#if>
-  </#list>
-      },
-<#else>
-      null, // view columns
-      null, // view column aliases
+        )
 </#if>
-<#if table.fieldForOptimisticLocking??>  
-      OPTIMISTIC_LOCKING_COLUMN_NAME);
-<#else>
-      null); // optimistic locking column
-</#if>            
+      )
+    ); 
   }
 
   /**
@@ -168,7 +146,7 @@ public class Db${table.simpleEntityClass} extends DatabaseTableClassPersistencyS
 <#assign row=1>
 <#if table.parentKey??>      
     // ${table.parentKey.sql}
-    database.set${table.parentKey.method}(stmt, ${row}, ${table.parentKey.additionalWriteArgs}, "${table.parentKey.fullName}");
+    database.set${table.parentKey.method}(stmt, ${row}, ${table.parentKey.additionalWriteArgs}, PARENT_FOREIGN_KEY_COLUMN);
   <#assign row=row+1>      
 </#if>
 <#list columnsWithoutPrimaryParentAndLob as column>
@@ -176,12 +154,12 @@ public class Db${table.simpleEntityClass} extends DatabaseTableClassPersistencyS
   <#if column.isOptimisticLockingColumn()>
     // optimistic locking value is already in the update query
   <#else>
-    database.set${column.method}(stmt, ${row}, ${column.additionalWriteArgs}, "${column.fullName}");
+    database.set${column.method}(stmt, ${row}, ${column.additionalWriteArgs}, COLUMN_${column.constant});
     <#assign row=row+1>
   </#if>
 </#list>
     // ${table.primaryKey.sql}
-    database.set${table.primaryKey.method}(stmt, ${row}, ${table.primaryKey.additionalWriteArgs}, "${table.primaryKey.fullName}");
+    database.set${table.primaryKey.method}(stmt, ${row}, ${table.primaryKey.additionalWriteArgs}, PRIMARY_KEY_COLUMN);
   }
 
   /**
@@ -191,19 +169,28 @@ public class Db${table.simpleEntityClass} extends DatabaseTableClassPersistencyS
   {
 <#assign row=1>
     // ${table.primaryKey.sql}
-    database.set${table.primaryKey.method}(stmt, ${row}, ${table.primaryKey.additionalWriteArgs}, "${table.primaryKey.fullName}");
+    database.set${table.primaryKey.method}(stmt, ${row}, ${table.primaryKey.additionalWriteArgs}, PRIMARY_KEY_COLUMN);
 <#assign row=row+1>
 <#if table.parentKey??>      
     // ${table.parentKey.sql}
-    database.set${table.parentKey.method}(stmt, ${row}, ${table.parentKey.additionalWriteArgs}, "${table.parentKey.fullName}");
+    database.set${table.parentKey.method}(stmt, ${row}, ${table.parentKey.additionalWriteArgs}, PARENT_FOREIGN_KEY_COLUMN);
   <#assign row=row+1>
 </#if>
 <#list columnsWithoutPrimaryAndParent as column>
     // ${column.sql}
-    database.set${column.method}(stmt, ${row}, ${column.additionalWriteArgs}, "${column.fullName}");
+    database.set${column.method}(stmt, ${row}, ${column.additionalWriteArgs}, COLUMN_${column.constant});
   <#assign row=row+1>
 </#list>
   }
+
+<#if table.fieldForOptimisticLocking??>
+  @Override
+  protected void writeDataToOptimisticUpdateStatement(IPersistentTransaction transaction, ${table.simpleEntityClass} data, PreparedStatement stmt)
+  {
+    database.set${table.fieldForOptimisticLocking.method}(stmt, ${numberOfColumns}, data.get${table.fieldForOptimisticLocking.name}(), COLUMN_${table.fieldForOptimisticLocking.constant});
+  }
+</#if>  
+
   
 <#if table.query??>
   /**
@@ -220,12 +207,4 @@ public class Db${table.simpleEntityClass} extends DatabaseTableClassPersistencyS
   }
 </#if>  
 
-<#if table.fieldForOptimisticLocking??>
-  @Override
-  protected void writeDataToOptimisticUpdateStatement(IPersistentTransaction transaction, ${table.simpleEntityClass} data, PreparedStatement stmt)
-  {
-    database.set${table.fieldForOptimisticLocking.method}(stmt, ${numberOfColumns}, data.get${table.fieldForOptimisticLocking.name}(), "${table.fieldForOptimisticLocking.fullName}");
-  }
-</#if>  
-  
 }

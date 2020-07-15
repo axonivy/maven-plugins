@@ -467,7 +467,7 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
     pr.print(associationTableName.toUpperCase());
     pr.print(associationPostfix);
     pr.print(" = new ch.ivyteam.ivy.persistence.Association(\"");
-    pr.print(associationTableName);
+    pr.print(associationTable.getId());
     pr.print("\", \"");
     pr.print(primaryKey);
     pr.print("\", \"");
