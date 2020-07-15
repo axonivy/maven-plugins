@@ -60,7 +60,7 @@ public abstract class ColumnInfo
 
   private static List<ColumnInfo> getColumns(SqlMeta meta, TableInfo tableInfo, SqlView view)
   {
-    List<ColumnInfo> result = new ArrayList<ColumnInfo>();
+    List<ColumnInfo> result = new ArrayList<ColumnInfo >();
     int pos = 0;
     for (SqlViewColumn column : view.getColumns())
     {
@@ -173,10 +173,6 @@ public abstract class ColumnInfo
 
   public boolean supportsStringOption()
   {
-    if (isForeignOrPrimaryKey())
-    {
-      return false;
-    }
     DataType dataType = getDataType();
     return dataType == DataType.CHAR ||
            dataType == DataType.VARCHAR;
@@ -184,20 +180,12 @@ public abstract class ColumnInfo
   
   public boolean supportsClobOption()
   {
-    if (isForeignOrPrimaryKey())
-    {
-      return false;
-    }
     DataType dataType = getDataType();
     return dataType == DataType.CLOB;
   }
 
   public boolean supportsDateTimeOption()
   {
-    if (isForeignOrPrimaryKey())
-    {
-      return false;
-    }
     DataType dataType = getDataType();
     return dataType == DataType.DATE ||
            dataType == DataType.DATETIME;
@@ -205,10 +193,6 @@ public abstract class ColumnInfo
 
   public boolean supportsBooleanOption()
   {
-    if (isForeignOrPrimaryKey())
-    {
-      return false;
-    }
     DataType dataType = getDataType();
     return dataType == DataType.BIT;
   }
@@ -240,16 +224,16 @@ public abstract class ColumnInfo
     return isForeignKey() || isPrimaryKey();
   }
 
-  private boolean isForeignKey()
+  protected boolean isForeignKey()
   {
     return getColumn().getReference() != null;
   }
-
+  
   private boolean isPrimaryKey()
   {
     return tableInfo.getTable().getPrimaryKey().getPrimaryKeyColumns().contains(getColumn().getId());
   }
-  
+
   protected TableInfo getTableInfo()
   {
     return tableInfo;
@@ -335,7 +319,33 @@ public abstract class ColumnInfo
       }
       return null;
     }
-
+    
+    @Override
+    protected boolean isForeignKey()
+    {
+      if (super.isForeignKey()) 
+      {
+        return true;  
+      }
+      if (expression instanceof SqlFullQualifiedColumnName)
+      {
+        SqlFullQualifiedColumnName columnName = (SqlFullQualifiedColumnName)expression;
+        String tableName = columnName.getTable();
+        if (tableAliases.containsKey(tableName))
+        {
+          tableName = tableAliases.get(tableName);
+        }
+        SqlTable foreignTable = meta.findTable(tableName);
+        if (getTableInfo().getTable().equals(foreignTable))
+        {
+          return false;
+        }
+        // primary key of a joined table -> handle same as a foreign key
+        return foreignTable.getPrimaryKey().getPrimaryKeyColumns().contains(columnName.getColumn());
+      }
+      return false;
+    }
+    
     @Override
     protected SqlTableColumn getColumn()
     {
