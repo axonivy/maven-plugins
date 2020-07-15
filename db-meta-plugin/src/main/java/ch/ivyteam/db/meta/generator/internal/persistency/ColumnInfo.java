@@ -76,34 +76,6 @@ public class ColumnInfo
     return columns;
   }
 
-  /**
-   * @param table 
-   * @return clob columns
-   */
-  static List<ColumnInfo> getLongCharacterColumns(SqlTable table)
-  {
-    List<ColumnInfo> columns = new ArrayList<ColumnInfo>();
-    for (SqlTableColumn column : JavaClassGeneratorUtil.getClobColumns(table))
-    {
-      columns.add(new ColumnInfo(table, column));
-    }
-    return columns;
-  }
-
-  /**
-   * @param table 
-   * @return blob columns
-   */
-  static List<ColumnInfo> getLongBinaryColumns(SqlTable table)
-  {
-    List<ColumnInfo> columns = new ArrayList<ColumnInfo>();
-    for (SqlTableColumn column : JavaClassGeneratorUtil.getBlobColumns(table))
-    {
-      columns.add(new ColumnInfo(table, column));
-    }
-    return columns;
-  }
-  
   static ColumnInfo getOptimisticLockingColumn(SqlTable table) 
   {
     for (SqlTableColumn column : table.getColumns())
@@ -135,7 +107,7 @@ public class ColumnInfo
   /**
    * @return data type
    */
-  public String getDataType()
+  public String getJavaDataType()
   {
     return JavaClassGeneratorUtil.getJavaDataType(column);
   }
@@ -145,11 +117,11 @@ public class ColumnInfo
    */
   public String getKeyType()
   {
-    if (getDataType().equals("String"))
+    if (getJavaDataType().equals("String"))
     {
       return "STRING";
     }
-    else if (getDataType().equalsIgnoreCase("long"))
+    else if (getJavaDataType().equalsIgnoreCase("long"))
     {
       return "LONG";
     }
@@ -173,7 +145,7 @@ public class ColumnInfo
     }
     else
     {
-      dataType = getDataType();
+      dataType = getJavaDataType();
     }
 
     String method;
@@ -238,7 +210,7 @@ public class ColumnInfo
    */
   private boolean isDataType(Class<?> clazz)
   {
-    return isDataType(getDataType(), clazz);
+    return isDataType(getJavaDataType(), clazz);
   }
   
   private boolean isDataType(String dataType, Class<?> clazz)
@@ -292,7 +264,7 @@ public class ColumnInfo
     }
     else
     {
-      dataType = getDataType();
+      dataType = getJavaDataType();
     }
     return !(isDataType(dataType, Integer.class)||
              isDataType(dataType, Integer.TYPE)||
@@ -501,9 +473,19 @@ public class ColumnInfo
   /**
    * @return true if this is a blob or clob column
    */
-  private boolean isLob()
+  public boolean isLob()
   {
     return JavaClassGeneratorUtil.isLobColumn(column);
+  }
+
+  public boolean isPrimaryKey()
+  {
+    return column.equals(JavaClassGeneratorUtil.getPrimaryKeyColumn(table));
+  }
+
+  public boolean isParentKey()
+  {
+    return column.getId().equals(JavaClassGeneratorUtil.getParentKey(table));
   }
 
   /**
@@ -565,6 +547,11 @@ public class ColumnInfo
   public String getFullName()
   {
     return table.getId()+"."+column.getId();
+  }
+  
+  public String getSqlDataType()
+  {
+    return column.getDataType().getDataType().toString();
   }
 
   /**

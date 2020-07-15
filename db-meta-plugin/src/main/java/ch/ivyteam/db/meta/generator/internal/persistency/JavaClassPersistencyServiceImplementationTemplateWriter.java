@@ -43,8 +43,6 @@ public class JavaClassPersistencyServiceImplementationTemplateWriter extends Abs
     root.put("columnsWithoutPrimaryParentAndLob", ColumnInfo.getColumnsWithoutPrimaryParentAndLob(table));
     root.put("numberOfColumns", ColumnInfo.getColumns(table).size());
     root.put("associations", AssociationInfo.getAssociations(table, meta));
-    root.put("longBinaryColumns", ColumnInfo.getLongBinaryColumns(table));
-    root.put("longCharacterColumns", ColumnInfo.getLongCharacterColumns(table));        
     root.put("optimisticLockingColumn", ColumnInfo.getOptimisticLockingColumn(table));
     return root;
   }
