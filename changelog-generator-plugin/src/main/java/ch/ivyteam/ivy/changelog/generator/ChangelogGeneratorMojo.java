@@ -61,8 +61,12 @@ public class ChangelogGeneratorMojo extends AbstractMojo
   public int wordWrap;
 
   /** files which tokens must be replaced */
-  @Parameter(property="fileset", required = true)
+  @Parameter(property="fileset")
   public FileSet fileset;
+
+  /** Prints the changelog to the console */
+  @Parameter(property="console")
+  public boolean console = false;
 
   @Parameter(property = "markdownTemplate", defaultValue = "* [${key}](${uri}) ${summary} ${labelsWithHtmlBatches}")
   public String markdownTemplate;
@@ -90,6 +94,32 @@ public class ChangelogGeneratorMojo extends AbstractMojo
     }
 
     List<Issue> issues = loadIssuesFromJira(server);
+    if (console)
+    {
+      printToConsole(issues);
+    }
+    else
+    {
+      replaceInTemplateFiles(issues);
+    }
+  }
+
+  private void printToConsole(List<Issue> issues)
+  {
+    TemplateExpander expander = createMarkdownTemplateExpander();
+    expander.setWordWrap(wordWrap);
+    Map<String, String> tokens = generateTokens(issues, expander);
+    
+    for (Map.Entry<String, String> entry: tokens.entrySet())
+    {
+      System.out.println();
+      System.out.println(entry.getKey());
+      System.out.println(entry.getValue());
+    }
+  }
+
+  private void replaceInTemplateFiles(List<Issue> issues) throws MojoExecutionException
+  {
     for (File sourceFile : getAllFiles())
     {
       getLog().info("replace tokens in " + sourceFile.getAbsolutePath());
@@ -150,9 +180,14 @@ public class ChangelogGeneratorMojo extends AbstractMojo
   {
     if (file.getName().endsWith(".md"))
     {
-      return new TemplateExpander(markdownTemplate, markdownTemplateImprovements, whitelistJiraLabels);
+      return createMarkdownTemplateExpander();
     }
     return new TemplateExpander(asciiTemplate, asciiTemplate, whitelistJiraLabels);
+  }
+
+  private TemplateExpander createMarkdownTemplateExpander()
+  {
+    return new TemplateExpander(markdownTemplate, markdownTemplateImprovements, whitelistJiraLabels);
   }
 
   private Map<String, String> generateTokens(List<Issue> issues, TemplateExpander expander)
