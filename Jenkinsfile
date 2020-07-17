@@ -1,7 +1,7 @@
 pipeline {
   agent {
     docker {
-      image 'maven:3.5.2-jdk-8'
+      image 'maven:3.6.3-jdk-8'
     }
   }
 
@@ -18,13 +18,10 @@ pipeline {
     stage('build and deploy') {
       steps {
         script {
-          if (env.BRANCH_NAME == 'master')
-          {
-	          maven cmd: 'deploy sonar:sonar -Dsonar.host.url=https://sonar.ivyteam.io -Dsonar.projectKey=ivy-maven-plugins -Dsonar.projectName=ivy-maven-plugins'
-	        }
-          else
-          {
-		        maven cmd: 'verify'
+          if (env.BRANCH_NAME == 'master') {
+            maven cmd: 'deploy sonar:sonar -Dsonar.host.url=https://sonar.ivyteam.io -Dsonar.projectKey=ivy-maven-plugins -Dsonar.projectName=ivy-maven-plugins'
+          } else {
+            maven cmd: 'verify'
           }
         }
 
