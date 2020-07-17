@@ -39,7 +39,7 @@ public class TestHtmlGenerator
     
     String artifactTargetPath = "artifactTargetPath";
     
-    String html = new HtmlGenerator(template, artifactTargetPath, images, Paths.get("/tmp"), log).generate();
+    String html = new HtmlGenerator(template, artifactTargetPath, images, Paths.get("/tmp"), log, "test", "test").generate();
     assertThat(html).contains(newImgFolder, nameTab, conditionTab);
     assertThat(html).contains(artifactTargetPath);
     assertThat(log.getWarnings()).isEmpty();

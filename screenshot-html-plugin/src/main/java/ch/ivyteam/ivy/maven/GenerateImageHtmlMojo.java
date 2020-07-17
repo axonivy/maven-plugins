@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
@@ -45,7 +46,13 @@ public class GenerateImageHtmlMojo extends AbstractMojo
   /** Output file location of html, default value ${project.build.directory}/overview.html */
   @Parameter(property = "outputFile", defaultValue = "${project.build.directory}/overview.html")
   File outputFile;
+
+  @Parameter(property = "rootRelativePath", defaultValue = "")
+  String rootRelativePath;
   
+  @Parameter(property = "referenceRelativePath", defaultValue = "")
+  String referenceRelativePath;
+
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
   {
@@ -55,7 +62,8 @@ public class GenerateImageHtmlMojo extends AbstractMojo
     getLog().info("Generating " + outputFile);
     
     String templateString = readTemplate();
-    String outputHtml = new HtmlGenerator(templateString, artifactTargetPath, imageFiles, Paths.get(images.getDirectory()), getLog()).generate();
+    Path rootDir = Paths.get(images.getDirectory());
+    String outputHtml = new HtmlGenerator(templateString, artifactTargetPath, imageFiles, rootDir, getLog(), rootRelativePath, referenceRelativePath).generate();
     writeHtmlFile(outputHtml);
   }
 

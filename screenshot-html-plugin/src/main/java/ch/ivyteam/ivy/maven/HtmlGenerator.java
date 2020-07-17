@@ -18,34 +18,35 @@ public class HtmlGenerator
 
   private StringBuilder imgTagBuilder;
   private String lastParent;
+  private String rootRelativePath;
+  private String referenceRelativePath;
 
-  public HtmlGenerator(String template, String artifactTargetPath, List<File> imageFiles, Path rootDir, Log log)
+  public HtmlGenerator(String template, String artifactTargetPath, List<File> imageFiles, Path rootDir, Log log, String rootRelativePath, String referenceRelativePath)
   {
     this.templateHtml = template;
     this.artifactTargetPath = artifactTargetPath;
     this.imageFiles = imageFiles;
     this.rootDir = rootDir;
+    this.rootRelativePath = rootRelativePath;
+    this.referenceRelativePath = referenceRelativePath;
     this.log = log;
   }
 
   public String generate()
   {
     imgTagBuilder = new StringBuilder();
-    
-    imageFiles.stream().forEach(this::appendImage);
-    
+    imageFiles.stream().forEach(this::appendImage);   
     String filledTemplate = StringUtils.replace(templateHtml, GenerateImageHtmlMojo.REPLACE_TAG_IMG, imgTagBuilder.toString());
-    return StringUtils.replace(filledTemplate, GenerateImageHtmlMojo.REPLACE_TAG_TARGET_PATH, artifactTargetPath);
+    return StringUtils.replace(filledTemplate, GenerateImageHtmlMojo.REPLACE_TAG_TARGET_PATH, artifactTargetPath + referenceRelativePath);
   }
-  
+
   private void appendImage(File image)
   {
     Path relativeImagePath = rootDir.relativize(image.toPath());
     appendTitle(relativeImagePath);
     
     log.debug("Adding: " + relativeImagePath);
-    imgTagBuilder.append("<img src=\"" + rootDir.getFileName() + File.separator + 
-            relativeImagePath + "\" title=\"" + image.getName() + "\">\n");
+    imgTagBuilder.append("<img src=\"" + rootRelativePath + rootDir.getFileName() + "/" + relativeImagePath + "\" title=\"" + image.getName() + "\">\n");
   }
   
   private void appendTitle(Path relativeImagePath)
