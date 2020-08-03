@@ -9,6 +9,7 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.WindowConstants;
 
 /**
  * Displays a BufferedImage.
@@ -37,7 +38,7 @@ public class ImageViewer extends JPanel
   public static void show(BufferedImage image)
   {
     JFrame f = new JFrame();
-    f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    f.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     f.add(new ImageViewer(image));
     f.pack();
     f.setVisible(true);

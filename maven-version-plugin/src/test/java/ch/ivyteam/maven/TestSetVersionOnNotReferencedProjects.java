@@ -15,9 +15,6 @@ import org.fest.assertions.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 
-import mockit.Mock;
-import mockit.MockUp;
-
 
 public class TestSetVersionOnNotReferencedProjects extends Assertions
 {
@@ -41,12 +38,94 @@ public class TestSetVersionOnNotReferencedProjects extends Assertions
     testPoms.setIncludes(Arrays.asList("development/ch.ivyteam.ivy.build.maven/**/pom.xml"));
     testee.pomsToUpdate = new FileSet[]{testPoms};
     
-    testee.setLog(new MockUp<Log>(){
-      @Mock void info( CharSequence content )
+    testee.setLog(new Log()
       {
-        log.add(content.toString());
-      }
-    }.getMockInstance());
+        @Override
+        public void warn(CharSequence content, Throwable error)
+        {
+        }
+        
+        @Override
+        public void warn(Throwable error)
+        {
+        }
+        
+        @Override
+        public void warn(CharSequence content)
+        {
+        }
+        
+        @Override
+        public boolean isWarnEnabled()
+        {
+          return false;
+        }
+        
+        @Override
+        public boolean isInfoEnabled()
+        {
+          return false;
+        }
+        
+        @Override
+        public boolean isErrorEnabled()
+        {
+          return false;
+        }
+        
+        @Override
+        public boolean isDebugEnabled()
+        {
+          return false;
+        }
+        
+        @Override
+        public void info(CharSequence content, Throwable error)
+        {
+        }
+        
+        @Override
+        public void info(Throwable error)
+        {
+        }
+        
+        @Override
+        public void info(CharSequence content)
+        {
+          log.add(content.toString());
+        }
+        
+        @Override
+        public void error(CharSequence content, Throwable error)
+        {
+        }
+        
+        @Override
+        public void error(Throwable error)
+        {
+        }
+        
+        @Override
+        public void error(CharSequence content)
+        {
+        }
+        
+        @Override
+        public void debug(CharSequence content, Throwable error)
+        {
+        }
+        
+        @Override
+        public void debug(Throwable error)
+        {
+        }
+
+        @Override
+        public void debug(CharSequence content)
+        {
+        }
+      });
+    
     testee.version = "5.1.14-SNAPSHOT";    
     testee.externalBuiltArtifacts = Arrays.asList("ch.ivyteam.ulc.base", "ch.ivyteam.ulc.extension", "ch.ivyteam.ivy.richdialog.components",
           "ch.ivyteam.ivy.designer.cm.ui", "ch.ivyteam.vn.feature", "ch.ivyteam.ulc.base.source",

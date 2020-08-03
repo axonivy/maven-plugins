@@ -1,7 +1,7 @@
 pipeline {
   agent {
     docker {
-      image 'maven:3.6.3-jdk-8'
+      image 'maven:3.6.3-jdk-11'
     }
   }
 
@@ -26,6 +26,7 @@ pipeline {
         }
 
         recordIssues tools: [eclipse()], unstableTotalAll: 1
+        recordIssues tools: [mavenConsole()]
         junit testDataPublishers: [[$class: 'StabilityTestDataPublisher']], testResults: '**/target/surefire-reports/**/*.xml'
         archiveArtifacts '**/target/*.jar'
       }      
