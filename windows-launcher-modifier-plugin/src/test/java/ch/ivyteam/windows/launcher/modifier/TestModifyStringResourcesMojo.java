@@ -22,7 +22,6 @@ public class TestModifyStringResourcesMojo
   @Test
   public void execute() throws Exception
   {
-    File tstResources =  new File("src/test/resources");
     ModifyStringResourcesMojo mojo = new ModifyStringResourcesMojo();
     mojo.inputFiles = new FileSet();
     mojo.inputFiles.setDirectory("src/test/resources/testLaunchers");
