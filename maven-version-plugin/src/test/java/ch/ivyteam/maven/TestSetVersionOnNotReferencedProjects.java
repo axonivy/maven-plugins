@@ -1,5 +1,7 @@
 package ch.ivyteam.maven;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -11,12 +13,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.model.FileSet;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
-import org.fest.assertions.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 
 
-public class TestSetVersionOnNotReferencedProjects extends Assertions
+public class TestSetVersionOnNotReferencedProjects
 {
   private SetMavenAndEclipseVersion testee = new SetMavenAndEclipseVersion();
   

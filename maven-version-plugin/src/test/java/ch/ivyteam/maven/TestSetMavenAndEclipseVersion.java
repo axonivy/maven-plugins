@@ -1,5 +1,7 @@
 package ch.ivyteam.maven;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -11,12 +13,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.model.FileSet;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
-import org.fest.assertions.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 
-
-public class TestSetMavenAndEclipseVersion extends Assertions
+public class TestSetMavenAndEclipseVersion
 {
   private static final File POM_FILE = new File("testProject/pom.xml");
   

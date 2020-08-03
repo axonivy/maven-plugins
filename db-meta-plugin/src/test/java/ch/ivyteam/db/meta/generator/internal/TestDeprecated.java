@@ -1,6 +1,6 @@
 package ch.ivyteam.db.meta.generator.internal;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
 import java.io.FileNotFoundException;
