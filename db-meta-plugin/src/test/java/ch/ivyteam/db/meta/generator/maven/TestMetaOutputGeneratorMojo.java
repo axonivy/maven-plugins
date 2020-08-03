@@ -1,6 +1,6 @@
 package ch.ivyteam.db.meta.generator.maven;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,7 +9,7 @@ import java.util.Date;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.fest.assertions.api.FileAssert;
+import org.assertj.core.api.AbstractFileAssert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -102,7 +102,7 @@ public class TestMetaOutputGeneratorMojo
     assertThat(getProjectFile("generated/oracle.sql").lastModified()).isGreaterThan(RECENT_TIME_STAMP);
   }
 
-  private FileAssert assertThatProjectFile(String path)
+  private AbstractFileAssert<?> assertThatProjectFile(String path)
   {
     return assertThat(getProjectFile(path));
   }
