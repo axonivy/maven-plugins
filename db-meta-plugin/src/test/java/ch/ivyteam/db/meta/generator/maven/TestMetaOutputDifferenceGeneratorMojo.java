@@ -233,7 +233,7 @@ public class TestMetaOutputDifferenceGeneratorMojo
                         "\n"+
                         "\n"+
                         "GO";
-    assertThat(sqlContent).containsSequence(createTable, modifyTable, createTrigger);
+    assertThat(sqlContent).containsSubsequence(createTable, modifyTable, createTrigger);
   }
 
   private String execute(Class<? extends SqlScriptGenerator> generatorClass)
