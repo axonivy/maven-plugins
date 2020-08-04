@@ -27,8 +27,8 @@ public class HtmlGenerator
     this.artifactTargetPath = artifactTargetPath;
     this.imageFiles = imageFiles;
     this.rootDir = rootDir;
-    this.rootRelativePath = rootRelativePath;
-    this.referenceRelativePath = referenceRelativePath;
+    this.rootRelativePath = StringUtils.defaultString(rootRelativePath);
+    this.referenceRelativePath = StringUtils.defaultString(referenceRelativePath);
     this.log = log;
   }
 
