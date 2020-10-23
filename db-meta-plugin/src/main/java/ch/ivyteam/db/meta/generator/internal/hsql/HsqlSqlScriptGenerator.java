@@ -16,9 +16,8 @@ import ch.ivyteam.db.meta.model.internal.SqlTableColumn;
 
 public class HsqlSqlScriptGenerator extends SqlScriptGenerator
 {
-  /** Database System */
-  public static final String HSQL_DB = String.valueOf("HsqlDb");
-  
+  public static final String HSQL_DB = "HsqlDb";
+
   public HsqlSqlScriptGenerator()
   {
     super(HSQL_DB, Delimiter.STANDARD, new Identifiers(Identifiers.STANDARD_QUOTE, true), Comments.STANDARD);
@@ -53,7 +52,6 @@ public class HsqlSqlScriptGenerator extends SqlScriptGenerator
   {
     return false;
   }
-  
     
   @Override
   public void generateAlterTableAlterColumn(PrintWriter pr, SqlTableColumn newColumn, SqlTable newTable, SqlTableColumn oldColumn)

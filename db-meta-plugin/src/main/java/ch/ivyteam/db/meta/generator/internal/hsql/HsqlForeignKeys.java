@@ -1,6 +1,7 @@
 package ch.ivyteam.db.meta.generator.internal.hsql;
 
 import java.io.PrintWriter;
+import java.util.List;
 
 import ch.ivyteam.db.meta.generator.internal.Comments;
 import ch.ivyteam.db.meta.generator.internal.DbHints;
@@ -30,5 +31,13 @@ final class HsqlForeignKeys extends ForeignKeys
     delimiter.generate(pr);
     pr.println();
     pr.println();
+  }
+
+  @Override
+  public void generateAlterTableDrop(PrintWriter pr, SqlTable table, SqlForeignKey foreignKey, List<String> createdTemporaryStoredProcedures)
+  {
+    // do nothing
+    // in HSQLDB we do not give names to the FOREIGN KEYs
+    // therefore they can not be deleted
   }
 }
