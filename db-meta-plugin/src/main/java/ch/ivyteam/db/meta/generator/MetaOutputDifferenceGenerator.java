@@ -1144,7 +1144,7 @@ public class MetaOutputDifferenceGenerator
 
   private void generateDropViews(PrintWriter pr)
   {
-    Set<SqlView> changedViews = findChangedViews();
+    Set<SqlView> changedViews = findChangedViews(true);
     if (!changedViews.isEmpty())
     {
       generator.comments.generate(pr, "Drop views which has a new definition or depend on changed tables");
@@ -1155,19 +1155,22 @@ public class MetaOutputDifferenceGenerator
     }
   }
 
-  private Set<SqlView> findChangedViews()
+  private Set<SqlView> findChangedViews(boolean includeDropped)
   {
     Set<SqlView> changedViews = new HashSet<>();
     changedViews.addAll(findViewsWhichDependOnChangedTables());
     changedViews.addAll(findViewsWhichHasNewDefinition());
-    changedViews.addAll(findDroppedViews());
+    if (includeDropped)
+    {
+      changedViews.addAll(findDroppedViews());
+    }
     return changedViews;
   }
 
   private void generateCreateViews(PrintWriter pr)
   {
     generateViews(pr, findAddedViews(), "Create added views");
-    generateViews(pr, findChangedViews(), "Recreate views which has a new definition or depend on changed tables");
+    generateViews(pr, findChangedViews(false), "Recreate views which has a new definition or depend on changed tables");
   }
 
   private void generateViews(PrintWriter pr, Set<SqlView> views, String commentLine)
