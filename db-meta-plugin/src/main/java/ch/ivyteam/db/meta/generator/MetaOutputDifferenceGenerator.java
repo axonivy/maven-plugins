@@ -1160,6 +1160,7 @@ public class MetaOutputDifferenceGenerator
     Set<SqlView> changedViews = new HashSet<>();
     changedViews.addAll(findViewsWhichDependOnChangedTables());
     changedViews.addAll(findViewsWhichHasNewDefinition());
+    changedViews.addAll(findDroppedViews());
     return changedViews;
   }
 
@@ -1295,7 +1296,14 @@ public class MetaOutputDifferenceGenerator
     }
     return addedViews;
   }
-  
+
+  private List<SqlView> findDroppedViews()
+  {
+    return metaDefinitionFrom.getArtifacts(SqlView.class).stream()
+        .filter(oldView -> metaDefinitionTo.findView(oldView.getId()) == null)
+        .collect(Collectors.toList());
+  }
+
   /**
    * @return tables which are deleted in the new meta definition (only exists in old meta definition)
    */
