@@ -8,7 +8,6 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import ch.ivyteam.db.meta.generator.Target;
@@ -40,9 +39,6 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
 {
   /** The output file */
   protected File fOutputFile;
-
-  /** The header comment */
-  private String fComment;
 
   /** Stores the already generated tables */
   private Set<String> fGeneratedTables = new HashSet<>();
@@ -156,9 +152,6 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
     this.triggers = createTriggersGenerator(dbHints, delimiter, dmlStatements, foreignKeys);
   }
     
-  /**
-   * @see IMetaOutputGenerator#analyseArgs(String[])
-   */
   @Override
   public void analyseArgs(String[] generatorArgs) throws Exception
   {
@@ -175,18 +168,6 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
     {
       fOutputFile.getParentFile().mkdirs();
     }
-    if (generatorArgs.length > 2)
-    {
-      if (generatorArgs.length < 4)
-      {
-        throw new Exception("There must be at least 4 generator options");
-      }
-      if (!generatorArgs[2].equalsIgnoreCase("-comment"))
-      {
-        throw new Exception("Second generator option must be -comment");
-      }
-      fComment = generatorArgs[3];
-    }
   }
   
   @Override
@@ -195,11 +176,6 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
     return Target.createSingleTargetFile(fOutputFile);
   }
   
-  public void setComment(String comment)
-  {
-    this.fComment = comment;
-  }
-
   protected DmlStatements createDmlStatementsGenerator(DbHints hints, Delimiter delim, Identifiers ident)
   {
     return new DmlStatements(hints, delim, ident);
@@ -214,19 +190,19 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
   {
     return new Triggers(hints, delim, dmlStmts, fKeys);
   }
-  
+
   @Override
   public void generateMetaOutput(SqlMeta metaDefinition) throws Exception
   {
-    try (PrintWriter pr = new NewLinePrintWriter(fOutputFile))
+    try (var pr = new NewLinePrintWriter(fOutputFile))
     {
-      generateHeader(pr);
+      generateHeader(pr, "SQL script to create database for " + dbName());
       generatePrefix(pr);
       generateMetaOutputStatements(pr, metaDefinition);
       generatePostfix(pr);
     }
   }
-  
+
   public void generateMetaOutputStatements(PrintWriter pr, SqlMeta metaDefinition) throws Exception
   {
     List<SqlTable> tables = metaDefinition.getArtifacts(SqlTable.class);
@@ -258,13 +234,12 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
    */
   public final void generateTables(PrintWriter pr, List<SqlTable> tables)
   {
-    Map<SqlTable, List<SqlForeignKey>> alterTables = new LinkedHashMap<SqlTable, List<SqlForeignKey>>();
-
+    var alterTables = new LinkedHashMap<SqlTable, List<SqlForeignKey>>();
     for (SqlTable table : tables)
     {
       generateTable(pr, table, alterTables);
     }
-    for (Entry<SqlTable, List<SqlForeignKey>> entry : alterTables.entrySet())
+    for (var entry : alterTables.entrySet())
     {
       SqlTable table = entry.getKey();
       for (SqlForeignKey foreignKey : entry.getValue())
@@ -344,42 +319,12 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
    */
   protected void generatePrefix(@SuppressWarnings("unused") PrintWriter pr)
   {
-
   }
 
-  /**
-   * Generates the header
-   * @param pr
-   */
-  public void generateHeader(PrintWriter pr)
+  public void generateHeader(PrintWriter pr, String header)
   {
-    if (fComment != null)
-    {
-      comments.generate(pr,
-              "---------------------------------------------------------------------------------");
-      comments.generate(pr, "");
-      for (String comment : fComment.split("\n"))
-      {
-        comments.generate(pr, comment);
-      }
-      comments.generate(pr, "");
-    }
-    comments.generate(pr,
-            "---------------------------------------------------------------------------------");
-    comments.generate(pr, "");
-    comments.generate(pr,
-            "This script was automatically generated. Do not edit it. Instead edit the source file");
-    comments.generate(pr, "");
-    comments.generate(pr,
-            "---------------------------------------------------------------------------------");
-    comments.generate(pr, "Database: " + getDatabaseComment());
-    comments.generate(pr,
-            "---------------------------------------------------------------------------------");
-    comments.generate(pr, "Copyright:");
-    comments.generate(pr, "AXON IVY AG, Baarerstrasse 12, 6300 Zug");
-    comments.generate(pr,
-            "---------------------------------------------------------------------------------");
-    pr.append('\n');
+    comments.generate(pr, header);
+    pr.println();
   }
 
   /**
@@ -390,9 +335,7 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
   public void generateVersionUpdate(PrintWriter pr, int newVersionId)
   {
     pr.println();
-    comments.generate(pr, "");
     comments.generate(pr, "Update Version");
-    comments.generate(pr, "");
     pr.append("UPDATE IWA_Version SET Version=" + newVersionId);
     delimiter.generate(pr);
     pr.println();
@@ -439,17 +382,8 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
     }
   }
 
-  /**
-   * Gets the database name
-   * @return database name
-   */
-  protected abstract String getDatabaseComment();
+  public abstract String dbName();
   
-  /**
-   * Generate drop table for the given table
-   * @param pr
-   * @param table
-   */
   public final void generateDropTable(PrintWriter pr, SqlTable table)
   {
     pr.write("DROP TABLE ");

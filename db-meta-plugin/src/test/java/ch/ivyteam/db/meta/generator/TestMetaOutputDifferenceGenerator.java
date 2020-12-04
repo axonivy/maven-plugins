@@ -76,15 +76,14 @@ public class TestMetaOutputDifferenceGenerator
   private String removeHeaderAndUpdateVersion(String testee)
   {
     testee = normalizeLineEnds(testee);
-    testee = StringUtils.substringAfterLast(testee, "----");
-    testee = StringUtils.substringBefore(testee, "-- \n-- Update Version");
+    testee = StringUtils.substringAfter(testee, "\n");
+    testee = StringUtils.substringBefore(testee, "\n-- Update Version");
     testee = testee.trim();
     return testee;
   }
 
   private String normalizeLineEnds(String testee)
   {
-    testee = StringUtils.replace(testee, "\r\n", "\n");
-    return testee;
+    return StringUtils.replace(testee, "\r\n", "\n");
   }
 }

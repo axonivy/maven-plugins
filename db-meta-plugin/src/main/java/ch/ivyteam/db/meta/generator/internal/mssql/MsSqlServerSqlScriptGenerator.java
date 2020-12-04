@@ -85,10 +85,8 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
     return false;
   }
   
-
-
   @Override
-  protected String getDatabaseComment()
+  public String dbName()
   {
     return "Microsoft SQL Server";
   }

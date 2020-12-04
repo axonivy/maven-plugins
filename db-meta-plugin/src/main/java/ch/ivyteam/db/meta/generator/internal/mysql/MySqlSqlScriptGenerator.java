@@ -86,11 +86,10 @@ public class MySqlSqlScriptGenerator extends SqlScriptGenerator
   }
 
   @Override
-  protected String getDatabaseComment()
+  public String dbName()
   {
     return "MySQL";
   }
-      
   
   @Override
   public void generateAlterTableAlterColumn(PrintWriter pr, SqlTableColumn newColumn, SqlTable newTable, SqlTableColumn oldColumn)
