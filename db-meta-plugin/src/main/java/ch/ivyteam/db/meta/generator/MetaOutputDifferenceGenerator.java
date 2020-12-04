@@ -1023,7 +1023,7 @@ public class MetaOutputDifferenceGenerator
       if (generator.triggers.hasTrigger(metaDefinitionFrom, deletedTable))
       {
         pr.println();
-        generator.comments.generate(pr, "Drop trigger of no longer exisiting table");
+        generator.comments.generate(pr, "Drop trigger of no longer existing table");
         generator.triggers.generateDrop(pr, deletedTable);
       }
     }
@@ -1031,7 +1031,7 @@ public class MetaOutputDifferenceGenerator
     for (SqlTable deletedTable : deletedTables)
     {
       pr.println();
-      generator.comments.generate(pr, "Drop no longer exisiting table");
+      generator.comments.generate(pr, "Drop no longer existing table");
       generator.generateDropTable(pr, deletedTable);
     }
   }

@@ -10,7 +10,7 @@ END;
 ;
 
 
--- Drop no longer exisiting table
+-- Drop no longer existing table
 DROP TABLE DropTable;
 
 -- Dropped columns of table ReferenceTable
