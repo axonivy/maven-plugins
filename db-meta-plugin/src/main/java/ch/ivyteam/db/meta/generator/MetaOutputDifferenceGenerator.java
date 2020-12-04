@@ -139,7 +139,6 @@ public class MetaOutputDifferenceGenerator
   public void generate(PrintWriter pr) throws Exception
   {
     generator.generateHeader(pr, "SQL script to convert the database for " + generator.dbName() + " from version " + (newVersionId - 1) + " to version " + newVersionId);
-    generator.generateNonMetaDiffChangesPre(pr, newVersionId);
     
     generateDropViews(pr);
     indexes.generateDropIndexesOfRemovedIndexes(pr);
@@ -167,14 +166,10 @@ public class MetaOutputDifferenceGenerator
       generator.generateMetaOutputStatements(pr, additionalConversionMeta);
     }
    
-    generator.generateNonMetaDiffChangesPost(pr, metaDefinitionFrom, metaDefinitionTo, newVersionId);
     generateDropTemporaryStoredProcedures(pr);
     generator.generateVersionUpdate(pr, newVersionId);
   }
 
-  /**
-   * @param pr
-   */
   private void generateDropTemporaryStoredProcedures(PrintWriter pr)
   {
     if (createdTemporaryStoredProcedures.isEmpty())

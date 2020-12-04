@@ -15,7 +15,6 @@ import ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator;
 import ch.ivyteam.db.meta.generator.internal.Triggers;
 import ch.ivyteam.db.meta.model.internal.SqlDataType.DataType;
 import ch.ivyteam.db.meta.model.internal.SqlIndex;
-import ch.ivyteam.db.meta.model.internal.SqlMeta;
 import ch.ivyteam.db.meta.model.internal.SqlPrimaryKey;
 import ch.ivyteam.db.meta.model.internal.SqlTable;
 import ch.ivyteam.db.meta.model.internal.SqlTableColumn;
@@ -33,7 +32,6 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
   private static final Delimiter DELIMITER = new Delimiter("\nGO");
   public static final String MS_SQL_SERVER = String.valueOf("MsSqlServer");  
   private List<String> dropUniqueForTables = new ArrayList<>();
-  
   
   public MsSqlServerSqlScriptGenerator()
   {
@@ -140,30 +138,6 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
     pr.println();
   }
   
-  @Override
-  public void generateNonMetaDiffChangesPost(PrintWriter pr, SqlMeta metaDefinitionFrom, SqlMeta metaDefinitionTo, int newVersionId)
-  {
-    super.generateNonMetaDiffChangesPost(pr, metaDefinitionFrom, metaDefinitionTo, newVersionId);
-    if (newVersionId == 29)
-    {
-      pr.print("COMMIT TRANSACTION");
-      delimiter.generate(pr);
-      pr.println(); 
-      generateAlterDatabaseForSnapshotIsolation(pr);
-      pr.println();
-    }
-    if (newVersionId == 39)
-    {
-      pr.print("COMMIT TRANSACTION");
-      delimiter.generate(pr);
-      pr.println(); 
-      pr.println(); 
-      generateAlterDatabaseForRecursiveTriggers(pr);
-      pr.println();
-    }
-  }
-  
-
   @Override
   public void generateAlterTableAlterColumn(PrintWriter pr, SqlTableColumn newColumn, SqlTable newTable, SqlTableColumn oldColumn)
   {
@@ -338,51 +312,5 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
     options.allUniqueConstraintsOnAlterTable = true;
     
     return options;
-  }
-  
-  @Override
-  public void generateNonMetaDiffChangesPre(PrintWriter pr, int newVersionId)
-  {
-    super.generateNonMetaDiffChangesPre(pr, newVersionId);
-    if (newVersionId == 33) {
-      pr.println("IF EXISTS (");
-      pr.println("   SELECT 'X'");
-      pr.println("   FROM sysindexes");
-      pr.println("   WHERE id = (SELECT OBJECT_ID('IWA_ContentManagementSystem'))");
-      pr.println("   AND name = 'IWA_ContentManagementSystem_AppIdIndex'");
-      pr.println(") ");
-      pr.println("BEGIN");
-      pr.println("DROP INDEX IWA_ContentManagementSystem.IWA_ContentManagementSystem_AppIdIndex;");
-      pr.println("CREATE INDEX IWA_ContentManagementSystem_ApplicationIdIndex ON IWA_ContentManagementSystem(ApplicationId);");
-      pr.println("END");
-      delimiter.generate(pr);
-      pr.println();
-      
-      pr.println("IF EXISTS (");
-      pr.println("   SELECT 'X'");
-      pr.println("   FROM sysindexes");
-      pr.println("   WHERE id = (SELECT OBJECT_ID('IWA_IntermediateEvent'))");
-      pr.println("   AND name = 'IWA_IntermediateEvent_AppId'");
-      pr.println(") ");
-      pr.println("BEGIN");
-      pr.println("DROP INDEX IWA_IntermediateEvent.IWA_IntermediateEvent_AppId;");
-      pr.println("CREATE INDEX IWA_IntermediateEvent_ApplicationId ON IWA_IntermediateEvent(ApplicationId);");
-      pr.println("END");
-      delimiter.generate(pr);
-      pr.println();
-      
-      pr.println("IF EXISTS (");
-      pr.println("   SELECT 'X'");
-      pr.println("   FROM sysindexes");
-      pr.println("   WHERE id = (SELECT OBJECT_ID('IWA_ContentManagementSystem'))");
-      pr.println("   AND name = 'IWA_ContentManagementSystem_ProcessModelVersionIdIndex'");
-      pr.println(") ");
-      pr.println("BEGIN");
-      pr.println("DROP INDEX IWA_ContentManagementSystem.IWA_ContentManagementSystem_ProcessModelVersionIdIndex;");
-      pr.println("CREATE INDEX IWA_ContentManagementSystem_ProcessModelVersionId ON IWA_ContentManagementSystem(ProcessModelVersionId);");
-      pr.println("END");
-      delimiter.generate(pr);
-      pr.println();
-    }
   }
 }
