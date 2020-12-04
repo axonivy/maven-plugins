@@ -1,13 +1,4 @@
--- ---------------------------------------------------------------------------------
--- 
--- This script was automatically generated. Do not edit it. Instead edit the source file
--- 
--- ---------------------------------------------------------------------------------
--- Database: HsqlDb
--- ---------------------------------------------------------------------------------
--- Copyright:
--- AXON IVY AG, Baarerstrasse 12, 6300 Zug
--- ---------------------------------------------------------------------------------
+-- SQL script to create database for HsqlDb
 
 CREATE TABLE IWA_Task
 (
