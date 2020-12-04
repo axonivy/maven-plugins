@@ -16,7 +16,6 @@ import ch.ivyteam.db.meta.generator.internal.Triggers;
 import ch.ivyteam.db.meta.model.internal.SqlDataType;
 import ch.ivyteam.db.meta.model.internal.SqlDataType.DataType;
 import ch.ivyteam.db.meta.model.internal.SqlIndex;
-import ch.ivyteam.db.meta.model.internal.SqlMeta;
 import ch.ivyteam.db.meta.model.internal.SqlTable;
 import ch.ivyteam.db.meta.model.internal.SqlTableColumn;
 import ch.ivyteam.db.meta.model.internal.SqlUniqueConstraint;
@@ -127,48 +126,10 @@ public class PostgreSqlSqlScriptGenerator extends SqlScriptGenerator
     }
   }
   
-  @Override
-  public void generateNonMetaDiffChangesPost(PrintWriter pr, SqlMeta metaDefinitionFrom, SqlMeta metaDefinitionTo, int newVersionId)
-  {
-    if (newVersionId == 48)
-    {
-      recreateVarCharIndices(pr, metaDefinitionFrom);
-    }
-    super.generateNonMetaDiffChangesPost(pr, metaDefinitionFrom, metaDefinitionTo, newVersionId);
-  }
-
-  private void recreateVarCharIndices(PrintWriter pr, SqlMeta metaDefinitionTo)
-  {
-    for (SqlTable table : metaDefinitionTo.getArtifacts(SqlTable.class))
-    {
-      for (SqlIndex index : getIndexes(table))
-      {
-        if (hasVarCharColumn(table, index))
-        {
-          comments.generate(pr, "Drop and recreate index with varchar_pattern_ops to get better LIKE 'prefix%' performance");
-          generateDropIndex(pr, table, index);
-          pr.println();
-          generateIndex(pr, table, index);
-          pr.println();
-        }
-      }
-    }
-  }
-
-  private boolean hasVarCharColumn(SqlTable table, SqlIndex index)
-  {
-    return index.getColumns()
-            .stream()
-            .filter(column -> isVarCharColumn(table, column))
-            .findAny()
-            .isPresent();
-  }
-
   private boolean isVarCharColumn(SqlTable table, String column)
   {
     return table.findColumn(column).getDataType().getDataType() == SqlDataType.DataType.VARCHAR;
   }
-
   
   @Override
   public void generateAlterTableAlterColumn(PrintWriter pr, SqlTableColumn newColumn, SqlTable newTable, SqlTableColumn oldColumn)

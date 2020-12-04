@@ -15,7 +15,6 @@ import ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator;
 import ch.ivyteam.db.meta.generator.internal.Triggers;
 import ch.ivyteam.db.meta.model.internal.SqlDataType.DataType;
 import ch.ivyteam.db.meta.model.internal.SqlIndex;
-import ch.ivyteam.db.meta.model.internal.SqlMeta;
 import ch.ivyteam.db.meta.model.internal.SqlPrimaryKey;
 import ch.ivyteam.db.meta.model.internal.SqlTable;
 import ch.ivyteam.db.meta.model.internal.SqlTableColumn;
@@ -33,7 +32,6 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
   private static final Delimiter DELIMITER = new Delimiter("\nGO");
   public static final String MS_SQL_SERVER = String.valueOf("MsSqlServer");  
   private List<String> dropUniqueForTables = new ArrayList<>();
-  
   
   public MsSqlServerSqlScriptGenerator()
   {
@@ -140,30 +138,6 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
     pr.println();
   }
   
-  @Override
-  public void generateNonMetaDiffChangesPost(PrintWriter pr, SqlMeta metaDefinitionFrom, SqlMeta metaDefinitionTo, int newVersionId)
-  {
-    super.generateNonMetaDiffChangesPost(pr, metaDefinitionFrom, metaDefinitionTo, newVersionId);
-    if (newVersionId == 29)
-    {
-      pr.print("COMMIT TRANSACTION");
-      delimiter.generate(pr);
-      pr.println(); 
-      generateAlterDatabaseForSnapshotIsolation(pr);
-      pr.println();
-    }
-    if (newVersionId == 39)
-    {
-      pr.print("COMMIT TRANSACTION");
-      delimiter.generate(pr);
-      pr.println(); 
-      pr.println(); 
-      generateAlterDatabaseForRecursiveTriggers(pr);
-      pr.println();
-    }
-  }
-  
-
   @Override
   public void generateAlterTableAlterColumn(PrintWriter pr, SqlTableColumn newColumn, SqlTable newTable, SqlTableColumn oldColumn)
   {

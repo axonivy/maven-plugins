@@ -3,7 +3,6 @@ package ch.ivyteam.db.meta.generator.internal;
 import java.io.File;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -16,7 +15,6 @@ import ch.ivyteam.db.meta.model.internal.MetaException;
 import ch.ivyteam.db.meta.model.internal.SqlArtifact;
 import ch.ivyteam.db.meta.model.internal.SqlDataType;
 import ch.ivyteam.db.meta.model.internal.SqlDataType.DataType;
-import ch.ivyteam.db.meta.model.internal.SqlDatabaseSystemHints;
 import ch.ivyteam.db.meta.model.internal.SqlForeignKey;
 import ch.ivyteam.db.meta.model.internal.SqlIndex;
 import ch.ivyteam.db.meta.model.internal.SqlInsertWithSelect;
@@ -26,7 +24,6 @@ import ch.ivyteam.db.meta.model.internal.SqlPrimaryKey;
 import ch.ivyteam.db.meta.model.internal.SqlSelect;
 import ch.ivyteam.db.meta.model.internal.SqlTable;
 import ch.ivyteam.db.meta.model.internal.SqlTableColumn;
-import ch.ivyteam.db.meta.model.internal.SqlTableContentDefinition;
 import ch.ivyteam.db.meta.model.internal.SqlUniqueConstraint;
 import ch.ivyteam.db.meta.model.internal.SqlView;
 import ch.ivyteam.db.meta.model.internal.SqlViewColumn;
@@ -199,7 +196,6 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
       generateHeader(pr, "SQL script to create database for " + dbName());
       generatePrefix(pr);
       generateMetaOutputStatements(pr, metaDefinition);
-      generatePostfix(pr);
     }
   }
 
@@ -304,22 +300,8 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
     pr.println();
   }
 
-  /**
-   * Hook to generate sql script before any other script is created
-   * @param pr the writer
-   */
-  protected void generatePostfix(@SuppressWarnings("unused") PrintWriter pr)
-  {
-
-  }
-
-  /**
-   * Hook to generate sql script after any other script is created
-   * @param pr the writer
-   */
   protected void generatePrefix(@SuppressWarnings("unused") PrintWriter pr)
   {
-
   }
 
   public void generateHeader(PrintWriter pr, String header)
@@ -327,11 +309,6 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
     comments.generate(pr, header);
   }
 
-  /**
-   * Generates the header
-   * @param pr
-   * @param newVersionId 
-   */
   public void generateVersionUpdate(PrintWriter pr, int newVersionId)
   {
     pr.println();
@@ -339,35 +316,6 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
     pr.append("UPDATE IWA_Version SET Version=" + newVersionId);
     delimiter.generate(pr);
     pr.println();
-  }
-
-  public void generateNonMetaDiffChangesPost(PrintWriter pr, 
-          @SuppressWarnings("unused") SqlMeta metaDefinitionFrom, 
-          @SuppressWarnings("unused") SqlMeta metaDefinitionTo, 
-          int newVersionId)
-  {
-    pr.println();
-    
-    if (newVersionId == 32)
-    {
-      comments.generate(pr, "Issue 23540: Deletion of a PMV must remove/delete associated library");
-      pr.append("DELETE FROM IWA_Library " +
-      		"WHERE ProcessModelVersionId IN (SELECT ProcessModelVersionId FROM IWA_ProcessModelVersion WHERE ReleaseState=4)"); // ReleaseState=DELETED    
-      delimiter.generate(pr);
-      pr.println();
-      pr.println();
-    }
-    if (newVersionId == 33)
-    {
-      SqlTable table = new SqlTable("IWA_Identifier", Collections.<SqlTableContentDefinition>emptyList(), Collections.<SqlDatabaseSystemHints>emptyList(), null);
-      generateAlterTableAlterColumn(pr, 
-              new SqlTableColumn("IdentifierValue", new SqlDataType(DataType.BIGINT), false, null, null, null, null), 
-              table, 
-              new SqlTableColumn("IdentifierValue", new SqlDataType(DataType.INTEGER), false, null, null, null, null));
-      pr.println();
-      pr.println();
-      generateTableReorganisation(pr, table);
-    }
   }
 
   public abstract String dbName();

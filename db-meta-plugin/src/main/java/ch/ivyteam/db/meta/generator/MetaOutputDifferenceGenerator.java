@@ -166,14 +166,10 @@ public class MetaOutputDifferenceGenerator
       generator.generateMetaOutputStatements(pr, additionalConversionMeta);
     }
    
-    generator.generateNonMetaDiffChangesPost(pr, metaDefinitionFrom, metaDefinitionTo, newVersionId);
     generateDropTemporaryStoredProcedures(pr);
     generator.generateVersionUpdate(pr, newVersionId);
   }
 
-  /**
-   * @param pr
-   */
   private void generateDropTemporaryStoredProcedures(PrintWriter pr)
   {
     if (createdTemporaryStoredProcedures.isEmpty())
