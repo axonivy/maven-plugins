@@ -325,7 +325,6 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
   public void generateHeader(PrintWriter pr, String header)
   {
     comments.generate(pr, header);
-    pr.append('\n');
   }
 
   /**
