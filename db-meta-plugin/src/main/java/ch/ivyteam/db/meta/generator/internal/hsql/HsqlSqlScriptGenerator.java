@@ -36,7 +36,7 @@ public class HsqlSqlScriptGenerator extends SqlScriptGenerator
   }
   
   @Override
-  protected String getDatabaseComment()
+  public String dbName()
   {
     return "HsqlDb";
   }

@@ -86,11 +86,10 @@ public class PostgreSqlSqlScriptGenerator extends SqlScriptGenerator
   }
   
   @Override
-  protected String getDatabaseComment()
+  public String dbName()
   {
     return "Postgre SQL";
   }
-
   
   @Override
   public void generateIndex(PrintWriter pr,

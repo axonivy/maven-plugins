@@ -144,7 +144,7 @@ public class OracleSqlScriptGenerator extends SqlScriptGenerator
   }
 
   @Override
-  protected String getDatabaseComment()
+  public String dbName()
   {
     return ORACLE;
   }

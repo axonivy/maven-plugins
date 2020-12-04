@@ -136,16 +136,9 @@ public class MetaOutputDifferenceGenerator
     this.newVersionId = newVersionId;
   }
 
-  /** 
-   * Generates the conversion script
-   * @param pr 
-   * @throws Exception 
-   */
   public void generate(PrintWriter pr) throws Exception
   {
-    generator.setComment("Converts the ivy system database from version " + (newVersionId-1) + " to version " + newVersionId);
-    generator.generateHeader(pr);
-    
+    generator.generateHeader(pr, "SQL script to convert the database for " + generator.dbName() + " from version " + (newVersionId - 1) + " to version " + newVersionId);
     generator.generateNonMetaDiffChangesPre(pr, newVersionId);
     
     generateDropViews(pr);
