@@ -319,12 +319,12 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
    */
   protected void generatePrefix(@SuppressWarnings("unused") PrintWriter pr)
   {
-
   }
 
   public void generateHeader(PrintWriter pr, String header)
   {
     comments.generate(pr, header);
+    pr.println();
   }
 
   /**
