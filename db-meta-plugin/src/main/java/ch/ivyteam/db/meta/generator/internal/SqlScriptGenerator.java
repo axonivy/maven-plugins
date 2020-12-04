@@ -340,19 +340,7 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
     delimiter.generate(pr);
     pr.println();
   }
-  
 
-  public void generateNonMetaDiffChangesPre(@SuppressWarnings("unused") PrintWriter pr, @SuppressWarnings("unused") int newVersionId)
-  {
-  }
-  
-  /**
-   * Generates the DDL updates that are not reflected by a meta data difference 
-   * @param pr
-   * @param metaDefinitionTo 
-   * @param metaDefinitionFrom 
-   * @param newVersionId
-   */
   public void generateNonMetaDiffChangesPost(PrintWriter pr, 
           @SuppressWarnings("unused") SqlMeta metaDefinitionFrom, 
           @SuppressWarnings("unused") SqlMeta metaDefinitionTo, 

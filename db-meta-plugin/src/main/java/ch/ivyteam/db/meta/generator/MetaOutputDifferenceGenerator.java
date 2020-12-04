@@ -139,7 +139,6 @@ public class MetaOutputDifferenceGenerator
   public void generate(PrintWriter pr) throws Exception
   {
     generator.generateHeader(pr, "SQL script to convert the database for " + generator.dbName() + " from version " + (newVersionId - 1) + " to version " + newVersionId);
-    generator.generateNonMetaDiffChangesPre(pr, newVersionId);
     
     generateDropViews(pr);
     indexes.generateDropIndexesOfRemovedIndexes(pr);
