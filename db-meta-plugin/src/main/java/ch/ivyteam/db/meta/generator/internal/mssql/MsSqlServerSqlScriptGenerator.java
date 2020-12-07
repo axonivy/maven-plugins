@@ -95,12 +95,15 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
     pr.print("SET IMPLICIT_TRANSACTIONS OFF");
     delimiter.generate(pr);
     pr.println();
+    pr.println();
     generateAlterDatabaseForSnapshotIsolation(pr);
+    pr.println();
     pr.println();
     generateAlterDatabaseForRecursiveTriggers(pr);
     pr.println();
     pr.print("SET IMPLICIT_TRANSACTIONS ON");
     delimiter.generate(pr);
+    pr.println();
     pr.println();
   }
 
@@ -109,6 +112,7 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
     comments.generate(pr, "Alter database so that read operations are not blocked by write operations.");
     pr.print("ALTER DATABASE [${databaseName}] SET ALLOW_SNAPSHOT_ISOLATION ON");
     delimiter.generate(pr);
+    pr.println();
     pr.println();
     pr.print("ALTER DATABASE [${databaseName}] SET READ_COMMITTED_SNAPSHOT ON");
     delimiter.generate(pr);
