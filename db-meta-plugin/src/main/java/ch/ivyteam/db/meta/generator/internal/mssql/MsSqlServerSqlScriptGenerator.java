@@ -88,56 +88,40 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
   {
     return "Microsoft SQL Server";
   }
-  
+
   @Override
   protected void generatePrefix(PrintWriter pr)
   {
-    if (fOutputFile.getName().indexOf("Base")<0)
-    {
-      pr.print("COMMIT");
-      delimiter.generate(pr);
-      pr.println();
-      pr.println();
-      pr.print("SET IMPLICIT_TRANSACTIONS OFF");
-      delimiter.generate(pr);
-      pr.println();
-      pr.println();
-      generateAlterDatabaseForSnapshotIsolation(pr);
-      pr.println();
-      pr.println();
-      generateAlterDatabaseForRecursiveTriggers(pr);
-      pr.println();
-      pr.println();
-      pr.print("SET IMPLICIT_TRANSACTIONS ON");
-      delimiter.generate(pr);
-      pr.println();
-      pr.println();
-    }
+    pr.print("SET IMPLICIT_TRANSACTIONS OFF");
+    delimiter.generate(pr);
+    pr.println();
+    generateAlterDatabaseForSnapshotIsolation(pr);
+    pr.println();
+    generateAlterDatabaseForRecursiveTriggers(pr);
+    pr.println();
+    pr.print("SET IMPLICIT_TRANSACTIONS ON");
+    delimiter.generate(pr);
+    pr.println();
   }
 
   private void generateAlterDatabaseForSnapshotIsolation(PrintWriter pr)
   {
-    comments.generate(pr, "");
     comments.generate(pr, "Alter database so that read operations are not blocked by write operations.");
-    comments.generate(pr, "");
     pr.print("ALTER DATABASE [${databaseName}] SET ALLOW_SNAPSHOT_ISOLATION ON");
     delimiter.generate(pr);
-    pr.println();
     pr.println();
     pr.print("ALTER DATABASE [${databaseName}] SET READ_COMMITTED_SNAPSHOT ON");
     delimiter.generate(pr);
   }
-  
+
   private void generateAlterDatabaseForRecursiveTriggers(PrintWriter pr)
   {
-    comments.generate(pr, "");
     comments.generate(pr, "Alter database so that recursive triggers work.");
-    comments.generate(pr, "");
     pr.print("ALTER DATABASE [${databaseName}] SET RECURSIVE_TRIGGERS ON");
     delimiter.generate(pr);
     pr.println();
   }
-  
+
   @Override
   public void generateAlterTableAlterColumn(PrintWriter pr, SqlTableColumn newColumn, SqlTable newTable, SqlTableColumn oldColumn)
   {
