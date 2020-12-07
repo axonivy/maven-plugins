@@ -92,6 +92,12 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
   @Override
   protected void generatePrefix(PrintWriter pr)
   {
+    var path = fOutputFile.getAbsolutePath();
+    if (!path.contains("mssqlserver.sql") && !path.contains("CreateDatabase.sql"))
+    {
+      return;
+    }
+
     pr.print("SET IMPLICIT_TRANSACTIONS OFF");
     delimiter.generate(pr);
     pr.println();
