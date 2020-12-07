@@ -5,7 +5,6 @@ import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
@@ -17,25 +16,12 @@ import ch.ivyteam.db.meta.model.internal.SqlMeta;
 import ch.ivyteam.db.meta.parser.internal.Parser;
 import ch.ivyteam.db.meta.parser.internal.Scanner;
 
-/**
- * Generates an output out of the sql meta definition
- * @author rwei
- */
 public class MetaOutputGenerator
 {
-  /**  */
   private static final String OPTION_GENERATOR = "generator";
-
-  /**  */
   private static final String OPTION_SQL = "sql";
-
-  /** Sql meta definition files */
   private List<File> sqlMetaDefinitionFiles = new ArrayList<File>();
-  
-  /** The meta output generator */
   private IMetaOutputGenerator generator;
-
-  /** The sql meta definition */
   private SqlMeta sqlMetaDefinition;
   
   private Options OPTIONS = new Options().
@@ -148,14 +134,9 @@ public class MetaOutputGenerator
     }
   }
 
-  /**
-   * Analysis the 
-   * @param args
-   * @throws Exception 
-   */
   public void analyseArgs(String[] args) throws Exception
   {
-    CommandLine commandLine = new DefaultParser().parse(OPTIONS, args, true);
+    var commandLine = new DefaultParser().parse(OPTIONS, args, true);
     for (String sqlFile : commandLine.getOptionValues(OPTION_SQL))
     {     
       File sqlMetaDefinitionFile = new File(sqlFile);
@@ -165,10 +146,10 @@ public class MetaOutputGenerator
       }
       sqlMetaDefinitionFiles.add(sqlMetaDefinitionFile);
     }
-    Class<?> generatorClass = Class.forName(commandLine.getOptionValue(OPTION_GENERATOR));
+    var generatorClass = Class.forName(commandLine.getOptionValue(OPTION_GENERATOR));
     if (IMetaOutputGenerator.class.isAssignableFrom(generatorClass))
     {
-      generator = (IMetaOutputGenerator) generatorClass.newInstance();
+      generator = (IMetaOutputGenerator) generatorClass.getDeclaredConstructor().newInstance();
     }
     generator.analyseArgs(commandLine.getArgs());
   }

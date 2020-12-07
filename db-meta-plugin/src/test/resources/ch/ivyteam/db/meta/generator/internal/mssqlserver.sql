@@ -1,26 +1,18 @@
 -- SQL script to create database for Microsoft SQL Server
 
-COMMIT
-GO
-
 SET IMPLICIT_TRANSACTIONS OFF
 GO
 
--- 
 -- Alter database so that read operations are not blocked by write operations.
--- 
 ALTER DATABASE [${databaseName}] SET ALLOW_SNAPSHOT_ISOLATION ON
 GO
 
 ALTER DATABASE [${databaseName}] SET READ_COMMITTED_SNAPSHOT ON
 GO
 
--- 
 -- Alter database so that recursive triggers work.
--- 
 ALTER DATABASE [${databaseName}] SET RECURSIVE_TRIGGERS ON
 GO
-
 
 SET IMPLICIT_TRANSACTIONS ON
 GO
