@@ -56,19 +56,14 @@ public class MetaOutputDifferenceGenerator
   private final ConstraintGenerator constraints = new ConstraintGenerator();
   private final ForeignKeyGenerator foreignKeys = new ForeignKeyGenerator();
   
-  /**
-   * @param generatorClassName
-   * @return -
-   * @exception IllegalArgumentException If the class could not been instantiated
-   */
   public static SqlScriptGenerator findGeneratorClass(String generatorClassName)
   {
     try
     {
-      Class<?> generatorClass = Class.forName(generatorClassName);
+      var generatorClass = Class.forName(generatorClassName);
       if (SqlScriptGenerator.class.isAssignableFrom(generatorClass))
       {
-        return (SqlScriptGenerator) generatorClass.newInstance();
+        return (SqlScriptGenerator) generatorClass.getDeclaredConstructor().newInstance();
       }
       else
       {
