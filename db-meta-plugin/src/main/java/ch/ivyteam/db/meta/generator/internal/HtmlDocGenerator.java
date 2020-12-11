@@ -91,6 +91,8 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
     try (var in = HtmlDocGenerator.class.getResourceAsStream("style.css"))
     {
       var styleCss = outputDir.toPath().resolve("style.css");
+      Files.deleteIfExists(styleCss);
+      Files.createFile(styleCss);
       try (var out = Files.newOutputStream(styleCss))
       {
         in.transferTo(out);
