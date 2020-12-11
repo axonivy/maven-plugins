@@ -46,20 +46,13 @@ import ch.ivyteam.db.meta.model.internal.SqlView;
 import ch.ivyteam.db.meta.model.internal.SqlViewColumn;
 import ch.ivyteam.db.meta.model.internal.SqlWhenThen;
 
-/**
- * Generates html documents out of the sql meta information
- * @author rwei 
- */
 public class HtmlDocGenerator implements IMetaOutputGenerator
 {
-  /** The output directory */
   private File outputDir;
-  /** The open html tags */
   private Stack<String> htmlTags = new Stack<>();
-  /** The row of a table */
   private int fRow;
   private Stack<Map<String, String>> tableAliases = new Stack<>();
-  
+
   @Override
   public void analyseArgs(String[] generatorArgs) throws Exception
   {
@@ -77,7 +70,7 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
       outputDir.mkdirs();
     }
   }
-  
+
   @Override
   public Target getTarget()
   {
@@ -153,67 +146,46 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
     finally
     {
       IOUtils.closeQuietly(pr);
-    }   
+    }
   }
 
-  /**
-   * Writes the tables output files
-   * @param metaDefinition the meta definition
-   * @throws FileNotFoundException if file cannot be created
-   * @throws MetaException 
-   */
   private void writeTables(SqlMeta metaDefinition) throws FileNotFoundException, MetaException
   {
     for (SqlTable table : metaDefinition.getArtifacts(SqlTable.class))
     {
       writeTable(metaDefinition, table);
-    }  
+    }
   }
 
-  /**
-   * Writes the tables output files
-   * @param metaDefinition the meta definition
-   * @throws FileNotFoundException if file cannot be created
-   * @throws MetaException 
-   */
   private void writeViews(SqlMeta metaDefinition) throws FileNotFoundException, MetaException
   {
     for (SqlView view : metaDefinition.getArtifacts(SqlView.class))
     {
       writeView(metaDefinition, view);
-    }  
+    }
   }
-  
-  /**
-   * Writes view output file
-   * @param metaDefinition the meta definition
-   * @param view the table
-   * @throws FileNotFoundException
-   * @throws MetaException 
-   */
-  private void writeView(SqlMeta metaDefinition, SqlView view) throws FileNotFoundException, MetaException
+
+  private void writeView(SqlMeta metaDefinition, SqlView view) throws FileNotFoundException
   {
-    PrintWriter pr;
-    
-    pr = new NewLinePrintWriter(new File(outputDir, view.getId()+".html"));
+    var pr = new NewLinePrintWriter(new File(outputDir, view.getId() + ".html"));
     try
     {
-      writeHeader(pr, "View "+view.getId());
+      writeHeader(pr, "View " + view.getId());
       writeStartTag(pr, "body");
       writeStartTag(pr, "h1");
       writeText(pr, "View " + view.getId());
       writeEndTag(pr);
       writeStartTag(pr, "p");
       writeComment(pr, view.getComment());
-      writeEndTag(pr);      
+      writeEndTag(pr);
       writeViewColumns(pr, view);
       int pos = 1;
       for (SqlSelect select : view.getSelects())
       {
         writeStartTag(pr, "h2");
-        if (view.getSelects().size()>1)
+        if (view.getSelects().size() > 1)
         {
-          writeText(pr, "Select "+pos++);
+          writeText(pr, "Select " + pos++);
         }
         else
         {
@@ -229,30 +201,20 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
     {
       IOUtils.closeQuietly(pr);
     }
-    assert htmlTags.isEmpty() : "Stack with html tags must be empty after finishing writing a html page";
   }
 
-  /**
-   * Writes table output file
-   * @param metaDefinition the meta definition
-   * @param table the table
-   * @throws FileNotFoundException
-   * @throws MetaException 
-   */
   private void writeTable(SqlMeta metaDefinition, SqlTable table) throws FileNotFoundException, MetaException
   {
-    PrintWriter pr;
-    
-    pr = new NewLinePrintWriter(new File(outputDir, table.getId()+".html"));
+    var pr = new NewLinePrintWriter(new File(outputDir, table.getId() + ".html"));
     try
     {
-      writeHeader(pr, "Table "+table.getId());
+      writeHeader(pr, "Table " + table.getId());
       writeStartTag(pr, "body");
       writeStartTag(pr, "h1");
       writeText(pr, "Table " + table.getId());
       writeEndTag(pr);
       writeColumns(pr, table);
-      writeConstraints(pr, table);      
+      writeConstraints(pr, table);
       writeIndexes(pr, table);
       writeTriggers(pr, table);
       writeReferencedBy(pr, metaDefinition, table);
@@ -263,13 +225,8 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
     {
       IOUtils.closeQuietly(pr);
     }
-    assert htmlTags.isEmpty() : "Stack with html tags must be empty after finishing writing a html page";
   }
 
-  /**
-   * @param pr
-   * @param table
-   */
   private void writeDatabaseSystemHints(PrintWriter pr, SqlTable table)
   {
     for (String databaseSystem : getAllDatabaseSystemsWithDatabaseSystemHints(table))
@@ -278,19 +235,15 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
     }
   }
 
-  /**
-   * Gets all database systems with database system hints on any sql object declared by the given table
-   * @param table the table
-   * @return set with the database systems
-   */
   private Set<String> getAllDatabaseSystemsWithDatabaseSystemHints(SqlTable table)
   {
-    Set<String> databaseSystems = new LinkedHashSet<String>();
-    for (SqlObject object: getSqlObjectsOfTable(table))
+    var databaseSystems = new LinkedHashSet<String>();
+    for (var object : getSqlObjectsOfTable(table))
     {
-      for (SqlDatabaseSystemHints databaseSystemHints : object.getDatabaseManagementSystemHints())
+      for (var databaseSystemHints : object.getDatabaseManagementSystemHints())
       {
-        if (!object.getDatabaseManagementSystemHints(databaseSystemHints.getDatabaseManagementSystem()).isEmpty())
+        if (!object.getDatabaseManagementSystemHints(databaseSystemHints.getDatabaseManagementSystem())
+                .isEmpty())
         {
           databaseSystems.add(databaseSystemHints.getDatabaseManagementSystem());
         }
@@ -299,11 +252,6 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
     return databaseSystems;
   }
 
-  /**
-   * @param pr
-   * @param databaseSystem
-   * @param table
-   */
   private void writeDatabaseSystemHints(PrintWriter pr, String databaseSystem, SqlTable table)
   {
     writeStartTag(pr, "h2");
@@ -325,7 +273,7 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
     {
       writeNewRow(pr);
       writeNewColumn(pr);
-      writeAnchor(pr, databaseSystem+"_"+object.getId());
+      writeAnchor(pr, databaseSystem + "_" + object.getId());
       writeReference(pr, object.getId(), null, object.getId());
       writeEndTag(pr);
       for (String hint : getAllDatabaseSystemHints(databaseSystem, table))
@@ -333,7 +281,7 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
         writeNewColumn(pr);
         if (object.getDatabaseManagementSystemHints(databaseSystem).isHintSet(hint))
         {
-          if (object.getDatabaseManagementSystemHints(databaseSystem).getHintValue(hint)!=null)
+          if (object.getDatabaseManagementSystemHints(databaseSystem).getHintValue(hint) != null)
           {
             writeText(pr, object.getDatabaseManagementSystemHints(databaseSystem).getHintValue(hint));
           }
@@ -343,43 +291,30 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
           }
         }
         else
-        {  
+        {
           writeText(pr, "");
         }
-        writeEndTag(pr);       
+        writeEndTag(pr);
       }
       writeEndTag(pr);
     }
     writeEndTag(pr);
   }
 
-  /**
-   * Gets all database system hints for the given database system on any sql object declared by the given table
-   * @param databaseSystem the database system
-   * @param table the table
-   * @return set of database system hins
-   */
   private Set<String> getAllDatabaseSystemHints(String databaseSystem, SqlTable table)
   {
-    Set<String> hints = new TreeSet<String>();
-    for (SqlObject object : getSqlObjectsOfTable(table))
+    var hints = new TreeSet<String>();
+    for (var object : getSqlObjectsOfTable(table))
     {
       hints.addAll(object.getDatabaseManagementSystemHints(databaseSystem).getHintNames());
     }
     return hints;
   }
 
-  /**
-   * Gets all sql object of the given table that has database system hints for the given database system set
-   * @param databaseSystem the database system
-   * @param table the table
-   * @return set of sql object that has database system hints set
-   */
   private Set<SqlObject> getAllSqlObjectsWithDatabaseSystemHints(String databaseSystem, SqlTable table)
   {
-    Set<SqlObject> objectsWithHints = new LinkedHashSet<SqlObject>();
-    
-    for (SqlObject object: getSqlObjectsOfTable(table))
+    var objectsWithHints = new LinkedHashSet<SqlObject>();
+    for (var object : getSqlObjectsOfTable(table))
     {
       if (!object.getDatabaseManagementSystemHints(databaseSystem).isEmpty())
       {
@@ -389,15 +324,9 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
     return objectsWithHints;
   }
 
-  /**
-   * Gets the sql objects of the given table
-   * @param table the table
-   * @return set of sql objects that are declared by the table
-   */
   private Set<SqlObject> getSqlObjectsOfTable(SqlTable table)
   {
-    Set<SqlObject> objects = new LinkedHashSet<SqlObject>();
-    
+    var objects = new LinkedHashSet<SqlObject>();
     objects.add(table);
     objects.addAll(table.getColumns());
     objects.addAll(table.getIndexes());
@@ -406,22 +335,15 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
     return objects;
   }
 
-  /**
-   * Writes referenced by documentation 
-   * @param pr the print writer to write to
-   * @param metaDefinition the meta definition
-   * @param table the table to write the referenced by documentation
-   * @throws MetaException 
-   */
-  private void writeReferencedBy(PrintWriter pr, SqlMeta metaDefinition,
-          SqlTable table) throws MetaException
+  private void writeReferencedBy(PrintWriter pr, SqlMeta metaDefinition, SqlTable table)
   {
     boolean first = true;
     for (SqlTable foreignTable : metaDefinition.getArtifacts(SqlTable.class))
     {
       for (SqlTableColumn column : foreignTable.getColumns())
       {
-        if ((column.getReference() != null)&&(column.getReference().getForeignTable().equals(table.getId())))
+        if ((column.getReference() != null)
+                && (column.getReference().getForeignTable().equals(table.getId())))
         {
           if (first)
           {
@@ -435,10 +357,10 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
             writeEndTag(pr);
             writeStartTag(pr, "th");
             writeText(pr, "Column");
-            writeEndTag(pr);   
+            writeEndTag(pr);
             writeStartTag(pr, "th");
             writeText(pr, "Comment");
-            writeEndTags(pr, 2);   
+            writeEndTags(pr, 2);
           }
           first = false;
           writeNewRow(pr);
@@ -460,31 +382,17 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
     }
   }
 
-  /**
-   * Writes a new row
-   * @param pr 
-   */
   private void writeNewRow(PrintWriter pr)
   {
     writeStartTag(pr, "tr");
     fRow++;
   }
 
-  /**
-   * Writes a new column
-   * @param pr 
-   */
   private void writeNewColumn(PrintWriter pr)
   {
-    writeStartTag(pr, "td", "class", fRow%2==0?"even":"odd");
+    writeStartTag(pr, "td", "class", fRow % 2 == 0 ? "even" : "odd");
   }
-  
-  /**
-   * Writes a table column reference to the given column
-   * @param pr the print writer
-   * @param tableName the name of the table of the column
-   * @param columnName the name of the column
-   */
+
   private void writeTableColumnReference(PrintWriter pr, String tableName, String columnName)
   {
     if (tableName == null)
@@ -493,25 +401,15 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
     }
     else
     {
-      writeReference(pr, columnName, tableName+".html", columnName);
+      writeReference(pr, columnName, tableName + ".html", columnName);
     }
   }
-  
-  /**
-   * Writes a table column reference to the given column
-   * @param pr the print writer
-   * @param columnName the name of the column
-   */
+
   private void writeColumnReference(PrintWriter pr, String columnName)
   {
     writeReference(pr, columnName, null, columnName);
   }
-  
-  /**
-   * Writes reference to a full qualified column name
-   * @param pr the print writer
-   * @param columnName the full qualified column name
-   */
+
   private void writeTableColumnReference(PrintWriter pr, SqlFullQualifiedColumnName columnName)
   {
     if (columnName.getTable() == null)
@@ -519,31 +417,19 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
       writeColumnReference(pr, columnName.getColumn());
     }
     else
-    {     
+    {
       writeTableReference(pr, columnName.getTable());
       writeText(pr, ".");
       writeTableColumnReference(pr, columnName.getTable(), columnName.getColumn());
     }
   }
 
-  /**
-   * Writes a reference to the given table
-   * @param pr the print writer
-   * @param tableName the name of the table
-   */
   private void writeTableReference(PrintWriter pr, String tableName)
   {
-    String originalTableName = resolveTableAlias(tableName);
-    writeReference(pr, tableName, originalTableName+".html", null);
+    var originalTableName = resolveTableAlias(tableName);
+    writeReference(pr, tableName, originalTableName + ".html", null);
   }
-  
-  /**
-   * Writes a reference. Either file or anchor or both must be defined.
-   * @param pr the print writer
-   * @param text the text that is printed
-   * @param file the file to reference. Maybe null
-   * @param anchor the name of the anchor  to reference. Maybe null.
-   */
+
   private void writeReference(PrintWriter pr, String text, String file, String anchor)
   {
     String ref = "";
@@ -553,22 +439,16 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
     }
     if (anchor != null)
     {
-      ref += "#"+anchor;
+      ref += "#" + anchor;
     }
     writeStartTag(pr, "a", "href", ref);
     writeText(pr, text);
     writeEndTags(pr, 1);
   }
 
-  /**
-   * Writes the triggers of a table
-   * @param pr the print writer to write to
-   * @param table the table definition
-   * @throws MetaException 
-   */
-  private void writeTriggers(PrintWriter pr, SqlTable table) throws MetaException
+  private void writeTriggers(PrintWriter pr, SqlTable table)
   {
-    if (table.getTriggers().size()>0)
+    if (table.getTriggers().size() > 0)
     {
       writeStartTag(pr, "h2");
       writeText(pr, "Triggers");
@@ -609,7 +489,7 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
           writeDmlStatement(pr, stmt);
           writeTag(pr, "br");
           writeTag(pr, "br");
-        }        
+        }
         writeEndTag(pr);
         writeNewColumn(pr);
         for (SqlDmlStatement stmt : trigger.getStatementsForEachStatement())
@@ -617,44 +497,32 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
           writeDmlStatement(pr, stmt);
           writeTag(pr, "br");
           writeTag(pr, "br");
-        }        
+        }
         writeEndTag(pr);
         writeNewColumn(pr);
         writeSystemDatabaseHintRefrences(pr, trigger);
         writeEndTag(pr);
         writeNewColumn(pr);
-        writeComment(pr, trigger.getComment());        
+        writeComment(pr, trigger.getComment());
         writeEndTags(pr, 2);
       }
       writeEndTag(pr);
     }
-
   }
 
-  /**
-   * Writes a dml statment
-   * @param pr print writer
-   * @param stmt dml statement
-   */
   private void writeDmlStatement(PrintWriter pr, SqlDmlStatement stmt)
   {
     if (stmt instanceof SqlUpdate)
     {
-      writeUpdateStatement(pr, (SqlUpdate)stmt);
+      writeUpdateStatement(pr, (SqlUpdate) stmt);
     }
   }
 
-
-  /**
-   * Writes an update statement
-   * @param pr the print writer
-   * @param stmt the statement
-   */
   private void writeUpdateStatement(PrintWriter pr, SqlUpdate stmt)
   {
     String table;
     boolean first = true;
-    
+
     table = stmt.getTable();
     writeText(pr, "UPDATE ");
     if (table != null)
@@ -671,24 +539,18 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
       first = false;
       writeTableColumnReference(pr, table, columnExpr.getColumnName());
       writeText(pr, "=");
-      writeAtom(pr, columnExpr.getExpression());          
+      writeAtom(pr, columnExpr.getExpression());
     }
     if (stmt.getFilterExpression() != null)
     {
       writeText(pr, " WHERE ");
       writeSimpleExpr(pr, stmt.getFilterExpression());
-    }    
+    }
   }
 
-  /**
-   * Writes the indexes of a table
-   * @param pr the print writer to write to
-   * @param table the table definition
-   * @throws MetaException 
-   */
-  private void writeIndexes(PrintWriter pr, SqlTable table) throws MetaException
+  private void writeIndexes(PrintWriter pr, SqlTable table)
   {
-    if (table.getIndexes().size()>0)
+    if (table.getIndexes().size() > 0)
     {
       writeStartTag(pr, "h2");
       writeText(pr, "Indexes");
@@ -728,15 +590,9 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
     }
   }
 
-  /**
-   * Writes the constraints of a table
-   * @param pr the print writer to write to
-   * @param table the table definition
-   * @throws MetaException 
-   */
-  private void writeConstraints(PrintWriter pr, SqlTable table) throws MetaException
+  private void writeConstraints(PrintWriter pr, SqlTable table)
   {
-    if (table.getUniqueConstraints().size()>0)
+    if (table.getUniqueConstraints().size() > 0)
     {
       writeStartTag(pr, "h2");
       writeText(pr, "Constraints");
@@ -748,13 +604,13 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
       writeEndTag(pr);
       writeStartTag(pr, "th");
       writeText(pr, "Name");
-      writeEndTag(pr);      
+      writeEndTag(pr);
       writeStartTag(pr, "th");
       writeText(pr, "Columns");
-      writeEndTag(pr);      
+      writeEndTag(pr);
       writeStartTag(pr, "th");
       writeText(pr, "Hints");
-      writeEndTag(pr);      
+      writeEndTag(pr);
       writeStartTag(pr, "th");
       writeText(pr, "Comment");
       writeEndTags(pr, 2);
@@ -782,13 +638,7 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
     }
   }
 
-  /**
-   * Writes the columns of a table
-   * @param pr the print writer to write to 
-   * @param table the table definition
-   * @throws MetaException 
-   */
-  private void writeColumns(PrintWriter pr, SqlTable table) throws MetaException
+  private void writeColumns(PrintWriter pr, SqlTable table)
   {
     writeStartTag(pr, "p");
     writeComment(pr, table.getComment());
@@ -836,7 +686,7 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
       writeNewRow(pr);
       writeNewColumn(pr);
       writeAnchor(pr, column.getId());
-      writeText(pr, isPrimaryKeyColumn(table, column)?"true":"false");
+      writeText(pr, isPrimaryKeyColumn(table, column) ? "true" : "false");
       writeEndTag(pr);
       writeNewColumn(pr);
       writeText(pr, column.getId());
@@ -845,41 +695,43 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
       writeText(pr, column.getDataType().getDataType().toString());
       writeEndTag(pr);
       writeNewColumn(pr);
-      writeText(pr, column.getDataType().getLength() > 0 ? ""+column.getDataType().getLength() : "");
+      writeText(pr, column.getDataType().getLength() > 0 ? "" + column.getDataType().getLength() : "");
       writeEndTag(pr);
       writeNewColumn(pr);
-      writeText(pr, column.getDataType().getPrecision() > 0 ? ""+column.getDataType().getPrecision() : "");
+      writeText(pr, column.getDataType().getPrecision() > 0 ? "" + column.getDataType().getPrecision() : "");
       writeEndTag(pr);
       writeNewColumn(pr);
-      writeText(pr, ""+column.isCanBeNull());
+      writeText(pr, "" + column.isCanBeNull());
       writeEndTag(pr);
       writeNewColumn(pr);
-      if (column.getDefaultValue()!=null)
+      if (column.getDefaultValue() != null)
       {
         String defaultValue;
         defaultValue = column.getDefaultValue().toString();
         if (column.getDefaultValue().getValue() instanceof String)
         {
-          defaultValue = "'"+defaultValue+"'";
+          defaultValue = "'" + defaultValue + "'";
         }
         else
         {
-          writeText(pr, ""+defaultValue);
+          writeText(pr, "" + defaultValue);
         }
       }
       writeEndTag(pr);
       writeNewColumn(pr);
       if (column.getReference() != null)
       {
-        writeStartTag(pr, "a", "href", column.getReference().getForeignTable()+".html#"+column.getReference().getForeignColumn());
-        writeText(pr, column.getReference().getForeignTable()+"("+column.getReference().getForeignColumn()+")");
+        writeStartTag(pr, "a", "href", column.getReference().getForeignTable() + ".html#"
+                + column.getReference().getForeignColumn());
+        writeText(pr, column.getReference().getForeignTable() + "(" + column.getReference().getForeignColumn()
+                + ")");
         writeEndTag(pr);
       }
       writeEndTag(pr);
       writeNewColumn(pr);
-      if ((column.getReference()!=null)&&(column.getReference().getForeignKeyAction()!=null))
+      if ((column.getReference() != null) && (column.getReference().getForeignKeyAction() != null))
       {
-        writeText(pr, column.getReference().getForeignKeyAction().toString());            
+        writeText(pr, column.getReference().getForeignKeyAction().toString());
       }
       writeEndTag(pr);
       writeNewColumn(pr);
@@ -892,14 +744,9 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
     writeEndTag(pr);
   }
 
-  /**
-   * Writes references to the system database hints defined on the given sql object
-   * @param pr the print writer
-   * @param object the object 
-   */
   private void writeSystemDatabaseHintRefrences(PrintWriter pr, SqlObject object)
   {
-    Set<String> systemDatabases = new TreeSet<String>();
+    var systemDatabases = new TreeSet<String>();
     boolean first = true;
     for (SqlDatabaseSystemHints hints : object.getDatabaseManagementSystemHints())
     {
@@ -912,32 +759,20 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
     {
       if (!first)
       {
-        writeText(pr, ", ");        
+        writeText(pr, ", ");
       }
       first = false;
-      writeReference(pr, systemDatabase, null, systemDatabase+"_"+object.getId());      
+      writeReference(pr, systemDatabase, null, systemDatabase + "_" + object.getId());
     }
   }
 
-  /**
-   * Writes an anchor
-   * @param pr 
-   * @param anchor the anchor name
-   */
   private void writeAnchor(PrintWriter pr, String anchor)
   {
     writeStartTag(pr, "a", "name", anchor);
     writeEndTag(pr);
   }
-  
-  /**
-   * Writes the tables the view is build upon
-   * @param pr the print writer
-   * @param metaDefinition the meta definition
-   * @param select the select
-   * @throws MetaException 
-   */
-  private void writeSelectTables(PrintWriter pr, SqlMeta metaDefinition, SqlSelect select) throws MetaException
+
+  private void writeSelectTables(PrintWriter pr, SqlMeta metaDefinition, SqlSelect select)
   {
     writeStartTag(pr, "h3");
     writeText(pr, "Tables");
@@ -981,19 +816,14 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
       SqlTable joinTable = metaDefinition.findTable(table.getTable().getName());
       if (joinTable == null)
       {
-        throw new MetaException("Could not find table "+table.getTable().getName());
+        throw new MetaException("Could not find table " + table.getTable().getName());
       }
       writeComment(pr, joinTable.getComment());
       writeEndTags(pr, 2);
     }
-    writeEndTag(pr);    
+    writeEndTag(pr);
   }
-  
-  /**
-   * Writes the view condition
-   * @param pr the print writer
-   * @param select the select
-   */
+
   private void writeSelectCondition(PrintWriter pr, SqlSelect select)
   {
     if (select.getCondition() != null)
@@ -1007,28 +837,22 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
     }
   }
 
-
-  /**
-   * Writes a simple expression
-   * @param pr the print writer 
-   * @param simpleExpr the simple expression
-   */
   private void writeSimpleExpr(PrintWriter pr, SqlSimpleExpr simpleExpr)
   {
     if (simpleExpr instanceof SqlBinaryRelation)
     {
       SqlBinaryRelation binaryExpr;
-      
-      binaryExpr = (SqlBinaryRelation)simpleExpr;
+
+      binaryExpr = (SqlBinaryRelation) simpleExpr;
       writeAtom(pr, binaryExpr.getFirst());
       writeText(pr, binaryExpr.getOperator());
-      writeAtom(pr, binaryExpr.getSecond());      
+      writeAtom(pr, binaryExpr.getSecond());
     }
     else if (simpleExpr instanceof SqlLogicalExpression)
     {
       SqlLogicalExpression logicalExpr;
-      
-      logicalExpr = (SqlLogicalExpression)simpleExpr;
+
+      logicalExpr = (SqlLogicalExpression) simpleExpr;
       writeSimpleExpr(pr, logicalExpr.getFirst());
       writeText(pr, logicalExpr.getOperator());
       writeSimpleExpr(pr, logicalExpr.getSecond());
@@ -1036,27 +860,21 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
     else if (simpleExpr instanceof SqlNot)
     {
       writeText(pr, "NOT ");
-      writeSimpleExpr(pr, ((SqlNot)simpleExpr).getExpression());
+      writeSimpleExpr(pr, ((SqlNot) simpleExpr).getExpression());
     }
     else if (simpleExpr instanceof SqlParent)
     {
       writeText(pr, "(");
-      writeSimpleExpr(pr, ((SqlParent)simpleExpr).getExpression());
+      writeSimpleExpr(pr, ((SqlParent) simpleExpr).getExpression());
       writeText(pr, ")");
     }
-    else 
+    else
     {
       writeText(pr, simpleExpr.toString());
     }
   }
 
-  /**
-   * Writes the columns of a view
-   * @param pr the print writer to write to 
-   * @param view the view definition
-   * @throws MetaException 
-   */
-  private void writeViewColumns(PrintWriter pr, SqlView view) throws MetaException
+  private void writeViewColumns(PrintWriter pr, SqlView view)
   {
     writeStartTag(pr, "h2");
     writeText(pr, "Columns");
@@ -1069,9 +887,9 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
     for (int pos = 1; pos <= view.getSelects().size(); pos++)
     {
       writeStartTag(pr, "th");
-      if (view.getSelects().size()>1)
+      if (view.getSelects().size() > 1)
       {
-        writeText(pr, "Expression on Select "+pos);
+        writeText(pr, "Expression on Select " + pos);
       }
       else
       {
@@ -1082,7 +900,7 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
     writeStartTag(pr, "th");
     writeText(pr, "Comment");
     writeEndTags(pr, 2);
-    int col=0;
+    int col = 0;
     for (SqlViewColumn column : view.getColumns())
     {
       writeStartTag(pr, "tr");
@@ -1090,7 +908,7 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
       writeAnchor(pr, column.getId());
       writeText(pr, column.getId());
       writeEndTag(pr);
-      for (SqlSelect select: view.getSelects())
+      for (SqlSelect select : view.getSelects())
       {
         pushTableAliases(select.getTableAliases());
         writeNewColumn(pr);
@@ -1106,16 +924,11 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
     writeEndTag(pr);
   }
 
-  /**
-   * Writes a atom expression
-   * @param pr the print writer
-   * @param atom the atom expression
-   */
   private void writeAtom(PrintWriter pr, SqlAtom atom)
   {
     if (atom instanceof SqlCaseExpr)
     {
-      SqlCaseExpr caseExpr = (SqlCaseExpr)atom;
+      SqlCaseExpr caseExpr = (SqlCaseExpr) atom;
       writeText(pr, "CASE ");
       writeTableColumnReference(pr, caseExpr.getColumnName());
       for (SqlWhenThen whenThen : caseExpr.getWhenThenList())
@@ -1128,7 +941,7 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
     }
     if (atom instanceof SqlComplexCaseExpr)
     {
-      SqlComplexCaseExpr caseExpr = (SqlComplexCaseExpr)atom;
+      SqlComplexCaseExpr caseExpr = (SqlComplexCaseExpr) atom;
       writeText(pr, "CASE ");
       writeTag(pr, "br");
       for (SqlComplexWhenThen whenThen : caseExpr.getWhenThenList())
@@ -1149,12 +962,12 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
     }
     else if (atom instanceof SqlFullQualifiedColumnName)
     {
-      SqlFullQualifiedColumnName columnName = (SqlFullQualifiedColumnName)atom;
+      SqlFullQualifiedColumnName columnName = (SqlFullQualifiedColumnName) atom;
       writeTableColumnReference(pr, columnName);
     }
     else if (atom instanceof SqlFunction)
     {
-      SqlFunction function = (SqlFunction)atom;
+      SqlFunction function = (SqlFunction) atom;
       writeText(pr, function.getName());
       writeText(pr, "(");
       boolean first = true;
@@ -1165,7 +978,7 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
           writeText(pr, ", ");
         }
         first = false;
-        writeAtom(pr, argument);        
+        writeAtom(pr, argument);
       }
       writeText(pr, ")");
     }
@@ -1175,18 +988,11 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
     }
   }
 
-
-
-  /**
-   * Writes a list of columns 
-   * @param pr the print writer to write to
-   * @param list the list to write
-   */
   private void writeColumnList(PrintWriter pr, List<String> list)
   {
     boolean first = true;
     writeSpaces(pr);
-    for (String column: list)
+    for (String column : list)
     {
       if (!first)
       {
@@ -1197,12 +1003,6 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
     }
   }
 
-  /**
-   * Checks if the given column is a primary key column
-   * @param table the table definition
-   * @param column the column
-   * @return true if column is part of the primary key, otherwise false
-   */
   private boolean isPrimaryKeyColumn(SqlTable table, SqlTableColumn column)
   {
     if (table.getPrimaryKey() != null)
@@ -1212,12 +1012,6 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
     return false;
   }
 
-  /**
-   * Writes the overview page
-   * @param metaDefinition the meta definition
-   * @throws FileNotFoundException if page file cannot be written
-   * @throws MetaException 
-   */
   private void writeOverview(SqlMeta metaDefinition) throws FileNotFoundException, MetaException
   {
     PrintWriter pr;
@@ -1250,7 +1044,7 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
       for (String databaseSystem : databaseSystems)
       {
         writeTag(pr, "br");
-        writeReference(pr, databaseSystem, databaseSystem+".html", null);
+        writeReference(pr, databaseSystem, databaseSystem + ".html", null);
       }
       writeEndTags(pr, 3);
     }
@@ -1258,7 +1052,6 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
     {
       IOUtils.closeQuietly(pr);
     }
-    assert htmlTags.isEmpty() : "Stack with html tags must be empty after finishing writing a html page";
     writeTableOverview(metaDefinition);
     writeViewOverview(metaDefinition);
     writeColumnOverview(metaDefinition);
@@ -1272,17 +1065,12 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
       writeDatabaseSystemOverview(metaDefinition, databaseSystem);
     }
   }
-  
-  /**
-   * Writes the database system overview
-   * @param metaDefinition the meta definition
-   * @param databaseSystem the database system
-   * @throws FileNotFoundException 
-   */
-  private void writeDatabaseSystemOverview(SqlMeta metaDefinition, String databaseSystem) throws FileNotFoundException
+
+  private void writeDatabaseSystemOverview(SqlMeta metaDefinition, String databaseSystem)
+          throws FileNotFoundException
   {
     Set<String> hints;
-    PrintWriter pr = new NewLinePrintWriter(new File(outputDir, databaseSystem+".html"));
+    PrintWriter pr = new NewLinePrintWriter(new File(outputDir, databaseSystem + ".html"));
     try
     {
       writeHeader(pr, databaseSystem);
@@ -1305,26 +1093,26 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
       {
         writeStartTag(pr, "th");
         writeText(pr, hint);
-        writeEndTag(pr);        
+        writeEndTag(pr);
       }
       writeEndTags(pr, 1);
-      for (SqlTable table: metaDefinition.getArtifacts(SqlTable.class))
+      for (SqlTable table : metaDefinition.getArtifacts(SqlTable.class))
       {
         for (SqlObject object : getAllSqlObjectsWithDatabaseSystemHints(databaseSystem, table))
         {
           writeNewRow(pr);
           writeNewColumn(pr);
-          writeReference(pr, table.getId(), table.getId()+".html", null);
+          writeReference(pr, table.getId(), table.getId() + ".html", null);
           writeEndTag(pr);
           writeNewColumn(pr);
-          writeReference(pr, object.getId(), table.getId()+".html", databaseSystem+"_"+object.getId());
+          writeReference(pr, object.getId(), table.getId() + ".html", databaseSystem + "_" + object.getId());
           writeEndTag(pr);
           for (String hint : hints)
           {
             writeNewColumn(pr);
             if (object.getDatabaseManagementSystemHints(databaseSystem).isHintSet(hint))
             {
-              if (object.getDatabaseManagementSystemHints(databaseSystem).getHintValue(hint)!=null)
+              if (object.getDatabaseManagementSystemHints(databaseSystem).getHintValue(hint) != null)
               {
                 writeText(pr, object.getDatabaseManagementSystemHints(databaseSystem).getHintValue(hint));
               }
@@ -1334,7 +1122,7 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
               }
             }
             else
-            {  
+            {
               writeText(pr, "");
             }
             writeEndTag(pr);
@@ -1348,18 +1136,11 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
     {
       IOUtils.closeQuietly(pr);
     }
-    assert htmlTags.isEmpty() : "Stack with html tags must be empty after finishing writing a html page";
   }
 
-  /**
-   * Gets all hints that are defined for the given database system
-   * @param databaseSystem the database system
-   * @param metaDefinition the meta definition
-   * @return set of hints
-   */
   private Set<String> getAllDatabaseSystemHints(String databaseSystem, SqlMeta metaDefinition)
   {
-    Set<String> hints = new TreeSet<String>();
+    var hints = new TreeSet<String>();
     for (SqlTable table : metaDefinition.getArtifacts(SqlTable.class))
     {
       hints.addAll(getAllDatabaseSystemHints(databaseSystem, table));
@@ -1367,14 +1148,9 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
     return hints;
   }
 
-  /**
-   * Get all database systems with database system hints
-   * @param metaDefinition the meta definition
-   * @return set of database systems
-   */
   private Set<String> getAllDatabaseSystemsWithDatabaseSystemHints(SqlMeta metaDefinition)
   {
-    Set<String> databaseSystems = new TreeSet<String>();
+    var databaseSystems = new TreeSet<String>();
     for (SqlTable table : metaDefinition.getArtifacts(SqlTable.class))
     {
       databaseSystems.addAll(getAllDatabaseSystemsWithDatabaseSystemHints(table));
@@ -1382,11 +1158,6 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
     return databaseSystems;
   }
 
-  /**
-   * Writes the foreign key overview
-   * @param metaDefinition
-   * @throws FileNotFoundException 
-   */
   private void writeForeignKeyOverview(SqlMeta metaDefinition) throws FileNotFoundException
   {
     Map<String, List<SqlTable>> foreignKeys = new HashMap<String, List<SqlTable>>();
@@ -1430,10 +1201,10 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
       foreignKeysSorted = new TreeSet<String>(foreignKeys.keySet());
       for (String foreignKeyName : foreignKeysSorted)
       {
-        for (SqlTable table: foreignKeys.get(foreignKeyName))
+        for (SqlTable table : foreignKeys.get(foreignKeyName))
         {
           writeNewRow(pr);
-          writeNewColumn(pr);      
+          writeNewColumn(pr);
           writeText(pr, foreignKeyName);
           writeEndTag(pr);
           writeNewColumn(pr);
@@ -1446,29 +1217,23 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
           writeNewColumn(pr);
           writeTableReference(pr, foreignKey.getReference().getForeignTable());
           writeText(pr, "(");
-          writeTableColumnReference(pr, foreignKey.getReference().getForeignTable(), foreignKey.getReference().getForeignColumn());
+          writeTableColumnReference(pr, foreignKey.getReference().getForeignTable(),
+                  foreignKey.getReference().getForeignColumn());
           writeText(pr, ")");
           writeEndTags(pr, 2);
-        }      
+        }
       }
       writeEndTags(pr, 3);
-      }
+    }
     finally
     {
       IOUtils.closeQuietly(pr);
     }
-    assert htmlTags.isEmpty() : "Stack with html tags must be empty after finishing writing a html page";
   }
 
-
-  /**
-   * Writes the primary key overview
-   * @param metaDefinition
-   * @throws FileNotFoundException 
-   */
   private void writePrimaryKeyOverview(SqlMeta metaDefinition) throws FileNotFoundException
   {
-    Map<String, List<SqlTable>> primaryKeys = new HashMap<String, List<SqlTable>>();
+    var primaryKeys = new HashMap<String, List<SqlTable>>();
     List<SqlTable> references;
     SortedSet<String> primaryKeySorted;
     for (SqlTable table : metaDefinition.getArtifacts(SqlTable.class))
@@ -1505,10 +1270,10 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
       primaryKeySorted = new TreeSet<String>(primaryKeys.keySet());
       for (String primaryKeyName : primaryKeySorted)
       {
-        for (SqlTable table: primaryKeys.get(primaryKeyName))
+        for (SqlTable table : primaryKeys.get(primaryKeyName))
         {
           writeNewRow(pr);
-          writeNewColumn(pr);      
+          writeNewColumn(pr);
           writeText(pr, primaryKeyName);
           writeEndTag(pr);
           writeNewColumn(pr);
@@ -1525,15 +1290,8 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
     {
       IOUtils.closeQuietly(pr);
     }
-    assert htmlTags.isEmpty() : "Stack with html tags must be empty after finishing writing a html page";
-
   }
-  
-  /**
-   * Writes the index overview
-   * @param metaDefinition
-   * @throws FileNotFoundException 
-   */
+
   private void writeIndexOverview(SqlMeta metaDefinition) throws FileNotFoundException
   {
     Map<String, List<SqlTable>> indexes = new HashMap<String, List<SqlTable>>();
@@ -1573,11 +1331,11 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
       indexSorted = new TreeSet<String>(indexes.keySet());
       for (String indexName : indexSorted)
       {
-        for (SqlTable table: indexes.get(indexName))
+        for (SqlTable table : indexes.get(indexName))
         {
           writeNewRow(pr);
           writeNewColumn(pr);
-          writeReference(pr, indexName, table.getId()+".html", indexName);
+          writeReference(pr, indexName, table.getId() + ".html", indexName);
           writeEndTag(pr);
           writeNewColumn(pr);
           writeTableReference(pr, table.getId());
@@ -1593,15 +1351,8 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
     {
       IOUtils.closeQuietly(pr);
     }
-    assert htmlTags.isEmpty() : "Stack with html tags must be empty after finishing writing a html page";
-
   }
-  
-  /**
-   * Writes the constraints overview
-   * @param metaDefinition
-   * @throws FileNotFoundException 
-   */
+
   private void writeConstraintsOverview(SqlMeta metaDefinition) throws FileNotFoundException
   {
     Map<String, List<SqlTable>> constraints = new HashMap<String, List<SqlTable>>();
@@ -1641,11 +1392,11 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
       constraintsSorted = new TreeSet<String>(constraints.keySet());
       for (String constraintName : constraintsSorted)
       {
-        for (SqlTable table: constraints.get(constraintName))
+        for (SqlTable table : constraints.get(constraintName))
         {
           writeNewRow(pr);
           writeNewColumn(pr);
-          writeReference(pr, constraintName, table.getId()+".html", constraintName);
+          writeReference(pr, constraintName, table.getId() + ".html", constraintName);
           writeEndTag(pr);
           writeNewColumn(pr);
           writeTableReference(pr, table.getId());
@@ -1661,15 +1412,8 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
     {
       IOUtils.closeQuietly(pr);
     }
-    assert htmlTags.isEmpty() : "Stack with html tags must be empty after finishing writing a html page";
-
   }
 
-  /**
-   * Writes the trigger overview
-   * @param metaDefinition
-   * @throws FileNotFoundException 
-   */
   private void writeTriggerOverview(SqlMeta metaDefinition) throws FileNotFoundException
   {
     Map<String, List<SqlTable>> triggers = new HashMap<String, List<SqlTable>>();
@@ -1710,11 +1454,11 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
       triggersSorted = new TreeSet<String>(triggers.keySet());
       for (String triggerName : triggersSorted)
       {
-        for (SqlTable table: triggers.get(triggerName))
+        for (SqlTable table : triggers.get(triggerName))
         {
           writeNewRow(pr);
           writeNewColumn(pr);
-          writeReference(pr, triggerName, table.getId()+".html", triggerName);
+          writeReference(pr, triggerName, table.getId() + ".html", triggerName);
           writeEndTag(pr);
           writeNewColumn(pr);
           writeText(pr, "DELETE ON ");
@@ -1728,15 +1472,8 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
     {
       IOUtils.closeQuietly(pr);
     }
-    assert htmlTags.isEmpty() : "Stack with html tags must be empty after finishing writing a html page";
-
   }
 
-  /**
-   * Writes the column overview
-   * @param metaDefinition
-   * @throws FileNotFoundException 
-   */
   private void writeColumnOverview(SqlMeta metaDefinition) throws FileNotFoundException
   {
     Map<String, List<SqlObject>> columns = new HashMap<String, List<SqlObject>>();
@@ -1788,10 +1525,10 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
       columnsSorted = new TreeSet<String>(columns.keySet());
       for (String columnName : columnsSorted)
       {
-        for (SqlObject object: columns.get(columnName))
+        for (SqlObject object : columns.get(columnName))
         {
           writeNewRow(pr);
-          writeNewColumn(pr);      
+          writeNewColumn(pr);
           writeText(pr, columnName);
           writeEndTag(pr);
           writeNewColumn(pr);
@@ -1799,7 +1536,7 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
           writeText(pr, ".");
           writeTableColumnReference(pr, object.getId(), columnName);
           writeEndTags(pr, 2);
-        }      
+        }
       }
       writeEndTags(pr, 3);
     }
@@ -1807,16 +1544,8 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
     {
       IOUtils.closeQuietly(pr);
     }
-    assert htmlTags.isEmpty() : "Stack with html tags must be empty after finishing writing a html page";
-
   }
 
-  /**
-   * Writes the view overview
-   * @param metaDefinition
-   * @throws FileNotFoundException 
-   * @throws MetaException 
-   */
   private void writeViewOverview(SqlMeta metaDefinition) throws FileNotFoundException, MetaException
   {
     PrintWriter pr = new NewLinePrintWriter(new File(outputDir, "views.html"));
@@ -1853,16 +1582,8 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
     {
       IOUtils.closeQuietly(pr);
     }
-    assert htmlTags.isEmpty() : "Stack with html tags must be empty after finishing writing a html page";
-
   }
 
-  /**
-   * Writes the table overview
-   * @param metaDefinition
-   * @throws FileNotFoundException 
-   * @throws MetaException 
-   */
   private void writeTableOverview(SqlMeta metaDefinition) throws FileNotFoundException, MetaException
   {
     PrintWriter pr = new NewLinePrintWriter(new File(outputDir, "tables.html"));
@@ -1870,7 +1591,7 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
     {
       writeHeader(pr, "Tables");
       writeStartTag(pr, "body");
-  
+
       writeStartTag(pr, "h1");
       writeAnchor(pr, "tables");
       writeText(pr, "Tables");
@@ -1899,23 +1620,16 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
     {
       IOUtils.closeQuietly(pr);
     }
-    assert htmlTags.isEmpty() : "Stack with html tags must be empty after finishing writing a html page";
   }
 
-  /**
-   * Writes a comment
-   * @param pr
-   * @param comment
-   * @throws MetaException 
-   */
-  private void writeComment(PrintWriter pr, String comment) throws MetaException
+  private void writeComment(PrintWriter pr, String comment)
   {
     int pos;
     String tag;
     String cmt;
-    
+
     cmt = comment;
-    
+
     pos = cmt.indexOf("{@");
     while (pos >= 0)
     {
@@ -1925,51 +1639,43 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
       if (pos >= 0)
       {
         tag = cmt.substring(0, pos);
-        cmt = cmt.substring(pos+1);
+        cmt = cmt.substring(pos + 1);
         if (tag.startsWith("{@ref"))
         {
           tag = tag.substring("{@ref".length());
           pos = tag.indexOf('.');
           if (pos >= 0)
           {
-            writeReference(pr, tag.substring(pos).trim(), tag.substring(0, pos).trim()+".html", tag.substring(pos).trim());
+            writeReference(pr, tag.substring(pos).trim(), tag.substring(0, pos).trim() + ".html",
+                    tag.substring(pos).trim());
           }
           else
-          {            
-            writeReference(pr, tag.trim(), tag.trim()+".html", null);
+          {
+            writeReference(pr, tag.trim(), tag.trim() + ".html", null);
           }
         }
         else
         {
-          throw new MetaException("Unknown comment tag "+tag);
+          throw new MetaException("Unknown comment tag " + tag);
         }
       }
       else
       {
-        throw new MetaException("Comment tag not finished correctly. Missing '}' in comment:\n"+comment);
+        throw new MetaException("Comment tag not finished correctly. Missing '}' in comment:\n" + comment);
       }
       pos = cmt.indexOf("{@");
     }
     writeText(pr, cmt);
   }
 
-  /**
-   * Writing end tags
-   * @param pr the print writer
-   * @param endTags the number of end tags to write
-   */
   private void writeEndTags(PrintWriter pr, int endTags)
   {
-    for(int endTag = 0; endTag < endTags; endTag++)
+    for (int endTag = 0; endTag < endTags; endTag++)
     {
       writeEndTag(pr);
     }
   }
 
-  /**
-   * Writes the end tag
-   * @param pr print writer
-   */
   private void writeEndTag(PrintWriter pr)
   {
     String tag;
@@ -1981,11 +1687,6 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
     pr.append("\n");
   }
 
-  /**
-   * Writes text
-   * @param pr the print writer
-   * @param text the text
-   */
   private void writeText(PrintWriter pr, String text)
   {
     writeSpaces(pr);
@@ -1996,11 +1697,6 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
     pr.append('\n');
   }
 
-  /**
-   * Writes a start tag
-   * @param pr the print writer
-   * @param tag the tag
-   */
   private void writeStartTag(PrintWriter pr, String tag)
   {
     writeSpaces(pr);
@@ -2011,10 +1707,6 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
     htmlTags.push(tag);
   }
 
-  /**
-   * Writes spaces
-   * @param pr the print writer
-   */
   private void writeSpaces(PrintWriter pr)
   {
     for (int pos = 0; pos < htmlTags.size(); pos++)
@@ -2023,17 +1715,14 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
     }
   }
 
-  /**
-   * Writes the html header
-   * @param pr the print writer to write to
-   * @param title the title of the document
-   */
   private void writeHeader(PrintWriter pr, String title)
   {
-    // Reset row count so that even and row columns so that a document always start with an event column.
-    // This ensures that the generated html does not change if nothing has changed in the meta data for the given document. 
-    // This is important for source control systems 
-    fRow=0; 
+    // Reset row count so that even and row columns so that a document always
+    // start with an event column.
+    // This ensures that the generated html does not change if nothing has
+    // changed in the meta data for the given document.
+    // This is important for source control systems
+    fRow = 0;
     pr.append("<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">\n");
     writeStartTag(pr, "html");
     writeStartTag(pr, "head");
@@ -2044,39 +1733,24 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
     writeEndTags(pr, 2);
   }
 
-  /**
-   * Writes a tag
-   * @param pr
-   * @param tag
-   * @param attributes
-   */
   private void writeTag(PrintWriter pr, String tag, String... attributes)
   {
     writeTag(pr, tag, false, attributes);
   }
 
-  /**
-   * Writes a tag
-   * @param pr
-   * @param tag
-   * @param onlyStartTag
-   * @param attributes
-   */
-  private void writeTag(PrintWriter pr, String tag, boolean onlyStartTag,
-          String[] attributes)
+  private void writeTag(PrintWriter pr, String tag, boolean onlyStartTag, String[] attributes)
   {
     writeSpaces(pr);
     pr.append('<');
     pr.append(tag);
-    if ((attributes != null)&&(attributes.length>0))
+    if ((attributes != null) && (attributes.length > 0))
     {
-      assert attributes.length%2 == 0 : "There must be for each attribute a value";
-      for (int pos = 0; pos < attributes.length; pos=pos+2)
+      for (int pos = 0; pos < attributes.length; pos = pos + 2)
       {
         pr.append(' ');
         pr.append(attributes[pos]);
         pr.append("=\"");
-        pr.append(attributes[pos+1]);
+        pr.append(attributes[pos + 1]);
         pr.append("\"");
 
       }
@@ -2089,21 +1763,12 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
     pr.append('\n');
   }
 
-  /**
-   * Writes a start tag
-   * @param pr
-   * @param tag
-   * @param attributes
-   */
   private void writeStartTag(PrintWriter pr, String tag, String... attributes)
   {
     writeTag(pr, tag, true, attributes);
     htmlTags.push(tag);
   }
 
-  /**
-   * @see IMetaOutputGenerator#printHelp()
-   */
   @Override
   public void printHelp()
   {
@@ -2134,5 +1799,4 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
   {
     tableAliases.pop();
   }
-
 }
