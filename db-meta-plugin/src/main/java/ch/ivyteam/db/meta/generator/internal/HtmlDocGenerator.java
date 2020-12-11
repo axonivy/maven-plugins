@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -14,6 +13,8 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.Stack;
 import java.util.TreeSet;
+
+import org.apache.commons.io.FileUtils;
 
 import ch.ivyteam.db.meta.generator.Target;
 import ch.ivyteam.db.meta.model.internal.MetaException;
@@ -91,10 +92,7 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
     try (var in = HtmlDocGenerator.class.getResourceAsStream("style.css"))
     {
       var styleCss = outputDir.toPath().resolve("style.css");
-      try (var out = Files.newOutputStream(styleCss))
-      {
-        in.transferTo(out);
-      }
+      FileUtils.copyInputStreamToFile(in, styleCss.toFile());
     }
   }
 
