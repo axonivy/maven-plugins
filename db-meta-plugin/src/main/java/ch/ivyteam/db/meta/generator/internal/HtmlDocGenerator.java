@@ -2,7 +2,9 @@ package ch.ivyteam.db.meta.generator.internal;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -84,65 +86,19 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
     writeViews(metaDefinition);
   }
 
-  private void writeStylesheet() throws FileNotFoundException
+  private void writeStylesheet() throws IOException
   {
-    try (var pr = new NewLinePrintWriter(new File(outputDir, "style.css")))
+    try (var in = HtmlDocGenerator.class.getResourceAsStream("style.css"))
     {
-      pr.append("th\n");
-      pr.append("{\n");
-      pr.append("  background-color: #BBBBBB;\n");
-      pr.append("  font-size: 14px;\n");
-      pr.append("  font-weight: bold;\n");
-      pr.append("  color: #000000;\n");
-      pr.append("  text-align: left;\n");
-      pr.append("}\n");
-      pr.append("td\n");
-      pr.append("{ \n");
-      pr.append("  background-color: #DDDDDD;\n");
-      pr.append("  text-align: left;\n");
-      pr.append("  vertical-align: text-top;\n");
-      pr.append("  font-size: 14px;\n");
-      pr.append("  font-weight: normal;\n");
-      pr.append("  color: #000000;\n");
-      pr.append("}\n");
-
-      pr.append("td.odd\n");
-      pr.append("{\n");
-      pr.append("  background-color: #EEEEEE;\n");
-      pr.append("  text-align: left;\n");
-      pr.append("  vertical-align: text-top;\n");
-      pr.append("  font-size: 14px;\n");
-      pr.append("  font-weight: normal;\n");
-      pr.append("  color: #000000;\n");
-      pr.append("}\n");
-
-      pr.append("h3\n");
-      pr.append("{\n");
-      pr.append("  font-size: 14px;\n");
-      pr.append("  font-weight: bold;\n");
-      pr.append("}\n");
-
-      pr.append("h2\n");
-      pr.append("{\n");
-      pr.append("  font-size: 18px;\n");
-      pr.append("  font-weight: bold;\n");
-      pr.append("}\n");
-
-      pr.append("h1\n");
-      pr.append("{\n");
-      pr.append("  font-size: 22px;\n");
-      pr.append("  font-weight: bold;\n");
-      pr.append("}\n");
-
-      pr.append("p\n");
-      pr.append("{\n");
-      pr.append("  font-size: 14px;\n");
-      pr.append("  font-weight: normal;\n");
-      pr.append("}\n");
+      var styleCss = outputDir.toPath().resolve("style.css");
+      try (var out = Files.newOutputStream(styleCss))
+      {
+        in.transferTo(out);
+      }
     }
   }
 
-  private void writeTables(SqlMeta metaDefinition) throws FileNotFoundException, MetaException
+  private void writeTables(SqlMeta metaDefinition) throws FileNotFoundException
   {
     for (var table : metaDefinition.getArtifacts(SqlTable.class))
     {
