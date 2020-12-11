@@ -13,8 +13,6 @@ import java.util.SortedSet;
 import java.util.Stack;
 import java.util.TreeSet;
 
-import org.apache.commons.io.IOUtils;
-
 import ch.ivyteam.db.meta.generator.Target;
 import ch.ivyteam.db.meta.model.internal.MetaException;
 import ch.ivyteam.db.meta.model.internal.SqlAtom;
@@ -88,8 +86,7 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
 
   private void writeStylesheet() throws FileNotFoundException
   {
-    PrintWriter pr = new NewLinePrintWriter(new File(outputDir, "style.css"));
-    try
+    try (var pr = new NewLinePrintWriter(new File(outputDir, "style.css")))
     {
       pr.append("th\n");
       pr.append("{\n");
@@ -143,23 +140,19 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
       pr.append("  font-weight: normal;\n");
       pr.append("}\n");
     }
-    finally
-    {
-      IOUtils.closeQuietly(pr);
-    }
   }
 
   private void writeTables(SqlMeta metaDefinition) throws FileNotFoundException, MetaException
   {
-    for (SqlTable table : metaDefinition.getArtifacts(SqlTable.class))
+    for (var table : metaDefinition.getArtifacts(SqlTable.class))
     {
       writeTable(metaDefinition, table);
     }
   }
 
-  private void writeViews(SqlMeta metaDefinition) throws FileNotFoundException, MetaException
+  private void writeViews(SqlMeta metaDefinition) throws FileNotFoundException
   {
-    for (SqlView view : metaDefinition.getArtifacts(SqlView.class))
+    for (var view : metaDefinition.getArtifacts(SqlView.class))
     {
       writeView(metaDefinition, view);
     }
@@ -167,8 +160,7 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
 
   private void writeView(SqlMeta metaDefinition, SqlView view) throws FileNotFoundException
   {
-    var pr = new NewLinePrintWriter(new File(outputDir, view.getId() + ".html"));
-    try
+    try (var pr = new NewLinePrintWriter(new File(outputDir, view.getId() + ".html")))
     {
       writeHeader(pr, "View " + view.getId());
       writeStartTag(pr, "body");
@@ -197,16 +189,11 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
       }
       writeEndTags(pr, 2);
     }
-    finally
-    {
-      IOUtils.closeQuietly(pr);
-    }
   }
 
-  private void writeTable(SqlMeta metaDefinition, SqlTable table) throws FileNotFoundException, MetaException
+  private void writeTable(SqlMeta metaDefinition, SqlTable table) throws FileNotFoundException
   {
-    var pr = new NewLinePrintWriter(new File(outputDir, table.getId() + ".html"));
-    try
+    try (var pr = new NewLinePrintWriter(new File(outputDir, table.getId() + ".html")))
     {
       writeHeader(pr, "Table " + table.getId());
       writeStartTag(pr, "body");
@@ -220,10 +207,6 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
       writeReferencedBy(pr, metaDefinition, table);
       writeDatabaseSystemHints(pr, table);
       writeEndTags(pr, 2);
-    }
-    finally
-    {
-      IOUtils.closeQuietly(pr);
     }
   }
 
@@ -338,9 +321,9 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
   private void writeReferencedBy(PrintWriter pr, SqlMeta metaDefinition, SqlTable table)
   {
     boolean first = true;
-    for (SqlTable foreignTable : metaDefinition.getArtifacts(SqlTable.class))
+    for (var foreignTable : metaDefinition.getArtifacts(SqlTable.class))
     {
-      for (SqlTableColumn column : foreignTable.getColumns())
+      for (var column : foreignTable.getColumns())
       {
         if ((column.getReference() != null)
                 && (column.getReference().getForeignTable().equals(table.getId())))
@@ -681,7 +664,7 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
     writeStartTag(pr, "th");
     writeText(pr, "Comment");
     writeEndTags(pr, 2);
-    for (SqlTableColumn column : table.getColumns())
+    for (var column : table.getColumns())
     {
       writeNewRow(pr);
       writeNewColumn(pr);
@@ -1012,12 +995,10 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
     return false;
   }
 
-  private void writeOverview(SqlMeta metaDefinition) throws FileNotFoundException, MetaException
+  private void writeOverview(SqlMeta metaDefinition) throws FileNotFoundException
   {
-    PrintWriter pr;
     Set<String> databaseSystems;
-    pr = new NewLinePrintWriter(new File(outputDir, "index.html"));
-    try
+    try (var pr = new NewLinePrintWriter(new File(outputDir, "index.html")))
     {
       writeHeader(pr, "Database Schema Overview");
       writeStartTag(pr, "body");
@@ -1048,10 +1029,6 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
       }
       writeEndTags(pr, 3);
     }
-    finally
-    {
-      IOUtils.closeQuietly(pr);
-    }
     writeTableOverview(metaDefinition);
     writeViewOverview(metaDefinition);
     writeColumnOverview(metaDefinition);
@@ -1060,18 +1037,16 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
     writeIndexOverview(metaDefinition);
     writeConstraintsOverview(metaDefinition);
     writeTriggerOverview(metaDefinition);
-    for (String databaseSystem : databaseSystems)
+    for (var databaseSystem : databaseSystems)
     {
       writeDatabaseSystemOverview(metaDefinition, databaseSystem);
     }
   }
 
-  private void writeDatabaseSystemOverview(SqlMeta metaDefinition, String databaseSystem)
-          throws FileNotFoundException
+  private void writeDatabaseSystemOverview(SqlMeta metaDefinition, String databaseSystem) throws FileNotFoundException
   {
     Set<String> hints;
-    PrintWriter pr = new NewLinePrintWriter(new File(outputDir, databaseSystem + ".html"));
-    try
+    try (var pr = new NewLinePrintWriter(new File(outputDir, databaseSystem + ".html")))
     {
       writeHeader(pr, databaseSystem);
       writeStartTag(pr, "body");
@@ -1132,16 +1107,12 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
       }
       writeEndTags(pr, 3);
     }
-    finally
-    {
-      IOUtils.closeQuietly(pr);
-    }
   }
 
   private Set<String> getAllDatabaseSystemHints(String databaseSystem, SqlMeta metaDefinition)
   {
     var hints = new TreeSet<String>();
-    for (SqlTable table : metaDefinition.getArtifacts(SqlTable.class))
+    for (var table : metaDefinition.getArtifacts(SqlTable.class))
     {
       hints.addAll(getAllDatabaseSystemHints(databaseSystem, table));
     }
@@ -1177,8 +1148,7 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
         references.add(table);
       }
     }
-    PrintWriter pr = new NewLinePrintWriter(new File(outputDir, "foreignkeys.html"));
-    try
+    try (var pr = new NewLinePrintWriter(new File(outputDir, "foreignkeys.html")))
     {
       writeHeader(pr, "Foreign Keys");
       writeStartTag(pr, "body");
@@ -1225,10 +1195,6 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
       }
       writeEndTags(pr, 3);
     }
-    finally
-    {
-      IOUtils.closeQuietly(pr);
-    }
   }
 
   private void writePrimaryKeyOverview(SqlMeta metaDefinition) throws FileNotFoundException
@@ -1249,8 +1215,7 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
         references.add(table);
       }
     }
-    PrintWriter pr = new NewLinePrintWriter(new File(outputDir, "primarykeys.html"));
-    try
+    try (var pr = new NewLinePrintWriter(new File(outputDir, "primarykeys.html")))
     {
       writeHeader(pr, "Primary Keys");
       writeStartTag(pr, "body");
@@ -1286,10 +1251,6 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
       }
       writeEndTags(pr, 3);
     }
-    finally
-    {
-      IOUtils.closeQuietly(pr);
-    }
   }
 
   private void writeIndexOverview(SqlMeta metaDefinition) throws FileNotFoundException
@@ -1310,8 +1271,7 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
         references.add(table);
       }
     }
-    PrintWriter pr = new NewLinePrintWriter(new File(outputDir, "indexes.html"));
-    try
+    try (var pr = new NewLinePrintWriter(new File(outputDir, "indexes.html")))
     {
       writeHeader(pr, "Indexes");
       writeStartTag(pr, "body");
@@ -1347,10 +1307,6 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
       }
       writeEndTags(pr, 3);
     }
-    finally
-    {
-      IOUtils.closeQuietly(pr);
-    }
   }
 
   private void writeConstraintsOverview(SqlMeta metaDefinition) throws FileNotFoundException
@@ -1371,8 +1327,7 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
         references.add(table);
       }
     }
-    PrintWriter pr = new NewLinePrintWriter(new File(outputDir, "constraints.html"));
-    try
+    try (var pr = new NewLinePrintWriter(new File(outputDir, "constraints.html")))
     {
       writeHeader(pr, "Constraints");
       writeStartTag(pr, "body");
@@ -1408,10 +1363,6 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
       }
       writeEndTags(pr, 3);
     }
-    finally
-    {
-      IOUtils.closeQuietly(pr);
-    }
   }
 
   private void writeTriggerOverview(SqlMeta metaDefinition) throws FileNotFoundException
@@ -1419,9 +1370,9 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
     Map<String, List<SqlTable>> triggers = new HashMap<String, List<SqlTable>>();
     List<SqlTable> references;
     SortedSet<String> triggersSorted;
-    for (SqlTable table : metaDefinition.getArtifacts(SqlTable.class))
+    for (var table : metaDefinition.getArtifacts(SqlTable.class))
     {
-      for (SqlTrigger trigger : table.getTriggers())
+      for (var trigger : table.getTriggers())
       {
         references = triggers.get(trigger.getId());
         if (references == null)
@@ -1433,8 +1384,7 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
       }
     }
 
-    PrintWriter pr = new NewLinePrintWriter(new File(outputDir, "triggers.html"));
-    try
+    try (var pr = new NewLinePrintWriter(new File(outputDir, "triggers.html")))
     {
       writeHeader(pr, "Triggers");
       writeStartTag(pr, "body");
@@ -1468,20 +1418,16 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
       }
       writeEndTags(pr, 3);
     }
-    finally
-    {
-      IOUtils.closeQuietly(pr);
-    }
   }
 
   private void writeColumnOverview(SqlMeta metaDefinition) throws FileNotFoundException
   {
-    Map<String, List<SqlObject>> columns = new HashMap<String, List<SqlObject>>();
+    var columns = new HashMap<String, List<SqlObject>>();
     List<SqlObject> references;
     SortedSet<String> columnsSorted;
-    for (SqlTable table : metaDefinition.getArtifacts(SqlTable.class))
+    for (var table : metaDefinition.getArtifacts(SqlTable.class))
     {
-      for (SqlTableColumn column : table.getColumns())
+      for (var column : table.getColumns())
       {
         references = columns.get(column.getId());
         if (references == null)
@@ -1492,9 +1438,9 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
         references.add(table);
       }
     }
-    for (SqlView view : metaDefinition.getArtifacts(SqlView.class))
+    for (var view : metaDefinition.getArtifacts(SqlView.class))
     {
-      for (SqlViewColumn column : view.getColumns())
+      for (var column : view.getColumns())
       {
         references = columns.get(column.getId());
         if (references == null)
@@ -1505,8 +1451,7 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
         references.add(view);
       }
     }
-    PrintWriter pr = new NewLinePrintWriter(new File(outputDir, "columns.html"));
-    try
+    try (var pr = new NewLinePrintWriter(new File(outputDir, "columns.html")))
     {
       writeHeader(pr, "Columns");
       writeStartTag(pr, "body");
@@ -1540,16 +1485,11 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
       }
       writeEndTags(pr, 3);
     }
-    finally
-    {
-      IOUtils.closeQuietly(pr);
-    }
   }
 
-  private void writeViewOverview(SqlMeta metaDefinition) throws FileNotFoundException, MetaException
+  private void writeViewOverview(SqlMeta metaDefinition) throws FileNotFoundException
   {
-    PrintWriter pr = new NewLinePrintWriter(new File(outputDir, "views.html"));
-    try
+    try (var pr = new NewLinePrintWriter(new File(outputDir, "views.html")))
     {
       writeHeader(pr, "Views");
       writeStartTag(pr, "body");
@@ -1578,16 +1518,11 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
       }
       writeEndTags(pr, 3);
     }
-    finally
-    {
-      IOUtils.closeQuietly(pr);
-    }
   }
 
-  private void writeTableOverview(SqlMeta metaDefinition) throws FileNotFoundException, MetaException
+  private void writeTableOverview(SqlMeta metaDefinition) throws FileNotFoundException
   {
-    PrintWriter pr = new NewLinePrintWriter(new File(outputDir, "tables.html"));
-    try
+    try (var pr = new NewLinePrintWriter(new File(outputDir, "tables.html")))
     {
       writeHeader(pr, "Tables");
       writeStartTag(pr, "body");
@@ -1615,10 +1550,6 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
         writeEndTags(pr, 2);
       }
       writeEndTags(pr, 3);
-    }
-    finally
-    {
-      IOUtils.closeQuietly(pr);
     }
   }
 
@@ -1678,8 +1609,7 @@ public class HtmlDocGenerator implements IMetaOutputGenerator
 
   private void writeEndTag(PrintWriter pr)
   {
-    String tag;
-    tag = htmlTags.pop();
+    var tag = htmlTags.pop();
     writeSpaces(pr);
     pr.append("</");
     pr.append(tag);
