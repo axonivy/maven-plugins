@@ -100,22 +100,13 @@ public class Eclipse3rdPartyFeatureReadmeGenerator
     }
   }
 
-  /**
-   * Generates the feature info of the given feature
-   * @param feature the directory of the feature
-   * @param featureProps the feature property file
-   * @return html
-   * @throws IOException 
-   * @throws SAXException 
-   * @throws ParserConfigurationException 
-   */
   private static String generateFeatureInfo(File feature, File featureProps) throws ParserConfigurationException, SAXException, IOException
   {
     Document doc = XmlParserUtil.parseXmlDocument(feature, false);
     Element rootElement = (Element)doc.getElementsByTagName("feature").item(0);
     Properties properties = loadProperties(featureProps);
     String providerName = resolveProperty(properties, rootElement.getAttribute("provider-name")).toUpperCase();
-    if (providerName.contains("Axon Ivy")||
+    if (providerName.contains("AXON IVY")||
         providerName.contains("IVYTEAM"))
     {
       return null;
@@ -149,9 +140,6 @@ public class Eclipse3rdPartyFeatureReadmeGenerator
       version = matcher.group(1);
     }    
     info.append(resolveProperty(properties, version));
-
-    
-    
     info.append("</td>\n");    
     info.append("    </tr>");
     return info.toString();
