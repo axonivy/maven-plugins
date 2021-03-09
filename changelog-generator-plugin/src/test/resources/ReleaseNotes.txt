@@ -1,5 +1,5 @@
 ================================================================================
-Release Notes Axon.ivy @displayversion@
+Release Notes Axon Ivy @displayversion@
 ================================================================================
 
 ! - Critical: We strongly recommend to install this release because it fixes this security issue!

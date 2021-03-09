@@ -7,7 +7,7 @@
 			<text></text>
 		</group>
 
-		<title style-id="intro-header">Welcome to Axon.ivy Designer 6.1.0 S4 (Jakobshorn)</title>
+		<title style-id="intro-header">Welcome to Axon Ivy Designer 6.1.0 S4 (Jakobshorn)</title>
 		<group id="revision">
 			<text>Revision: 51177</text>
 			<text>Build Date: February 12, 2016</text>
@@ -30,7 +30,7 @@
 					id="onlinehelp" style-id="left">
 					<img id="onlinehelp_img" style-id="content-img" src="images/help_off.png"
 						alt="Designer Guide" />
-					<text>Learn all about Axon.ivy Designer.</text>
+					<text>Learn all about Axon Ivy Designer.</text>
 				</link>
 				<anchor id="endAnchor" />
 
@@ -54,7 +54,7 @@
 					id="readme" style-id="left">
 					<img id="readme_img" style-id="content-img" src="images/readme_off.png"
 						alt="Readme" />
-					<text>Gives important information about Axon.ivy Designer.</text>
+					<text>Gives important information about Axon Ivy Designer.</text>
 				</link>
 				<anchor id="endAnchor" />
 

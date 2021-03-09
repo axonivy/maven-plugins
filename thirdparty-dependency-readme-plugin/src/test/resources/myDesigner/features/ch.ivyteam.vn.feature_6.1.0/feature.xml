@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="ch.ivyteam.vn.feature"
-      label="Axon.ivy Designer RD, CMS and webeditor Feature"
+      label="Axon Ivy Designer RD, CMS and webeditor Feature"
       version="6.1.0"
       provider-name="ivyTeam AG">
 
    <description>
-      This feature includes parts of the Axon.ivy Designer 6.1
-AXON.IVY BUSINESS PROCESS MANAGEMENT
+      This feature includes parts of the Axon Ivy Designer 6.1
+Axon Ivy BUSINESS PROCESS MANAGEMENT
 
-Axon.ivy enables highly sophisticated Business Process Management
+Axon Ivy enables highly sophisticated Business Process Management
 (BPM). As an integrated BPM suite, it covers all aspects of Business
 Process Management - from process design and process execution
 through user and system integration to process controlling -

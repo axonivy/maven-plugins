@@ -141,11 +141,6 @@ public class Eclipse3rdPartyJarReadmeGenerator
     return libraries;
   }
 
-  /**
-   * Checks if the given manifest was provided by an axon ivy
-   * @param manifest
-   * @return true if manifest was provided by an axon ivy plugin
-   */
   private static boolean isIvyPlugin(Manifest manifest)
   {
     return manifest.getBundleVendor().toLowerCase().contains("axon ivy");

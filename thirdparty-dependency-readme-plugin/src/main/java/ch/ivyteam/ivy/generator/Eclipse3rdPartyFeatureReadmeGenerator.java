@@ -100,15 +100,6 @@ public class Eclipse3rdPartyFeatureReadmeGenerator
     }
   }
 
-  /**
-   * Generates the feature info of the given feature
-   * @param feature the directory of the feature
-   * @param featureProps the feature property file
-   * @return html
-   * @throws IOException 
-   * @throws SAXException 
-   * @throws ParserConfigurationException 
-   */
   private static String generateFeatureInfo(File feature, File featureProps) throws ParserConfigurationException, SAXException, IOException
   {
     Document doc = XmlParserUtil.parseXmlDocument(feature, false);
@@ -149,9 +140,6 @@ public class Eclipse3rdPartyFeatureReadmeGenerator
       version = matcher.group(1);
     }    
     info.append(resolveProperty(properties, version));
-
-    
-    
     info.append("</td>\n");    
     info.append("    </tr>");
     return info.toString();
