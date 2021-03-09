@@ -115,7 +115,7 @@ public class Eclipse3rdPartyFeatureReadmeGenerator
     Element rootElement = (Element)doc.getElementsByTagName("feature").item(0);
     Properties properties = loadProperties(featureProps);
     String providerName = resolveProperty(properties, rootElement.getAttribute("provider-name")).toUpperCase();
-    if (providerName.contains("AXON IVY")||
+    if (providerName.contains("Axon Ivy")||
         providerName.contains("IVYTEAM"))
     {
       return null;

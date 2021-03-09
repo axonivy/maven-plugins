@@ -2,4 +2,4 @@ axonivy-engine-7x (7.2.0) UNRELEASED; urgency=medium
 
 @changelog@
 
- -- Axon.ivy core team <https://developer.axonivy.com/team> ${deb.build.date}
+ -- Axon Ivy core team <https://developer.axonivy.com/team> ${deb.build.date}

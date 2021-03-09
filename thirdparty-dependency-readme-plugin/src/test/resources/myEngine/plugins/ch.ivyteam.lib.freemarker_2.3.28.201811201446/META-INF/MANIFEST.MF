@@ -7,7 +7,7 @@ Eclipse-SourceReferences: scm:git:git@bitbucket.org:axonivy-prod/ivy-c
  ore-thirdparty-libs.git;path="ch.ivyteam.lib.freemarker";commitId=469
  f893a88d82503e59549aaca584f098fa81385
 Eclipse-BuddyPolicy: registered
-Bundle-Vendor: AXON Ivy AG
+Bundle-Vendor: Axon Ivy AG
 Eclipse-ExtensibleAPI: true
 Export-Package: freemarker.cache,freemarker.core,freemarker.debug,free
  marker.debug.impl,freemarker.ext.ant,freemarker.ext.beans,freemarker.
