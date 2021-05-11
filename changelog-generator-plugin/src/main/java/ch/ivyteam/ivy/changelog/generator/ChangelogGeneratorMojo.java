@@ -70,8 +70,6 @@ public class ChangelogGeneratorMojo extends AbstractMojo
 
   @Parameter(property = "markdownTemplate", defaultValue = "* [${key}](${uri}) ${summary} ${labelsWithHtmlBatches}")
   public String markdownTemplate;
-  @Parameter(property = "markdownTemplateImprovements", defaultValue = "* ${summary} ${htmlLinkIcon} ${labelsWithHtmlBatches}")
-  public String markdownTemplateImprovements;
 
   @Parameter(property = "asciiTemplate", defaultValue = "${kind} ${key}${spacesKey} ${type}${spacesType} ${summary}")
   public String asciiTemplate;
@@ -182,18 +180,18 @@ public class ChangelogGeneratorMojo extends AbstractMojo
     {
       return createMarkdownTemplateExpander();
     }
-    return new TemplateExpander(asciiTemplate, asciiTemplate, whitelistJiraLabels);
+    return new TemplateExpander(asciiTemplate, whitelistJiraLabels);
   }
 
   private TemplateExpander createMarkdownTemplateExpander()
   {
-    return new TemplateExpander(markdownTemplate, markdownTemplateImprovements, whitelistJiraLabels);
+    return new TemplateExpander(markdownTemplate, whitelistJiraLabels);
   }
 
   private Map<String, String> generateTokens(List<Issue> issues, TemplateExpander expander)
   {
     Map<String, String> tokens = new HashMap<>();
-    tokens.put("changelog#improvements", expander.expandImprovements(Filter.improvements(issues)));
+    tokens.put("changelog#improvements", expander.expand(Filter.improvements(issues)));
 
     List<Issue> sortIssues = sortIssues(issues);
     tokens.put("changelog", expander.expand(sortIssues));
