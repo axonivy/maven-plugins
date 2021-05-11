@@ -17,7 +17,7 @@ public class TestTemplateExpander
   @Test
   public void expand_key()
   {
-    TemplateExpander testee = new TemplateExpander("[${key}] - ${summary}", "", "");
+    TemplateExpander testee = new TemplateExpander("[${key}] - ${summary}", "");
     String expand = testee.expand(createOneIssue());
     assertThat(expand).isEqualTo("[XIVY-500] - JSF Bug");
   }
@@ -25,7 +25,7 @@ public class TestTemplateExpander
   @Test
   public void expand_labelsWithHtmlBatches()
   {
-    TemplateExpander testee = new TemplateExpander("${labelsWithHtmlBatches}", "", "seCurity , performance");
+    TemplateExpander testee = new TemplateExpander("${labelsWithHtmlBatches}", "seCurity , performance");
     String expand = testee.expand(createOneIssue());
     assertThat(expand).isEqualTo("<span class=\"badge badge-pill badge-success\">security</span>");
   }
@@ -33,7 +33,7 @@ public class TestTemplateExpander
   @Test
   public void expand_ascii_keepLeadingWhitespace()
   {
-    TemplateExpander testee = new TemplateExpander("   [${key}] - ${summary}", "", "");
+    TemplateExpander testee = new TemplateExpander("   [${key}] - ${summary}", "");
     String expand = testee.expand(createOneIssue());
     assertThat(expand).isEqualTo("   [XIVY-500] - JSF Bug");
   }

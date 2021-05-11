@@ -16,14 +16,12 @@ import ch.ivyteam.ivy.changelog.generator.jira.JiraResponse.Issue;
 public class TemplateExpander
 {
   private final String template;
-  private final String templateImprovements;
   private final Set<String> whitelistJiraLables;
   private int wordWrap = -1;
   
-  public TemplateExpander(String template, String templateImprovements, String whitelistJiraLables)
+  public TemplateExpander(String template, String whitelistJiraLables)
   {
     this.template = template;
-    this.templateImprovements = templateImprovements;
     this.whitelistJiraLables = convertWhitelistedJiraLables(whitelistJiraLables);
   }
   
@@ -35,11 +33,6 @@ public class TemplateExpander
   public String expand(List<Issue> issues)
   {
     return expand(issues, template, whitelistJiraLables,wordWrap);
-  }
-  
-  public String expandImprovements(List<Issue> issues)
-  {
-    return expand(issues, templateImprovements, whitelistJiraLables, wordWrap);
   }
   
   private static String expand(List<Issue> issues, String template, Set<String> whitelistedJiraLables, int wordWrap)
