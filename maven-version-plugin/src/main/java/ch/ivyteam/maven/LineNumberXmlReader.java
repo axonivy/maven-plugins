@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Stack;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -53,6 +54,8 @@ public class LineNumberXmlReader
     {
       final SAXParserFactory factory = SAXParserFactory.newInstance();
       parser = factory.newSAXParser();
+      parser.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+      parser.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
       final DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
       final DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
       doc = docBuilder.newDocument();
