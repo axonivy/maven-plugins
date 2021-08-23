@@ -18,14 +18,14 @@ import ch.ivyteam.ivy.changelog.generator.jira.JiraResponse.Issue;
 public class TestJiraService
 {
   private JiraService testee;
-  
+
   @Before
   public void setUp()
   {
     Server server = new Server();
     server.setUsername(System.getProperty("jira.username"));
     server.setPassword(System.getProperty("jira.password"));
-    testee = new JiraService("https://jira.axonivy.com/jira", server, new SystemStreamLog());
+    testee = new JiraService("https://axonivy.atlassian.net", server, new SystemStreamLog());
   }
 
   @Test
@@ -41,7 +41,7 @@ public class TestJiraService
     List<Issue> issues = testee.getIssuesWithFixVersion("7.1.0", getXIVYProject());
     assertThatXIVY2266isContained(issues);
   }
-  
+
   private void assertThatXIVY2266isContained(List<Issue> issues)
   {
     Issue issue = issues.stream().filter(i -> i.key.equals("XIVY-2266")).findFirst().orElse(null);
@@ -70,5 +70,5 @@ public class TestJiraService
   {
     return "XIVY";
   }
-  
+
 }
