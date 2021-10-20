@@ -11,16 +11,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 class MavenCentral
 {
-  
+
   public static CentralResponse getInfo(String sha1JarHash) throws IOException
   {
-    URL url = new URL("http://search.maven.org/solrsearch/select?q=1:"+sha1JarHash+"&rows=10&wt=json");
+    URL url = new URL("https://search.maven.org/solrsearch/select?q=1:"+sha1JarHash+"&rows=10&wt=json");
     String answer = IOUtils.toString(url.openStream());
     ObjectMapper mapper = new ObjectMapper();
     JsonNode root =  mapper.readTree(answer);
     return new CentralResponse(root);
   }
-  
+
   public static class CentralResponse
   {
     private String name;
@@ -54,22 +54,22 @@ class MavenCentral
         }
       }
     }
-    
+
     public String getName()
     {
       return name;
     }
-    
+
     public String getVersion()
     {
       return version;
     }
-    
+
     public String getVendor()
     {
       return vendor;
     }
-    
+
     private static String getVendorInfoFor(String value)
     {
       if (value.startsWith("org.apache"))
