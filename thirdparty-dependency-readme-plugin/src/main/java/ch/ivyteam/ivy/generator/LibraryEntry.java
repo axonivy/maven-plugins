@@ -28,12 +28,19 @@ class LibraryEntry
   {
     if (!info.isComplete())
     {
-      CentralResponse response = MavenCentral.getInfo(info.getSha1Hash());
-      this.info = new JarInfo(
+      try 
+      {
+        CentralResponse response = MavenCentral.getInfo(info.getSha1Hash());
+        this.info = new JarInfo(
               StringUtils.defaultIfBlank(info.getName(), response.getName()),
               StringUtils.defaultIfBlank(info.getVersion(), response.getVersion()),
               StringUtils.defaultIfBlank(info.getVendor(), response.getVendor()),
               info.getSha1Hash());
+      }
+      catch(IOException ex)
+      {
+        throw new IOException("Could not get information for "+this, ex);
+      }
     }
   }
   
