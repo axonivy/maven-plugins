@@ -1,5 +1,6 @@
 package ch.ivyteam.ivy.changelog.generator.jira;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,7 +34,7 @@ public class JiraService {
 
   public List<Issue> queryIssues(JiraQuery query) {
     Client client = createClient();
-    List<Issue> issues = readIssues(client, query).issues.stream()
+    List<Issue> issues = readIssues(jqlTarget(client, query)).stream()
             .map(i -> {
               i.serverUri = serverUri;
               return i;
@@ -42,15 +43,31 @@ public class JiraService {
     return issues;
   }
 
-  private JiraResponse readIssues(Client client, JiraQuery query) {
-    final int unlimited = -1;
-    WebTarget target = client
+  private WebTarget jqlTarget(Client client, JiraQuery query) {
+    return client
             .target(serverUri)
             .path("rest/api/2/search")
-            .queryParam("maxResults", unlimited)
             .queryParam("jql", query.toJql());
-    log.info("GET: " + target.getUri());
-    Response response = target.request().get();
+  }
+
+  private List<Issue> readIssues(WebTarget target) {
+    List<Issue> issues = new ArrayList<>();
+
+    Paging read = new Paging(0);
+    do {
+      JiraResponse response = readPaged(target, read);
+      issues.addAll(response.issues);
+      read = response.page();
+    } while (read.hasNext() && (read = read.next()) != null);
+
+    return issues;
+  }
+
+  private JiraResponse readPaged(WebTarget target, Paging jiraWindow) {
+    WebTarget pagedTarget = target.queryParam("startAt", jiraWindow.startAt)
+                   .queryParam("maxResults", jiraWindow.maxResults);
+    log.info("GET: " + pagedTarget.getUri());
+    Response response = pagedTarget.request().get();
     if (!response.getStatusInfo().getFamily().equals(Family.SUCCESSFUL)) {
       throw new RuntimeException(response.getStatusInfo().getStatusCode() + " "
               + response.getStatusInfo().getReasonPhrase() + " " + response.readEntity(String.class));

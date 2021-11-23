@@ -12,6 +12,17 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class JiraResponse {
   public static final String LABEL_IMPROVEMENT = "improvement";
 
+  @JsonProperty
+  private int startAt;
+  @JsonProperty
+  private int maxResults;
+  @JsonProperty
+  private int total;
+
+  public Paging page() {
+    return new Paging(startAt, maxResults, total);
+  }
+
   public List<Issue> issues = new ArrayList<>();
 
   public static class Issue {
