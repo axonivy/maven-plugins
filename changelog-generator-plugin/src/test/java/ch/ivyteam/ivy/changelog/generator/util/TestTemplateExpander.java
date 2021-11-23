@@ -11,28 +11,24 @@ import ch.ivyteam.ivy.changelog.generator.jira.JiraResponse.Issue;
 import ch.ivyteam.ivy.changelog.generator.jira.JiraResponse.IssueFields;
 import ch.ivyteam.ivy.changelog.generator.jira.JiraResponse.Type;
 
-public class TestTemplateExpander
-{
+public class TestTemplateExpander {
 
   @Test
-  public void expand_key()
-  {
+  public void expand_key() {
     TemplateExpander testee = new TemplateExpander("[${key}] - ${summary}", "");
     String expand = testee.expand(createOneIssue());
     assertThat(expand).isEqualTo("[XIVY-500] - JSF Bug");
   }
 
   @Test
-  public void expand_labelsWithHtmlBatches()
-  {
+  public void expand_labelsWithHtmlBatches() {
     TemplateExpander testee = new TemplateExpander("${labelsWithHtmlBatches}", "seCurity , performance");
     String expand = testee.expand(createOneIssue());
     assertThat(expand).isEqualTo("<span class=\"badge badge-pill badge-success\">security</span>");
   }
 
   @Test
-  public void expand_ascii_keepLeadingWhitespace()
-  {
+  public void expand_ascii_keepLeadingWhitespace() {
     TemplateExpander testee = new TemplateExpander("   [${key}] - ${summary}", "");
     String expand = testee.expand(createOneIssue());
     assertThat(expand).isEqualTo("   [XIVY-500] - JSF Bug");
