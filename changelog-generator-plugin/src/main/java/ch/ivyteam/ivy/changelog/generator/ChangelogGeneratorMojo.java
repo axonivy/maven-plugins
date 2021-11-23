@@ -30,8 +30,7 @@ import ch.ivyteam.ivy.changelog.generator.util.TemplateExpander;
 import ch.ivyteam.ivy.changelog.generator.util.TokenReplacer;
 
 @Mojo(name = "generate-changelog", requiresProject = false)
-public class ChangelogGeneratorMojo extends AbstractMojo
-{
+public class ChangelogGeneratorMojo extends AbstractMojo {
   /** server id which is configured in settings.xml */
   @Parameter(property = "jiraServerId")
   public String jiraServerId;
@@ -43,29 +42,32 @@ public class ChangelogGeneratorMojo extends AbstractMojo
   /*** filter query to run against Jira */
   @Parameter(property = "filterBy", required = true)
   public String filterBy;
-  
+
   /** comma separated list of issue fields to define ordering */
   @Parameter(property = "jira.issue.order", defaultValue = "project,key")
   public String orderBy;
 
-  /** comma separated list of labels which will be parsed as batches for example: security, performance, usability */
+  /**
+   * comma separated list of labels which will be parsed as batches for example:
+   * security, performance, usability
+   */
   @Parameter(property = "whitelistJiraLabels", defaultValue = "")
   public String whitelistJiraLabels;
-  
+
   /** compression (supports gz) */
   @Parameter(property = "compression", defaultValue = "")
   public String compression;
-  
+
   /** word wrap in changelog */
   @Parameter(property = "wordWrap", defaultValue = "-1")
   public int wordWrap;
 
   /** files which tokens must be replaced */
-  @Parameter(property="fileset")
+  @Parameter(property = "fileset")
   public FileSet fileset;
 
   /** Prints the changelog to the console */
-  @Parameter(property="console")
+  @Parameter(property = "console")
   public boolean console = false;
 
   @Parameter(property = "markdownTemplate", defaultValue = "* [${key}](${uri}) ${summary} ${labelsWithHtmlBatches}")
@@ -80,116 +82,94 @@ public class ChangelogGeneratorMojo extends AbstractMojo
   MavenSession session;
 
   @Override
-  public void execute() throws MojoExecutionException, MojoFailureException
-  {
-    getLog().info("generating changelog for filter query '" + filterBy +"', order by " + orderBy);
+  public void execute() throws MojoExecutionException, MojoFailureException {
+    getLog().info("generating changelog for filter query '" + filterBy + "', order by " + orderBy);
 
     Server server = session.getSettings().getServer(jiraServerId);
-    if (server == null)
-    {
-      getLog().warn("can not generate changelog because server '" + jiraServerId + "' is not definied in setting.xml");
+    if (server == null) {
+      getLog().warn("can not generate changelog because server '" + jiraServerId
+              + "' is not definied in setting.xml");
       return;
     }
 
     List<Issue> issues = loadIssuesFromJira(server);
-    if (console)
-    {
+    if (console) {
       printToConsole(issues);
-    }
-    else
-    {
+    } else {
       replaceInTemplateFiles(issues);
     }
   }
 
-  private void printToConsole(List<Issue> issues)
-  {
+  private void printToConsole(List<Issue> issues) {
     TemplateExpander expander = createMarkdownTemplateExpander();
     expander.setWordWrap(wordWrap);
     Map<String, String> tokens = generateTokens(issues, expander);
-    
-    for (Map.Entry<String, String> entry: tokens.entrySet())
-    {
+
+    for (Map.Entry<String, String> entry : tokens.entrySet()) {
       System.out.println();
       System.out.println(entry.getKey());
       System.out.println(entry.getValue());
     }
   }
 
-  private void replaceInTemplateFiles(List<Issue> issues) throws MojoExecutionException
-  {
-    for (File sourceFile : getAllFiles())
-    {
+  private void replaceInTemplateFiles(List<Issue> issues) throws MojoExecutionException {
+    for (File sourceFile : getAllFiles()) {
       getLog().info("replace tokens in " + sourceFile.getAbsolutePath());
-      
+
       ChangelogIO changelogHandler = new ChangelogIO(sourceFile, getOutputFile(sourceFile));
       String changelog = changelogHandler.getTemplateContent();
-      
+
       TemplateExpander expander = createExpanderForFile(sourceFile);
       expander.setWordWrap(wordWrap);
-      
+
       Map<String, String> tokens = generateTokens(issues, expander);
       changelog = new TokenReplacer(tokens).replaceTokens(
               changelogHandler.getTemplateContent());
-      
-      if (StringUtils.equals(compression, "gz"))
-      {
+
+      if (StringUtils.equals(compression, "gz")) {
         changelogHandler.compressMaxGzipFile(changelog);
-      }
-      else
-      {
+      } else {
         changelogHandler.writeResult(changelog);
       }
     }
   }
 
-  private List<Issue> loadIssuesFromJira(Server server) throws MojoExecutionException
-  {
-    try
-    {
+  private List<Issue> loadIssuesFromJira(Server server) throws MojoExecutionException {
+    try {
       JiraService jiraService = new JiraService(jiraServerUri, server, getLog());
       JiraQuery query = new JiraQuery(filterBy, orderBy);
       return jiraService.queryIssues(query);
-    }
-    catch (RuntimeException ex)
-    {
+    } catch (RuntimeException ex) {
       throw new MojoExecutionException("could not load issues from jira", ex);
     }
   }
 
-  private List<File> getAllFiles()
-  {
+  private List<File> getAllFiles() {
     return Arrays.stream(new FileSetManager().getIncludedFiles(fileset))
             .map(f -> new File(fileset.getDirectory() + File.separatorChar + f))
             .collect(Collectors.toList());
   }
-  
-  private File getOutputFile(File sourceFile)
-  {
+
+  private File getOutputFile(File sourceFile) {
     String outputDir = fileset.getOutputDirectory();
-    if (StringUtils.isNotEmpty(outputDir))
-    {
+    if (StringUtils.isNotEmpty(outputDir)) {
       return new File(outputDir + File.separatorChar + sourceFile.getName());
     }
     return sourceFile;
   }
 
-  private TemplateExpander createExpanderForFile(File file)
-  {
-    if (file.getName().endsWith(".md"))
-    {
+  private TemplateExpander createExpanderForFile(File file) {
+    if (file.getName().endsWith(".md")) {
       return createMarkdownTemplateExpander();
     }
     return new TemplateExpander(asciiTemplate, whitelistJiraLabels);
   }
 
-  private TemplateExpander createMarkdownTemplateExpander()
-  {
+  private TemplateExpander createMarkdownTemplateExpander() {
     return new TemplateExpander(markdownTemplate, whitelistJiraLabels);
   }
 
-  private Map<String, String> generateTokens(List<Issue> issues, TemplateExpander expander)
-  {
+  private Map<String, String> generateTokens(List<Issue> issues, TemplateExpander expander) {
     Map<String, String> tokens = new HashMap<>();
     tokens.put("changelog#improvements", expander.expand(Filter.improvements(issues)));
 
@@ -199,17 +179,15 @@ public class ChangelogGeneratorMojo extends AbstractMojo
     return tokens;
   }
 
-  private List<Issue> sortIssues(List<Issue> issues)
-  {
+  private List<Issue> sortIssues(List<Issue> issues) {
     List<Issue> sortedIssues = new ArrayList<>(issues);
     sortedIssues.sort(Comparator.comparing(Issue::getProjectKey).reversed()
             .thenComparing(Comparator.comparing(Issue::getType).reversed()
-            .thenComparing(Comparator.comparingInt(this::getIssueNumber).reversed())));
+                    .thenComparing(Comparator.comparingInt(this::getIssueNumber).reversed())));
     return sortedIssues;
   }
 
-  private int getIssueNumber(Issue issue)
-  {
+  private int getIssueNumber(Issue issue) {
     String issueNumber = StringUtils.substringAfter(issue.getKey(), issue.getProjectKey());
     return Integer.valueOf(issueNumber);
   }
