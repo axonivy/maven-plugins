@@ -20,6 +20,7 @@ import org.junit.Test;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 
 import ch.ivyteam.ivy.changelog.generator.jira.JiraResponse;
+import ch.ivyteam.ivy.changelog.generator.jira.Paging;
 
 public class TestJiraJson {
 
@@ -29,6 +30,22 @@ public class TestJiraJson {
     try(InputStream json = Files.newInputStream(sampleJson, StandardOpenOption.READ)) {
       JiraResponse response = deserialize(json);
       assertThat(response.issues).hasSize(2);
+    }
+  }
+
+  @Test
+  public void testPaging() throws IOException {
+    Path sampleJson = new File("src/test/resources/samples/page1.json").toPath();
+    try(InputStream json = Files.newInputStream(sampleJson, StandardOpenOption.READ)) {
+      JiraResponse response = deserialize(json);
+      Paging paging = response.page();
+      assertThat(paging.startAt).isEqualTo(0);
+      assertThat(paging.maxResults).isEqualTo(100);
+      assertThat(paging.total).isEqualTo(150);
+
+      assertThat(paging.hasNext()).isTrue();
+      Paging next = paging.next();
+      assertThat(next.startAt).isEqualTo(100);
     }
   }
 
