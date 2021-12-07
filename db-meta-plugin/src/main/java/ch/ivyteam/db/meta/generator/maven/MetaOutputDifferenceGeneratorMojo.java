@@ -22,7 +22,7 @@ import ch.ivyteam.db.meta.generator.internal.NewLinePrintWriter;
 import ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator;
 import ch.ivyteam.db.meta.model.internal.SqlMeta;
 
-@Mojo(name="generate-meta-output-difference", defaultPhase=LifecyclePhase.GENERATE_SOURCES)
+@Mojo(name="generate-meta-output-difference", defaultPhase=LifecyclePhase.GENERATE_SOURCES, threadSafe=true)
 public class MetaOutputDifferenceGeneratorMojo extends AbstractMojo
 {    
   static final String GOAL = "generate-meta-output-difference";
