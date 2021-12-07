@@ -22,7 +22,7 @@ import org.sonatype.plexus.build.incremental.BuildContext;
 import ch.ivyteam.db.meta.generator.MetaOutputGenerator;
 import ch.ivyteam.db.meta.generator.Target;
 
-@Mojo(name="generate-meta-output", defaultPhase=LifecyclePhase.GENERATE_SOURCES)
+@Mojo(name="generate-meta-output", defaultPhase=LifecyclePhase.GENERATE_SOURCES, threadSafe=true)
 public class MetaOutputGeneratorMojo extends AbstractMojo
 {  
   static final String GOAL = "generate-meta-output";
