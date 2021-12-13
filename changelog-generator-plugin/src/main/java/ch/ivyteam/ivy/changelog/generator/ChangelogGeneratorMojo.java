@@ -176,6 +176,7 @@ public class ChangelogGeneratorMojo extends AbstractMojo {
     List<Issue> sortIssues = sortIssues(issues);
     tokens.put("changelog", expander.expand(sortIssues));
     tokens.put("changelog#bugs", expander.expand(Filter.bugs(sortIssues)));
+    tokens.put("upgradeRecommendation", generateUpgradeRecommendation(sortIssues));
     return tokens;
   }
 
@@ -190,5 +191,18 @@ public class ChangelogGeneratorMojo extends AbstractMojo {
   private int getIssueNumber(Issue issue) {
     String issueNumber = StringUtils.substringAfter(issue.getKey(), issue.getProjectKey());
     return Integer.valueOf(issueNumber);
+  }
+  
+  private String generateUpgradeRecommendation(List<Issue> sortIssues)
+  {
+    if (sortIssues.stream().anyMatch(Issue::isUpgradeCritical))
+    {
+      return "We strongly recommend to install this update release because it fixes security issues!";
+    }
+    if (sortIssues.stream().anyMatch(Issue::isUpgradeRecommended))
+    {
+      return "We recommend to install this update release because it fixes stability issues!";
+    }
+    return "We suggest to install this update release if you are suffering from any of these issues.";
   }
 }
