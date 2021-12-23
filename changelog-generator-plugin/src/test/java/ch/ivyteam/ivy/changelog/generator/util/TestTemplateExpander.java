@@ -24,7 +24,15 @@ public class TestTemplateExpander {
   public void expand_labelsWithHtmlBatches() {
     TemplateExpander testee = new TemplateExpander("${labelsWithHtmlBatches}", "seCurity , performance");
     String expand = testee.expand(createOneIssue());
-    assertThat(expand).isEqualTo("<span class=\"badge badge-pill badge-success\">security</span>");
+    assertThat(expand).isEqualTo("<span class=\"badge badge-pill badge-success badge-security\">security</span>");
+  }
+
+  @Test
+  public void expand_labelsWithMulitpleHtmlBatches() {
+    TemplateExpander testee = new TemplateExpander("${labelsWithHtmlBatches}", "seCurity , jira_escalated");
+    String expand = testee.expand(createOneIssue());
+    assertThat(expand).isEqualTo("<span class=\"badge badge-pill badge-success badge-security\">security</span> "
+            + "<span class=\"badge badge-pill badge-success badge-jira_escalated\">jira_escalated</span>");
   }
 
   @Test

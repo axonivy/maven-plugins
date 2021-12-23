@@ -74,7 +74,7 @@ public class TemplateExpander {
             .map(StringUtils::trimToEmpty)
             .map(String::toLowerCase)
             .filter(i -> whitelistedJiraLables.contains(i))
-            .map(l -> "<span class=\"badge badge-pill badge-success\">" + l + "</span>")
+            .map(l -> "<span class=\"badge badge-pill badge-success badge-" + l + "\">" + l + "</span>")
             .collect(Collectors.joining(" "));
   }
 
