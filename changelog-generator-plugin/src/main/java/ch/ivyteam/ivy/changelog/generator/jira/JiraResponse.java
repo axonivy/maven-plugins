@@ -136,5 +136,9 @@ public class JiraResponse {
     public static List<Issue> improvements(List<Issue> issues) {
       return issues.stream().filter(i -> i.isImprovement()).collect(Collectors.toList());
     }
+
+    public static List<Issue> others(List<Issue> issues) {
+      return issues.stream().filter(i -> !(i.isBug() || i.isImprovement())).collect(Collectors.toList());
+    }
   }
 }
