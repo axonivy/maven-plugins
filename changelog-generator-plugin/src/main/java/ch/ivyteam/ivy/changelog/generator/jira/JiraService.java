@@ -5,21 +5,15 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status.Family;
 
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.settings.Server;
-import org.glassfish.jersey.client.ClientConfig;
-import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
-import org.glassfish.jersey.jackson.internal.jackson.jaxrs.json.JacksonJaxbJsonProvider;
-import org.glassfish.jersey.jackson.internal.jackson.jaxrs.json.JacksonJsonProvider;
-
-import com.fasterxml.jackson.databind.DeserializationFeature;
 
 import ch.ivyteam.ivy.changelog.generator.jira.JiraResponse.Issue;
+import ch.ivyteam.ivy.jira.JiraClientFactory;
 
 public class JiraService {
   private final String serverUri;
@@ -33,7 +27,7 @@ public class JiraService {
   }
 
   public List<Issue> queryIssues(JiraQuery query) {
-    Client client = createClient();
+    Client client = JiraClientFactory.createClient(server);
     List<Issue> issues = readIssues(jqlTarget(client, query)).stream()
             .map(i -> {
               i.serverUri = serverUri;
@@ -73,19 +67,6 @@ public class JiraService {
               + response.getStatusInfo().getReasonPhrase() + " " + response.readEntity(String.class));
     }
     return response.readEntity(JiraResponse.class);
-  }
-
-  private Client createClient() {
-    final JacksonJsonProvider jacksonJsonProvider = new JacksonJaxbJsonProvider()
-            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-
-    Client client = ClientBuilder.newClient(new ClientConfig(jacksonJsonProvider));
-
-    if (server != null) {
-      client.register(HttpAuthenticationFeature.basic(server.getUsername(), server.getPassword()));
-    }
-
-    return client;
   }
 
 }
