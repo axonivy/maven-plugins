@@ -17,27 +17,29 @@ public class TemplateExpander {
   private final String template;
   private final Set<String> whitelistJiraLables;
   private int wordWrap = -1;
+  private String markdownHeaderIndent;
 
-  public TemplateExpander(String template, String whitelistJiraLables) {
+  public TemplateExpander(String template, String whitelistJiraLables, String markdownHeaderIndent) {
     this.template = template;
     this.whitelistJiraLables = convertWhitelistedJiraLables(whitelistJiraLables);
+    this.markdownHeaderIndent = markdownHeaderIndent;
   }
 
   public void setWordWrap(int wordWrap) {
     this.wordWrap = wordWrap;
   }
 
-  public String expand(List<Issue> issues) {
-    return expand(issues, template, whitelistJiraLables, wordWrap);
-  }
-
-  private static String expand(List<Issue> issues, String template, Set<String> whitelistedJiraLables,
-          int wordWrap) {
+  public String expand(List<Issue> issues, String header) {
     Integer maxKeyLength = issues.stream().map(i -> i.getKey().length()).reduce(Integer::max).orElse(0);
     Integer maxTypeLength = issues.stream().map(i -> i.getType().length()).reduce(Integer::max).orElse(0);
 
-    return issues.stream()
-            .map(issue -> createValues(issue, whitelistedJiraLables, maxKeyLength, maxTypeLength))
+    var title = "";
+    if (StringUtils.isNotBlank(markdownHeaderIndent) && !issues.isEmpty()) {
+      title = markdownHeaderIndent + " " + header + "\r\n\r\n";
+    }
+
+    return title + issues.stream()
+            .map(issue -> createValues(issue, whitelistJiraLables, maxKeyLength, maxTypeLength))
             .map(values -> new StringSubstitutor(values).replace(template))
             .map(change -> wordWrap(change, wordWrap))
             .collect(Collectors.joining("\r\n"));
