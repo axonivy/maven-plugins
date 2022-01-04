@@ -9,7 +9,7 @@
 		<relativePath>../build.maven</relativePath>
 	</parent>
 
-	<artifactId>changelog-generator-plugin</artifactId>
+	<artifactId>jira-plugin</artifactId>
 	<packaging>maven-plugin</packaging>
 	
 	<properties>
