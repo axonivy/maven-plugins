@@ -10,6 +10,7 @@ import org.apache.maven.settings.Server;
 import org.junit.Before;
 import org.junit.Test;
 
+import ch.ivyteam.ivy.changelog.generator.jira.JiraResponse.Filter;
 import ch.ivyteam.ivy.changelog.generator.jira.JiraResponse.Issue;
 
 /**
@@ -31,14 +32,14 @@ public class TestJiraService
   @Test
   public void getIssuesWithFixVersion_71()
   {
-    List<Issue> issues = testee.getIssuesWithFixVersion("7.1", getXIVYProject());
+    List<Issue> issues = testee.queryIssues(query("7.1", "key"));
     assertThatXIVY2266isContained(issues);
   }
 
   @Test
   public void getIssuesWithFixVersion_710()
   {
-    List<Issue> issues = testee.getIssuesWithFixVersion("7.1.0", getXIVYProject());
+    List<Issue> issues = testee.queryIssues(query("7.1.0", "key"));
     assertThatXIVY2266isContained(issues);
   }
 
@@ -46,29 +47,39 @@ public class TestJiraService
   {
     Issue issue = issues.stream().filter(i -> i.key.equals("XIVY-2266")).findFirst().orElse(null);
     assertThat(issue.getSummary()).isEqualTo("Remove AspectJ");
-    assertThat(issue.isSecurityIssue()).isFalse();
-    assertThat(issue.isStabilityIssue()).isFalse();
+    assertThat(issue.isUpgradeCritical()).isFalse();
+    assertThat(issue.isUpgradeRecommended()).isFalse();
     assertThat(issue.getType()).isEqualTo("Story");
   }
 
   @Test
   public void getIssuesWithFixVersion_703()
   {
-    List<Issue> issues = testee.getIssuesWithFixVersion("7.0.3", getXIVYProject());
+    List<Issue> issues = testee.queryIssues(query("7.0.3", "key"));
     assertThat(issues).hasSize(6);
   }
 
   @Test
   public void getIssuesWithFixVersion_notValidVersion()
   {
-    assertThatThrownBy(() -> testee.getIssuesWithFixVersion("nonExistingVersion", getXIVYProject()))
+    assertThatThrownBy(() -> testee.queryIssues(query("nonExistingVersion", "key")))
             .isInstanceOf(RuntimeException.class)
             .hasMessageContaining("400 Bad Request");
   }
 
-  private static String getXIVYProject()
+  @Test
+  public void issuesInOrder()
   {
-    return "XIVY";
+    List<Issue> issues = testee.queryIssues(query("7.4", "\"Epic Link\", key"));
+    issues = Filter.improvements(issues);
+    issues.stream().forEach(System.out::println);
+  }
+
+  private static JiraQuery query(String version, String orderBy)
+  {
+    StringBuilder builder = new StringBuilder("project = XIVY AND issuetype IN (Story, Improvement, Bug)");
+    builder.append(" AND fixVersion = ").append(version);
+    return new JiraQuery(builder.toString(), orderBy);
   }
 
 }

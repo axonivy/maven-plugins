@@ -2,6 +2,10 @@ package ch.ivyteam.ivy.changelog.generator.jira;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -13,10 +17,10 @@ public class JiraResponse
 
   public static class Issue
   {
-    public String serverUri;
     public String key;
     @JsonProperty("fields")
     public IssueFields fields;
+    public String serverUri;
     
     public String getUri()
     {
@@ -58,14 +62,14 @@ public class JiraResponse
       return hasLabel(LABEL_IMPROVEMENT);
     }
     
-    public boolean isSecurityIssue()
+    public boolean isUpgradeCritical()
     {
-      return hasLabel("security");
+      return hasLabel("UpgradeCritical");
     }
     
-    public boolean isStabilityIssue()
+    public boolean isUpgradeRecommended()
     {
-      return hasLabel("stability");
+      return hasLabel("UpgradeRecommended");
     }
     
     public List<String> getLabels()
@@ -78,6 +82,12 @@ public class JiraResponse
       return fields.labels.stream().anyMatch(l -> label.equalsIgnoreCase(l));
     }
 
+    @Override
+    public String toString()
+    {
+      return ToStringBuilder.reflectionToString(this, ToStringStyle.JSON_STYLE);
+    }
+    
   }
 
   public static class IssueFields
@@ -86,16 +96,28 @@ public class JiraResponse
     public List<String> labels = new ArrayList<>();
     public Type issuetype;
     public Project project;
+    
+    @Override
+    public String toString()
+    {
+      return ToStringBuilder.reflectionToString(this, ToStringStyle.JSON_STYLE);
+    }
   }
   
   public static class Type
   {
     public String name;
+    
+    @Override
+    public String toString()
+    {
+      return name;
+    }
   }
   
   public enum IssueType
   {
-    EPIC, STORY, IMPROVEMENT, BUG;
+    EPIC, STORY, IMPROVEMENT, BUG, UNKNOWN;
     
     static IssueType toEnum(String name)
     {
@@ -105,7 +127,7 @@ public class JiraResponse
       }
       catch (IllegalArgumentException ex)
       {
-        return null;
+        return UNKNOWN;
       }
     }
   }
@@ -113,5 +135,24 @@ public class JiraResponse
   public static class Project
   {
     public String key;
+    
+    @Override
+    public String toString()
+    {
+      return key;
+    }
+  }
+  
+  public static class Filter
+  {
+    public static List<Issue> bugs(List<Issue> issues)
+    {
+      return issues.stream().filter(i -> i.isBug()).collect(Collectors.toList());
+    }
+
+    public static List<Issue> improvements(List<Issue> issues)
+    {
+      return issues.stream().filter(i -> i.isImprovement()).collect(Collectors.toList());
+    }
   }
 }
