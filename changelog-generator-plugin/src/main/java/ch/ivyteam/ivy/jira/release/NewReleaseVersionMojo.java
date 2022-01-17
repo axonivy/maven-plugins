@@ -1,5 +1,8 @@
 package ch.ivyteam.ivy.jira.release;
 
+import java.util.List;
+import java.util.Optional;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
@@ -53,10 +56,10 @@ public class NewReleaseVersionMojo extends AbstractMojo {
       return;
     }
 
-    var releases = new JiraReleaseService(server, jiraServerUri);
+    JiraReleaseService releases = new JiraReleaseService(server, jiraServerUri);
 
-    var versions = releases.ivyVersions();
-    var existing = versions.stream()
+    List<JiraVersion> versions = releases.ivyVersions();
+    Optional<JiraVersion> existing = versions.stream()
       .filter(version -> newVersion.equalsIgnoreCase(version.name))
       .findFirst();
     if (existing.isPresent()) {

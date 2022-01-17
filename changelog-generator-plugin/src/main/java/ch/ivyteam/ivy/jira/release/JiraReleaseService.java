@@ -44,12 +44,11 @@ public class JiraReleaseService {
 
   List<JiraVersion> projectVersions(String projectName) {
     WebTarget versionsResource = jiraApi.path("project/{idOrName}/versions").resolveTemplate("idOrName", projectName);
-    var resultType = new GenericType<List<JiraVersion>>() {};
-    return versionsResource.request(MediaType.APPLICATION_JSON).get(resultType);
+    return versionsResource.request(MediaType.APPLICATION_JSON).get(new GenericType<List<JiraVersion>>() {});
   }
 
   public JiraVersion create(String newVersion) {
-    var create = JiraVersion.newXivy(newVersion);
+    JiraVersion create = JiraVersion.newXivy(newVersion);
     return jiraApi.path("version").request()
       .accept(MediaType.APPLICATION_JSON)
       .post(Entity.json(create), JiraVersion.class);
