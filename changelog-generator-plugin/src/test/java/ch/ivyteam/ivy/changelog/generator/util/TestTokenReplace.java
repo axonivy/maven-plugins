@@ -14,18 +14,17 @@ import org.junit.Test;
 
 public class TestTokenReplace {
 
-	@SuppressWarnings("deprecation")
-	@Test
-	public void replacerKeepsWhitespaces() throws IOException, MojoExecutionException
-	{
-		File changelog = Files.createTempFile("changelog", ".txt").toFile();
-		FileUtils.write(changelog, "@changelog@");
-		Map<String, String> tokens = new HashMap<>();
-		String issues = "  ! XIVY-1 Bug Fixed the error";
-		tokens.put("changelog", issues);
-		ChangelogIO fileHandler = new ChangelogIO(changelog, changelog);
-		String result = new TokenReplacer(tokens).replaceTokens(fileHandler.getTemplateContent());
-		assertThat(result).isEqualTo(issues);
-	}
+  @SuppressWarnings("deprecation")
+  @Test
+  public void replacerKeepsWhitespaces() throws IOException, MojoExecutionException {
+    File changelog = Files.createTempFile("changelog", ".txt").toFile();
+    FileUtils.write(changelog, "@changelog@");
+    Map<String, String> tokens = new HashMap<>();
+    String issues = "  ! XIVY-1 Bug Fixed the error";
+    tokens.put("changelog", issues);
+    ChangelogIO fileHandler = new ChangelogIO(changelog, changelog);
+    String result = new TokenReplacer(tokens).replaceTokens(fileHandler.getTemplateContent());
+    assertThat(result).isEqualTo(issues);
+  }
 
 }
