@@ -8,6 +8,7 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
@@ -51,33 +52,40 @@ public class NewReleaseVersionMojo extends AbstractMojo {
       getLog().warn("skipping: serverId '" + jiraServerId + "' is not definied in setting.xml");
       return;
     }
-    if (StringUtils.isBlank(newVersion)) {
+
+    Optional<String> next = ReleaseVersion.parse(newVersion);
+    if (next.isEmpty()) {
       getLog().error("aborting: property 'newVersion' is mandatory, but was "+newVersion);
       return;
     }
 
-    JiraReleaseService releases = new JiraReleaseService(server, jiraServerUri);
+    if (StringUtils.isBlank(afterVersion) && project != null) {
+      afterVersion = project.getVersion();
+    }
+    Optional<String> after = ReleaseVersion.parse(afterVersion);
 
+    JiraReleaseService releases = new JiraReleaseService(server, jiraServerUri);
+    createVersion(releases, newVersion, after, getLog());
+  }
+
+  private static void createVersion(JiraReleaseService releases, String newVersion, Optional<String> afterVersion, Log log) {
     List<JiraVersion> versions = releases.ivyVersions();
     Optional<JiraVersion> existing = versions.stream()
       .filter(version -> newVersion.equalsIgnoreCase(version.name))
       .findFirst();
     if (existing.isPresent()) {
-      getLog().info("skipping: XIVY version "+newVersion+" exists already "+existing.get().self);
+      log.info("skipping: XIVY version "+newVersion+" exists already "+existing.get().self);
       return;
     }
 
     JiraVersion created = releases.create(newVersion);
-    getLog().info("created new XIVY version "+created.self);
+    log.info("created new XIVY version "+created.self);
 
-    if (StringUtils.isBlank(afterVersion) && project != null) {
-      String version = project.getVersion();
-      afterVersion = StringUtils.substringBefore(version, "-");
-    }
 
-    if (StringUtils.isNotBlank(afterVersion)) {
-      releases.move(newVersion, afterVersion);
-      getLog().info("moved "+newVersion+" to occur after "+afterVersion);
+    if (afterVersion.isPresent()) {
+      releases.move(newVersion, afterVersion.get());
+      log.info("moved "+newVersion+" to occur after "+afterVersion.get());
     }
   }
+
 }
