@@ -10,18 +10,17 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
 
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
-@Mojo(name = "write-on-image", requiresProject=false)
+@Mojo(name = "write-on-image", requiresProject=false, threadSafe=true)
 public class ImageTextMojo extends AbstractMojo
 {
   @Parameter(required = true, property="sourceImage")
@@ -182,18 +181,18 @@ public class ImageTextMojo extends AbstractMojo
     getLog().warn("Font '"+font+"' seems not to be installed on this system. Run with -X to see available fonts.");
     if (getLog().isDebugEnabled())
     {
-      String fontNames[] = Arrays.stream(GraphicsEnvironment.getLocalGraphicsEnvironment().getAllFonts())
+      String fontNames = Arrays.stream(GraphicsEnvironment.getLocalGraphicsEnvironment().getAllFonts())
               .map(awtFont -> awtFont.getFontName())
-              .toArray(String[]::new);
-      getLog().debug("Available fonts are: "+ StringUtils.join(fontNames, ","));
+              .collect(Collectors.joining(","));
+      getLog().debug("Available fonts are: "+ fontNames);
     }
     return new Font(font, getFontStyle(), fontSize.intValue());
   }
 
   private Color getColor()
   {
-    String[] rgbTokens = StringUtils.split(fontColor, ",");
-    if (ArrayUtils.getLength(rgbTokens) != 3)
+    String[] rgbTokens = fontColor.split(",");
+    if (rgbTokens == null || rgbTokens.length != 3)
     {
       getLog().warn("Font color '" + fontColor + "' does not contain RGB values. Using default font (white).");
       return Color.WHITE;
