@@ -28,7 +28,7 @@ pipeline {
         recordIssues tools: [mavenConsole()]
         junit testDataPublishers: [[$class: 'StabilityTestDataPublisher']], testResults: '**/target/surefire-reports/**/*.xml'
         archiveArtifacts '**/target/*.jar'
-      }      
+      }
     }
   }
 }
