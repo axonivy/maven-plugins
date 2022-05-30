@@ -17,8 +17,7 @@
 		<module>parser-generator-plugin</module>
 		<module>thirdparty-dependency-readme-plugin</module>
 		<module>changelog-generator-plugin</module>
-		<module>windows-launcher-modifier-plugin</module>		
-		<module>bitbucket-tag-plugin</module>
+		<module>windows-launcher-modifier-plugin</module>
 	</modules>
 
 	<build>
