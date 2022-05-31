@@ -18,7 +18,7 @@ pipeline {
       steps {
         script {
           if (env.BRANCH_NAME == 'master') {
-            maven cmd: 'deploy sonar:sonar -Dsonar.host.url=https://sonar.ivyteam.io -Dsonar.projectKey=ivy-maven-plugins -Dsonar.projectName=ivy-maven-plugins'
+            maven cmd: 'deploy sonar:sonar -Dsonar.host.url=https://sonar.ivyteam.io -Dsonar.projectKey=maven-plugins -Dsonar.projectName=maven-plugins'
           } else {
             maven cmd: 'verify'
           }

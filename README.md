@@ -1,3 +1,3 @@
 # Maven Plugins
 
-Build: https://jenkins.ivyteam.io/job/ivy-maven-plugins
+Helper maven plugins to build the Axon Ivy Platform 
