@@ -90,6 +90,9 @@ public class MetaOutputGeneratorMojo extends AbstractMojo
   }
 
   private void delete(Path path) throws IOException {
+    if (!Files.exists(path)) {
+      return;
+    }
     Files.walk(path)
             .map(Path::toFile)
             .forEach(File::delete);
