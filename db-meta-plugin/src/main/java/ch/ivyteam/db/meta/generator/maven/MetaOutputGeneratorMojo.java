@@ -24,30 +24,30 @@ import ch.ivyteam.db.meta.generator.Target;
 
 @Mojo(name="generate-meta-output", defaultPhase=LifecyclePhase.GENERATE_SOURCES, threadSafe=true)
 public class MetaOutputGeneratorMojo extends AbstractMojo
-{  
+{
   static final String GOAL = "generate-meta-output";
 
   @Parameter(required = true)
   private String generatorClass;
-  
-  @Parameter(defaultValue="${project.build.directory}/generated")
+
+  @Parameter(defaultValue="generated-db")
   private File outputDirectory;
-  
+
   @Parameter
   private String outputFile;
-  
+
   @Parameter(defaultValue="meta")
   private File inputDirectory;
-  
+
   @Parameter
   private String[] includes = {"**/*.meta"};
 
   @Parameter()
   private List<String> arguments;
-  
+
   @Component
   private BuildContext buildContext;
-  
+
   @Parameter(defaultValue="${project}", required=true, readonly=true)
   MavenProject project;
 
@@ -72,12 +72,12 @@ public class MetaOutputGeneratorMojo extends AbstractMojo
         return;
       }
       logGenerating(target);
- 
+
       generator.parseMetaDefinition();
       generator.generateMetaOutput();
-      
+
       logSuccess(target);
-      
+
       refresh(target);
     }
     catch(Throwable ex)
@@ -85,7 +85,7 @@ public class MetaOutputGeneratorMojo extends AbstractMojo
       generator.printHelp();
       getLog().error(ex);
       throw new MojoExecutionException("Could not generate meta output", ex);
-    }   
+    }
   }
 
   private void refresh(Target target)
@@ -113,7 +113,7 @@ public class MetaOutputGeneratorMojo extends AbstractMojo
     if (outputFile != null)
     {
       args.add("-outputFile");
-      args.add(new File(outputDirectory, outputFile).getAbsolutePath());        
+      args.add(new File(outputDirectory, outputFile).getAbsolutePath());
     }
     else
     {
@@ -126,10 +126,7 @@ public class MetaOutputGeneratorMojo extends AbstractMojo
     }
     if (arguments != null)
     {
-      for (String arg : arguments)
-      {
-        args.add(arg);
-      }
+      args.addAll(arguments);
     }
     return args.toArray(new String[args.size()]);
   }
@@ -223,7 +220,7 @@ public class MetaOutputGeneratorMojo extends AbstractMojo
       {
         return true;
       }
-    }    
+    }
     return false;
   }
 
@@ -266,7 +263,7 @@ public class MetaOutputGeneratorMojo extends AbstractMojo
     inputScanner.setIncludes(includes);
     inputScanner.scan();
     String[] includedFiles = inputScanner.getIncludedFiles();
-    List<File> sqlMetaFiles = new ArrayList<>(); 
+    List<File> sqlMetaFiles = new ArrayList<>();
     for (String input : includedFiles)
     {
       sqlMetaFiles.add(new File(inputDirectory, input));
@@ -295,7 +292,7 @@ public class MetaOutputGeneratorMojo extends AbstractMojo
   {
     getLog().info("Meta output "+formatTarget(target)+" sucessful generated.");
   }
-  
+
   private String formatTarget(Target target)
   {
     if (target.isSingleTargetFile())
@@ -316,7 +313,7 @@ public class MetaOutputGeneratorMojo extends AbstractMojo
   }
 
   private String getAbsolutePath(File targetDirectoryOrFile)
-  { 
+  {
     if (targetDirectoryOrFile == null)
     {
       return "";

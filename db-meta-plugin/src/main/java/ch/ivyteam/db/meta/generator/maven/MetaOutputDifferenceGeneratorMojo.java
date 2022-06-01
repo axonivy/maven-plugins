@@ -24,33 +24,33 @@ import ch.ivyteam.db.meta.model.internal.SqlMeta;
 
 @Mojo(name="generate-meta-output-difference", defaultPhase=LifecyclePhase.GENERATE_SOURCES, threadSafe=true)
 public class MetaOutputDifferenceGeneratorMojo extends AbstractMojo
-{    
+{
   static final String GOAL = "generate-meta-output-difference";
-  
+
   @Parameter(required = true)
   private String generatorClass;
-  
-  @Parameter(defaultValue="${project.build.directory}/generated")
+
+  @Parameter(defaultValue="generated-db")
   private File outputDirectory;
-  
+
   @Parameter
   private String outputFile;
 
   @Parameter
   private FileSet inputFrom;
-  
+
   @Parameter
   private FileSet inputTo;
-  
+
   @Parameter
   private String oldVersionId;
-  
+
   @Parameter
   private File additionalConversion;
-  
+
   @Component
   private BuildContext buildContext;
-  
+
   @Parameter(defaultValue="${project}", required=true, readonly=true)
   MavenProject project;
 
@@ -82,11 +82,11 @@ public class MetaOutputDifferenceGeneratorMojo extends AbstractMojo
   }
 
   private void generate(File output) throws Exception
-  {    
+  {
     SqlMeta metaFrom = MetaOutputDifferenceGenerator.parseMetaDefinitions(getInputFromFiles());
     SqlMeta metaTo = MetaOutputDifferenceGenerator.parseMetaDefinitions(getInputToFiles());
     SqlMeta additionalConversionMeta = MetaOutputDifferenceGenerator.parseMetaDefinitions(additionalConversion);
-    
+
     try (PrintWriter pr = new NewLinePrintWriter(output))
     {
       SqlScriptGenerator scriptGenerator = MetaOutputDifferenceGenerator.findGeneratorClass(generatorClass);
@@ -105,7 +105,7 @@ public class MetaOutputDifferenceGeneratorMojo extends AbstractMojo
   {
     return getIncludedFiles(inputTo);
   }
-  
+
   private File[] getIncludedFiles(FileSet fileSet)
   {
     File baseDir = getBaseDir(fileSet);
@@ -116,7 +116,7 @@ public class MetaOutputDifferenceGeneratorMojo extends AbstractMojo
     inputScanner.scan();
     String[] includedFiles = inputScanner.getIncludedFiles();
     List<String> includedFilePaths = Arrays.asList(includedFiles);
-    
+
     return includedFilePaths.stream()
             .map(filePath -> new File(baseDir, filePath))
             .toArray(File[]::new);
@@ -128,7 +128,7 @@ public class MetaOutputDifferenceGeneratorMojo extends AbstractMojo
     if (!baseDir.isAbsolute())
     {
       baseDir = new File(project.getBasedir(), fileSet.getDirectory());
-    }    
+    }
     return baseDir;
   }
 
@@ -167,7 +167,7 @@ public class MetaOutputDifferenceGeneratorMojo extends AbstractMojo
     getLog().debug("Refresh '" + getAbsolutePath(output) + "'");
     buildContext.refresh(output);
   }
-  
+
   private void logGenerating(File output)
   {
     getLog().info("Generating meta output difference " + getAbsolutePath(output) + " using generator class "+ generatorClass +" ...");
