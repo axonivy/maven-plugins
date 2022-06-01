@@ -3,6 +3,7 @@ package ch.ivyteam.db.meta.generator.internal;
 import java.io.File;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
@@ -129,10 +130,7 @@ public abstract class JavaClassGenerator implements IMetaOutputGenerator
     }
 
     fTargetPackage = commandLine.getOptionValue(OPTION_PACKAGE);
-    for (String table : commandLine.getOptionValues(OPTION_TABLES))
-    {
-      fTablesToGenerateJavaClassFor.add(table);
-    }
+    Collections.addAll(fTablesToGenerateJavaClassFor, commandLine.getOptionValues(OPTION_TABLES));
     analyseAdditionalArgs(commandLine);
   }
 
@@ -281,18 +279,11 @@ public abstract class JavaClassGenerator implements IMetaOutputGenerator
     return StringUtils.defaultString(comment).replace("@ref ", "");
   }
 
-  /**
-   * Writes an ident
-   * @param pr
-   * @param indent
-   */
   protected void writeIndent(PrintWriter pr, int indent)
   {
-    for (int pos = 0; pos < indent; pos++)
-    {
+    for (int pos = 0; pos < indent; pos++) {
       pr.print(' ');
     }
-
   }
 
   /**

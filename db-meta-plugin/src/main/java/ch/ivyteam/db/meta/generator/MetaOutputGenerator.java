@@ -23,11 +23,11 @@ public class MetaOutputGenerator
   private List<File> sqlMetaDefinitionFiles = new ArrayList<File>();
   private IMetaOutputGenerator generator;
   private SqlMeta sqlMetaDefinition;
-  
+
   private Options OPTIONS = new Options().
     addOption(Option.builder().desc("*.meta input files").required().hasArgs().longOpt(OPTION_SQL).build()).
     addOption(Option.builder().desc("Name of the generator class").required().hasArg().longOpt(OPTION_GENERATOR).build());
-  
+
   /**
    * Main method
    * <code>-sql {file}</code>
@@ -45,7 +45,7 @@ public class MetaOutputGenerator
     catch(Throwable ex)
     {
       System.exit(-1);
-    }           
+    }
   }
 
   /**
@@ -76,16 +76,12 @@ public class MetaOutputGenerator
     }
   }
 
-  /**
-   * Parse meta information
-   * @throws Exception if parse fails
-   */
   public void parseMetaDefinition() throws Exception
   {
     FileReader fr;
     Parser parser;
     Scanner scanner;
-    
+
     for (File sqlMetaDefinitionFile : sqlMetaDefinitionFiles)
     {
       fr = new FileReader(sqlMetaDefinitionFile);
@@ -95,13 +91,13 @@ public class MetaOutputGenerator
         parser = new Parser(scanner);
         if (sqlMetaDefinition == null)
         {
-          sqlMetaDefinition = (SqlMeta)parser.parse().value;      
+          sqlMetaDefinition = (SqlMeta)parser.parse().value;
         }
         else
         {
           sqlMetaDefinition.merge((SqlMeta)parser.parse().value);
         }
-        
+
       }
       finally
       {
@@ -120,8 +116,8 @@ public class MetaOutputGenerator
     generator.generateMetaOutput(sqlMetaDefinition);
   }
 
-  /** 
-   * Prints the help 
+  /**
+   * Prints the help
    */
   public void printHelp()
   {
@@ -138,7 +134,7 @@ public class MetaOutputGenerator
   {
     var commandLine = new DefaultParser().parse(OPTIONS, args, true);
     for (String sqlFile : commandLine.getOptionValues(OPTION_SQL))
-    {     
+    {
       File sqlMetaDefinitionFile = new File(sqlFile);
       if (!sqlMetaDefinitionFile.exists())
       {
@@ -154,8 +150,7 @@ public class MetaOutputGenerator
     generator.analyseArgs(commandLine.getArgs());
   }
 
-  public Target getTarget()
-  {
+  public Target getTarget() {
     return generator.getTarget();
   }
 }
