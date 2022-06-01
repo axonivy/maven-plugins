@@ -65,7 +65,13 @@ public class MetaOutputGeneratorMojo extends AbstractMojo
       String[] args = getArguments(sqlMetaFiles);
       generator.analyseArgs(args);
       Target target = generator.getTarget();
-      delete(target.getTargetDirectory().toPath());
+
+      var targetDir = target.getTargetDirectory();
+      if (targetDir == null) {
+        target.getSingleTargetFile().delete();
+      } else {
+        delete(targetDir.toPath());
+      }
       logGenerating(target);
 
       generator.parseMetaDefinition();
