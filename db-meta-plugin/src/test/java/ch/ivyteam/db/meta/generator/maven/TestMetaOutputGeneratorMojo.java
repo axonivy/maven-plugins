@@ -45,16 +45,6 @@ public class TestMetaOutputGeneratorMojo
   }
 
   @Test
-  public void directoryUpToDate() throws IllegalAccessException, MojoExecutionException, MojoFailureException, IOException
-  {
-    mojoRule.setVariableValueToObject(mojo, "generatorClass", HtmlDocGenerator.class.getName());
-    File file = getProjectFile("generated/blah.html");
-    FileUtils.touch(file);
-    mojo.execute();
-    assertThatProjectFile("generated/IWA_ClusterHost.html").doesNotExist();
-  }
-
-  @Test
   public void directoryNotUpToDate() throws IllegalAccessException, MojoExecutionException, MojoFailureException, IOException
   {
     mojoRule.setVariableValueToObject(mojo, "generatorClass", HtmlDocGenerator.class.getName());
