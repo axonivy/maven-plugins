@@ -147,18 +147,6 @@ public class MetaOutputGeneratorMojo extends AbstractMojo
     return sqlMetaFiles;
   }
 
-  private void logUpToDate(Target target)
-  {
-    if (target.numberOfTargetFiles()<=1)
-    {
-      getLog().info("Output "+formatTarget(target)+" is up to date. Nothing to do.");
-    }
-    else
-    {
-      getLog().info("Output "+formatTarget(target)+" are up to date. Nothing to do.");
-    }
-  }
-
   private void logGenerating(Target target)
   {
     getLog().info("Generating meta output "+formatTarget(target)+" using generator class "+ generatorClass +" ...");

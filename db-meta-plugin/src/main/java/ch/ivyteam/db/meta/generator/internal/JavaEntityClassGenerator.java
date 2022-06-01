@@ -15,55 +15,32 @@ import ch.ivyteam.db.meta.model.internal.SqlMeta;
 import ch.ivyteam.db.meta.model.internal.SqlTable;
 import ch.ivyteam.db.meta.model.internal.SqlTableColumn;
 
-/**
- * A Meta data generator that creates entity java classes
- * @author rwei
- * @since 16.10.2009
- */
 public class JavaEntityClassGenerator extends JavaClassGenerator
 {
-  /** The cache hint */
   public static final String CACHE = String.valueOf("Cache");
-  /** The strategy for the cache */
   public static final String STRATEGY = "Strategy";
-  /** Cache count limit hint */
   public static final String COUNT_LIMIT = "countLimit";
-  /** Cache usage limit hint */
   public static final String USAGE_LIMIT = "usageLimit";
 
   @Override
   public void generateMetaOutput(SqlMeta metaDefinition) throws Exception
   {
-    SqlTable table;
-    for (String tableName : getTablesToGenerateJavaClassFor())
+    for (var tableName : getTablesToGenerateJavaClassFor())
     {
-      table = metaDefinition.findTable(tableName);
-      if (table == null)
-      {
+      var table = metaDefinition.findTable(tableName);
+      if (table == null) {
         throw new MetaException("Could not find table "+tableName);
       }
       writeJavaEntityClass(table, metaDefinition);
     }
   }
 
-  /**
-   * Writes the java entry class for a table
-   * @param table the table to generate the java entity class for
-   * @param metaDefinition meta definition 
-   * @throws FileNotFoundException 
-   * @throws MetaException 
-   */
   private void writeJavaEntityClass(SqlTable table, SqlMeta metaDefinition) throws FileNotFoundException
   {
-    String className;
-    File javaSourceFile;
-    PrintWriter pr;
-    
-    className = getEntityClassName(table);
-
-    javaSourceFile = new File(getTargetDirectory(), className+".java");
+    var className = getEntityClassName(table);
+    var javaSourceFile = new File(getTargetDirectory(), className+".java");
     javaSourceFile.getParentFile().mkdirs();
-    pr = new NewLinePrintWriter(javaSourceFile);
+    var pr = new NewLinePrintWriter(javaSourceFile);
     try
     {
       writePackage(pr);
@@ -98,7 +75,7 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
   private void writeReferenceCheckerClass(PrintWriter pr, SqlTable table, SqlTableColumn column)
   {
     if (table.getDatabaseManagementSystemHints(JavaEntityClassGenerator.CACHE).isHintSet(STRATEGY) &&
-        column.getReference() != null && 
+        column.getReference() != null &&
         (column.getReference().getForeignKeyAction() == SqlForeignKeyAction.ON_DELETE_CASCADE ||
          column.getReference().getForeignKeyAction() == SqlForeignKeyAction.ON_DELETE_SET_NULL))
     {
@@ -140,13 +117,13 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
       writeIndent(pr, 2);
       pr.println("}");
     }
- 
+
   }
 
   private void writeCacheTriggerAnnotation(PrintWriter pr, SqlMeta metaDefinition, SqlTable table)
   {
     if (table.getDatabaseManagementSystemHints(JavaEntityClassGenerator.CACHE).isHintSet(STRATEGY) &&
-        isChildPersistentObject(table))    
+        isChildPersistentObject(table))
     {
       pr.print("@ch.ivyteam.ivy.persistence.cache.trigger.OnDeleteParentInvalidateThisCache(\"");
       pr.print(getEntityClassName(metaDefinition.findTable(JavaClassGeneratorUtil.getParentKeyColumn(table).getReference().getForeignTable())));
@@ -161,7 +138,7 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
     if (table.getDatabaseManagementSystemHints(JavaEntityClassGenerator.CACHE).isHintSet(STRATEGY))
     {
       pr.print("@ch.ivyteam.ivy.persistence.cache.Cache(");
-      strategy = table.getDatabaseManagementSystemHints(JavaEntityClassGenerator.CACHE).getHintValue(STRATEGY); 
+      strategy = table.getDatabaseManagementSystemHints(JavaEntityClassGenerator.CACHE).getHintValue(STRATEGY);
       if ("ALL".equalsIgnoreCase(strategy))
       {
         strategy = "ch.ivyteam.ivy.persistence.cache.advisor.CacheAllAdvisor";
@@ -180,7 +157,7 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
       }
       pr.print(strategy);
       pr.print(".class");
-      
+
       if (table.getDatabaseManagementSystemHints(JavaEntityClassGenerator.CACHE).getHintNames().size()>1)
       {
         pr.print(", ");
@@ -200,7 +177,7 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
             pr.print('"');
             pr.print(name);
             pr.print('"');
-          }         
+          }
         }
         pr.print("},");
         pr.println();
@@ -219,7 +196,7 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
             pr.print('"');
             pr.print(table.getDatabaseManagementSystemHints(JavaEntityClassGenerator.CACHE).getHintValue(name));
             pr.print('"');
-          }         
+          }
         }
         pr.print('}');
       }
@@ -240,8 +217,8 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
     writeIndent(pr, 2);
     pr.println("public int hashCode()");
     writeIndent(pr, 2);
-    pr.println("{");    
-    writeIndent(pr, 4);    
+    pr.println("{");
+    writeIndent(pr, 4);
     pr.print("return new SqlHashCodeBuilder().appendSuper(super.hashCode())");
     for (SqlTableColumn column : JavaClassGeneratorUtil.getNonPrimaryAndParentKeyAndLobColumns(table))
     {
@@ -254,7 +231,7 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
     pr.println(".toHashCode();");
     writeIndent(pr, 2);
     pr.println('}');
-    pr.println(); 
+    pr.println();
   }
 
   private void writeEquals(PrintWriter pr, String className, SqlTable table)
@@ -264,39 +241,39 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
 
     writeIndent(pr, 2);
     pr.println(" * @see Object#equals(Object)");
-    
+
     writeIndent(pr, 2);
     pr.println(" */");
-    
+
     writeIndent(pr, 2);
     pr.println("@Override");
-    
+
     writeIndent(pr, 2);
     pr.println("public boolean equals(Object obj)");
-    
+
     writeIndent(pr, 2);
-    pr.println("{");    
-    
-    writeIndent(pr, 4);    
-    pr.println("if (this == obj)");
-    
-    writeIndent(pr, 4);    
     pr.println("{");
-    
-    writeIndent(pr, 6);    
+
+    writeIndent(pr, 4);
+    pr.println("if (this == obj)");
+
+    writeIndent(pr, 4);
+    pr.println("{");
+
+    writeIndent(pr, 6);
     pr.println("return true;");
-    
-    writeIndent(pr, 4);    
+
+    writeIndent(pr, 4);
     pr.println("}");
-    
-    writeIndent(pr, 4);    
+
+    writeIndent(pr, 4);
     pr.print("if (obj instanceof ");
     pr.print(className);
-    pr.println(")");    
-    
-    writeIndent(pr, 4);    
+    pr.println(")");
+
+    writeIndent(pr, 4);
     pr.println("{");
-    
+
     if (!JavaClassGeneratorUtil.getNonPrimaryAndParentKeyAndLobColumns(table).isEmpty())
     {
       writeIndent(pr, 6);
@@ -305,13 +282,13 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
       pr.print(className);
       pr.println(")obj;");
     }
-    
+
     writeIndent(pr, 6);
     pr.print("return new SqlEqualsBuilder().appendSuper(super.equals(obj))");
     for (SqlTableColumn column : JavaClassGeneratorUtil.getNonPrimaryAndParentKeyAndLobColumns(table))
     {
       pr.println();
-    
+
       writeIndent(pr, 8);
       pr.print(".append(");
       pr.print(generateAttributeName(column));
@@ -320,16 +297,16 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
       pr.print(')');
     }
     pr.println(".isEquals();");
-    
-    writeIndent(pr, 4);    
+
+    writeIndent(pr, 4);
     pr.println("}");
-    
-    writeIndent(pr, 4);    
+
+    writeIndent(pr, 4);
     pr.println("return false;");
-    
+
     writeIndent(pr, 2);
     pr.println('}');
-    pr.println(); 
+    pr.println();
   }
 
   private void writeAssociations(PrintWriter pr, SqlTable table, SqlMeta metaDefinition)
@@ -357,9 +334,9 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
       {
         foreignTable = metaDefinition.findTable(column.getReference().getForeignTable());
         foreignColumn = column.getId();
-      }  
+      }
     }
-      
+
     writeAssociation(pr, table, foreignTable, associationTable, tableColumn, foreignColumn);
     if(isSelfAssociation(associationTable))
     {
@@ -382,7 +359,7 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
     SqlTable foreignTable = table;
     String foreignColumn = column1.getId();
     String tableColumn = column2.getId();
-    
+
     writeAssociation(pr, table, foreignTable, associationTable, "_REVERSE", tableColumn, foreignColumn);
   }
 
@@ -397,13 +374,13 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
     String foreignTable1 = columns.get(1).getReference().getForeignTable();
     return foreignTable0.equals(foreignTable1);
   }
-  
+
   private void writeAssociation(PrintWriter pr, SqlTable table, SqlTable foreignTable, SqlTable associationTable, String associationPostfix, String tableColumn,
           String foreignColumn)
   {
     String associationTableName;
     String primaryKey = JavaClassGeneratorUtil.getPrimaryKeyColumn(table).getId();
-    
+
     associationTableName = JavaClassGeneratorUtil.removeTablePrefix(associationTable.getId());
     writeIndent(pr, 2);
     pr.println("/**");
@@ -446,11 +423,11 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
   /**
    * Writes the getter and setter methods
    * @param pr
-   * @param className 
+   * @param className
    * @param table
-   * @throws MetaException 
+   * @throws MetaException
    */
-  private void writeGetterSetter(PrintWriter pr, String className, SqlTable table)  
+  private void writeGetterSetter(PrintWriter pr, String className, SqlTable table)
   {
     for (SqlTableColumn column : JavaClassGeneratorUtil.getNonPrimaryAndParentKeyAndLobColumns(table))
     {
@@ -484,7 +461,7 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
    * @param pr
    * @param table
    * @param secondaryKeys
-   * @throws MetaException 
+   * @throws MetaException
    */
   private void writeGetSecondaryKeys(PrintWriter pr, SqlTable table, String secondaryKeys)
   {
@@ -505,7 +482,7 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
     writeIndent(pr, 2);
     pr.print(" * Gets the values of the columns ");
     pr.print(secondaryKeys);
-    pr.println(" as secondary keys"); 
+    pr.println(" as secondary keys");
     writeIndent(pr, 2);
     pr.println(" * @return object array with the secondary keys");
     writeIndent(pr, 2);
@@ -530,7 +507,7 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
     {
       if (!first)
       {
-        pr.print(", ");       
+        pr.print(", ");
       }
       first = false;
       pr.print(generateAttributeName(column));
@@ -638,7 +615,7 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
    * @param className the class name to use
    * @param table the table
    * @param setMethods list of set methods
-   * @throws MetaException 
+   * @throws MetaException
    */
   private void writeAdditionalSetMethods(PrintWriter pr, String className, SqlTable table, String setMethods)
   {
@@ -647,7 +624,7 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
     String columnNames;
     int pos;
     boolean first = true;
-    
+
     for (String method : setMethods.split("\\)"))
     {
       pos = method.indexOf('(');
@@ -837,7 +814,7 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
     pr.println('}');
     pr.println();
   }
-  
+
   /**
    * The primary key getter
    * @param pr
@@ -880,21 +857,21 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
   /**
    * Writes the constructor
    * @param pr
-   * @param className 
+   * @param className
    * @param table
    */
   private void writeConstructor(PrintWriter pr, String className, SqlTable table)
   {
     boolean first = true;
     List<SqlTableColumn> columns = new ArrayList<SqlTableColumn>();
-    
+
     columns.addAll(JavaClassGeneratorUtil.getPrimaryKeyColumns(table));
     columns.addAll(JavaClassGeneratorUtil.getParentKeyColumns(table));
     columns.addAll(JavaClassGeneratorUtil.getNonPrimaryAndParentKeyAndLobColumns(table));
     writeIndent(pr, 2);
     pr.println("/**");
     writeIndent(pr, 2);
-    pr.print(" *");    
+    pr.print(" *");
     pr.println(" Constructor");
     for (SqlTableColumn column : columns)
     {
@@ -920,13 +897,13 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
       first = false;
       if (table.isPrimaryKeyColumn(column))
       {
-        writeNoNativeDataType(pr, column);        
+        writeNoNativeDataType(pr, column);
       }
       else
       {
         writeDataType(pr, column);
       }
-      pr.print(" ");      
+      pr.print(" ");
       pr.print(generateAttributeName(column));
     }
     pr.println(')');
@@ -938,7 +915,7 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
     if (isChildPersistentObject(table))
     {
       pr.print(", ");
-      pr.print(generateAttributeName(table.findColumn(JavaClassGeneratorUtil.getParentKey(table))));      
+      pr.print(generateAttributeName(table.findColumn(JavaClassGeneratorUtil.getParentKey(table))));
     }
     pr.println(");");
     for (SqlTableColumn column : JavaClassGeneratorUtil.getNonPrimaryAndParentKeyAndLobColumns(table))
@@ -952,7 +929,7 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
     }
     writeIndent(pr, 2);
     pr.println('}');
-    pr.println();    
+    pr.println();
   }
 
   /**
@@ -970,9 +947,9 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
   /**
    * Writes the attributes
    * @param pr
-   * @param metaDefinition 
+   * @param metaDefinition
    * @param table
-   * @throws MetaException 
+   * @throws MetaException
    */
   private void writeAttributes(PrintWriter pr, SqlMeta metaDefinition, SqlTable table)
   {
@@ -985,10 +962,10 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
   /**
    * Writes an attribute
    * @param pr
-   * @param metaDefinition 
+   * @param metaDefinition
    * @param table
    * @param column
-   * @throws MetaException 
+   * @throws MetaException
    */
   private void writeAttribute(PrintWriter pr, SqlMeta metaDefinition, SqlTable table, SqlTableColumn column)
   {
@@ -1005,7 +982,7 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
     pr.print(' ');
     pr.print(generateAttributeName(column));
     pr.println(';');
-    pr.println();    
+    pr.println();
   }
 
   private String generateAttributeName(SqlTableColumn column)
@@ -1015,14 +992,14 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
 
   /**
    * @param pr
-   * @param metaDefinition 
+   * @param metaDefinition
    * @param column
-   * @param table 
+   * @param table
    */
   private void writeCacheTriggerAnnotation(PrintWriter pr, SqlMeta metaDefinition, SqlTable table, SqlTableColumn column)
   {
     if (table.getDatabaseManagementSystemHints(JavaEntityClassGenerator.CACHE).isHintSet(STRATEGY) &&
-        column.getReference() != null && 
+        column.getReference() != null &&
         column.getReference().getForeignKeyAction() != null)
     {
       String referencedClass = getEntityClassName(metaDefinition.findTable(column.getReference().getForeignTable()));
@@ -1050,19 +1027,19 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
           pr.println("\")");
           break;
       }
-    }  
+    }
   }
 
   /**
    * Writes the comment of an attribute
    * @param pr
-   * @param table 
+   * @param table
    * @param column
-   * @throws MetaException 
+   * @throws MetaException
    */
   private void writeAttributeComment(PrintWriter pr, SqlTable table, SqlTableColumn column)
   {
-    writeIndent(pr, 2);    
+    writeIndent(pr, 2);
     pr.println("/**");
     if (column.getComment().trim().length()>0)
     {
@@ -1076,7 +1053,7 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
     pr.println();
     writeIndent(pr, 2);
     pr.println(" */");
-    
+
   }
 
   /**
@@ -1088,7 +1065,7 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
   {
     pr.print(JavaClassGeneratorUtil.getJavaDataType(column));
   }
-  
+
   /**
    * Writes the a non native java type for the given column
    * @param pr
@@ -1112,13 +1089,13 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
     pr.print(" extends ");
     if (isChildPersistentObject(table))
     {
-      pr.println("ch.ivyteam.ivy.persistence.base.PersistentChildObject");    
+      pr.println("ch.ivyteam.ivy.persistence.base.PersistentChildObject");
     }
     else
     {
       pr.println("ch.ivyteam.ivy.persistence.base.PersistentObject");
     }
-    pr.println('{');    
+    pr.println('{');
   }
 
   /**
@@ -1134,8 +1111,8 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
   /**
    * Write the header
    * @param pr
-   * @param table 
-   * @throws MetaException 
+   * @param table
+   * @throws MetaException
    */
   private void writeHeader(PrintWriter pr, SqlTable table)
   {

@@ -1,10 +1,7 @@
 package ch.ivyteam.db.meta.generator.maven;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.PrintWriter;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 
@@ -58,35 +55,22 @@ public class MetaOutputDifferenceGeneratorMojo extends AbstractMojo
   MavenProject project;
 
   @Override
-  public void execute() throws MojoExecutionException, MojoFailureException
-  {
-    File output = new File(outputDirectory, outputFile);
-    try {
-      delete(output.toPath());
-    } catch (IOException ex) {
-      throw new MojoExecutionException("Could not delete directory " + output, ex);
+  public void execute() throws MojoExecutionException, MojoFailureException {
+    var output = new File(outputDirectory, outputFile);
+    if (output.exists()) {
+      output.delete();
     }
-    try
-    {
+
+    try {
       logGenerating(output);
       generate(output);
       logSuccess(output);
-    }
-    catch(Exception ex)
-    {
+    } catch (Exception ex) {
       getLog().error(ex);
       throw new MojoExecutionException("Could not generate meta output difference", ex);
-    }
-    finally
-    {
+    } finally {
       refresh(output);
     }
-  }
-
-  private void delete(Path path) throws IOException {
-    Files.walk(path)
-            .map(Path::toFile)
-            .forEach(File::delete);
   }
 
   private void generate(File output) throws Exception
@@ -138,36 +122,6 @@ public class MetaOutputDifferenceGeneratorMojo extends AbstractMojo
       baseDir = new File(project.getBasedir(), fileSet.getDirectory());
     }
     return baseDir;
-  }
-
-  private boolean fileIsUpToDate(File output)
-  {
-    if (!output.exists())
-    {
-      getLog().debug("Output file does not exist. Build needed.");
-      return false;
-    }
-    long latestInputFileChange = getLatestInputFileChangeTimestamp();
-    if (output.lastModified() < latestInputFileChange)
-    {
-      getLog().debug("Output file "+ getAbsolutePath(output) +" is not up to date. Build needed.");
-      return false;
-    }
-    return true;
-  }
-
-  private long getLatestInputFileChangeTimestamp()
-  {
-    long latestInputFileChange = Long.MIN_VALUE;
-    for (File file : getInputToFiles())
-    {
-      latestInputFileChange = Math.max(file.lastModified(), latestInputFileChange);
-    }
-    for (File file : getInputFromFiles())
-    {
-      latestInputFileChange = Math.max(file.lastModified(), latestInputFileChange);
-    }
-    return latestInputFileChange;
   }
 
   private void refresh(File output)
