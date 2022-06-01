@@ -1,7 +1,10 @@
 package ch.ivyteam.db.meta.generator.maven;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 
@@ -58,11 +61,10 @@ public class MetaOutputDifferenceGeneratorMojo extends AbstractMojo
   public void execute() throws MojoExecutionException, MojoFailureException
   {
     File output = new File(outputDirectory, outputFile);
-
-    if (fileIsUpToDate(output))
-    {
-      getLog().info("Output file "+getAbsolutePath(output)+" is up to date. Nothing to do.");
-      return;
+    try {
+      delete(output.toPath());
+    } catch (IOException ex) {
+      throw new MojoExecutionException("Could not delete directory " + output, ex);
     }
     try
     {
@@ -79,6 +81,12 @@ public class MetaOutputDifferenceGeneratorMojo extends AbstractMojo
     {
       refresh(output);
     }
+  }
+
+  private void delete(Path path) throws IOException {
+    Files.walk(path)
+            .map(Path::toFile)
+            .forEach(File::delete);
   }
 
   private void generate(File output) throws Exception

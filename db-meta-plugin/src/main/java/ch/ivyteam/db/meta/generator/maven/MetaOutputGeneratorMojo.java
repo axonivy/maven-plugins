@@ -1,12 +1,12 @@
 package ch.ivyteam.db.meta.generator.maven;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.io.filefilter.FileFileFilter;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -15,7 +15,6 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.util.DirectoryScanner;
 import org.codehaus.plexus.util.Scanner;
 import org.sonatype.plexus.build.incremental.BuildContext;
 
@@ -66,11 +65,7 @@ public class MetaOutputGeneratorMojo extends AbstractMojo
       String[] args = getArguments(sqlMetaFiles);
       generator.analyseArgs(args);
       Target target = generator.getTarget();
-      if (filesAreUpToDate(sqlMetaFiles, target))
-      {
-        logUpToDate(target);
-        return;
-      }
+      delete(target.getTargetDirectory().toPath());
       logGenerating(target);
 
       generator.parseMetaDefinition();
@@ -86,6 +81,12 @@ public class MetaOutputGeneratorMojo extends AbstractMojo
       getLog().error(ex);
       throw new MojoExecutionException("Could not generate meta output", ex);
     }
+  }
+
+  private void delete(Path path) throws IOException {
+    Files.walk(path)
+            .map(Path::toFile)
+            .forEach(File::delete);
   }
 
   private void refresh(Target target)
@@ -129,131 +130,6 @@ public class MetaOutputGeneratorMojo extends AbstractMojo
       args.addAll(arguments);
     }
     return args.toArray(new String[args.size()]);
-  }
-
-  private boolean filesAreUpToDate(List<File> sqlMetaFiles, Target target)
-  {
-    long latestInputFileChange = getLatestInputFileChangeTimestamp(sqlMetaFiles);
-    if (target.isSingleTargetFile())
-    {
-      if (!target.getSingleTargetFile().exists())
-      {
-        getLog().debug("Target file does not exist. Build needed.");
-        return false;
-      }
-      if (outputFileOutOfDate(target.getSingleTargetFile(), latestInputFileChange))
-      {
-        return false;
-      }
-    }
-    else
-    {
-      if (!target.getTargetDirectory().exists())
-      {
-        getLog().debug("Target directory does not exist. Build needed.");
-        return false;
-      }
-      if (emptyOutputDirectory(target.getTargetDirectory()))
-      {
-        getLog().debug("Target directory is empty. Build needed.");
-        return false;
-      }
-      if (deletedOutputFilesInDelta(target.getTargetDirectory()))
-      {
-        getLog().debug("Target files were deleted since last incremental build. Build needed.");
-        return false;
-      }
-      if (outputFilesOutOfDate(target.getTargetDirectory(), latestInputFileChange))
-      {
-        return false;
-      }
-      if (target.numberOfTargetFiles() > 0)
-      {
-        int fileCount = getNumberOfFilesInDirectory(target);
-        if (fileCount < target.numberOfTargetFiles())
-        {
-          getLog().debug("Target files are missing. Exepecting "+target.numberOfTargetFiles()+". Found "+fileCount+". Build needed");
-          return false;
-        }
-        if (fileCount > target.numberOfTargetFiles())
-        {
-          getLog().debug("Too many target files. Exepecting "+target.numberOfTargetFiles()+". Found "+fileCount+". Build needed");
-          return false;
-        }
-      }
-    }
-    return true;
-  }
-
-  private int getNumberOfFilesInDirectory(Target target)
-  {
-    File[] listFiles = target.getTargetDirectory().listFiles((FileFilter)FileFileFilter.FILE);
-    if (listFiles == null)
-    {
-      return 0;
-    }
-    return listFiles.length;
-  }
-
-  private long getLatestInputFileChangeTimestamp(List<File> sqlMetaFiles)
-  {
-    long latestInputFileChange = Long.MIN_VALUE;
-    for (File inputFile : sqlMetaFiles)
-    {
-      if (inputFile.lastModified() > latestInputFileChange)
-      {
-        latestInputFileChange = inputFile.lastModified();
-      }
-    }
-    return latestInputFileChange;
-  }
-
-  private boolean outputFilesOutOfDate(File targetDirectoryOrFile, long latestInputFileChange)
-  {
-    DirectoryScanner outputFileScanner = new DirectoryScanner();
-    outputFileScanner.setBasedir(targetDirectoryOrFile);
-    outputFileScanner.scan();
-    for (String outputFileName : outputFileScanner.getIncludedFiles())
-    {
-      File outFile = new File (targetDirectoryOrFile, outputFileName);
-      if (outputFileOutOfDate(outFile, latestInputFileChange))
-      {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  private boolean outputFileOutOfDate(File targetDirectoryOrFile, long latestInputFileChange)
-  {
-    if (targetDirectoryOrFile.lastModified() < latestInputFileChange)
-    {
-      getLog().debug("Target file "+ getAbsolutePath(targetDirectoryOrFile) +" is not up to date. Build needed.");
-      return true;
-    }
-    return false;
-  }
-
-  private boolean deletedOutputFilesInDelta(File targetDirectoryOrFile)
-  {
-    Scanner deletedOutputs = buildContext.newDeleteScanner(targetDirectoryOrFile);
-    deletedOutputs.setIncludes(new String[]{"**/*"});
-    deletedOutputs.scan();
-    if (deletedOutputs.getIncludedFiles().length > 0 || deletedOutputs.getIncludedDirectories().length > 0)
-    {
-      return true;
-    }
-    return false;
-  }
-
-  private boolean emptyOutputDirectory(File targetDirectoryOrFile)
-  {
-    File[] outputFiles = targetDirectoryOrFile.listFiles();
-    if (outputFiles == null || outputFiles.length == 0)
-    {
-      return true;
-    }
-    return false;
   }
 
   private List<File> getSqlMetaFiles() throws IOException
