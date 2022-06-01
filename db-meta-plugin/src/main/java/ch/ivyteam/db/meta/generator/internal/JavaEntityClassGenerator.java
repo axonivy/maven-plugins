@@ -6,7 +6,6 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import ch.ivyteam.db.meta.model.internal.MetaException;
@@ -23,29 +22,23 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
   public static final String USAGE_LIMIT = "usageLimit";
 
   @Override
-  public void generateMetaOutput(SqlMeta metaDefinition) throws Exception
-  {
-    for (var tableName : getTablesToGenerateJavaClassFor())
-    {
+  public void generateMetaOutput(SqlMeta metaDefinition) throws Exception {
+    for (var tableName : getTablesToGenerateJavaClassFor()) {
       var table = metaDefinition.findTable(tableName);
       if (table == null) {
-        throw new MetaException("Could not find table "+tableName);
+        throw new MetaException("Could not find table " + tableName);
       }
       writeJavaEntityClass(table, metaDefinition);
     }
   }
 
-  private void writeJavaEntityClass(SqlTable table, SqlMeta metaDefinition) throws FileNotFoundException
-  {
+  private void writeJavaEntityClass(SqlTable table, SqlMeta metaDefinition) throws FileNotFoundException {
     var className = getEntityClassName(table);
-    var javaSourceFile = new File(getTargetDirectory(), className+".java");
+    var javaSourceFile = new File(getTargetDirectory(), className + ".java");
     javaSourceFile.getParentFile().mkdirs();
-    var pr = new NewLinePrintWriter(javaSourceFile);
-    try
-    {
+    try (var pr = new NewLinePrintWriter(javaSourceFile)) {
       writePackage(pr);
       writeImports(pr);
-      writeHeader(pr, table);
       writeCacheAnnotation(pr, table);
       writeCacheTriggerAnnotation(pr, metaDefinition, table);
       writeClass(pr, className, table);
@@ -57,10 +50,6 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
       writeHashCode(pr, table);
       writeReferenceCheckerClasses(pr, table);
       pr.println("}");
-    }
-    finally
-    {
-      IOUtils.closeQuietly(pr);
     }
   }
 
@@ -80,26 +69,12 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
          column.getReference().getForeignKeyAction() == SqlForeignKeyAction.ON_DELETE_SET_NULL))
     {
       writeIndent(pr, 2);
-      pr.println("/**");
-      writeIndent(pr, 2);
-      pr.print(" * Checks references for the foreign key ");
-      pr.println(column.getId());
-      writeIndent(pr, 2);
-      pr.println(" */");
       writeIndent(pr, 2);
       pr.print("private static class ");
       pr.print(JavaClassGeneratorUtil.generateJavaIdentifier(column));
       pr.print("ReferenceChecker implements ch.ivyteam.ivy.persistence.cache.trigger.IReferenceChecker<");
       pr.print(getEntityClassName(table));
-      pr.println(">");
-      writeIndent(pr, 2);
-      pr.println("{");
-      writeIndent(pr, 4);
-      pr.println("/**");
-      writeIndent(pr, 4);
-      pr.println(" * @see ch.ivyteam.ivy.persistence.cache.trigger.IReferenceChecker#isReferencedObject(ch.ivyteam.ivy.persistence.IPersistentObject, java.lang.Object)");
-      writeIndent(pr, 4);
-      pr.println(" */");
+      pr.println("> {");
       writeIndent(pr, 4);
       pr.println("@Override");
       writeIndent(pr, 4);
@@ -117,11 +92,9 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
       writeIndent(pr, 2);
       pr.println("}");
     }
-
   }
 
-  private void writeCacheTriggerAnnotation(PrintWriter pr, SqlMeta metaDefinition, SqlTable table)
-  {
+  private void writeCacheTriggerAnnotation(PrintWriter pr, SqlMeta metaDefinition, SqlTable table) {
     if (table.getDatabaseManagementSystemHints(JavaEntityClassGenerator.CACHE).isHintSet(STRATEGY) &&
         isChildPersistentObject(table))
     {
@@ -207,17 +180,9 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
   private void writeHashCode(PrintWriter pr, SqlTable table)
   {
     writeIndent(pr, 2);
-    pr.println("/**");
-    writeIndent(pr, 2);
-    pr.println(" * @see Object#hashCode()");
-    writeIndent(pr, 2);
-    pr.println(" */");
-    writeIndent(pr, 2);
     pr.println("@Override");
     writeIndent(pr, 2);
-    pr.println("public int hashCode()");
-    writeIndent(pr, 2);
-    pr.println("{");
+    pr.println("public int hashCode() {");
     writeIndent(pr, 4);
     pr.print("return new SqlHashCodeBuilder().appendSuper(super.hashCode())");
     for (SqlTableColumn column : JavaClassGeneratorUtil.getNonPrimaryAndParentKeyAndLobColumns(table))
@@ -237,42 +202,19 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
   private void writeEquals(PrintWriter pr, String className, SqlTable table)
   {
     writeIndent(pr, 2);
-    pr.println("/**");
-
-    writeIndent(pr, 2);
-    pr.println(" * @see Object#equals(Object)");
-
-    writeIndent(pr, 2);
-    pr.println(" */");
-
-    writeIndent(pr, 2);
     pr.println("@Override");
-
     writeIndent(pr, 2);
-    pr.println("public boolean equals(Object obj)");
-
-    writeIndent(pr, 2);
-    pr.println("{");
-
+    pr.println("public boolean equals(Object obj) {");
     writeIndent(pr, 4);
-    pr.println("if (this == obj)");
-
-    writeIndent(pr, 4);
-    pr.println("{");
-
+    pr.println("if (this == obj) {");
     writeIndent(pr, 6);
     pr.println("return true;");
-
     writeIndent(pr, 4);
     pr.println("}");
-
     writeIndent(pr, 4);
     pr.print("if (obj instanceof ");
     pr.print(className);
-    pr.println(")");
-
-    writeIndent(pr, 4);
-    pr.println("{");
+    pr.println(") {");
 
     if (!JavaClassGeneratorUtil.getNonPrimaryAndParentKeyAndLobColumns(table).isEmpty())
     {
@@ -280,7 +222,7 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
       pr.print(className);
       pr.print(" other = (");
       pr.print(className);
-      pr.println(")obj;");
+      pr.println(") obj;");
     }
 
     writeIndent(pr, 6);
@@ -383,19 +325,6 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
 
     associationTableName = JavaClassGeneratorUtil.removeTablePrefix(associationTable.getId());
     writeIndent(pr, 2);
-    pr.println("/**");
-    writeIndent(pr, 2);
-    pr.print(" * Use this association to navigate between a entity of this table (");
-    pr.print(table.getId());
-    pr.println(')');
-    writeIndent(pr, 2);
-    pr.print(" * and entities of table ");
-    pr.print(foreignTable.getId());
-    pr.print(" using association table ");
-    pr.println(associationTable.getId());
-    writeIndent(pr, 2);
-    pr.println(" */");
-    writeIndent(pr, 2);
     pr.print("@ch.ivyteam.ivy.persistence.cache.trigger.OnAddOrRemoveRelatedInvalidateAssociationCache(\"");
     pr.print(getEntityClassName(foreignTable));
     pr.println("\")");
@@ -420,13 +349,6 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
     pr.println();
   }
 
-  /**
-   * Writes the getter and setter methods
-   * @param pr
-   * @param className
-   * @param table
-   * @throws MetaException
-   */
   private void writeGetterSetter(PrintWriter pr, String className, SqlTable table)
   {
     for (SqlTableColumn column : JavaClassGeneratorUtil.getNonPrimaryAndParentKeyAndLobColumns(table))
@@ -456,13 +378,6 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
     }
   }
 
-  /**
-   * Writes the secondary keys get method
-   * @param pr
-   * @param table
-   * @param secondaryKeys
-   * @throws MetaException
-   */
   private void writeGetSecondaryKeys(PrintWriter pr, SqlTable table, String secondaryKeys)
   {
     boolean first = true;
@@ -478,29 +393,9 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
       secondaryKeyColumns.add(secondaryKeyColumn);
     }
     writeIndent(pr, 2);
-    pr.println("/**");
-    writeIndent(pr, 2);
-    pr.print(" * Gets the values of the columns ");
-    pr.print(secondaryKeys);
-    pr.println(" as secondary keys");
-    writeIndent(pr, 2);
-    pr.println(" * @return object array with the secondary keys");
-    writeIndent(pr, 2);
-    pr.println(" * @see ch.ivyteam.ivy.persistence.IPersistentObject#getSecondaryKeys()");
-    for (SqlTableColumn column: secondaryKeyColumns)
-    {
-      writeIndent(pr, 2);
-      pr.print(" * @see #");
-      pr.println(generateAttributeName(column));
-    }
-    writeIndent(pr, 2);
-    pr.println(" */");
-    writeIndent(pr, 2);
     pr.println("@Override");
     writeIndent(pr, 2);
-    pr.println("public Object[] getSecondaryKeys()");
-    writeIndent(pr, 2);
-    pr.println("{");
+    pr.println("public Object[] getSecondaryKeys() {");
     writeIndent(pr, 4);
     pr.print("return new Object[]{");
     for (SqlTableColumn column: secondaryKeyColumns)
@@ -518,29 +413,7 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
     pr.println();
   }
 
-  /**
-   * Writes a parent setter
-   * @param pr
-   * @param className
-   * @param column
-   */
-  private void writeParentSetter(PrintWriter pr, String className, SqlTableColumn column)
-  {
-    writeIndent(pr, 2);
-    pr.println("/**");
-    writeIndent(pr, 2);
-    pr.print(" * Sets the value of the column ");
-    pr.print(column.getId());
-    pr.println(" (parent key)");
-    writeIndent(pr, 2);
-    pr.print(" * @param ");
-    pr.print(generateAttributeName(column));
-    pr.print(" new value of column ");
-    pr.println(column.getId());
-    writeIndent(pr, 2);
-    pr.println(" * @return new entity object with the new value set on the column");
-    writeIndent(pr, 2);
-    pr.println(" */");
+  private void writeParentSetter(PrintWriter pr, String className, SqlTableColumn column) {
     writeIndent(pr, 2);
     pr.print("public ");
     pr.print(className);
@@ -550,16 +423,14 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
     writeDataType(pr, column);
     pr.print(" ");
     pr.print(generateAttributeName(column));
-    pr.println(')');
-    writeIndent(pr, 2);
-    pr.println("{");
+    pr.println(") {");
     writeIndent(pr, 4);
     pr.print(className);
     pr.println(" data;");
     writeIndent(pr, 4);
     pr.print("data = (");
     pr.print(className);
-    pr.println(")clone();");
+    pr.println(") clone();");
     writeIndent(pr, 4);
     pr.print("data.modifyParentKey(");
     pr.print(generateAttributeName(column));
@@ -571,37 +442,19 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
     pr.println();
   }
 
-  /**
-   * @param pr
-   * @param column
-   */
-  private void writeParentGetter(PrintWriter pr, SqlTableColumn column)
-  {
-    writeIndent(pr, 2);
-    pr.println("/**");
-    writeIndent(pr, 2);
-    pr.print(" * Gets the value of column ");
-    pr.println(column.getId());
-    writeIndent(pr, 2);
-    pr.print(" * @return value of column ");
-    pr.println(column.getId());
-    writeIndent(pr, 2);
-    pr.println(" */");
+  private void writeParentGetter(PrintWriter pr, SqlTableColumn column) {
     writeIndent(pr, 2);
     pr.print("public ");
     writeDataType(pr, column);
     pr.print(" get");
     pr.print(StringUtils.capitalize(JavaClassGeneratorUtil.generateJavaIdentifier(column)));
-    pr.println("()");
-    writeIndent(pr, 2);
-    pr.println("{");
+    pr.println("() {");
     writeIndent(pr, 4);
     pr.print("return ");
-    if (!"Object".equals(JavaClassGeneratorUtil.getJavaDataType(column)))
-    {
+    if (!"Object".equals(JavaClassGeneratorUtil.getJavaDataType(column))) {
       pr.print("(");
       writeNoNativeDataType(pr, column);
-      pr.print(")");
+      pr.print(") ");
     }
     pr.println("getParentKey();");
     writeIndent(pr, 2);
@@ -609,14 +462,6 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
     pr.println();
   }
 
-  /**
-   * Writes additional set methods
-   * @param pr print writer
-   * @param className the class name to use
-   * @param table the table
-   * @param setMethods list of set methods
-   * @throws MetaException
-   */
   private void writeAdditionalSetMethods(PrintWriter pr, String className, SqlTable table, String setMethods)
   {
     List<SqlTableColumn> columns = new ArrayList<SqlTableColumn>();
@@ -644,38 +489,6 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
         }
         columns.add(col);
       }
-      writeIndent(pr, 2);
-      pr.println("/**");
-      writeIndent(pr, 2);
-      pr.print(" * Sets the values of the columns ");
-      for (SqlTableColumn column : columns)
-      {
-        if (!first)
-        {
-          pr.print(", ");
-        }
-        first = false;
-        pr.print(column.getId());
-      }
-      pr.println();
-      for (SqlTableColumn column: columns)
-      {
-        writeIndent(pr, 2);
-        pr.print(" * @param ");
-        pr.print(generateAttributeName(column));
-        pr.print(" new value of column ");
-        pr.println(column.getId());
-      }
-      writeIndent(pr, 2);
-      pr.println(" * @return new entity object with the new value set on the column");
-      for (SqlTableColumn column: columns)
-      {
-        writeIndent(pr, 2);
-        pr.print(" * @see #");
-        pr.println(generateAttributeName(column));
-      }
-      writeIndent(pr, 2);
-      pr.println(" */");
       writeIndent(pr, 2);
       pr.print("public ");
       pr.print(className);
@@ -721,31 +534,8 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
     }
   }
 
-  /**
-   * Writes the setter for the given column
-   * @param pr
-   * @param className
-   * @param column
-   */
   private void writeSetter(PrintWriter pr, String className, SqlTableColumn column)
   {
-    writeIndent(pr, 2);
-    pr.println("/**");
-    writeIndent(pr, 2);
-    pr.print(" * Sets the value of the column ");
-    pr.println(column.getId());
-    writeIndent(pr, 2);
-    pr.print(" * @param ");
-    pr.print(generateAttributeName(column));
-    pr.print(" new value of column ");
-    pr.println(column.getId());
-    writeIndent(pr, 2);
-    pr.println(" * @return new entity object with the new value set on the column");
-    writeIndent(pr, 2);
-    pr.print(" * @see #");
-    pr.println(generateAttributeName(column));
-    writeIndent(pr, 2);
-    pr.println(" */");
     writeIndent(pr, 2);
     pr.print("public ");
     pr.print(className);
@@ -755,16 +545,11 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
     writeDataType(pr, column);
     pr.print(" ");
     pr.print(generateAttributeName(column));
-    pr.println(')');
-    writeIndent(pr, 2);
-    pr.println("{");
+    pr.println(") {");
     writeIndent(pr, 4);
+    pr.print("var data = (");
     pr.print(className);
-    pr.println(" data;");
-    writeIndent(pr, 4);
-    pr.print("data = (");
-    pr.print(className);
-    pr.println(")clone();");
+    pr.println(") clone();");
     writeIndent(pr, 4);
     pr.print("data.");
     pr.print(generateAttributeName(column));
@@ -778,34 +563,13 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
     pr.println();
   }
 
-  /**
-   * Writes a getter for the given column
-   * @param pr
-   * @param column
-   */
-  private void writeGetter(PrintWriter pr, SqlTableColumn column)
-  {
-    writeIndent(pr, 2);
-    pr.println("/**");
-    writeIndent(pr, 2);
-    pr.print(" * Gets the value of column ");
-    pr.println(column.getId());
-    writeIndent(pr, 2);
-    pr.print(" * @return value of column ");
-    pr.println(column.getId());
-    writeIndent(pr, 2);
-    pr.print(" * @see #");
-    pr.println(generateAttributeName(column));
-    writeIndent(pr, 2);
-    pr.println(" */");
+  private void writeGetter(PrintWriter pr, SqlTableColumn column) {
     writeIndent(pr, 2);
     pr.print("public ");
     writeDataType(pr, column);
     pr.print(" get");
     pr.print(JavaClassGeneratorUtil.generateJavaIdentifier(column));
-    pr.println("()");
-    writeIndent(pr, 2);
-    pr.println("{");
+    pr.println("() {");
     writeIndent(pr, 4);
     pr.print("return ");
     pr.print(generateAttributeName(column));
@@ -815,38 +579,20 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
     pr.println();
   }
 
-  /**
-   * The primary key getter
-   * @param pr
-   * @param column
-   */
-  private void writePrimaryGetter(PrintWriter pr, SqlTableColumn column)
-  {
-    writeIndent(pr, 2);
-    pr.println("/**");
-    writeIndent(pr, 2);
-    pr.print(" * Gets the value of column ");
-    pr.println(column.getId());
-    writeIndent(pr, 2);
-    pr.print(" * @return value of column ");
-    pr.println(column.getId());
-    writeIndent(pr, 2);
-    pr.println(" */");
+  private void writePrimaryGetter(PrintWriter pr, SqlTableColumn column) {
     writeIndent(pr, 2);
     pr.print("public ");
     writeDataType(pr, column);
     pr.print(" get");
     pr.print(JavaClassGeneratorUtil.generateJavaIdentifier(column));
-    pr.println("()");
-    writeIndent(pr, 2);
-    pr.println("{");
+    pr.println("() {");
     writeIndent(pr, 4);
     pr.print("return ");
     if (!"Object".equals(JavaClassGeneratorUtil.getJavaDataType(column)))
     {
       pr.print("(");
       writeNoNativeDataType(pr, column);
-      pr.print(")");
+      pr.print(") ");
     }
     pr.print("getKey()");
     pr.println(";");
@@ -854,42 +600,18 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
     pr.println('}');
     pr.println();  }
 
-  /**
-   * Writes the constructor
-   * @param pr
-   * @param className
-   * @param table
-   */
   private void writeConstructor(PrintWriter pr, String className, SqlTable table)
   {
     boolean first = true;
     List<SqlTableColumn> columns = new ArrayList<SqlTableColumn>();
-
     columns.addAll(JavaClassGeneratorUtil.getPrimaryKeyColumns(table));
     columns.addAll(JavaClassGeneratorUtil.getParentKeyColumns(table));
     columns.addAll(JavaClassGeneratorUtil.getNonPrimaryAndParentKeyAndLobColumns(table));
     writeIndent(pr, 2);
-    pr.println("/**");
-    writeIndent(pr, 2);
-    pr.print(" *");
-    pr.println(" Constructor");
-    for (SqlTableColumn column : columns)
-    {
-      writeIndent(pr, 2);
-      pr.print(" *");
-      pr.print(" @param ");
-      pr.print(generateAttributeName(column));
-      pr.print(' ');
-      pr.println(column.getComment());
-    }
-    writeIndent(pr, 2);
-    pr.println(" */");
-    writeIndent(pr, 2);
     pr.print("public ");
     pr.print(className);
     pr.print("(");
-    for (SqlTableColumn column : columns)
-    {
+    for (var column : columns) {
       if (!first)
       {
         pr.print(", ");
@@ -906,9 +628,7 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
       pr.print(" ");
       pr.print(generateAttributeName(column));
     }
-    pr.println(')');
-    writeIndent(pr, 2);
-    pr.println('{');
+    pr.println(") {");
     writeIndent(pr, 4);
     pr.print("super(");
     pr.print(generateAttributeName(table.findColumn(table.getPrimaryKey().getPrimaryKeyColumns().get(0))));
@@ -932,46 +652,21 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
     pr.println();
   }
 
-  /**
-   * Writes the import
-   * @param pr
-   */
   private void writeImports(PrintWriter pr)
   {
     pr.println("import ch.ivyteam.db.jdbc.SqlEqualsBuilder;");
     pr.println("import ch.ivyteam.db.jdbc.SqlHashCodeBuilder;");
-
     pr.println();
   }
 
-  /**
-   * Writes the attributes
-   * @param pr
-   * @param metaDefinition
-   * @param table
-   * @throws MetaException
-   */
-  private void writeAttributes(PrintWriter pr, SqlMeta metaDefinition, SqlTable table)
-  {
-    for (SqlTableColumn column : JavaClassGeneratorUtil.getNonPrimaryAndParentKeyColumns(table))
-    {
+  private void writeAttributes(PrintWriter pr, SqlMeta metaDefinition, SqlTable table) {
+    for (var column : JavaClassGeneratorUtil.getNonPrimaryAndParentKeyColumns(table)) {
       writeAttribute(pr, metaDefinition, table, column);
     }
   }
 
-  /**
-   * Writes an attribute
-   * @param pr
-   * @param metaDefinition
-   * @param table
-   * @param column
-   * @throws MetaException
-   */
-  private void writeAttribute(PrintWriter pr, SqlMeta metaDefinition, SqlTable table, SqlTableColumn column)
-  {
-    writeAttributeComment(pr, table, column);
-    if (JavaClassGeneratorUtil.isLobColumn(column))
-    {
+  private void writeAttribute(PrintWriter pr, SqlMeta metaDefinition, SqlTable table, SqlTableColumn column) {
+    if (JavaClassGeneratorUtil.isLobColumn(column)) {
       writeIndent(pr, 2);
       pr.println("@SuppressWarnings(\"unused\")");
     }
@@ -990,12 +685,6 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
     return StringUtils.uncapitalize(JavaClassGeneratorUtil.generateJavaIdentifier(column));
   }
 
-  /**
-   * @param pr
-   * @param metaDefinition
-   * @param column
-   * @param table
-   */
   private void writeCacheTriggerAnnotation(PrintWriter pr, SqlMeta metaDefinition, SqlTable table, SqlTableColumn column)
   {
     if (table.getDatabaseManagementSystemHints(JavaEntityClassGenerator.CACHE).isHintSet(STRATEGY) &&
@@ -1030,58 +719,16 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
     }
   }
 
-  /**
-   * Writes the comment of an attribute
-   * @param pr
-   * @param table
-   * @param column
-   * @throws MetaException
-   */
-  private void writeAttributeComment(PrintWriter pr, SqlTable table, SqlTableColumn column)
-  {
-    writeIndent(pr, 2);
-    pr.println("/**");
-    if (column.getComment().trim().length()>0)
-    {
-      writeJavaDocComment(pr, 2, column.getComment());
-      writeIndent(pr, 2);
-      pr.println(" * <br>");
-    }
-    writeIndent(pr, 2);
-    pr.print(" * <b>Column:</b> ");
-    writeColumnInformation(pr, table, column);
-    pr.println();
-    writeIndent(pr, 2);
-    pr.println(" */");
-
-  }
-
-  /**
-   * Writes the java type for the given column
-   * @param pr
-   * @param column
-   */
   private void writeDataType(PrintWriter pr, SqlTableColumn column)
   {
     pr.print(JavaClassGeneratorUtil.getJavaDataType(column));
   }
 
-  /**
-   * Writes the a non native java type for the given column
-   * @param pr
-   * @param column
-   */
   private void writeNoNativeDataType(PrintWriter pr, SqlTableColumn column)
   {
     pr.print(JavaClassGeneratorUtil.getJavaDataType(column, true));
   }
 
-  /**
-   * Writes the class
-   * @param pr
-   * @param className
-   * @param table
-   */
   private void writeClass(PrintWriter pr, String className, SqlTable table)
   {
     pr.print("public final class ");
@@ -1089,63 +736,21 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
     pr.print(" extends ");
     if (isChildPersistentObject(table))
     {
-      pr.println("ch.ivyteam.ivy.persistence.base.PersistentChildObject");
+      pr.print("ch.ivyteam.ivy.persistence.base.PersistentChildObject");
     }
     else
     {
-      pr.println("ch.ivyteam.ivy.persistence.base.PersistentObject");
+      pr.print("ch.ivyteam.ivy.persistence.base.PersistentObject");
     }
-    pr.println('{');
+    pr.println(" {");
+    pr.println();
   }
 
-  /**
-   * Is this entity class a child persistent object class
-   * @param table
-   * @return true if it is, otherwise false
-   */
-  private boolean isChildPersistentObject(SqlTable table)
-  {
-    return JavaClassGeneratorUtil.getParentKey(table)!=null;
+  private boolean isChildPersistentObject(SqlTable table) {
+    return JavaClassGeneratorUtil.getParentKey(table) != null;
   }
 
-  /**
-   * Write the header
-   * @param pr
-   * @param table
-   * @throws MetaException
-   */
-  private void writeHeader(PrintWriter pr, SqlTable table)
-  {
-    pr.println("/**");
-    pr.println(" * ----------------------------------------------------------------------<br>");
-    pr.println(" * This code was generated by the JavaEntityClassGenerator.<br>");
-    pr.println(" * Do not edit this class instead edit the meta information this class was generated of.<br>");
-    pr.println(" * ----------------------------------------------------------------------<br>");
-    pr.print(" * Java Entity Class for table ");
-    pr.print(table.getId());
-    pr.println("<br>");
-    pr.println(" * ----------------------------------------------------------------------<br>");
-    writeJavaDocComment(pr, 0, table.getComment());
-    pr.println(" * ----------------------------------------------------------------------<br>");
-    pr.print(" * <b>Key:</b> ");
-    writeColumnInformation(pr, table, JavaClassGeneratorUtil.getPrimaryKeyColumn(table));
-    pr.println("<br>");
-    if (JavaClassGeneratorUtil.getParentKeyColumn(table)!=null)
-    {
-      pr.print(" * <b>Parent Key:</b> ");
-      writeColumnInformation(pr, table, JavaClassGeneratorUtil.getParentKeyColumn(table));
-      pr.println("<br>");
-    }
-    pr.println(" * ----------------------------------------------------------------------<br>");
-    pr.println(" */");
-  }
-
-  /**
-   * Write the package
-   * @param pr the print writer
-   */
-  private void writePackage(PrintWriter pr)
-  {
+  private void writePackage(PrintWriter pr) {
     pr.print("package ");
     pr.print(getTargetPackage());
     pr.println(';');
