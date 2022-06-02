@@ -153,10 +153,9 @@ public class Db${table.simpleEntityClass} extends DatabaseTableClassPersistencyS
 
   public static class QueryView {
 <#list queryViewColumns as column>
+
     private static final String VIEW_COLUMN_NAME_${column.constant} = "${column.name}";
-
     public static final ColumnName VIEW_COLUMN_${column.constant} = new ColumnName(QUERY_TABLENAME, VIEW_COLUMN_NAME_${column.constant});
-
 </#list>
   }
 </#if>  
