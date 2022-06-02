@@ -5,27 +5,20 @@ import java.util.Map;
 import ch.ivyteam.db.meta.model.internal.SqlMeta;
 import ch.ivyteam.db.meta.model.internal.SqlTable;
 
-/**
- * A Meta data generator that creates persistency service implementation classes for entity java classes
- * @author rwei
- * @since 16.10.2009
- */
-public class JavaClassPersistencyServiceImplementationTemplateWriter extends AbstractJavaClassPersistencyServiceImplementationTemplateWriter
-{                                                                                                                  
+public class JavaClassPersistencyServiceImplementationTemplateWriter extends AbstractJavaClassPersistencyServiceImplementationTemplateWriter {
+
   private static final String PERSISTENCY_SERVICE_IMPLEMENTATION_CLASS_TEMPLATE = "JavaClassPersistencyServiceImplementation.ftl";
   private SqlTable table;
   private String entityPackage;
 
-  public JavaClassPersistencyServiceImplementationTemplateWriter(SqlTable table, SqlMeta meta, String targetPackage, String entityPackage)
-  {
+  public JavaClassPersistencyServiceImplementationTemplateWriter(SqlTable table, SqlMeta meta, String targetPackage, String entityPackage) {
     super(meta, targetPackage);
     this.table = table;
     this.entityPackage = entityPackage;
   }
- 
+
   @Override
-  protected Map<String, Object> getDataMap()
-  {
+  protected Map<String, Object> getDataMap() {
     Map<String, Object> root = super.getDataMap();
     root.put("table", TableInfo.create(table, entityPackage));
     root.put("columns", ColumnInfo.getColumns(table));
@@ -39,8 +32,7 @@ public class JavaClassPersistencyServiceImplementationTemplateWriter extends Abs
   }
 
   @Override
-  protected String getTemplateName()
-  {
+  protected String getTemplateName() {
     return PERSISTENCY_SERVICE_IMPLEMENTATION_CLASS_TEMPLATE;
   }
 }
