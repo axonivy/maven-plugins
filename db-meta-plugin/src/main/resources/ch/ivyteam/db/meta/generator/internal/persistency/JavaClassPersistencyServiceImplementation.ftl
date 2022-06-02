@@ -142,15 +142,15 @@ public class Db${table.simpleEntityClass} extends DatabaseTableClassPersistencyS
   <#assign row=row+1>
 </#list>
   }
-
 <#if table.fieldForOptimisticLocking??>
+
   @Override
   protected void writeDataToOptimisticUpdateStatement(IPersistentTransaction transaction, ${table.simpleEntityClass} data, PreparedStatement stmt) {
     database.set${table.fieldForOptimisticLocking.method}(stmt, ${numberOfColumns}, data.get${table.fieldForOptimisticLocking.name}(), COLUMN_${table.fieldForOptimisticLocking.constant});
   }
 </#if>  
-
 <#if table.query??>
+
   public static class QueryView {
 <#list queryViewColumns as column>
     private static final String VIEW_COLUMN_NAME_${column.constant} = "${column.name}";
