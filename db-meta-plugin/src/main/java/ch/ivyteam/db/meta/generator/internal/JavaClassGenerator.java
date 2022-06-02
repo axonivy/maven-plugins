@@ -116,9 +116,6 @@ public abstract class JavaClassGenerator implements IMetaOutputGenerator
   /** Table has legacy security member fields, defined in either Role or User table. */
   public static final String SECURITY_MEMBER_LEGACY_FIELDS = "SecurityMemberLegacyFields";
 
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.IMetaOutputGenerator#analyseArgs(java.lang.String[])
-   */
   @Override
   public void analyseArgs(String[] args) throws Exception
   {
@@ -145,56 +142,31 @@ public abstract class JavaClassGenerator implements IMetaOutputGenerator
     return new File(getOutputDirectory(), getTargetPackage().replace('.', File.separatorChar));
   }
 
-  /**
-   * Gets the entity class name for the given table
-   * @param table table
-   * @return entity class name
-   */
   protected String getEntityClassName(SqlTable table)
   {
    return JavaClassGeneratorUtil.getEntityClassName(table);
   }
 
-  /**
-   * Override this method to analyse more arguments
-   * @param commandLine
-   * @throws Exception
-   */
   protected void analyseAdditionalArgs(@SuppressWarnings("unused") CommandLine commandLine) throws Exception
   {
   }
 
-  /**
-   * @see ch.ivyteam.db.meta.generator.internal.IMetaOutputGenerator#printHelp()
-   */
   @Override
   public void printHelp()
   {
     new HelpFormatter().printHelp(getClass().getSimpleName(), options);
   }
 
-  /**
-   * Gets the tables to generate java classes for
-   * @return list with table names
-   */
   public List<String> getTablesToGenerateJavaClassFor()
   {
     return fTablesToGenerateJavaClassFor;
   }
 
-  /**
-   * Gets the target package
-   * @return target package
-   */
   public String getTargetPackage()
   {
     return fTargetPackage;
   }
 
-  /**
-   * Gets the output directory
-   * @return output directory
-   */
   public File getOutputDirectory()
   {
     return fOutputDirectory;
@@ -253,24 +225,6 @@ public abstract class JavaClassGenerator implements IMetaOutputGenerator
         }
       }
       pr.print(")");
-    }
-  }
-
-  /**
-   * Writes the the given comment into javadoc
-   * @param pr
-   * @param indent
-   * @param comment
-   */
-  protected void writeJavaDocComment(PrintWriter pr, int indent, String comment)
-  {
-    String commentStripped = removeAtRef(comment);
-    for (String line : commentStripped.split("\n"))
-    {
-      writeIndent(pr, indent);
-      pr.print(" * ");
-      pr.print(line);
-      pr.println("<br>");
     }
   }
 
