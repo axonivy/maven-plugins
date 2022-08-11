@@ -78,7 +78,7 @@ public class Db${table.simpleEntityClass} extends DatabaseTableClassPersistencyS
         QUERY_TABLENAME,
         Arrays.asList( 
    <#list queryViewColumns as column>
-          new ViewColumn(QueryView.VIEW_COLUMN_${column.constant}<#if column.alias??>, "${column.alias}"</#if>)<#if column_has_next>,</#if>
+          new ViewColumn(QueryView.VIEW_COLUMN_${column.constant}<#if column.alias??>, "${column.alias}"</#if><#if column.isMandatoryFilter()>, ViewColumn.Option.MANDATORY_FILTER</#if>)<#if column_has_next>,</#if>
   </#list>
         )
 </#if>

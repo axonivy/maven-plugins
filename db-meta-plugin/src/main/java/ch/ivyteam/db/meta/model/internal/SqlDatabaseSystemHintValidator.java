@@ -43,7 +43,7 @@ public class SqlDatabaseSystemHintValidator
     registerHint(COMMON_HINT_KEY, SqlScriptGenerator.INDEX_NAME);
     registerHint(COMMON_HINT_KEY, SqlScriptGenerator.NO_INDEX);
     registerHint(COMMON_HINT_KEY, SqlScriptGenerator.DEFAULT_VALUE);
-    
+
     registerType(JavaClassGenerator.JAVA);
     registerHint(JavaClassGenerator.JAVA, JavaClassGenerator.ADDITIONAL_SET_METHODS);
     registerHint(JavaClassGenerator.JAVA, JavaClassGenerator.AS_ASSOCIATION);
@@ -64,6 +64,7 @@ public class SqlDatabaseSystemHintValidator
     registerHint(JavaClassGenerator.JAVA, JavaClassGenerator.DEPRECATED);
     registerHint(JavaClassGenerator.JAVA, JavaClassGenerator.CUSTOM_FIELDS);
     registerHint(JavaClassGenerator.JAVA, JavaClassGenerator.SECURITY_MEMBER_LEGACY_FIELDS);
+    registerHint(JavaClassGenerator.JAVA, JavaClassGenerator.MANDATORY_FILTER);
     registerHint(JavaClassGenerator.JAVA, TableInfo.BUSINESS_CLASS);
 
     registerType(JavaEntityClassGenerator.CACHE);
@@ -84,11 +85,11 @@ public class SqlDatabaseSystemHintValidator
     registerType(PostgreSqlSqlScriptGenerator.POSTGRESQL);
     registerHint(PostgreSqlSqlScriptGenerator.POSTGRESQL, PostgreSqlSqlScriptGenerator.CAST);
   }
-    
+
   private static void registerHint(String type, String hint)
   {
     Set<String> databaseManagementSystemHint = HINTS_PER_TYPE.get(type);
-    
+
     if (databaseManagementSystemHint == null)
     {
       databaseManagementSystemHint = new HashSet<String>();
@@ -98,9 +99,9 @@ public class SqlDatabaseSystemHintValidator
   }
 
   /**
-   * @param type 
+   * @param type
    * @param hint
-   * @return - 
+   * @return -
    */
   public static boolean isKnownHint(String type, String hint)
   {
@@ -110,7 +111,7 @@ public class SqlDatabaseSystemHintValidator
     }
     return true;
   }
-  
+
   private static boolean checkHint(String type, String hint)
   {
     Set<String> databaseManagementSystemHint = HINTS_PER_TYPE.get(type);
@@ -120,14 +121,14 @@ public class SqlDatabaseSystemHintValidator
     }
     return databaseManagementSystemHint.contains(hint);
   }
-  
+
   private static void registerType(String type)
   {
     HINT_TYPES.add(type);
   }
-  
+
   /**
-   * @param type 
+   * @param type
    * @return -
    */
   public static boolean isKnownType(String type)

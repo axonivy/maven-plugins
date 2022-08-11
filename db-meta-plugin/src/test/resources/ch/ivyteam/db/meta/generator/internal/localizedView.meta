@@ -1,0 +1,41 @@
+CREATE TABLE IWA_Language
+(
+  LanguageId BIGINT NOT NULL,
+  Locale VARCHAR(200) NOT NULL,
+  PRIMARY KEY (LanguageId)
+);  
+
+CREATE TABLE IWA_Case
+(
+  CaseId BIGINT NOT NULL,
+  PRIMARY KEY (CaseId)
+)
+FOR Java USE(
+  QueryTableName='IWA_CaseQuery'); 
+
+CREATE TABLE IWA_LocalizedCase
+(
+  -- Identifies the user.
+  CaseLocalizedId VARCHAR(200) NOT NULL,
+  CaseId BIGINT NOT NULL REFERENCES IWA_Case(CaseId),
+  LanguageId BIGINT NOT NULL REFERENCES IWA_Language (LanguageId),
+  -- Name of the user. The name identifies a user within a web application.
+  Name VARCHAR(200) NOT NULL,
+  PRIMARY KEY (CaseLocalizedId)
+);  
+  
+CREATE VIEW IWA_CaseQuery
+(
+  CaseId,
+  Name, 
+  LanguageId
+    FOR Java USE (MandatoryFilter)
+)
+AS SELECT 
+  IWA_Case.TaskId,
+  IWA_CaseLocalized.Name,
+  IWA_CaseLocalized.LanguageId
+FROM IWA_Case
+INNER JOIN IWA_CaseLocalized ON IWA_Case.CaseId = IWA_CaseLocalized.CaseId; 
+
+

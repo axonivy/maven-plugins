@@ -42,7 +42,7 @@ public abstract class JavaClassGenerator implements IMetaOutputGenerator
   private String fTargetPackage;
 
   /** The tables to generate entity classes for */
-  private List<String> fTablesToGenerateJavaClassFor = new ArrayList<String>();
+  private final List<String> fTablesToGenerateJavaClassFor = new ArrayList<String>();
 
   /** Database System Name */
   public static final String JAVA = "Java";
@@ -115,6 +115,9 @@ public abstract class JavaClassGenerator implements IMetaOutputGenerator
 
   /** Table has legacy security member fields, defined in either Role or User table. */
   public static final String SECURITY_MEMBER_LEGACY_FIELDS = "SecurityMemberLegacyFields";
+
+  /** View column is a mandatory filter */
+  public static final String MANDATORY_FILTER = "MandatoryFilter";
 
   @Override
   public void analyseArgs(String[] args) throws Exception
