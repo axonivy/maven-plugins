@@ -31,22 +31,22 @@ public class DbCaseData extends DatabaseTableClassPersistencyService<CaseData> {
   public static final ColumnName COLUMN_CASE_ID = new ColumnName(TABLENAME, COLUMN_NAME_CASE_ID);
 
   public DbCaseData(DatabasePersistencyService database) {
-    super(database, 
+    super(database,
       CaseData.class,
       new Table(
-        TABLENAME, 
+        TABLENAME,
         KeyType.LONG,
-        Arrays.asList( 
+        Arrays.asList(
           new TableColumn(PRIMARY_KEY_COLUMN, Type.BIGINT, Option.PRIMARY_KEY)
         ),
         QUERY_TABLENAME,
-        Arrays.asList( 
+        Arrays.asList(
           new ViewColumn(QueryView.VIEW_COLUMN_CASE_ID),
           new ViewColumn(QueryView.VIEW_COLUMN_NAME),
           new ViewColumn(QueryView.VIEW_COLUMN_LANGUAGE_ID, ViewColumn.Option.MANDATORY_FILTER)
         )
       )
-    ); 
+    );
   }
 
   @Override
