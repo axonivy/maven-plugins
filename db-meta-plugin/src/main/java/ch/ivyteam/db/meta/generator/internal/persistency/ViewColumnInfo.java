@@ -21,20 +21,24 @@ public class ViewColumnInfo
   {
     this.column = column;
   }
-  
+
   public String getName()
   {
     return column.getId();
   }
-  
+
   public String getAlias()
   {
     return column.getDatabaseManagementSystemHints(JavaClassGenerator.JAVA).getHintValue(JavaClassGenerator.QUERY_FIELD_NAME);
   }
-  
+
   public String getConstant()
   {
     return new ConstantBuilder(getName()).toConstant();
+  }
+
+  public boolean isMandatoryFilter() {
+    return column.getDatabaseManagementSystemHints(JavaClassGenerator.JAVA).isHintSet(JavaClassGenerator.MANDATORY_FILTER);
   }
 
   public static List<ViewColumnInfo> getViewColumns(SqlTable table, SqlMeta meta)
