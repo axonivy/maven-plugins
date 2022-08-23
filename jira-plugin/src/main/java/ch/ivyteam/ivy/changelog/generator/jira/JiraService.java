@@ -4,16 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status.Family;
-
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.settings.Server;
 
 import ch.ivyteam.ivy.changelog.generator.jira.JiraResponse.Issue;
 import ch.ivyteam.ivy.jira.JiraClientFactory;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response.Status.Family;
 
 public class JiraService {
   private final String serverUri;
