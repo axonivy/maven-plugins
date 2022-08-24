@@ -1,49 +1,48 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>ch.ivyteam.maven</groupId>
-		<artifactId>maven-config</artifactId>
-		<version>9.4.0-SNAPSHOT</version>
-		<relativePath>../build.maven</relativePath>
-	</parent>
+  <parent>
+    <groupId>ch.ivyteam.maven</groupId>
+    <artifactId>maven-config</artifactId>
+    <version>9.4.0-SNAPSHOT</version>
+    <relativePath>../build.maven</relativePath>
+  </parent>
 
-	<artifactId>jira-plugin</artifactId>
-	<packaging>maven-plugin</packaging>
-	
-	<properties>
-		<jersey.version>3.0.6</jersey.version>
-	</properties>
+  <artifactId>jira-plugin</artifactId>
+  <packaging>maven-plugin</packaging>
 
-	<dependencies>
-		<dependency>
-			<groupId>org.glassfish.jersey.core</groupId>
-			<artifactId>jersey-client</artifactId>
-			<version>${jersey.version}</version>
-		</dependency>
-		<dependency>
-		    <groupId>org.glassfish.jersey.media</groupId>
-		    <artifactId>jersey-media-json-jackson</artifactId>
-		    <version>${jersey.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.glassfish.jersey.inject</groupId>
-			<artifactId>jersey-hk2</artifactId>
-			<version>${jersey.version}</version>
-		</dependency>
-		<dependency>
-		    <groupId>commons-io</groupId>
-		    <artifactId>commons-io</artifactId>
-		    <version>2.11.0</version>
-		</dependency>
-    
+  <properties>
+    <jersey.version>3.0.6</jersey.version>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.glassfish.jersey.core</groupId>
+      <artifactId>jersey-client</artifactId>
+      <version>${jersey.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.glassfish.jersey.media</groupId>
+      <artifactId>jersey-media-json-jackson</artifactId>
+      <version>${jersey.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.glassfish.jersey.inject</groupId>
+      <artifactId>jersey-hk2</artifactId>
+      <version>${jersey.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <version>2.11.0</version>
+    </dependency>
+
     <!-- TODO remove this dependency -->
-		<dependency>
-	      <groupId>org.apache.maven.shared</groupId>
-	      <artifactId>file-management</artifactId>
-	      <version>3.1.0</version>
-	  </dependency>
+    <dependency>
+      <groupId>org.apache.maven.shared</groupId>
+      <artifactId>file-management</artifactId>
+      <version>3.1.0</version>
+    </dependency>
     <!-- we need to explcitly add this dependency, because org.apache.maven.shared:file-management adds a old plexus util library -->
     <dependency>
       <groupId>org.codehaus.plexus</groupId>
@@ -51,47 +50,46 @@
       <version>3.4.2</version>
     </dependency>
 
-	  <dependency>
-		   <groupId>org.apache.commons</groupId>
-		   <artifactId>commons-text</artifactId>
-		   <version>1.9</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-compress</artifactId>
-			<version>1.21</version>
-		</dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-text</artifactId>
+      <version>1.9</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-compress</artifactId>
+      <version>1.21</version>
+    </dependency>
 
-		<dependency>
-		    <groupId>org.glassfish.jaxb</groupId>
-		    <artifactId>jaxb-runtime</artifactId>
-		    <version>2.3.2</version>
-		</dependency>
-	</dependencies>
+    <dependency>
+      <groupId>org.glassfish.jaxb</groupId>
+      <artifactId>jaxb-runtime</artifactId>
+      <version>2.3.2</version>
+    </dependency>
+  </dependencies>
 
-	<build>
-        <extensions>
-        	<!-- makes server credentials available as properties -->
-            <extension>
-                <groupId>com.github.shyiko.servers-maven-extension</groupId>
-                <artifactId>servers-maven-extension</artifactId>
-                <version>1.3.1</version>
-            </extension>
-        </extensions>
-	
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<version>2.22.2</version>
-				<configuration>
-					<systemPropertyVariables>
-						<jira.username>${settings.servers.server.axonivy.jira.username}</jira.username>
-						<jira.password>${settings.servers.server.axonivy.jira.password}</jira.password>
-					</systemPropertyVariables>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
+  <build>
+    <extensions>
+      <!-- makes server credentials available as properties -->
+      <extension>
+        <groupId>com.github.shyiko.servers-maven-extension</groupId>
+        <artifactId>servers-maven-extension</artifactId>
+        <version>1.3.1</version>
+      </extension>
+    </extensions>
 
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.22.2</version>
+        <configuration>
+          <systemPropertyVariables>
+            <jira.username>${settings.servers.server.axonivy.jira.username}</jira.username>
+            <jira.password>${settings.servers.server.axonivy.jira.password}</jira.password>
+          </systemPropertyVariables>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>
