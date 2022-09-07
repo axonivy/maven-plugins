@@ -10,7 +10,6 @@ import org.apache.maven.settings.Server;
 import org.junit.Before;
 import org.junit.Test;
 
-import ch.ivyteam.ivy.changelog.generator.jira.JiraResponse.Filter;
 import ch.ivyteam.ivy.changelog.generator.jira.JiraResponse.Issue;
 
 /**
@@ -30,13 +29,13 @@ public class TestJiraService {
 
   @Test
   public void getIssuesWithFixVersion_71() {
-    List<Issue> issues = testee.queryIssues(query("7.1", "key"));
+    List<Issue> issues = testee.queryIssues(query("7.1"));
     assertThatXIVY2266isContained(issues);
   }
 
   @Test
   public void getIssuesWithFixVersion_710() {
-    List<Issue> issues = testee.queryIssues(query("7.1.0", "key"));
+    List<Issue> issues = testee.queryIssues(query("7.1.0"));
     assertThatXIVY2266isContained(issues);
   }
 
@@ -50,28 +49,21 @@ public class TestJiraService {
 
   @Test
   public void getIssuesWithFixVersion_703() {
-    List<Issue> issues = testee.queryIssues(query("7.0.3", "key"));
+    List<Issue> issues = testee.queryIssues(query("7.0.3"));
     assertThat(issues).hasSize(6);
   }
 
   @Test
   public void getIssuesWithFixVersion_notValidVersion() {
-    assertThatThrownBy(() -> testee.queryIssues(query("nonExistingVersion", "key")))
+    assertThatThrownBy(() -> testee.queryIssues(query("nonExistingVersion")))
             .isInstanceOf(RuntimeException.class)
             .hasMessageContaining("400 Bad Request");
   }
 
-  @Test
-  public void issuesInOrder() {
-    List<Issue> issues = testee.queryIssues(query("7.4", "\"Epic Link\", key"));
-    issues = Filter.improvements(issues);
-    issues.stream().forEach(System.out::println);
-  }
-
-  private static JiraQuery query(String version, String orderBy) {
+  private static JiraQuery query(String version) {
     StringBuilder builder = new StringBuilder("project = XIVY AND issuetype IN (Story, Improvement, Bug)");
     builder.append(" AND fixVersion = ").append(version);
-    return new JiraQuery(builder.toString(), orderBy);
+    return new JiraQuery(builder.toString());
   }
 
 }

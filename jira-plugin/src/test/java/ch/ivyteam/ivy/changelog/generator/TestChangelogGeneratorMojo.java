@@ -6,7 +6,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Arrays;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -135,13 +134,7 @@ public class TestChangelogGeneratorMojo {
 
     String issues = StringUtils.substringAfter(readFileContent(releaseNotes),
             "This is a Leading Edge version.");
-    String[] splitIssues = StringUtils.split(issues, ";");
-    assertCorrectlyOrdered(filterIssuesForType(splitIssues, "Story"));
-    assertCorrectlyOrdered(filterIssuesForType(splitIssues, "Improvement"));
-    assertCorrectlyOrdered(filterIssuesForType(splitIssues, "Bug"));
-
-    assertThat(StringUtils.substringBeforeLast(issues, "Story")).doesNotContain("Bug", "Improvement");
-    assertThat(StringUtils.substringBeforeLast(issues, "Improvement")).doesNotContain("Bug");
+    assertCorrectlyOrdered(issues.lines().filter(issue -> issue.contains("XIVY-")).toArray(String[]::new));
   }
 
   @Test
@@ -155,7 +148,7 @@ public class TestChangelogGeneratorMojo {
     String recommendation = createReleaseNotesAndReadRecommendation("8.0.4");
     assertThat(recommendation).contains("We strongly recommend to install this update release because it fixes security issues!");
   }
-  
+
   @Test
   public void createReleaseNotesWithUpgradeSuggested() throws Exception {
     String recommendation = createReleaseNotesAndReadRecommendation("8.0.3");
@@ -174,12 +167,6 @@ public class TestChangelogGeneratorMojo {
 
     String recommendation = StringUtils.substringAfter(readFileContent(releaseNotes), "This is a Leading Edge version.");
     return recommendation;
-  }
-
-  private String[] filterIssuesForType(String[] splitIssues, String type) {
-    return Arrays.stream(splitIssues)
-            .filter(issue -> StringUtils.substringAfter(issue, ":").equals(type))
-            .toArray(String[]::new);
   }
 
   private void assertCorrectlyOrdered(String[] splitIssues) {

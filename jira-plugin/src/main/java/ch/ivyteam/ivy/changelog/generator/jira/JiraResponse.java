@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
@@ -37,6 +38,11 @@ public class JiraResponse {
 
     public String getKey() {
       return key;
+    }
+
+    public int getIssueNumber() {
+      String issueNumber = StringUtils.substringAfter(getKey(), "-");
+      return Integer.valueOf(issueNumber);
     }
 
     public String getProjectKey() {
