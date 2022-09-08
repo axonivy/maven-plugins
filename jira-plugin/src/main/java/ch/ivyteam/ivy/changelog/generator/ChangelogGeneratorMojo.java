@@ -31,6 +31,9 @@ import ch.ivyteam.ivy.changelog.generator.util.TokenReplacer;
 
 @Mojo(name = "generate-changelog", requiresProject = false)
 public class ChangelogGeneratorMojo extends AbstractMojo {
+  private static final Comparator<Issue> BY_PRODUCT_THEN_BY_KEY = Comparator.comparing(Issue::getProjectKey).reversed()
+                  .thenComparing(Comparator.comparingInt(Issue::getIssueNumber));
+
   /** server id which is configured in settings.xml */
   @Parameter(property = "jiraServerId")
   public String jiraServerId;
@@ -42,10 +45,6 @@ public class ChangelogGeneratorMojo extends AbstractMojo {
   /*** filter query to run against Jira */
   @Parameter(property = "filterBy", required = true)
   public String filterBy;
-
-  /** comma separated list of issue fields to define ordering */
-  @Parameter(property = "jira.issue.order", defaultValue = "project,key")
-  public String orderBy;
 
   /**
    * comma separated list of labels which will be parsed as batches for example:
@@ -91,7 +90,7 @@ public class ChangelogGeneratorMojo extends AbstractMojo {
 
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException {
-    getLog().info("generating changelog for filter query '" + filterBy + "', order by " + orderBy);
+    getLog().info("generating changelog for filter query '" + filterBy + "'");
 
     Server server = session.getSettings().getServer(jiraServerId);
     if (server == null) {
@@ -145,7 +144,7 @@ public class ChangelogGeneratorMojo extends AbstractMojo {
   private List<Issue> loadIssuesFromJira(Server server) throws MojoExecutionException {
     try {
       JiraService jiraService = new JiraService(jiraServerUri, server, getLog());
-      JiraQuery query = new JiraQuery(filterBy, orderBy);
+      JiraQuery query = new JiraQuery(filterBy);
       return jiraService.queryIssues(query);
     } catch (RuntimeException ex) {
       throw new MojoExecutionException("could not load issues from jira", ex);
@@ -191,15 +190,8 @@ public class ChangelogGeneratorMojo extends AbstractMojo {
 
   private List<Issue> sortIssues(List<Issue> issues) {
     List<Issue> sortedIssues = new ArrayList<>(issues);
-    sortedIssues.sort(Comparator.comparing(Issue::getProjectKey).reversed()
-            .thenComparing(Comparator.comparing(Issue::getType).reversed()
-                    .thenComparing(Comparator.comparingInt(this::getIssueNumber).reversed())));
+    sortedIssues.sort(BY_PRODUCT_THEN_BY_KEY);
     return sortedIssues;
-  }
-
-  private int getIssueNumber(Issue issue) {
-    String issueNumber = StringUtils.substringAfter(issue.getKey(), issue.getProjectKey());
-    return Integer.valueOf(issueNumber);
   }
 
   private String generateUpgradeRecommendation(List<Issue> sortIssues)
