@@ -62,7 +62,7 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
     switch(dataType)
     {
       case CLOB:
-        pr.append("TEXT");
+        pr.append("NVARCHAR(MAX)");
         break;
       case BLOB:
         pr.append("IMAGE");
