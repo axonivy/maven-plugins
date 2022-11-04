@@ -65,7 +65,7 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
         pr.append("NVARCHAR(MAX)");
         break;
       case BLOB:
-        pr.append("IMAGE");
+        pr.append("VARBINARY(MAX)");
         break;
       case DATE: // not supported by sql server 2005, but by 2008
       case TIME: // not supported by sql server 2005, but by 2008
