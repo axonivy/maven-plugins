@@ -52,7 +52,7 @@ public class DbCaseData extends DatabaseTableClassPersistencyService<CaseData> {
   @Override
   protected CaseData createObjectFromResultSet(IPersistentTransaction transaction, ResultSet result) throws PersistencyException, SQLException {
     return new CaseData(
-      database.getLong(result, 1)
+      database.getLong(result, COLUMN_NAME_CASE_ID)
     );
   }
 

@@ -88,25 +88,21 @@ public class Db${table.simpleEntityClass} extends DatabaseTableClassPersistencyS
 
   @Override
   protected ${table.simpleEntityClass} createObjectFromResultSet(IPersistentTransaction transaction, ResultSet result) throws PersistencyException, SQLException {
-<#assign row=1>
     return new ${table.simpleEntityClass}(
-      database.get${table.primaryKey.method}(result, ${row}${table.primaryKey.additionalReadArgs})<#if (columnsWithoutPrimaryParentAndLob?size > 0 || table.parentKey??)>,</#if>
-<#assign row=row+1>
+      database.get${table.primaryKey.method}(result, COLUMN_NAME_${table.primaryKey.constant}${table.primaryKey.additionalReadArgs})<#if (columnsWithoutPrimaryParentAndLob?size > 0 || table.parentKey??)>,</#if>
 <#if table.parentKey??>
-      database.get${table.parentKey.method}(result, ${row}${table.parentKey.additionalReadArgs})<#if (columnsWithoutPrimaryParentAndLob?size > 0)>,</#if>
-  <#assign row=row+1>
+      database.get${table.parentKey.method}(result, COLUMN_NAME_${table.parentKey.constant}${table.parentKey.additionalReadArgs})<#if (columnsWithoutPrimaryParentAndLob?size > 0)>,</#if>
 </#if>
 <#list columnsWithoutPrimaryParentAndLob as column>
   <#if column.isPassword()>
     <#if column.optionalPasswordColumn??>
-      database.optionalDecode(transaction, database.get${column.optionalPasswordColumn.method}(result, ${column.optionalPasswordColumn.resultSetRowNumber}${column.optionalPasswordColumn.additionalReadArgs}), database.get${column.method}(result, ${row}${column.additionalReadArgs}))<#if column_has_next>,</#if>
+      database.optionalDecode(transaction, database.get${column.optionalPasswordColumn.method}(result, COLUMN_NAME_${column.optionalPasswordColumn.constant}${column.optionalPasswordColumn.additionalReadArgs}), database.get${column.method}(result, COLUMN_NAME_${column.constant}${column.additionalReadArgs}))<#if column_has_next>,</#if>
     <#else>
-      database.decode(transaction, database.get${column.method}(result, ${row}${column.additionalReadArgs}))<#if column_has_next>,</#if>
+      database.decode(transaction, database.get${column.method}(result, COLUMN_NAME_${column.constant}${column.additionalReadArgs}))<#if column_has_next>,</#if>
     </#if>
   <#else>
-      database.get${column.method}(result, ${row}${column.additionalReadArgs})<#if column_has_next>,</#if>
+      database.get${column.method}(result, COLUMN_NAME_${column.constant}${column.additionalReadArgs})<#if column_has_next>,</#if>
   </#if>
-  <#assign row=row+1>
 </#list>
     );
   }
