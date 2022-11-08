@@ -62,7 +62,7 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
     switch(dataType)
     {
       case CLOB:
-        pr.append("NVARCHAR(MAX)");
+        pr.append("VARCHAR(MAX)");
         break;
       case BLOB:
         pr.append("VARBINARY(MAX)");
