@@ -62,10 +62,10 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
     switch(dataType)
     {
       case CLOB:
-        pr.append("TEXT");
+        pr.append("VARCHAR(MAX)");
         break;
       case BLOB:
-        pr.append("IMAGE");
+        pr.append("VARBINARY(MAX)");
         break;
       case DATE: // not supported by sql server 2005, but by 2008
       case TIME: // not supported by sql server 2005, but by 2008
