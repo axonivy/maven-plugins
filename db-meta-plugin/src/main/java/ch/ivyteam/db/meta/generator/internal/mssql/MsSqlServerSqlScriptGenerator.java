@@ -13,6 +13,8 @@ import ch.ivyteam.db.meta.generator.internal.GenerateAlterTableUtil;
 import ch.ivyteam.db.meta.generator.internal.Identifiers;
 import ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator;
 import ch.ivyteam.db.meta.generator.internal.Triggers;
+import ch.ivyteam.db.meta.model.internal.SqlArtifact;
+import ch.ivyteam.db.meta.model.internal.SqlDataType;
 import ch.ivyteam.db.meta.model.internal.SqlDataType.DataType;
 import ch.ivyteam.db.meta.model.internal.SqlIndex;
 import ch.ivyteam.db.meta.model.internal.SqlPrimaryKey;
@@ -55,7 +57,35 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
   {
     return new MsSqlForeignKeys(hints, delim, ident, cmmnts);
   }
-  
+
+  @Override
+  protected void generateDataType(PrintWriter pr, SqlDataType dataType, SqlArtifact artifact) {
+    if (dbHints.DATA_TYPE.isSet(artifact)) {
+      dbHints.DATA_TYPE.generate(pr, artifact);
+    } else {
+      generateDataType(pr, dataType.getDataType());
+      if (dataType.getLength() >= 0) {
+        pr.print('(');
+        var length = dataType.getLength();
+        // because MS SQL Server uses bytes as varchar length, we reserve 4 bytes per character
+        if (dataType.getDataType().equals(DataType.VARCHAR)) {
+          if (artifact instanceof SqlTableColumn) {
+            var column = (SqlTableColumn) artifact;
+            if (!column.isPrimaryKey() && column.getReference() == null) {
+              length *= 4;
+            }
+          }
+        }
+        pr.print(length);
+        if (dataType.getPrecision() >= 0) {
+          pr.print(", ");
+          pr.print(dataType.getPrecision());
+        }
+        pr.print(')');
+      }
+    }
+  }
+
   @Override
   protected void generateDataType(PrintWriter pr, DataType dataType)
   {

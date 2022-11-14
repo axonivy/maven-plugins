@@ -148,7 +148,7 @@ public class TestMetaOutputDifferenceGeneratorMojo
     String sqlContent = execute(MsSqlServerSqlScriptGenerator.class);
     assertThat(sqlContent).contains(
             "-- Changed columns of table IWA_Library\n"+
-            "ALTER TABLE IWA_Library ALTER COLUMN Version VARCHAR(50) NOT NULL\n"+
+            "ALTER TABLE IWA_Library ALTER COLUMN Version VARCHAR(200) NOT NULL\n"+
             "GO\n"+
             "ALTER TABLE IWA_Library ADD CONSTRAINT DEFIWA_LibraryVersion  DEFAULT '' FOR Version\n"+
             "GO"
