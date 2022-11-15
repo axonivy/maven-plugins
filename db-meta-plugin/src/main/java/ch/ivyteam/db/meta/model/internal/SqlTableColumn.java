@@ -19,7 +19,9 @@ public class SqlTableColumn extends SqlTableContentDefinition
   private SqlLiteral fDefaultValue;
   /** Reference definition of the column */
   private SqlReference fReference;
-    
+
+  private boolean isPrimaryKey;
+
   /**
    * Constructor
    * @param id the name
@@ -41,6 +43,7 @@ public class SqlTableColumn extends SqlTableContentDefinition
     fCanBeNull = nullOpt != null ? nullOpt : true;
     fDefaultValue = defaultOpt;
     fReference = reference;
+    isPrimaryKey = false;
   }
   
   public SqlTableColumn changeId(String id)
@@ -159,5 +162,13 @@ public class SqlTableColumn extends SqlTableContentDefinition
       .append(other.fDataType, fDataType)
       .append(other.fDefaultValue, fDefaultValue)
       .append(other.fReference, fReference).isEquals();
+  }
+
+  public boolean isPrimaryKey() {
+    return isPrimaryKey;
+  }
+
+  public void setPrimaryKey(boolean isPrimaryKey) {
+    this.isPrimaryKey = isPrimaryKey;
   }
 }

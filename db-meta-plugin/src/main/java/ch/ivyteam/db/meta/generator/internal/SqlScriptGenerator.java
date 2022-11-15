@@ -819,6 +819,9 @@ public abstract class SqlScriptGenerator implements IMetaOutputGenerator
     spaces.generate(pr, 2);
     identifiers.generate(pr, column.getId());
     pr.append(' ');
+    if (table.getPrimaryKey() != null && table.getPrimaryKey().getId().contains(column.getId())) {
+      column.setPrimaryKey(true);
+    }
     generateDataType(pr, column.getDataType(), column);
     if (isNullBeforeDefaultConstraint())
     {
