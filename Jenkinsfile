@@ -1,7 +1,7 @@
 pipeline {
   agent {
     docker {
-      image 'maven:3.6.3-jdk-11'
+      image 'maven:3.8.6-eclipse-temurin-17'
     }
   }
 
