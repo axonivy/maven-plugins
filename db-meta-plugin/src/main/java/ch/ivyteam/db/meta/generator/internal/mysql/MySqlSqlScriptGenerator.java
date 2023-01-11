@@ -73,6 +73,9 @@ public class MySqlSqlScriptGenerator extends SqlScriptGenerator
       case BLOB:
         pr.append("MEDIUMBLOB");
         break;
+      case DATETIME:
+        pr.append("DATETIME(3)"); // allow for saving milliseconds
+        break;
       default:
         super.generateDataType(pr, dataType);
         break;
