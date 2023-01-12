@@ -90,7 +90,7 @@ public class OracleSqlScriptGenerator extends SqlScriptGenerator
       case DATETIME:
       case DATE:
       case TIME:
-        pr.append("DATE");
+        pr.append("TIMESTAMP");
         break;
       default:
         super.generateDataType(pr, dataType);
