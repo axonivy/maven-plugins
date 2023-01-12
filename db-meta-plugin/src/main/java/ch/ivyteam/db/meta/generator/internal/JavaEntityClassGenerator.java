@@ -184,7 +184,7 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
     writeIndent(pr, 2);
     pr.println("public int hashCode() {");
     writeIndent(pr, 4);
-    pr.print("return new SqlHashCodeBuilder().appendSuper(super.hashCode())");
+    pr.print("return new HashCodeBuilder().appendSuper(super.hashCode())");
     for (SqlTableColumn column : JavaClassGeneratorUtil.getNonPrimaryAndParentKeyAndLobColumns(table))
     {
       pr.println();
@@ -226,7 +226,7 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
     }
 
     writeIndent(pr, 6);
-    pr.print("return new SqlEqualsBuilder().appendSuper(super.equals(obj))");
+    pr.print("return new EqualsBuilder().appendSuper(super.equals(obj))");
     for (SqlTableColumn column : JavaClassGeneratorUtil.getNonPrimaryAndParentKeyAndLobColumns(table))
     {
       pr.println();
@@ -654,8 +654,8 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
 
   private void writeImports(PrintWriter pr)
   {
-    pr.println("import ch.ivyteam.db.jdbc.SqlEqualsBuilder;");
-    pr.println("import ch.ivyteam.db.jdbc.SqlHashCodeBuilder;");
+    pr.println("org.apache.commons.lang3.builder.EqualsBuilder;");
+    pr.println("org.apache.commons.lang3.builder.HashCodeBuilder;");
     pr.println();
   }
 
