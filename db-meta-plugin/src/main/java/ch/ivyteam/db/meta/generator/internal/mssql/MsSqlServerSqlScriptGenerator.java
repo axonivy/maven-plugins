@@ -100,7 +100,7 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
       case DATE: // not supported by sql server 2005, but by 2008
       case TIME: // not supported by sql server 2005, but by 2008
       case DATETIME:
-        pr.append("DATETIME2");
+        pr.append("DATETIME2(3)");
         break;
        default:
         super.generateDataType(pr, dataType);
