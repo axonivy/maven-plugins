@@ -654,8 +654,8 @@ public class JavaEntityClassGenerator extends JavaClassGenerator
 
   private void writeImports(PrintWriter pr)
   {
-    pr.println("org.apache.commons.lang3.builder.EqualsBuilder;");
-    pr.println("org.apache.commons.lang3.builder.HashCodeBuilder;");
+    pr.println("import org.apache.commons.lang3.builder.EqualsBuilder;");
+    pr.println("import org.apache.commons.lang3.builder.HashCodeBuilder;");
     pr.println();
   }
 
