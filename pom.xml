@@ -12,7 +12,6 @@
 		<module>screenshot-html-plugin</module>
 		<module>db-meta-plugin</module>
 		<module>parser-generator-plugin</module>
-		<module>thirdparty-dependency-readme-plugin</module>
 		<module>jira-plugin</module>
 		<module>windows-launcher-modifier-plugin</module>
 	</modules>
