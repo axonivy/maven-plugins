@@ -8,6 +8,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
@@ -96,12 +97,22 @@ public class ImageTextMojo extends AbstractMojo {
     graphic.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, getFractionalMetricsHint());
     graphic.setPaint(getColor());
     graphic.setFont(getFont());
-    int textLength = graphic.getFontMetrics().stringWidth(text);
+
+    var txt = renderText();
+    int textLength = graphic.getFontMetrics().stringWidth(txt);
     x += alignX(textLength);
     getLog().info("writing '" + text + "' on image '" + targetImage.getName() + "'");
-    graphic.drawString(text, x, y);
+    graphic.drawString(txt, x, y);
     graphic.dispose();
     return editImage;
+  }
+
+  private String renderText() {
+    if (text == null) {
+      return "";
+    }
+    var currentYear = String.valueOf(Calendar.getInstance().get(Calendar.YEAR));
+    return text.replace("#currentYear", currentYear);
   }
 
   private Object getAntialisingHint() {
