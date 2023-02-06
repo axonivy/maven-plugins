@@ -14,29 +14,23 @@ import javax.swing.WindowConstants;
 /**
  * Displays a BufferedImage.
  */
-public class ImageViewer extends JPanel
-{
+public class ImageViewer extends JPanel {
+
   private static final long serialVersionUID = 1L;
 
-  public static void show(File imageFile)
-  {
-    try
-    {
+  public static void show(File imageFile) {
+    try {
       BufferedImage image = ImageIO.read(imageFile);
-      if (image == null)
-      {
-        throw new RuntimeException("Failed to read image '"+imageFile+"'.");
+      if (image == null) {
+        throw new RuntimeException("Failed to read image '" + imageFile + "'.");
       }
       show(image);
-    }
-    catch (IOException ex)
-    {
+    } catch (IOException ex) {
       ex.printStackTrace();
     }
   }
-  
-  public static void show(BufferedImage image)
-  {
+
+  public static void show(BufferedImage image) {
     JFrame f = new JFrame();
     f.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     f.add(new ImageViewer(image));
@@ -46,17 +40,14 @@ public class ImageViewer extends JPanel
 
   private final BufferedImage image;
 
-  private ImageViewer(BufferedImage image)
-  {
+  private ImageViewer(BufferedImage image) {
     this.image = image;
     setPreferredSize(new Dimension(image.getWidth(), image.getHeight()));
   }
 
   @Override
-  protected void paintComponent(Graphics g)
-  {
+  protected void paintComponent(Graphics g) {
     super.paintComponent(g);
     g.drawImage(image, 0, 0, null);
   }
-  
 }
