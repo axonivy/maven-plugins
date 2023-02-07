@@ -10,9 +10,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedHashMap;
-
 import org.glassfish.jersey.jackson.internal.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import org.glassfish.jersey.jackson.internal.jackson.jaxrs.json.JacksonJsonProvider;
 import org.junit.Test;
@@ -21,6 +18,8 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 
 import ch.ivyteam.ivy.changelog.generator.jira.JiraResponse;
 import ch.ivyteam.ivy.changelog.generator.jira.Paging;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MultivaluedHashMap;
 
 public class TestJiraJson {
 
@@ -55,5 +54,4 @@ public class TestJiraJson {
     return (JiraResponse) provider.readFrom(Object.class, JiraResponse.class, new Annotation[0]
             , MediaType.APPLICATION_JSON_TYPE, new MultivaluedHashMap<String, String>(), json);
   }
-
 }
