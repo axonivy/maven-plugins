@@ -3,17 +3,18 @@ package ch.ivyteam.ivy.jira.release;
 import java.net.URI;
 import java.util.List;
 
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
 import org.apache.maven.settings.Server;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import ch.ivyteam.ivy.jira.JiraClientFactory;
-import jakarta.ws.rs.client.Client;
-import jakarta.ws.rs.client.Entity;
-import jakarta.ws.rs.client.WebTarget;
-import jakarta.ws.rs.core.GenericType;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
 
 public class JiraReleaseService {
 
