@@ -7,19 +7,16 @@ import java.util.List;
  * @author rwei
  * @since 23.10.2013
  */
-public class IvyArtifactDetector
-{
+public class IvyArtifactDetector {
+
   private List<String> externallyBuiltArtifacts;
 
-  public IvyArtifactDetector(List<String> externallyBuiltArtifacts)
-  {
+  public IvyArtifactDetector(List<String> externallyBuiltArtifacts) {
     this.externallyBuiltArtifacts = externallyBuiltArtifacts;
   }
-  
-  public boolean isLocallyBuildIvyArtifact(String artifactId)
-  {
-    return artifactId.startsWith("ch.ivyteam.") && 
+
+  public boolean isLocallyBuildIvyArtifact(String artifactId) {
+    return artifactId.startsWith("ch.ivyteam.") &&
             (!externallyBuiltArtifacts.contains(artifactId));
   }
-
 }

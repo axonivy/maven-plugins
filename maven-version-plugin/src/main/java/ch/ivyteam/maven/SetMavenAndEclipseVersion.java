@@ -2,13 +2,13 @@ package ch.ivyteam.maven;
 
 /*
  * Copyright 2001-2005 The Apache Software Foundation.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -32,61 +32,62 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.codehaus.plexus.util.FileUtils;
 import org.xml.sax.SAXException;
 
 /**
  * See development/ch.ivyteam.ivy.build.maven/manual/update-version for sample usage.
  */
-@Mojo(name="setMavenAndEclipseVersion", 
+@Mojo(name="setMavenAndEclipseVersion",
   defaultPhase=LifecyclePhase.PROCESS_RESOURCES)
 public class SetMavenAndEclipseVersion extends AbstractMojo
 {
   @Parameter(property="ivy-version")
   String version;
-  
-  /** POM project files of an eclipse artifact. 
-   * Eclipse descriptors like 
-   * <code>META-INF/MANIFEST.MF</code>,  
+
+  /** POM project files of an eclipse artifact.
+   * Eclipse descriptors like
+   * <code>META-INF/MANIFEST.MF</code>,
    * <code>feature.xml</code>,
    * <code>category.xml</code>,
-   * <code>*.product</code> will be updated as well. 
+   * <code>*.product</code> will be updated as well.
    * */
   @Parameter
   FileSet[] eclipseArtifactPoms;
-  
-  /** MANIFEST.MF file of an eclipse artifact. 
-   * Other descriptors of this project like 
-   * <code>pom.xml</code>,  
+
+  /** MANIFEST.MF file of an eclipse artifact.
+   * Other descriptors of this project like
+   * <code>pom.xml</code>,
    * <code>feature.xml</code>,
    * <code>category.xml</code>,
-   * <code>*.product</code> will be updated as well. 
+   * <code>*.product</code> will be updated as well.
    * */
   @Parameter
   FileSet[] eclipseManifests;
-  
-  /** Maven project POMs to update. 
-   * No other resource in the same project will be touched than the POM itself. 
+
+  /** Maven project POMs to update.
+   * No other resource in the same project will be touched than the POM itself.
    */
   @Parameter
   FileSet[] pomsToUpdate;
-  
+
   /** will only update the version of the parent pom  */
   @Parameter
   FileSet[] parentPomsToUpdate;
-  
+
   /**
    * Describes artifacts that should not be touched by this version change
    */
   @Parameter(property="external-artifacts")
   List<String> externalBuiltArtifacts;
-   
-  
+
+
   @Parameter
   boolean stripBundleVersionOfDependencies;
-  
+
   @Parameter
   boolean skip;
-  
+
   @Override
   public void execute() throws MojoExecutionException
   {
@@ -95,7 +96,7 @@ public class SetMavenAndEclipseVersion extends AbstractMojo
       getLog().info("Skipping MavenAndEclipseVersion update");
       return;
     }
-    
+
     try
     {
       checkParameters();
@@ -121,7 +122,7 @@ public class SetMavenAndEclipseVersion extends AbstractMojo
       throw new MojoExecutionException("Could not replace version", ex);
     }
   }
-  
+
   private void checkParameters() throws MojoExecutionException
   {
     if (StringUtils.isEmpty(version))
@@ -144,7 +145,7 @@ public class SetMavenAndEclipseVersion extends AbstractMojo
     updateVersionInProductXml(projectDirectory);
     updateVersionsInCategoryXml(projectDirectory);
   }
-  
+
   private void updateVersionInProductXml(File projectDirectory) throws XPathExpressionException, SAXException, IOException
   {
     new ProductXmlFileUpdater(projectDirectory, version, getLog(), externalBuiltArtifacts).update();
@@ -152,7 +153,7 @@ public class SetMavenAndEclipseVersion extends AbstractMojo
 
   private void updateVersionsInBundleManifest(File projectDirectory) throws IOException
   {
-    new BundleManifestFileUpdater(projectDirectory, version, getLog(), 
+    new BundleManifestFileUpdater(projectDirectory, version, getLog(),
             externalBuiltArtifacts, stripBundleVersionOfDependencies).update();
   }
 
@@ -160,7 +161,7 @@ public class SetMavenAndEclipseVersion extends AbstractMojo
   {
     new PomXmlFileUpdater(new File(projectDirectory, "pom.xml"), version, getLog(), externalBuiltArtifacts).update();
   }
-  
+
   private void updateParentVersionInPom(File projectDirectory) throws Exception
   {
     new PomXmlFileUpdater(new File(projectDirectory, "pom.xml"), version, getLog(), externalBuiltArtifacts).updateParentVersoin();
@@ -182,7 +183,7 @@ public class SetMavenAndEclipseVersion extends AbstractMojo
     {
       return Collections.emptyList();
     }
-    
+
     List<File> files = new ArrayList<>();
     for(FileSet fs : fileSets)
     {
@@ -191,23 +192,17 @@ public class SetMavenAndEclipseVersion extends AbstractMojo
     return files;
   }
 
-  private List<File> getFiles(FileSet fs)
-  {
+  private List<File> getFiles(FileSet fs) {
     File directory = new File(fs.getDirectory());
-    String includes = StringUtils.join(fs.getIncludes(),",");
-    String excludes = StringUtils.join(fs.getExcludes(),",");
-    try
-    {
-      @SuppressWarnings("unchecked")
-      List<File> files = org.codehaus.plexus.util.FileUtils.getFiles(directory, includes, excludes);
-      if (files.isEmpty())
-      {
-        getLog().debug("FileSet did not match any file in the file system: "+fs);
+    String includes = StringUtils.join(fs.getIncludes(), ",");
+    String excludes = StringUtils.join(fs.getExcludes(), ",");
+    try {
+      var files = FileUtils.getFiles(directory, includes, excludes);
+      if (files.isEmpty()) {
+        getLog().debug("FileSet did not match any file in the file system: " + fs);
       }
       return files;
-    }
-    catch (IOException ex)
-    {
+    } catch (IOException ex) {
       getLog().error(ex);
       return Collections.emptyList();
     }
