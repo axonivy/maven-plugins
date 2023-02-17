@@ -98,7 +98,10 @@ public class ChangelogGeneratorMojo extends AbstractMojo {
               + "' is not definied in setting.xml");
       return;
     }
+    exec(server);
+  }
 
+  void exec(Server server) throws MojoExecutionException {
     List<Issue> issues = loadIssuesFromJira(server);
     if (console) {
       printToConsole(issues);

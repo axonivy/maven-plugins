@@ -10,13 +10,13 @@ import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class TestTokenReplace {
+class TestTokenReplace {
 
   @SuppressWarnings("deprecation")
   @Test
-  public void replacerKeepsWhitespaces() throws IOException, MojoExecutionException {
+  void replacerKeepsWhitespaces() throws IOException, MojoExecutionException {
     File changelog = Files.createTempFile("changelog", ".txt").toFile();
     FileUtils.write(changelog, "@changelog@");
     Map<String, String> tokens = new HashMap<>();
@@ -26,5 +26,4 @@ public class TestTokenReplace {
     String result = new TokenReplacer(tokens).replaceTokens(fileHandler.getTemplateContent());
     assertThat(result).isEqualTo(issues);
   }
-
 }

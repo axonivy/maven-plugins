@@ -3,54 +3,40 @@ package ch.ivyteam.ivy.changelog.generator;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.IOException;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.maven.execution.MavenSession;
-import org.apache.maven.plugin.MojoExecution;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugin.testing.MojoRule;
-import org.apache.maven.project.MavenProject;
 import org.apache.maven.settings.Server;
 import org.apache.maven.shared.model.fileset.FileSet;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
-public class TestChangelogGeneratorMojo {
-  @Rule
-  public MojoRule rule = new MojoRule();
+class TestChangelogGeneratorMojo {
 
-  @Rule
-  public TemporaryFolder tempFolder = new TemporaryFolder();
+  @TempDir
+  public File tempFolder;
 
   private String outputPath;
 
   private ChangelogGeneratorMojo mojo;
+  private Server server;
 
   private File basedir;
 
-  @Before
-  public void setup() throws Exception {
-    tempFolder.create();
+  @BeforeEach
+  void setup() throws Exception {
+    mojo = new ChangelogGeneratorMojo();
 
     basedir = new File("src/test/resources");
-    outputPath = tempFolder.getRoot().getAbsolutePath() + "/target";
-    MavenProject project = rule.readMavenProject(basedir);
-    MavenSession session = rule.newMavenSession(project);
-    MojoExecution execution = rule.newMojoExecution("generate-changelog");
-    Server server = new Server();
+    outputPath = tempFolder.getAbsolutePath() + "/target";
+    server = new Server();
     server.setUsername(System.getProperty("jira.username"));
     server.setPassword(System.getProperty("jira.password"));
     server.setId("axonivy.jira");
-    session.getSettings().addServer(server);
-    mojo = (ChangelogGeneratorMojo) rule.lookupConfiguredMojo(session, execution);
 
+    mojo.jiraServerUri = "https://axonivy.atlassian.net";
     mojo.jiraServerId = "axonivy.jira";
     mojo.whitelistJiraLabels = "security,performance";
     mojo.fileset = new FileSet();
@@ -60,22 +46,22 @@ public class TestChangelogGeneratorMojo {
   }
 
   @Test
-  public void createChangelog() throws Exception {
+  void createChangelog() throws Exception {
     mojo.filterBy = "project IN (XIVY,IVYPORTAL) AND fixVersion = 7.2.0";
     mojo.asciiTemplate = "  * ${key} ${summary}";
     mojo.fileset.addInclude("changelog");
     mojo.compression = "gz";
-    mojo.execute();
+    mojo.exec(server);
 
     assertThat(new File(outputPath + "/changelog.gz")).exists();
   }
 
   @Test
-  public void createProjectSortedReleaseNotes() throws Exception {
+  void createProjectSortedReleaseNotes() throws Exception {
     mojo.filterBy = "project IN (XIVY,IVYPORTAL) AND fixVersion = 7.4.0";
     mojo.asciiTemplate = "${key} ${type}";
     mojo.fileset.addInclude("ReleaseNotes.txt");
-    mojo.execute();
+    mojo.exec(server);
 
     File releaseNotes = new File(outputPath + "/ReleaseNotes.txt");
     assertThat(releaseNotes).exists();
@@ -90,11 +76,11 @@ public class TestChangelogGeneratorMojo {
   }
 
   @Test
-  public void createPortalReleaseNotes() throws Exception {
+  void createPortalReleaseNotes() throws Exception {
     mojo.filterBy = "project = IVYPORTAL AND fixVersion = 7.4.0 AND issuetype in (Story, Improvement, Bug)";
     mojo.asciiTemplate = "${key} ${type}";
     mojo.fileset.addInclude("ReleaseNotes.txt");
-    mojo.execute();
+    mojo.exec(server);
 
     File releaseNotes = new File(outputPath + "/ReleaseNotes.txt");
     assertThat(releaseNotes).exists();
@@ -105,11 +91,11 @@ public class TestChangelogGeneratorMojo {
   }
 
   @Test
-  public void createOnlyBugReleaseNotes() throws Exception {
+  void createOnlyBugReleaseNotes() throws Exception {
     mojo.filterBy = "project = XIVY AND fixVersion = 7.4.0 AND issuetype = Bug";
     mojo.asciiTemplate = "${key} ${type}";
     mojo.fileset.addInclude("ReleaseNotes.txt");
-    mojo.execute();
+    mojo.exec(server);
 
     File releaseNotes = new File(outputPath + "/ReleaseNotes.txt");
     assertThat(releaseNotes).exists();
@@ -123,11 +109,11 @@ public class TestChangelogGeneratorMojo {
   }
 
   @Test
-  public void createSortedReleaseNotes() throws Exception {
+  void createSortedReleaseNotes() throws Exception {
     mojo.filterBy = "project = XIVY AND fixVersion = 7.4.0";
     mojo.asciiTemplate = "${key}:${type};";
     mojo.fileset.addInclude("ReleaseNotes.txt");
-    mojo.execute();
+    mojo.exec(server);
 
     File releaseNotes = new File(outputPath + "/ReleaseNotes.txt");
     assertThat(releaseNotes).exists();
@@ -138,29 +124,28 @@ public class TestChangelogGeneratorMojo {
   }
 
   @Test
-  public void createReleaseNotesWithUpgradRecommended() throws Exception {
+  void createReleaseNotesWithUpgradRecommended() throws Exception {
     String recommendation = createReleaseNotesAndReadRecommendation("7.4.0");
     assertThat(recommendation).contains("We recommend to install this update release because it fixes stability issues!");
   }
 
   @Test
-  public void createReleaseNotesWithUpgradeCritical() throws Exception {
+  void createReleaseNotesWithUpgradeCritical() throws Exception {
     String recommendation = createReleaseNotesAndReadRecommendation("8.0.4");
     assertThat(recommendation).contains("We strongly recommend to install this update release because it fixes security issues!");
   }
 
   @Test
-  public void createReleaseNotesWithUpgradeSuggested() throws Exception {
+  void createReleaseNotesWithUpgradeSuggested() throws Exception {
     String recommendation = createReleaseNotesAndReadRecommendation("8.0.3");
     assertThat(recommendation).contains("We suggest to install this update release if you are suffering from any of these issues.");
   }
 
-  private String createReleaseNotesAndReadRecommendation(String version)
-          throws MojoExecutionException, MojoFailureException, FileNotFoundException, IOException {
+  private String createReleaseNotesAndReadRecommendation(String version) throws Exception {
     mojo.filterBy = "project = XIVY AND fixVersion = "+version;
     mojo.asciiTemplate = "${key}:${type};";
     mojo.fileset.addInclude("ReleaseNotes.txt");
-    mojo.execute();
+    mojo.exec(server);
 
     File releaseNotes = new File(outputPath + "/ReleaseNotes.txt");
     assertThat(releaseNotes).exists();
@@ -183,7 +168,7 @@ public class TestChangelogGeneratorMojo {
     return Integer.valueOf(StringUtils.substringBetween(issue, "XIVY-", ":"));
   }
 
-  private String readFileContent(File releaseNotes) throws FileNotFoundException, IOException {
+  private String readFileContent(File releaseNotes) throws Exception {
     return IOUtils.toString(new FileReader(releaseNotes));
   }
 }
