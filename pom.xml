@@ -12,7 +12,6 @@
     <module>maven-version-plugin</module>
     <module>db-meta-plugin</module>
     <module>parser-generator-plugin</module>
-    <module>jira-plugin</module>
   </modules>
 
   <build>
