@@ -7,7 +7,6 @@
 	<packaging>pom</packaging>
 
 	<modules>
-		<module>maven-version-plugin</module>
 		<module>image-dpi-plugin</module>
 		<module>db-meta-plugin</module>
 		<module>merge-files-plugin</module>
