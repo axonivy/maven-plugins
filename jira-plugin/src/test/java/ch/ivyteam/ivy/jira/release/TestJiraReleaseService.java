@@ -5,15 +5,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 
 import org.apache.maven.settings.Server;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
-public class TestJiraReleaseService {
+class TestJiraReleaseService {
+
   private JiraReleaseService releases;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     Server server = new Server();
     server.setUsername(System.getProperty("jira.username"));
     server.setPassword(System.getProperty("jira.password"));
@@ -21,13 +22,13 @@ public class TestJiraReleaseService {
   }
 
   @Test
-  public void readVersions() {
+  void readVersions() {
     List<JiraVersion> versions = releases.ivyVersions();
     assertThat(versions).isNotEmpty();
   }
 
   @Test
-  public void readSpecific() {
+  void readSpecific() {
     JiraVersion version = releases.version("8.0.23");
     assertThat(version).isNotNull();
     assertThat(version.id).isGreaterThan(1);
@@ -35,16 +36,15 @@ public class TestJiraReleaseService {
   }
 
   @Test
-  @Ignore("crud op that changes running instance")
-  public void createMove() {
+  @Disabled("crud op that changes running instance")
+  void createMove() {
     JiraVersion v29 = releases.create("8.0.29");
     releases.move(v29.name, "8.0.24");
   }
 
   @Test
-  @Ignore("crud op that changes running instance")
-  public void move() {
+  @Disabled("crud op that changes running instance")
+  void move() {
     releases.move("8.0.29", "8.0.24");
   }
-
 }

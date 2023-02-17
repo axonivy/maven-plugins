@@ -5,30 +5,30 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import ch.ivyteam.ivy.changelog.generator.jira.JiraResponse.Issue;
 import ch.ivyteam.ivy.changelog.generator.jira.JiraResponse.IssueFields;
 import ch.ivyteam.ivy.changelog.generator.jira.JiraResponse.Type;
 
-public class TestTemplateExpander {
+class TestTemplateExpander {
 
   @Test
-  public void expand_key() {
+  void expand_key() {
     TemplateExpander testee = new TemplateExpander("[${key}] - ${summary}", "", "");
     String expand = testee.expand(createOneIssue(), "");
     assertThat(expand).isEqualTo("[XIVY-500] - JSF Bug");
   }
 
   @Test
-  public void expand_labelsWithHtmlBatches() {
+  void expand_labelsWithHtmlBatches() {
     TemplateExpander testee = new TemplateExpander("${labelsWithHtmlBatches}", "seCurity , performance", "");
     String expand = testee.expand(createOneIssue(), "");
     assertThat(expand).isEqualTo("<span class=\"badge badge-pill badge-success badge-security\">security</span>");
   }
 
   @Test
-  public void expand_labelsWithMulitpleHtmlBatches() {
+  void expand_labelsWithMulitpleHtmlBatches() {
     TemplateExpander testee = new TemplateExpander("${labelsWithHtmlBatches}", "seCurity , jira_escalated", "");
     String expand = testee.expand(createOneIssue(), "");
     assertThat(expand).isEqualTo("<span class=\"badge badge-pill badge-success badge-security\">security</span> "
@@ -36,21 +36,21 @@ public class TestTemplateExpander {
   }
 
   @Test
-  public void expand_ascii_keepLeadingWhitespace() {
+  void expand_ascii_keepLeadingWhitespace() {
     TemplateExpander testee = new TemplateExpander("   [${key}] - ${summary}", "", "");
     String expand = testee.expand(createOneIssue(), "");
     assertThat(expand).isEqualTo("   [XIVY-500] - JSF Bug");
   }
 
   @Test
-  public void expand_md_header() {
+  void expand_md_header() {
     TemplateExpander testee = new TemplateExpander("   [${key}] - ${summary}", "", "##");
     String expand = testee.expand(createOneIssue(), "Issues");
     assertThat(expand).isEqualTo("## Issues\r\n\r\n   [XIVY-500] - JSF Bug");
   }
 
   @Test
-  public void expand_md_noHeaderIfNoIssue() {
+  void expand_md_noHeaderIfNoIssue() {
     TemplateExpander testee = new TemplateExpander("   [${key}] - ${summary}", "", "##");
     String expand = testee.expand(List.of(), "Issues");
     assertThat(expand).isEqualTo("");

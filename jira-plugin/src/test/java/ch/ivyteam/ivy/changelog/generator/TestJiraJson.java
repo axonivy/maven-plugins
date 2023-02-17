@@ -15,17 +15,17 @@ import javax.ws.rs.core.MultivaluedHashMap;
 
 import org.glassfish.jersey.jackson.internal.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import org.glassfish.jersey.jackson.internal.jackson.jaxrs.json.JacksonJsonProvider;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 
 import ch.ivyteam.ivy.changelog.generator.jira.JiraResponse;
 import ch.ivyteam.ivy.changelog.generator.jira.Paging;
 
-public class TestJiraJson {
+class TestJiraJson {
 
   @Test
-  public void testImprovement() throws IOException {
+  void testImprovement() throws IOException {
     Path sampleJson = new File("src/test/resources/samples/searchImprovements93.json").toPath();
     try(InputStream json = Files.newInputStream(sampleJson, StandardOpenOption.READ)) {
       JiraResponse response = deserialize(json);
@@ -34,7 +34,7 @@ public class TestJiraJson {
   }
 
   @Test
-  public void testPaging() throws IOException {
+  void testPaging() throws IOException {
     Path sampleJson = new File("src/test/resources/samples/page1.json").toPath();
     try(InputStream json = Files.newInputStream(sampleJson, StandardOpenOption.READ)) {
       JiraResponse response = deserialize(json);
@@ -55,5 +55,4 @@ public class TestJiraJson {
     return (JiraResponse) provider.readFrom(Object.class, JiraResponse.class, new Annotation[0]
             , MediaType.APPLICATION_JSON_TYPE, new MultivaluedHashMap<String, String>(), json);
   }
-
 }
