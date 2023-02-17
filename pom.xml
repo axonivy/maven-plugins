@@ -8,7 +8,6 @@
 	<description>Contains all ivy Maven-Plugins as module dependency</description>
 
 	<modules>
-		<module>maven-version-plugin</module>
 		<module>public-api-source-maven-plugin</module>
 		<module>image-dpi-plugin</module>
 		<module>eclipse-help-plugin</module>
