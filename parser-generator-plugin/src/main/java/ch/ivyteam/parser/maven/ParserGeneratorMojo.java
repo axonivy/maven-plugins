@@ -7,7 +7,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.List;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -129,7 +128,7 @@ public class ParserGeneratorMojo extends AbstractMojo {
       return false;
     }
     getLog().info("Generating parser to " + packageDir + "...");
-    List<String> args = new ArrayList<String>();
+    var args = new ArrayList<String>();
     args.add("-destdir");
     args.add(packageDir.getAbsolutePath());
     args.add("-interface");
@@ -138,7 +137,7 @@ public class ParserGeneratorMojo extends AbstractMojo {
     args.add("-symbols");
     args.add("Symbols");
     args.add(parserFile.getAbsolutePath());
-    java_cup.Main.main(args.toArray(new String[args.size()]));
+    java_cup.Main.main(args.toArray(String[]::new));
     getLog().info("Parser generated to " + packageDir + ".");
     return true;
   }
