@@ -8,8 +8,8 @@ import ch.ivyteam.db.meta.model.internal.SqlMeta;
  * @author rwei
  * @since 01.10.2009
  */
-public interface IMetaOutputGenerator
-{
+public interface IMetaOutputGenerator {
+
   /**
    * Generates the meta output
    * @param metaDefinition the meta definition
@@ -17,20 +17,21 @@ public interface IMetaOutputGenerator
    */
   void generateMetaOutput(SqlMeta metaDefinition) throws Exception;
 
-  /** 
+  /**
    * Analysis the generator arguments
    * @param generatorArgs generator arguments
    * @throws Exception if analyses fails
    */
   void analyseArgs(String[] generatorArgs) throws Exception;
-  
+
   /**
    * Prints a help about the generator arguments
    */
   void printHelp();
 
   /**
-   * Gets information about the files that are generated when calling {@link #generateMetaOutput(SqlMeta)}
+   * Gets information about the files that are generated when calling
+   * {@link #generateMetaOutput(SqlMeta)}
    * @return target
    */
   Target getTarget();

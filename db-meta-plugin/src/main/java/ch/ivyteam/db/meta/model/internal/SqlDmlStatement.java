@@ -7,8 +7,7 @@ import java.util.List;
  * @author rwei
  * @since 12.10.2009
  */
-public class SqlDmlStatement extends SqlArtifact
-{
+public class SqlDmlStatement extends SqlArtifact {
 
   /**
    * Constructor
@@ -16,9 +15,7 @@ public class SqlDmlStatement extends SqlArtifact
    * @param comment
    * @throws MetaException
    */
-  public SqlDmlStatement(List<SqlDatabaseSystemHints> dbSysHints, String comment) throws MetaException
-  {
+  public SqlDmlStatement(List<SqlDatabaseSystemHints> dbSysHints, String comment) throws MetaException {
     super(dbSysHints, comment);
   }
-
 }

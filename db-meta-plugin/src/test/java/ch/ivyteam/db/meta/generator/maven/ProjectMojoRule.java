@@ -10,57 +10,50 @@ import org.apache.maven.plugin.testing.MojoRule;
 import org.apache.maven.project.MavenProject;
 
 /**
- * Simple rule that can provide a real set-up MOJO that works on a copy of the given projectDirectory.
- * This simplifies TEST dramatically whenever your MOJO relies on real Maven Models like (Project, Artifact, ...)
+ * Simple rule that can provide a real set-up MOJO that works on a copy of the
+ * given projectDirectory. This simplifies TEST dramatically whenever your MOJO
+ * relies on real Maven Models like (Project, Artifact, ...)
  * 
  * @author Reguel Wermelinger
  * @since 03.10.2014
  * @param <T>
  */
-public class ProjectMojoRule<T extends Mojo> extends MojoRule
-{
+public class ProjectMojoRule<T extends Mojo> extends MojoRule {
+
   private File projectDir;
   private T mojo;
   private String mojoName;
   private File templateProjectDir;
   private MavenProject project;
-  
-  public ProjectMojoRule(File srcDir, String mojoName)
-  {
+
+  public ProjectMojoRule(File srcDir, String mojoName) {
     this.templateProjectDir = srcDir;
     this.mojoName = mojoName;
   }
-  
+
   @Override
   @SuppressWarnings("unchecked")
-  protected void before() throws Throwable 
-  {
+  protected void before() throws Throwable {
     projectDir = Files.createTempDirectory("MyBaseProject").toFile();
     FileUtils.copyDirectory(templateProjectDir, projectDir);
     project = readMavenProject(projectDir);
     mojo = (T) lookupConfiguredMojo(project, mojoName);
   }
-  
+
   @Override
-  protected void after() 
-  {
-    try
-    {
+  protected void after() {
+    try {
       FileUtils.deleteDirectory(projectDir);
-    }
-    catch (IOException ex)
-    {
+    } catch (IOException ex) {
       throw new RuntimeException(ex);
-    }  
+    }
   }
 
-  public T getMojo()
-  {
+  public T getMojo() {
     return mojo;
   }
-  
-  public MavenProject getProject()
-  {
+
+  public MavenProject getProject() {
     return project;
   }
 }

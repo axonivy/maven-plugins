@@ -19,34 +19,31 @@ import ch.ivyteam.db.meta.model.internal.SqlView;
 import ch.ivyteam.db.meta.parser.internal.Parser;
 import ch.ivyteam.db.meta.parser.internal.Scanner;
 
-public class TestLocalizedView
-{
+public class TestLocalizedView {
+
   @Rule
   public TemporaryFolder tempFolder = new TemporaryFolder();
 
   @Test
-  public void parseAst() throws Exception
-  {
+  public void parseAst() throws Exception {
     SqlMeta meta = parse();
     SqlView view = meta.getArtifacts(SqlView.class).get(0);
-
     assertThat(view.toString()).isEqualTo(
-          "CREATE VIEW IWA_CaseQuery(\n" +
-          "  CaseId,\n" +
-          "  Name,\n" +
-          "  LanguageId)\n" +
-          "AS SELECT\n" +
-          "  IWA_Case.TaskId,\n" +
-          "  IWA_CaseLocalized.Name,\n" +
-          "  IWA_CaseLocalized.LanguageId\n" +
-          "FROM IWA_Case INNER JOIN IWA_CaseLocalized ON IWA_Case.CaseId=IWA_CaseLocalized.CaseId");
+            "CREATE VIEW IWA_CaseQuery(\n" +
+                    "  CaseId,\n" +
+                    "  Name,\n" +
+                    "  LanguageId)\n" +
+                    "AS SELECT\n" +
+                    "  IWA_Case.TaskId,\n" +
+                    "  IWA_CaseLocalized.Name,\n" +
+                    "  IWA_CaseLocalized.LanguageId\n" +
+                    "FROM IWA_Case INNER JOIN IWA_CaseLocalized ON IWA_Case.CaseId=IWA_CaseLocalized.CaseId");
   }
 
   @Test
   public void createJavaClassPersistencyServiceImplemenation() throws FileNotFoundException, Exception {
     SqlMeta meta = parse();
     File outputDirectory = tempFolder.newFolder();
-
     var generator = new JavaClassPersistencyServiceImplementationGenerator();
     generator.analyseArgs(new String[] {
         "-outputDir", outputDirectory.getAbsolutePath(),
@@ -54,26 +51,24 @@ public class TestLocalizedView
         "-entityPackage", "ch.ivyteam.data",
         "-tables", "IWA_Case"});
     generator.generateMetaOutput(meta);
-    String generatedJavaClass = FileUtils.readFileToString(new File(outputDirectory, "ch/ivyteam/db/DbCaseData.java"));
+    String generatedJavaClass = FileUtils
+            .readFileToString(new File(outputDirectory, "ch/ivyteam/db/DbCaseData.java"));
     String originalJavaClass = loadTestResource("DbCaseData.java");
     assertThat(generatedJavaClass).isEqualTo(originalJavaClass);
   }
 
-  private String loadTestResource(String name) throws IOException
-  {
-    try (InputStream is = TestComplexView.class.getResourceAsStream(name))
-    {
+  private String loadTestResource(String name) throws IOException {
+    try (InputStream is = TestComplexView.class.getResourceAsStream(name)) {
       return IOUtils.toString(is);
     }
   }
 
-  private SqlMeta parse() throws FileNotFoundException, Exception
-  {
-    try(InputStreamReader isr = new InputStreamReader(TestLocalizedView.class.getResourceAsStream("localizedView.meta")))
-    {
+  private SqlMeta parse() throws FileNotFoundException, Exception {
+    try (InputStreamReader isr = new InputStreamReader(
+            TestLocalizedView.class.getResourceAsStream("localizedView.meta"))) {
       Scanner scanner = new Scanner(isr);
       Parser parser = new Parser(scanner);
-      SqlMeta sqlMetaDefinition = (SqlMeta)parser.parse().value;
+      SqlMeta sqlMetaDefinition = (SqlMeta) parser.parse().value;
       return sqlMetaDefinition;
     }
   }

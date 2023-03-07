@@ -5,8 +5,8 @@ package ch.ivyteam.db.meta.model.internal;
  * @author rwei
  * @since 02.10.2009
  */
-public class SqlBinaryRelation extends SqlSimpleExpr
-{
+public class SqlBinaryRelation extends SqlSimpleExpr {
+
   /** The first parameter of the relation */
   private SqlAtom fFirst;
   /** The relation operator */
@@ -20,8 +20,7 @@ public class SqlBinaryRelation extends SqlSimpleExpr
    * @param operator
    * @param second
    */
-  public SqlBinaryRelation(SqlAtom first, String operator, SqlAtom second)
-  {
+  public SqlBinaryRelation(SqlAtom first, String operator, SqlAtom second) {
     assert first != null : "Parameter first must not be null";
     assert operator != null : "Parameter operator must not be null";
     assert second != null : "Parameter second must not be null";
@@ -29,50 +28,41 @@ public class SqlBinaryRelation extends SqlSimpleExpr
     fOperator = operator;
     fSecond = second;
   }
-  
+
   /**
    * Returns the first
    * @return the first
    */
-  public SqlAtom getFirst()
-  {
+  public SqlAtom getFirst() {
     return fFirst;
   }
-  
+
   /**
    * Returns the second
    * @return the second
    */
-  public SqlAtom getSecond()
-  {
+  public SqlAtom getSecond() {
     return fSecond;
   }
-  
+
   /**
    * Returns the operator
    * @return the operator
    */
-  public String getOperator()
-  {
+  public String getOperator() {
     return fOperator;
   }
-  
-  
-  
+
   /**
    * @see java.lang.Object#toString()
    */
   @Override
-  public String toString()
-  {
+  public String toString() {
     String operator;
-    
     operator = fOperator;
-    if (Character.isLetter(operator.charAt(0)))
-    {
-      operator = " "+operator+" ";
+    if (Character.isLetter(operator.charAt(0))) {
+      operator = " " + operator + " ";
     }
-    return fFirst.toString()+operator+fSecond.toString();
+    return fFirst.toString() + operator + fSecond.toString();
   }
-
 }

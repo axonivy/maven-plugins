@@ -6,37 +6,36 @@ import java.util.List;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
- * Base class of all sql objects that can be specified inside an sql meta information
+ * Base class of all sql objects that can be specified inside an sql meta
+ * information
  * @author rwei
  */
-public class SqlObject extends SqlArtifact implements Comparable<SqlObject>
-{
+public class SqlObject extends SqlArtifact implements Comparable<SqlObject> {
+
   /** The id of the object */
   private String fId;
-  
+
   /**
    * Constructor
    * @param id table name
-   * @param dbSysHints 
+   * @param dbSysHints
    * @param comment comment
-   * @throws MetaException 
+   * @throws MetaException
    */
-  public SqlObject(String id, List<SqlDatabaseSystemHints> dbSysHints, String comment) throws MetaException
-  {
+  public SqlObject(String id, List<SqlDatabaseSystemHints> dbSysHints, String comment) throws MetaException {
     super(dbSysHints, comment);
     assert id != null : "Parameter id must not be null";
     fId = id;
   }
-    
+
   /**
    * Gets the id
    * @return id
    */
-  public String getId()
-  {
+  public String getId() {
     return fId;
   }
-  
+
   /**
    * Generates an identifier if the given identifier is null
    * @param prefix the prefix of the identifier
@@ -44,8 +43,7 @@ public class SqlObject extends SqlArtifact implements Comparable<SqlObject>
    * @param column the column
    * @return identifier
    */
-  public static String generateId(String prefix, String id, String column)
-  {
+  public static String generateId(String prefix, String id, String column) {
     return generateId(prefix, id, Arrays.asList(column));
   }
 
@@ -56,28 +54,24 @@ public class SqlObject extends SqlArtifact implements Comparable<SqlObject>
    * @param columns the columns
    * @return identifier
    */
-  public static String generateId(String prefix, String id, List<String> columns)
-  {
+  public static String generateId(String prefix, String id, List<String> columns) {
     StringBuilder builder = new StringBuilder(100);
-    if (id != null)
-    {
+    if (id != null) {
       return id;
     }
     builder.append(prefix);
-    for (String column : columns)
-    {
+    for (String column : columns) {
       builder.append("_");
       builder.append(column);
     }
     return builder.toString();
   }
-  
+
   /**
    * @see java.lang.Object#toString()
    */
   @Override
-  public String toString()
-  {
+  public String toString() {
     return fId;
   }
 
@@ -85,24 +79,19 @@ public class SqlObject extends SqlArtifact implements Comparable<SqlObject>
    * @see java.lang.Comparable#compareTo(java.lang.Object)
    */
   @Override
-  public int compareTo(SqlObject o)
-  {
+  public int compareTo(SqlObject o) {
     return fId.compareTo(o.fId);
   }
 
   @Override
-  public boolean equals(Object other)
-  {
-    if (other == null)
-    {
+  public boolean equals(Object other) {
+    if (other == null) {
       return false;
     }
-    if (other == this)
-    {
+    if (other == this) {
       return true;
     }
-    if (other.getClass() != this.getClass())
-    {
+    if (other.getClass() != this.getClass()) {
       return false;
     }
     SqlObject object = (SqlObject) other;
@@ -110,8 +99,7 @@ public class SqlObject extends SqlArtifact implements Comparable<SqlObject>
   }
 
   @Override
-  public int hashCode()
-  {
+  public int hashCode() {
     return new HashCodeBuilder()
             .append(fId)
             .hashCode();

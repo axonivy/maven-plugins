@@ -17,27 +17,27 @@ import org.junit.Test;
 import ch.ivyteam.db.meta.generator.internal.HtmlDocGenerator;
 import ch.ivyteam.db.meta.generator.internal.oracle.OracleSqlScriptGenerator;
 
-public class TestMetaOutputGeneratorMojo
-{
-  private static final long RECENT_TIME_STAMP = new Date().getTime()-10000L;
-  private static final long OLD_TIME_STAMP = 0L;
+public class TestMetaOutputGeneratorMojo {
 
+  private static final long RECENT_TIME_STAMP = new Date().getTime() - 10000L;
+  private static final long OLD_TIME_STAMP = 0L;
   @Rule
   public ProjectMojoRule<MetaOutputGeneratorMojo> mojoRule = new ProjectMojoRule<>(
           new File("src/test/resources/base"), MetaOutputGeneratorMojo.GOAL);
   private MetaOutputGeneratorMojo mojo;
 
   @Before
-  public void before() throws IllegalAccessException
-  {
+  public void before() throws IllegalAccessException {
     mojo = mojoRule.getMojo();
-    mojoRule.setVariableValueToObject(mojo, "outputDirectory", new File(mojoRule.getProject().getBasedir(), "generated"));
-    mojoRule.setVariableValueToObject(mojo, "inputDirectory", new File(mojoRule.getProject().getBasedir(), "meta"));
+    mojoRule.setVariableValueToObject(mojo, "outputDirectory",
+            new File(mojoRule.getProject().getBasedir(), "generated"));
+    mojoRule.setVariableValueToObject(mojo, "inputDirectory",
+            new File(mojoRule.getProject().getBasedir(), "meta"));
   }
 
   @Test
-  public void executeWithOutputDir() throws IllegalAccessException, MojoExecutionException, MojoFailureException
-  {
+  public void executeWithOutputDir()
+          throws IllegalAccessException, MojoExecutionException, MojoFailureException {
     mojoRule.setVariableValueToObject(mojo, "generatorClass", HtmlDocGenerator.class.getName());
     assertThat(getProjectFile("generated")).doesNotExist();
     mojo.execute();
@@ -45,8 +45,8 @@ public class TestMetaOutputGeneratorMojo
   }
 
   @Test
-  public void directoryNotUpToDate() throws IllegalAccessException, MojoExecutionException, MojoFailureException, IOException
-  {
+  public void directoryNotUpToDate()
+          throws IllegalAccessException, MojoExecutionException, MojoFailureException, IOException {
     mojoRule.setVariableValueToObject(mojo, "generatorClass", HtmlDocGenerator.class.getName());
     File file = getProjectFile("generated/blah.html");
     FileUtils.touch(file);
@@ -56,8 +56,7 @@ public class TestMetaOutputGeneratorMojo
   }
 
   @Test
-  public void executeWithFile() throws IllegalAccessException, MojoExecutionException, MojoFailureException
-  {
+  public void executeWithFile() throws IllegalAccessException, MojoExecutionException, MojoFailureException {
     mojoRule.setVariableValueToObject(mojo, "generatorClass", OracleSqlScriptGenerator.class.getName());
     mojoRule.setVariableValueToObject(mojo, "outputFile", "oracle.sql");
     mojo.execute();
@@ -65,26 +64,22 @@ public class TestMetaOutputGeneratorMojo
   }
 
   @Test
-  public void fileNotUpToDate() throws IllegalAccessException, MojoExecutionException, MojoFailureException, IOException
-  {
+  public void fileNotUpToDate()
+          throws IllegalAccessException, MojoExecutionException, MojoFailureException, IOException {
     mojoRule.setVariableValueToObject(mojo, "generatorClass", OracleSqlScriptGenerator.class.getName());
     mojoRule.setVariableValueToObject(mojo, "outputFile", "oracle.sql");
-
     File sqlFile = getProjectFile("generated/oracle.sql");
     FileUtils.touch(sqlFile);
     sqlFile.setLastModified(OLD_TIME_STAMP);
-
     mojo.execute();
     assertThat(getProjectFile("generated/oracle.sql").lastModified()).isGreaterThan(RECENT_TIME_STAMP);
   }
 
-  private AbstractFileAssert<?> assertThatProjectFile(String path)
-  {
+  private AbstractFileAssert<?> assertThatProjectFile(String path) {
     return assertThat(getProjectFile(path));
   }
 
-  private File getProjectFile(String path)
-  {
+  private File getProjectFile(String path) {
     return new File(mojoRule.getProject().getBasedir(), path);
   }
 }

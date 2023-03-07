@@ -13,6 +13,7 @@ import freemarker.template.Template;
 import freemarker.template.TemplateException;
 
 abstract class AbstractJavaClassPersistencyServiceImplementationTemplateWriter {
+
   protected Configuration cfg;
   protected String targetPackage;
   protected SqlMeta meta;
@@ -29,7 +30,8 @@ abstract class AbstractJavaClassPersistencyServiceImplementationTemplateWriter {
       temp.process(getDataMap(), writer);
       writer.flush();
     } catch (TemplateException ex) {
-      throw new IllegalStateException("Could not generate Query class: " + javaSourceFile.getAbsolutePath(), ex);
+      throw new IllegalStateException("Could not generate Query class: " + javaSourceFile.getAbsolutePath(),
+              ex);
     }
   }
 

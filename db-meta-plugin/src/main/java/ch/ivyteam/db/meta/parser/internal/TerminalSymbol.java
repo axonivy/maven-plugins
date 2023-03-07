@@ -6,8 +6,8 @@ import java_cup.runtime.Symbol;
  * @author rwei
  * @since 15.09.2006
  */
-public class TerminalSymbol extends Symbol
-{
+public class TerminalSymbol extends Symbol {
+
   /** The name of the symbol */
   private String name;
 
@@ -19,8 +19,7 @@ public class TerminalSymbol extends Symbol
    * @param rightPosition
    * @param _value
    */
-  public TerminalSymbol(int _id, String _name, int leftPosition, int rightPosition, Object _value)
-  {
+  public TerminalSymbol(int _id, String _name, int leftPosition, int rightPosition, Object _value) {
     super(_id, leftPosition, rightPosition, _value);
     name = _name;
   }
@@ -32,8 +31,7 @@ public class TerminalSymbol extends Symbol
    * @param leftPosition
    * @param rightPosition
    */
-  public TerminalSymbol(int _id, String _name, int leftPosition, int rightPosition)
-  {
+  public TerminalSymbol(int _id, String _name, int leftPosition, int rightPosition) {
     super(_id, leftPosition, rightPosition);
     name = _name;
   }
@@ -44,8 +42,7 @@ public class TerminalSymbol extends Symbol
    * @param _name the name of the symbol
    * @param _value
    */
-  public TerminalSymbol(int _id, String _name, Object _value)
-  {
+  public TerminalSymbol(int _id, String _name, Object _value) {
     super(_id, _value);
     name = _name;
   }
@@ -55,18 +52,16 @@ public class TerminalSymbol extends Symbol
    * @param arg0
    * @param _name the name of the symbol
    */
-  public TerminalSymbol(int arg0, String _name)
-  {
+  public TerminalSymbol(int arg0, String _name) {
     super(arg0);
     name = _name;
   }
-  
+
   /**
    * Gets the name of the symbol
    * @return symbol name
    */
-  public String getName()
-  {
+  public String getName() {
     return name;
   }
 }

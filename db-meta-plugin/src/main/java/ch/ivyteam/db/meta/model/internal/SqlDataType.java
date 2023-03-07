@@ -1,17 +1,15 @@
 package ch.ivyteam.db.meta.model.internal;
 
 /**
- * An sql data type definition 
+ * An sql data type definition
  * @author rwei
  */
-public class SqlDataType
-{
+public class SqlDataType {
+
   /** The data type */
   private DataType fDataType;
-  
   /** The length */
   private int fLength;
-  
   /** The precision */
   private int fPrecision;
 
@@ -19,10 +17,9 @@ public class SqlDataType
    * Constructor
    * @param dataType the data type
    * @param length the length of the data type
-   * @param precision the precision of the data type 
+   * @param precision the precision of the data type
    */
-  public SqlDataType(DataType dataType, Integer length, Integer precision)
-  {
+  public SqlDataType(DataType dataType, Integer length, Integer precision) {
     assert dataType != null : "Parameter dataType must not be null";
     fDataType = dataType;
     fLength = length;
@@ -34,61 +31,53 @@ public class SqlDataType
    * @param dataType the data type
    * @param length the length of the data type
    */
-  public SqlDataType(DataType dataType, Integer length)
-  {
-    this (dataType, length, -1);
+  public SqlDataType(DataType dataType, Integer length) {
+    this(dataType, length, -1);
   }
 
   /**
    * Constructor
    * @param dataType the data type
    */
-  public SqlDataType(DataType dataType)
-  {
-    this (dataType, -1);
+  public SqlDataType(DataType dataType) {
+    this(dataType, -1);
   }
 
   /**
-   * Get the  data type
+   * Get the data type
    * @return data type
    */
-  public DataType getDataType()
-  {
+  public DataType getDataType() {
     return fDataType;
   }
-  
+
   /**
    * Gets the length
    * @return length
    */
-  public int getLength()
-  {
+  public int getLength() {
     return fLength;
   }
-  
+
   /**
    * Gets the precision
    * @return precision
    */
-  public int getPrecision()
-  {
+  public int getPrecision() {
     return fPrecision;
   }
-  
+
   /**
    * @see java.lang.Object#toString()
    */
   @Override
-  public String toString()
-  {
+  public String toString() {
     StringBuilder builder = new StringBuilder(128);
     builder.append(fDataType);
-    if (fLength >= 0)
-    {
+    if (fLength >= 0) {
       builder.append("(");
       builder.append(fLength);
-      if (fPrecision >= 0)
-      {
+      if (fPrecision >= 0) {
         builder.append(", ");
         builder.append(fPrecision);
       }
@@ -97,12 +86,11 @@ public class SqlDataType
     return builder.toString();
   }
 
-  /** 
+  /**
    * Sql data type
    * @author rwei
    */
-  public static enum DataType
-  {
+  public static enum DataType {
     /** Date time */
     DATETIME,
     /** Date */
@@ -116,9 +104,9 @@ public class SqlDataType
     /** INTEGER : NUMBER(10) */
     INTEGER,
     /** BIGINT : NUMBER(20) */
-    BIGINT, 
+    BIGINT,
     /** NUMBER */
-    NUMBER, 
+    NUMBER,
     /** DECIMAL */
     DECIMAL,
     /** FLOAT */
@@ -126,7 +114,7 @@ public class SqlDataType
     /** VARCHAR */
     VARCHAR,
     /** BIT */
-    BIT, 
+    BIT,
     /** CHAR */
     CHAR
   }

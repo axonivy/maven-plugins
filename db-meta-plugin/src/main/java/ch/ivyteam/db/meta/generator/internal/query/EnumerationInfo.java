@@ -4,39 +4,33 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-public class EnumerationInfo
-{
+public class EnumerationInfo {
+
   private final String enumerationName;
 
-  public EnumerationInfo(String enumerationName)
-  {
+  public EnumerationInfo(String enumerationName) {
     this.enumerationName = enumerationName;
   }
-  
-  public String getName()
-  {
+
+  public String getName() {
     return enumerationName;
   }
 
-  public String getSimpleName()
-  {
+  public String getSimpleName() {
     return StringUtils.substringAfterLast(enumerationName, ".");
   }
-  
+
   @Override
-  public boolean equals(Object obj)
-  {
-    if (!(obj instanceof EnumerationInfo))
-    {
+  public boolean equals(Object obj) {
+    if (!(obj instanceof EnumerationInfo)) {
       return false;
     }
-    EnumerationInfo otherObject = (EnumerationInfo) obj; 
+    EnumerationInfo otherObject = (EnumerationInfo) obj;
     return new EqualsBuilder().append(getName(), otherObject.getName()).isEquals();
   }
 
   @Override
-  public int hashCode()
-  {
+  public int hashCode() {
     return new HashCodeBuilder().append(getName()).toHashCode();
   }
 }

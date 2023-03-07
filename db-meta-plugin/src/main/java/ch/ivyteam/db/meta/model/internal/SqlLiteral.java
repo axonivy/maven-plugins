@@ -4,8 +4,8 @@ package ch.ivyteam.db.meta.model.internal;
  * @author rwei
  * @since 02.10.2009
  */
-public class SqlLiteral extends SqlAtom
-{
+public class SqlLiteral extends SqlAtom {
+
   /** Value of the literal */
   private Object fValue;
 
@@ -13,28 +13,23 @@ public class SqlLiteral extends SqlAtom
    * Constructor
    * @param value
    */
-  public SqlLiteral(Object value)
-  {
+  public SqlLiteral(Object value) {
     fValue = value;
   }
-  
+
   /**
    * Returns the value
    * @return the value
    */
-  public Object getValue()
-  {
+  public Object getValue() {
     return fValue;
   }
-  
+
   /**
    * @see java.lang.Object#toString()
    */
   @Override
-  public String toString()
-  {
+  public String toString() {
     return fValue.toString();
   }
-  
-
-}       
+}

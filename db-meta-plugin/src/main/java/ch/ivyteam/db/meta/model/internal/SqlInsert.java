@@ -4,14 +4,13 @@ import java.util.List;
 
 import ch.ivyteam.db.meta.generator.internal.SqlScriptUtil;
 
-public abstract class SqlInsert extends SqlDmlStatement
-{
+public abstract class SqlInsert extends SqlDmlStatement {
+
   private final String table;
   private final List<String> columns;
 
   public SqlInsert(String table, List<String> columns, List<SqlDatabaseSystemHints> dbSysHints,
-          String comment) throws MetaException
-  {
+          String comment) throws MetaException {
     super(dbSysHints, comment);
     assert table != null : "Parameter table must not be null";
     assert columns != null : "Parameter columns must not be null";
@@ -19,19 +18,16 @@ public abstract class SqlInsert extends SqlDmlStatement
     this.columns = columns;
   }
 
-  public String getTable()
-  {
+  public String getTable() {
     return table;
   }
 
-  public List<String> getColumns()
-  {
+  public List<String> getColumns() {
     return columns;
   }
 
   @Override
-  public String toString()
-  {
+  public String toString() {
     StringBuilder builder = new StringBuilder(4096);
     builder.append("INSERT INTO ");
     builder.append(table);

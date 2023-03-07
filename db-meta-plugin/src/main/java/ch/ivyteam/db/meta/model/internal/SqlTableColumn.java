@@ -5,12 +5,12 @@ import java.util.List;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-/** 
+/**
  * Sql table column definition
  * @author rwei
  */
-public class SqlTableColumn extends SqlTableContentDefinition
-{
+public class SqlTableColumn extends SqlTableContentDefinition {
+
   /** The data tpye of the column */
   private SqlDataType fDataType;
   /** Flag indicating if the column can store null values */
@@ -19,7 +19,6 @@ public class SqlTableColumn extends SqlTableContentDefinition
   private SqlLiteral fDefaultValue;
   /** Reference definition of the column */
   private SqlReference fReference;
-
   private boolean isPrimaryKey;
 
   /**
@@ -35,8 +34,7 @@ public class SqlTableColumn extends SqlTableContentDefinition
    */
   public SqlTableColumn(String id, SqlDataType dataType, Boolean nullOpt,
           SqlLiteral defaultOpt, SqlReference reference,
-          List<SqlDatabaseSystemHints> dbSysHints, String comment) throws MetaException
-  {
+          List<SqlDatabaseSystemHints> dbSysHints, String comment) throws MetaException {
     super(id, dbSysHints, comment);
     assert dataType != null : "Parameter dataType must not be null";
     fDataType = dataType;
@@ -45,37 +43,33 @@ public class SqlTableColumn extends SqlTableContentDefinition
     fReference = reference;
     isPrimaryKey = false;
   }
-  
-  public SqlTableColumn changeId(String id)
-  {
-    return new SqlTableColumn(id, fDataType, fCanBeNull, fDefaultValue, fReference, 
+
+  public SqlTableColumn changeId(String id) {
+    return new SqlTableColumn(id, fDataType, fCanBeNull, fDefaultValue, fReference,
             getDatabaseManagementSystemHints(), getComment());
   }
-  
+
   /**
-   * Data type 
+   * Data type
    * @return data type
    */
-  public SqlDataType getDataType()
-  {
+  public SqlDataType getDataType() {
     return fDataType;
   }
-  
+
   /**
    * Gets the default value
    * @return default value
    */
-  public SqlLiteral getDefaultValue()
-  {
+  public SqlLiteral getDefaultValue() {
     return fDefaultValue;
   }
-  
+
   /**
    * Gets the reference defintion
    * @return reference defintion. Mey be null.
    */
-  public SqlReference getReference()
-  {
+  public SqlReference getReference() {
     return fReference;
   }
 
@@ -83,8 +77,7 @@ public class SqlTableColumn extends SqlTableContentDefinition
    * Can be null
    * @return can be null
    */
-  public boolean isCanBeNull()
-  {
+  public boolean isCanBeNull() {
     return fCanBeNull;
   }
 
@@ -92,34 +85,28 @@ public class SqlTableColumn extends SqlTableContentDefinition
    * Sets the reference
    * @param reference the reference to set
    */
-  void setReference(SqlReference reference)
-  {
+  void setReference(SqlReference reference) {
     assert reference != null : "Parameter reference must not be null";
     fReference = reference;
   }
-  
+
   /**
    * @see ch.ivyteam.db.meta.model.internal.SqlObject#toString()
    */
   @Override
-  public String toString()
-  {
+  public String toString() {
     StringBuilder builder = new StringBuilder(512);
     builder.append(getId());
     builder.append(" ");
     builder.append(fDataType);
-    if (fDefaultValue != null)
-    {
+    if (fDefaultValue != null) {
       builder.append(" DEFAULT ");
       builder.append(fDefaultValue);
     }
     builder.append(" ");
-    if (fCanBeNull)
-    {
+    if (fCanBeNull) {
       builder.append("NULL");
-    }
-    else
-    {
+    } else {
       builder.append("NOT NULL");
     }
     return builder.toString();
@@ -129,39 +116,34 @@ public class SqlTableColumn extends SqlTableContentDefinition
    * @see java.lang.Object#hashCode()
    */
   @Override
-  public int hashCode()
-  {
+  public int hashCode() {
     return new HashCodeBuilder()
-      .append(fCanBeNull)
-      .append(fDataType)
-      .append(fDefaultValue)
-      .append(fReference).toHashCode();
+            .append(fCanBeNull)
+            .append(fDataType)
+            .append(fDefaultValue)
+            .append(fReference).toHashCode();
   }
 
   /**
    * @see java.lang.Object#equals(java.lang.Object)
    */
   @Override
-  public boolean equals(Object obj)
-  {
-    if (this == obj)
-    {
+  public boolean equals(Object obj) {
+    if (this == obj) {
       return true;
     }
-    if (obj == null)
-    {
+    if (obj == null) {
       return false;
     }
-    if (getClass() != obj.getClass())
-    {
+    if (getClass() != obj.getClass()) {
       return false;
     }
     SqlTableColumn other = (SqlTableColumn) obj;
     return new EqualsBuilder()
-      .append(other.fCanBeNull, fCanBeNull)
-      .append(other.fDataType, fDataType)
-      .append(other.fDefaultValue, fDefaultValue)
-      .append(other.fReference, fReference).isEquals();
+            .append(other.fCanBeNull, fCanBeNull)
+            .append(other.fDataType, fDataType)
+            .append(other.fDefaultValue, fDefaultValue)
+            .append(other.fReference, fReference).isEquals();
   }
 
   public boolean isPrimaryKey() {

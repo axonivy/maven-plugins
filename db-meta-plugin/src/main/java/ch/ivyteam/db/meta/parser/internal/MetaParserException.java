@@ -3,11 +3,11 @@ package ch.ivyteam.db.meta.parser.internal;
 import java.util.List;
 
 /**
- * Meta Parser Exception is thrown by the meta parser if there are syntax errors in the meta information
+ * Meta Parser Exception is thrown by the meta parser if there are syntax errors
+ * in the meta information
  * @author rwei
  */
-public class MetaParserException extends Exception
-{
+public class MetaParserException extends Exception {
 
   /**
    * Serial version uid
@@ -19,8 +19,7 @@ public class MetaParserException extends Exception
    * @param message the error message
    * @param errors the syntax errors
    */
-  MetaParserException(String message, List<SyntaxError> errors)
-  { 
+  MetaParserException(String message, List<SyntaxError> errors) {
     super(buildErrorMessage(message, errors));
   }
 
@@ -31,16 +30,13 @@ public class MetaParserException extends Exception
    * @return exception message
    */
   private static String buildErrorMessage(String message,
-          List<SyntaxError> errors)
-  {
+          List<SyntaxError> errors) {
     StringBuilder builder = new StringBuilder();
     builder.append(message);
-    for (SyntaxError error : errors)
-    {
+    for (SyntaxError error : errors) {
       builder.append('\n');
       builder.append(error.toString());
     }
     return builder.toString();
   }
-
 }

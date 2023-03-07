@@ -19,14 +19,13 @@ import ch.ivyteam.db.meta.model.internal.SqlMeta;
 import ch.ivyteam.db.meta.parser.internal.Parser;
 import ch.ivyteam.db.meta.parser.internal.Scanner;
 
-public class TestDeprecated
-{
+public class TestDeprecated {
+
   @Rule
   public TemporaryFolder tempFolder = new TemporaryFolder();
-  
+
   @Test
-  public void generateQueryJavaClass() throws Exception
-  {
+  public void generateQueryJavaClass() throws Exception {
     SqlMeta meta = parse();
     File outputDirectory = tempFolder.newFolder();
     File templateDirectory = tempFolder.newFolder();
@@ -34,44 +33,40 @@ public class TestDeprecated
     File templateFile = new File(templateDirectory, "QueryClass.ftl");
     FileUtils.write(templateFile, template);
     File sourceDirectory = tempFolder.newFolder();
-    
     JavaQueryClassGenerator generator = new JavaQueryClassGenerator();
     generator.analyseArgs(new String[] {
-        "-outputDir", outputDirectory.getAbsolutePath(), 
-        "-package", "ch.ivyteam.meta.query", 
+        "-outputDir", outputDirectory.getAbsolutePath(),
+        "-package", "ch.ivyteam.meta.query",
         "-tables", "IWA_Task",
-        "-templateDir", templateDirectory.getAbsolutePath(), 
+        "-templateDir", templateDirectory.getAbsolutePath(),
         "-sourceDir", sourceDirectory.getAbsolutePath()});
     generator.generateMetaOutput(meta);
-    String generatedJavaClass = FileUtils.readFileToString(new File(outputDirectory, "ch/ivyteam/meta/query/TaskQuery.java"));
+    String generatedJavaClass = FileUtils
+            .readFileToString(new File(outputDirectory, "ch/ivyteam/meta/query/TaskQuery.java"));
     String originalJavaClass = loadTestResource("deprecated/TaskQuery.java");
     generatedJavaClass = removeGenerationDate(generatedJavaClass);
     originalJavaClass = removeGenerationDate(originalJavaClass);
-    assertThat(generatedJavaClass).isEqualTo(originalJavaClass);    
+    assertThat(generatedJavaClass).isEqualTo(originalJavaClass);
   }
 
-  private String removeGenerationDate(String text)
-  {
+  private String removeGenerationDate(String text) {
     int start = text.indexOf("@Generated");
     int end = text.indexOf("\n", start);
-    return text.substring(0, start)+text.substring(end);
+    return text.substring(0, start) + text.substring(end);
   }
 
-  private String loadTestResource(String name) throws IOException
-  {
-    try (InputStream is = TestDeprecated.class.getResourceAsStream(name))
-    {
+  private String loadTestResource(String name) throws IOException {
+    try (InputStream is = TestDeprecated.class.getResourceAsStream(name)) {
       return IOUtils.toString(is);
     }
   }
-   
-  private SqlMeta parse() throws FileNotFoundException, Exception
-  {
-    try(InputStreamReader isr = new InputStreamReader(TestDeprecated.class.getResourceAsStream("deprecated.meta")))
-    {
+
+  private SqlMeta parse() throws FileNotFoundException, Exception {
+    try (InputStreamReader isr = new InputStreamReader(
+            TestDeprecated.class.getResourceAsStream("deprecated.meta"))) {
       Scanner scanner = new Scanner(isr);
       Parser parser = new Parser(scanner);
-      SqlMeta sqlMetaDefinition = (SqlMeta)parser.parse().value;
+      SqlMeta sqlMetaDefinition = (SqlMeta) parser.parse().value;
       return sqlMetaDefinition;
     }
   }

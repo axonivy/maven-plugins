@@ -9,51 +9,47 @@ import java.util.Objects;
 
 import ch.ivyteam.db.meta.model.internal.SqlTable;
 
-public class NotReferencedTablesFirstComparator implements Comparator<SqlTable>
-{
+public class NotReferencedTablesFirstComparator implements Comparator<SqlTable> {
+
   private Map<SqlTable, Integer> tableWeights = new HashMap<>();
 
-  public NotReferencedTablesFirstComparator(List<SqlTable> tables)
-  {
+  public NotReferencedTablesFirstComparator(List<SqlTable> tables) {
     List<SqlTable> remainingTables = new ArrayList<>(tables);
     int weight = 0;
-    while (!remainingTables.isEmpty())
-    {
+    while (!remainingTables.isEmpty()) {
       SqlTable table = getAnyTableWhichIsNotReferencedBy(remainingTables);
       tableWeights.put(table, weight);
       remainingTables.remove(table);
       weight++;
-    } 
+    }
   }
 
-  private SqlTable getAnyTableWhichIsNotReferencedBy(List<SqlTable> remainingTables)
-  {
+  private SqlTable getAnyTableWhichIsNotReferencedBy(List<SqlTable> remainingTables) {
     return remainingTables
-        .stream()
-        .filter(table -> isNotReferencedBy(table, remainingTables))
-        .findAny()
-        .orElseThrow(() -> new IllegalArgumentException("There is a circular dependency in the following tables "+remainingTables));    
+            .stream()
+            .filter(table -> isNotReferencedBy(table, remainingTables))
+            .findAny()
+            .orElseThrow(() -> new IllegalArgumentException(
+                    "There is a circular dependency in the following tables " + remainingTables));
   }
 
-  private boolean isNotReferencedBy(SqlTable table, List<SqlTable> remainingTables)
-  {    
+  private boolean isNotReferencedBy(SqlTable table, List<SqlTable> remainingTables) {
     return remainingTables
             .stream()
             .filter(remainingTable -> !Objects.equals(remainingTable, table))
             .noneMatch(remainingTable -> isReferencedBy(table, remainingTable));
   }
-  
-  private boolean isReferencedBy(SqlTable table, SqlTable referencingTable)
-  {
+
+  private boolean isReferencedBy(SqlTable table, SqlTable referencingTable) {
     return referencingTable
             .getForeignKeys()
             .stream()
-            .anyMatch(foreignKey -> Objects.equals(table.getId(), foreignKey.getReference().getForeignTable()));
+            .anyMatch(
+                    foreignKey -> Objects.equals(table.getId(), foreignKey.getReference().getForeignTable()));
   }
 
   @Override
-  public int compare(SqlTable table1, SqlTable table2)
-  {
+  public int compare(SqlTable table1, SqlTable table2) {
     Integer weight1 = tableWeights.get(table1);
     Integer weight2 = tableWeights.get(table2);
     return weight1.compareTo(weight2);

@@ -16,19 +16,17 @@ import ch.ivyteam.db.meta.generator.internal.postgresql.PostgreSqlSqlScriptGener
 import ch.ivyteam.db.meta.generator.internal.query.TableInfo;
 
 /**
- * Used to check that only known system hints are used inside the meta-file,
- * to prevent typos etc.
+ * Used to check that only known system hints are used inside the meta-file, to
+ * prevent typos etc.
  * @author fs
  * @since 13.12.2011
  */
-public class SqlDatabaseSystemHintValidator
-{
+public class SqlDatabaseSystemHintValidator {
+
   private static final String COMMON_HINT_KEY = "COMMON";
   private static final Map<String, Set<String>> HINTS_PER_TYPE = new HashMap<>();
   private static final Set<String> HINT_TYPES = new HashSet<>();
-
-  static
-  {
+  static {
     registerHint(COMMON_HINT_KEY, SqlScriptGenerator.DATA_TYPE);
     registerHint(COMMON_HINT_KEY, SqlScriptGenerator.NO_REFERENCE_USE_TRIGGER);
     registerHint(COMMON_HINT_KEY, SqlScriptGenerator.NO_ACTION_USE_TRIGGER);
@@ -43,7 +41,6 @@ public class SqlDatabaseSystemHintValidator
     registerHint(COMMON_HINT_KEY, SqlScriptGenerator.INDEX_NAME);
     registerHint(COMMON_HINT_KEY, SqlScriptGenerator.NO_INDEX);
     registerHint(COMMON_HINT_KEY, SqlScriptGenerator.DEFAULT_VALUE);
-
     registerType(JavaClassGenerator.JAVA);
     registerHint(JavaClassGenerator.JAVA, JavaClassGenerator.ADDITIONAL_SET_METHODS);
     registerHint(JavaClassGenerator.JAVA, JavaClassGenerator.AS_ASSOCIATION);
@@ -66,32 +63,23 @@ public class SqlDatabaseSystemHintValidator
     registerHint(JavaClassGenerator.JAVA, JavaClassGenerator.SECURITY_MEMBER_LEGACY_FIELDS);
     registerHint(JavaClassGenerator.JAVA, JavaClassGenerator.MANDATORY_FILTER);
     registerHint(JavaClassGenerator.JAVA, TableInfo.BUSINESS_CLASS);
-
     registerType(JavaEntityClassGenerator.CACHE);
     registerHint(JavaEntityClassGenerator.CACHE, JavaEntityClassGenerator.STRATEGY);
     registerHint(JavaEntityClassGenerator.CACHE, JavaEntityClassGenerator.COUNT_LIMIT);
     registerHint(JavaEntityClassGenerator.CACHE, JavaEntityClassGenerator.USAGE_LIMIT);
-
     registerType(HsqlSqlScriptGenerator.HSQL_DB);
-
     registerType(MsSqlServerSqlScriptGenerator.MS_SQL_SERVER);
-
     registerType(MySqlSqlScriptGenerator.MYSQL);
     registerHint(MySqlSqlScriptGenerator.MYSQL, MySqlSqlScriptGenerator.INDEX_COLUMN_LENGTH);
-
     registerType(OracleSqlScriptGenerator.ORACLE);
     registerHint(OracleSqlScriptGenerator.ORACLE, OracleSqlScriptGenerator.CONVERT_EMPTY_STRING_TO_NULL);
-
     registerType(PostgreSqlSqlScriptGenerator.POSTGRESQL);
     registerHint(PostgreSqlSqlScriptGenerator.POSTGRESQL, PostgreSqlSqlScriptGenerator.CAST);
   }
 
-  private static void registerHint(String type, String hint)
-  {
+  private static void registerHint(String type, String hint) {
     Set<String> databaseManagementSystemHint = HINTS_PER_TYPE.get(type);
-
-    if (databaseManagementSystemHint == null)
-    {
+    if (databaseManagementSystemHint == null) {
       databaseManagementSystemHint = new HashSet<String>();
       HINTS_PER_TYPE.put(type, databaseManagementSystemHint);
     }
@@ -103,27 +91,22 @@ public class SqlDatabaseSystemHintValidator
    * @param hint
    * @return -
    */
-  public static boolean isKnownHint(String type, String hint)
-  {
-    if (!checkHint(COMMON_HINT_KEY, hint))
-    {
+  public static boolean isKnownHint(String type, String hint) {
+    if (!checkHint(COMMON_HINT_KEY, hint)) {
       return checkHint(type, hint);
     }
     return true;
   }
 
-  private static boolean checkHint(String type, String hint)
-  {
+  private static boolean checkHint(String type, String hint) {
     Set<String> databaseManagementSystemHint = HINTS_PER_TYPE.get(type);
-    if (databaseManagementSystemHint == null)
-    {
+    if (databaseManagementSystemHint == null) {
       return false;
     }
     return databaseManagementSystemHint.contains(hint);
   }
 
-  private static void registerType(String type)
-  {
+  private static void registerType(String type) {
     HINT_TYPES.add(type);
   }
 
@@ -131,8 +114,7 @@ public class SqlDatabaseSystemHintValidator
    * @param type
    * @return -
    */
-  public static boolean isKnownType(String type)
-  {
+  public static boolean isKnownType(String type) {
     return HINT_TYPES.contains(type);
   }
 }
