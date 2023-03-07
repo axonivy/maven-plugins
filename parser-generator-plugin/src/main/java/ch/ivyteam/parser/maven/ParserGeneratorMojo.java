@@ -5,10 +5,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -88,18 +88,18 @@ public class ParserGeneratorMojo extends AbstractMojo {
   }
 
   private void addSuppressWarningsAnnotations(File packageDir) throws IOException {
-    DirectoryScanner scanner = new DirectoryScanner();
+    var scanner = new DirectoryScanner();
     scanner.setBasedir(packageDir);
     scanner.setIncludes(new String[] {"**/*.java"});
     scanner.scan();
     for (String path : scanner.getIncludedFiles()) {
       File javaFile = new File(packageDir, path);
-      String content = FileUtils.readFileToString(javaFile);
+      String content = Files.readString(javaFile.toPath());
       content = content.replace("@SuppressWarnings(\"all\")", "");
       content = content.replace("public class ", "@SuppressWarnings(\"all\")\r\npublic class ");
       content = content.replace("\r\nclass ", "\r\n@SuppressWarnings(\"all\")\r\nclass ");
       content = content.replace("public interface ", "@SuppressWarnings(\"all\")\r\npublic interface ");
-      FileUtils.write(javaFile, content);
+      Files.writeString(javaFile.toPath(), content);
     }
   }
 
