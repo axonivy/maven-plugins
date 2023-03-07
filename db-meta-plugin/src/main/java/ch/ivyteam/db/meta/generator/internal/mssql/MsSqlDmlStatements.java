@@ -12,16 +12,14 @@ import ch.ivyteam.db.meta.model.internal.SqlFunction;
 import ch.ivyteam.db.meta.model.internal.SqlUpdate;
 import ch.ivyteam.db.meta.model.internal.SqlUpdateColumnExpression;
 
-final class MsSqlDmlStatements extends DmlStatements
-{
-  public MsSqlDmlStatements(DbHints dbHints, Delimiter delimiter, Identifiers identifiers)
-  {
+final class MsSqlDmlStatements extends DmlStatements {
+
+  public MsSqlDmlStatements(DbHints dbHints, Delimiter delimiter, Identifiers identifiers) {
     super(dbHints, delimiter, identifiers);
   }
-  
+
   @Override
-  protected void generateDelete(PrintWriter pr, SqlDelete deleteStmt, int indent) throws MetaException
-  {
+  protected void generateDelete(PrintWriter pr, SqlDelete deleteStmt, int indent) throws MetaException {
     spaces.generate(pr, indent);
     pr.print("DELETE ");
     pr.print(deleteStmt.getTable());
@@ -32,20 +30,17 @@ final class MsSqlDmlStatements extends DmlStatements
     pr.print("WHERE ");
     generateFilterExpression(pr, deleteStmt.getFilterExpression());
   }
-  
+
   @Override
-  public void generateUpdate(PrintWriter pr, SqlUpdate updateStmt, int indent)
-  {
+  public void generateUpdate(PrintWriter pr, SqlUpdate updateStmt, int indent) {
     spaces.generate(pr, indent);
     pr.print("UPDATE ");
     pr.print(updateStmt.getTable());
     spaces.generate(pr, indent);
     pr.print("SET ");
     boolean first = true;
-    for (SqlUpdateColumnExpression expr: updateStmt.getColumnExpressions())
-    {
-      if (!first)
-      {
+    for (SqlUpdateColumnExpression expr : updateStmt.getColumnExpressions()) {
+      if (!first) {
         pr.print(", ");
       }
       first = false;
@@ -64,12 +59,10 @@ final class MsSqlDmlStatements extends DmlStatements
     pr.print("WHERE ");
     generateFilterExpression(pr, updateStmt.getFilterExpression());
   }
-  
+
   @Override
-  protected SqlFunction convertFunction(SqlFunction function)
-  {
-    if ("LENGTH".equalsIgnoreCase(function.getName()))
-    {
+  protected SqlFunction convertFunction(SqlFunction function) {
+    if ("LENGTH".equalsIgnoreCase(function.getName())) {
       return new SqlFunction("LEN", function.getArguments());
     }
     return function;

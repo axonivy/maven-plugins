@@ -13,18 +13,18 @@ import ch.ivyteam.db.meta.generator.internal.Identifiers;
 import ch.ivyteam.db.meta.model.internal.SqlForeignKey;
 import ch.ivyteam.db.meta.model.internal.SqlTable;
 
-final class PostgreSqlForeignKeys extends ForeignKeys
-{
-  public PostgreSqlForeignKeys(DbHints dbHints, Delimiter delimiter, Identifiers identifiers, Comments comments)
-  {
+final class PostgreSqlForeignKeys extends ForeignKeys {
+
+  public PostgreSqlForeignKeys(DbHints dbHints, Delimiter delimiter, Identifiers identifiers,
+          Comments comments) {
     super(dbHints, delimiter, identifiers, comments);
   }
 
   @Override
-  public void generateAlterTableDrop(PrintWriter pr, SqlTable table, SqlForeignKey foreignKey,List<String> createdTemporaryStoredProcedures)
-  {
-    String foreignKeyName = table.getId()+"_"+StringUtils.removeStart(foreignKey.getId(), "FK_")+"_fkey";
-    
+  public void generateAlterTableDrop(PrintWriter pr, SqlTable table, SqlForeignKey foreignKey,
+          List<String> createdTemporaryStoredProcedures) {
+    String foreignKeyName = table.getId() + "_" + StringUtils.removeStart(foreignKey.getId(), "FK_")
+            + "_fkey";
     pr.print("ALTER TABLE ");
     identifiers.generate(pr, table.getId());
     pr.println(" DROP");
@@ -36,8 +36,7 @@ final class PostgreSqlForeignKeys extends ForeignKeys
   }
 
   @Override
-  public void generateAlterTableAdd(PrintWriter pr, SqlTable table, SqlForeignKey foreignKey)
-  {
+  public void generateAlterTableAdd(PrintWriter pr, SqlTable table, SqlForeignKey foreignKey) {
     pr.print("ALTER TABLE ");
     identifiers.generate(pr, table.getId());
     pr.print(" ADD FOREIGN KEY (");

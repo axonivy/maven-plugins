@@ -13,14 +13,12 @@ import ch.ivyteam.db.meta.model.internal.SqlTableColumn;
  * @author fs
  * @since 02.12.2011
  */
-public class GenerateAlterTableUtil
-{
-  private GenerateAlterTableUtil()
-  {
-  }
+public class GenerateAlterTableUtil {
 
-  public static void generateAlterTableAlterColumnType(PrintWriter pr, SqlScriptGenerator generator, SqlTableColumn newColumn, SqlTable newTable, String tableChangeTag, String columnChangeTag)
-  {
+  private GenerateAlterTableUtil() {}
+
+  public static void generateAlterTableAlterColumnType(PrintWriter pr, SqlScriptGenerator generator,
+          SqlTableColumn newColumn, SqlTable newTable, String tableChangeTag, String columnChangeTag) {
     pr.print("ALTER TABLE ");
     generator.identifiers.generate(pr, newTable.getId());
     pr.print(" ");
@@ -33,9 +31,10 @@ public class GenerateAlterTableUtil
     generator.generateDataType(pr, newColumn.getDataType(), newColumn);
     generator.delimiter.generate(pr);
   }
-  
-  public static void generateAlterTableAlterColumnNotNull(PrintWriter pr, SqlScriptGenerator generator, SqlTableColumn newColumn, SqlTable newTable, String tableChangeTag, String setNotNullTag, String dropNotNullTag)
-  {
+
+  public static void generateAlterTableAlterColumnNotNull(PrintWriter pr, SqlScriptGenerator generator,
+          SqlTableColumn newColumn, SqlTable newTable, String tableChangeTag, String setNotNullTag,
+          String dropNotNullTag) {
     pr.print("ALTER TABLE ");
     generator.identifiers.generate(pr, newTable.getId());
     pr.print(" ");
@@ -43,43 +42,35 @@ public class GenerateAlterTableUtil
     pr.print(" ");
     generator.identifiers.generate(pr, newColumn.getId());
     pr.print(" ");
-    if (newColumn.isCanBeNull())
-    {
+    if (newColumn.isCanBeNull()) {
       pr.print(dropNotNullTag);
-    }
-    else
-    {
+    } else {
       pr.print(setNotNullTag);
     }
     generator.delimiter.generate(pr);
   }
-  
+
   public static void generateAlterTableAlterColumnDefault(PrintWriter pr,
           SqlScriptGenerator generator, SqlTableColumn newColumn,
-          SqlTable newTable, String tableChangeTag)
-  {
+          SqlTable newTable, String tableChangeTag) {
     pr.print("ALTER TABLE ");
     generator.identifiers.generate(pr, newTable.getId());
     pr.print(" ");
     pr.print(tableChangeTag);
     pr.print(" ");
     generator.identifiers.generate(pr, newColumn.getId());
-    if (newColumn.getDefaultValue() == null)
-    {
+    if (newColumn.getDefaultValue() == null) {
       pr.print(" DROP DEFAULT");
-    }
-    else
-    {
+    } else {
       pr.print(" SET");
       generator.generateDefaultValue(pr, newColumn);
     }
     generator.delimiter.generate(pr);
   }
 
-  
-  public static void generateAlterTableAlterColumnWithNullConstraints(PrintWriter pr, SqlScriptGenerator generator, 
-          SqlTableColumn newColumn, SqlTable newTable, String changeColumnTag)
-  {
+  public static void generateAlterTableAlterColumnWithNullConstraints(PrintWriter pr,
+          SqlScriptGenerator generator,
+          SqlTableColumn newColumn, SqlTable newTable, String changeColumnTag) {
     pr.print("ALTER TABLE ");
     generator.identifiers.generate(pr, newTable.getId());
     pr.print(" ");
@@ -89,29 +80,26 @@ public class GenerateAlterTableUtil
     pr.print(" ");
     generator.generateDataType(pr, newColumn.getDataType(), newColumn);
     boolean defaultWillBeSetAfterAltering = generator.getRecreateOptions().defaultConstraints;
-    if (!defaultWillBeSetAfterAltering)
-    {
+    if (!defaultWillBeSetAfterAltering) {
       generator.generateDefaultValue(pr, newColumn);
     }
     generator.generateNullConstraint(pr, newColumn.isCanBeNull(), newColumn);
     generator.delimiter.generate(pr);
   }
 
-  public static void generateAlterTableChangeColumnWithDefaultAndNullConstraints(PrintWriter pr, SqlScriptGenerator generator, 
-          SqlTableColumn newColumn, SqlTable newTable, String changeTag) throws MetaException
-  {
+  public static void generateAlterTableChangeColumnWithDefaultAndNullConstraints(PrintWriter pr,
+          SqlScriptGenerator generator,
+          SqlTableColumn newColumn, SqlTable newTable, String changeTag) throws MetaException {
     generateAlterTableForColumn(pr, generator, newColumn, newTable, changeTag);
   }
-  
-  public static void generateAlterTableAddColumn(PrintWriter pr, SqlScriptGenerator generator, 
-          SqlTableColumn newColumn, SqlTable newTable, String changeTag) throws MetaException
-  {
+
+  public static void generateAlterTableAddColumn(PrintWriter pr, SqlScriptGenerator generator,
+          SqlTableColumn newColumn, SqlTable newTable, String changeTag) throws MetaException {
     generateAlterTableForColumn(pr, generator, newColumn, newTable, changeTag);
   }
 
   private static void generateAlterTableForColumn(PrintWriter pr, SqlScriptGenerator generator,
-          SqlTableColumn newColumn, SqlTable newTable, String changeTag)
-  {
+          SqlTableColumn newColumn, SqlTable newTable, String changeTag) {
     pr.print("ALTER TABLE ");
     generator.identifiers.generate(pr, newTable.getId());
     pr.print(" ");
@@ -120,16 +108,14 @@ public class GenerateAlterTableUtil
     generator.delimiter.generate(pr);
   }
 
-  public static void generateAlterTableDropColumn(PrintWriter pr, SqlScriptGenerator generator, 
-          SqlTable table, SqlTableColumn columnToDrop)
-  {
+  public static void generateAlterTableDropColumn(PrintWriter pr, SqlScriptGenerator generator,
+          SqlTable table, SqlTableColumn columnToDrop) {
     generateAlterTableDropColumn(pr, generator, table, columnToDrop, "DROP COLUMN");
   }
-  
+
   public static void generateAlterTableDropColumn(PrintWriter pr,
           SqlScriptGenerator generator, SqlTable table,
-          SqlTableColumn columnToDrop, String dropTag)
-  {
+          SqlTableColumn columnToDrop, String dropTag) {
     pr.print("ALTER TABLE ");
     generator.identifiers.generate(pr, table.getId());
     pr.print(" ");
@@ -140,11 +126,9 @@ public class GenerateAlterTableUtil
     pr.println();
   }
 
-
   public static void renameColumn(PrintWriter pr,
           SqlScriptGenerator generator, SqlTable table, SqlTableColumn oldColumn,
-          SqlTableColumn newColumn)
-  {
+          SqlTableColumn newColumn) {
     pr.print("ALTER TABLE ");
     generator.identifiers.generate(pr, table.getId());
     pr.print(" ");

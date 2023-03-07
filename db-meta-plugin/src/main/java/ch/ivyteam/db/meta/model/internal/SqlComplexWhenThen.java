@@ -5,30 +5,26 @@ package ch.ivyteam.db.meta.model.internal;
  * @author rwei
  * @since 12.07.2017
  */
-public class SqlComplexWhenThen
-{
+public class SqlComplexWhenThen {
+
   private SqlSimpleExpr condition;
   private SqlAtom action;
-  
-  public SqlComplexWhenThen(SqlSimpleExpr condition, SqlAtom action)
-  {
+
+  public SqlComplexWhenThen(SqlSimpleExpr condition, SqlAtom action) {
     this.condition = condition;
     this.action = action;
   }
-  
-  public SqlSimpleExpr getCondition()
-  {
+
+  public SqlSimpleExpr getCondition() {
     return condition;
   }
-  
-  public SqlAtom getAction()
-  {
+
+  public SqlAtom getAction() {
     return action;
   }
-  
+
   @Override
-  public String toString() 
-  {
-    return "WHEN "+condition+" THEN "+action; 
+  public String toString() {
+    return "WHEN " + condition + " THEN " + action;
   }
 }

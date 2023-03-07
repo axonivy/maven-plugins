@@ -8,9 +8,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import java_cup.internal_error;
-import jflex.Options;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -23,89 +20,79 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.DirectoryScanner;
 import org.sonatype.plexus.build.incremental.BuildContext;
 
-@Mojo(name="generate-parser", defaultPhase=LifecyclePhase.GENERATE_SOURCES)
-public class ParserGeneratorMojo extends AbstractMojo
-{  
+import java_cup.internal_error;
+import jflex.Options;
+
+@Mojo(name = "generate-parser", defaultPhase = LifecyclePhase.GENERATE_SOURCES)
+public class ParserGeneratorMojo extends AbstractMojo {
+
   static final String GOAL = "generate-parser";
 
   @Parameter(required = true)
   private File parserFile;
-  
+
   @Parameter(required = true)
   private File scannerFile;
-  
-  @Parameter(defaultValue="${project.build.directory}/generated-sources/parser", required=true)
+
+  @Parameter(defaultValue = "${project.build.directory}/generated-sources/parser", required = true)
   private File outputDirectory;
-    
+
   @Component
   private BuildContext buildContext;
-  
-  @Parameter(defaultValue="${project}", required=true, readonly=true)
+
+  @Parameter(defaultValue = "${project}", required = true, readonly = true)
   MavenProject project;
 
   @Override
-  public void execute() throws MojoExecutionException, MojoFailureException
-  {
-    try 
-    {
+  public void execute() throws MojoExecutionException, MojoFailureException {
+    try {
       boolean generated = false;
       File packageDir = parsePackageDir();
       createOutputDirectory(packageDir);
       generated = generateParser(packageDir) || generated;
       generated = generateScanner(packageDir) || generated;
-      if (generated)
-      {
+      if (generated) {
         addAdditionalCompileSourcePath();
         addSuppressWarningsAnnotations(packageDir);
         buildContext.refresh(packageDir);
       }
-    }
-    catch(Exception ex)
-    {
+    } catch (Exception ex) {
       getLog().error(ex);
       throw new MojoExecutionException("Could not generate parser", ex);
     }
   }
 
-  private void addAdditionalCompileSourcePath()
-  {
+  private void addAdditionalCompileSourcePath() {
     project.addCompileSourceRoot(outputDirectory.getAbsolutePath());
-    getLog().info("Add additional source directory "+outputDirectory);
+    getLog().info("Add additional source directory " + outputDirectory);
   }
 
-  private boolean parserUpToDate(File packageDir)
-  {
+  private boolean parserUpToDate(File packageDir) {
     File javaParser = new File(packageDir, "Parser.java");
     return fileUpToDate(parserFile, javaParser);
   }
-  
-  private boolean scannerUpToDate(File packageDir)
-  {
+
+  private boolean scannerUpToDate(File packageDir) {
     File javaScanner = new File(packageDir, "Scanner.java");
     return fileUpToDate(scannerFile, javaScanner);
   }
 
-  private boolean fileUpToDate(File sourceFile, File targetFile)
-  {
-    if (!targetFile.exists())
-    {
+  private boolean fileUpToDate(File sourceFile, File targetFile) {
+    if (!targetFile.exists()) {
       return false;
     }
-    if (targetFile.lastModified() < sourceFile.lastModified())
-    {
+    if (targetFile.lastModified() < sourceFile.lastModified()) {
       return false;
     }
     return true;
   }
 
-  private void addSuppressWarningsAnnotations(File packageDir) throws IOException
-  {
+  private void addSuppressWarningsAnnotations(File packageDir) throws IOException {
     DirectoryScanner scanner = new DirectoryScanner();
     scanner.setBasedir(packageDir);
-    scanner.setIncludes(new String[]{"**/*.java"});
+    scanner.setIncludes(new String[] {"**/*.java"});
     scanner.scan();
-    for (String path : scanner.getIncludedFiles())
-    {
+    for (String path : scanner.getIncludedFiles()) {
       File javaFile = new File(packageDir, path);
       String content = FileUtils.readFileToString(javaFile);
       content = content.replace("@SuppressWarnings(\"all\")", "");
@@ -116,16 +103,12 @@ public class ParserGeneratorMojo extends AbstractMojo
     }
   }
 
-  private File parsePackageDir() throws FileNotFoundException, IOException
-  {
-    try(BufferedReader br = new BufferedReader(new FileReader(parserFile)))
-    {
-      while (br.ready())
-      {
+  private File parsePackageDir() throws FileNotFoundException, IOException {
+    try (var br = new BufferedReader(new FileReader(parserFile))) {
+      while (br.ready()) {
         String line = br.readLine();
-        if (line.startsWith("package") && line.contains(";"))
-        {
-          String packageName = line.substring(8,line.indexOf(";"));
+        if (line.startsWith("package") && line.contains(";")) {
+          String packageName = line.substring(8, line.indexOf(";"));
           packageName = packageName.replace('.', File.separatorChar);
           return new File(outputDirectory, packageName);
         }
@@ -134,26 +117,20 @@ public class ParserGeneratorMojo extends AbstractMojo
     return outputDirectory;
   }
 
-  private void createOutputDirectory(File packageDir)
-  {
-    if (!packageDir.exists())
-    {
+  private void createOutputDirectory(File packageDir) {
+    if (!packageDir.exists()) {
       packageDir.mkdirs();
     }
   }
 
-  private boolean generateParser(File packageDir) throws internal_error, IOException, Exception
-  {
-    if (parserUpToDate(packageDir))
-    {
+  private boolean generateParser(File packageDir) throws internal_error, IOException, Exception {
+    if (parserUpToDate(packageDir)) {
       getLog().info("Parser up to date. Nothing to do.");
       return false;
     }
-
-    getLog().info("Generating parser to "+packageDir+ "...");
-
+    getLog().info("Generating parser to " + packageDir + "...");
     List<String> args = new ArrayList<String>();
-    args.add("-destdir");    
+    args.add("-destdir");
     args.add(packageDir.getAbsolutePath());
     args.add("-interface");
     args.add("-parser");
@@ -161,27 +138,20 @@ public class ParserGeneratorMojo extends AbstractMojo
     args.add("-symbols");
     args.add("Symbols");
     args.add(parserFile.getAbsolutePath());
-    
     java_cup.Main.main(args.toArray(new String[args.size()]));
-    
-    getLog().info("Parser generated to "+ packageDir + ".");
+    getLog().info("Parser generated to " + packageDir + ".");
     return true;
-
   }
 
-  private boolean generateScanner(File packageDir)
-  {
-    if (scannerUpToDate(packageDir))
-    {
+  private boolean generateScanner(File packageDir) {
+    if (scannerUpToDate(packageDir)) {
       getLog().info("Scanner up to date. Nothing to do.");
       return false;
     }
-    getLog().info("Generating scanner to "+packageDir+ "...");
-      
+    getLog().info("Generating scanner to " + packageDir + "...");
     Options.setDir(packageDir);
     jflex.Main.generate(scannerFile);
-    getLog().info("Scanner generated to "+ packageDir + ".");
+    getLog().info("Scanner generated to " + packageDir + ".");
     return true;
   }
-
 }

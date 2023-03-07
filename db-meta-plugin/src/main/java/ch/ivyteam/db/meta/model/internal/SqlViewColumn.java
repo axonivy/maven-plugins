@@ -7,8 +7,8 @@ import java.util.List;
  * @author rwei
  * @since 02.10.2009
  */
-public class SqlViewColumn extends SqlObject
-{  
+public class SqlViewColumn extends SqlObject {
+
   /**
    * Constructor
    * @param id
@@ -17,8 +17,7 @@ public class SqlViewColumn extends SqlObject
    * @throws MetaException
    */
   public SqlViewColumn(String id, List<SqlDatabaseSystemHints> dbSysHints, String comment)
-          throws MetaException
-  {
+          throws MetaException {
     super(id, dbSysHints, comment);
   }
- }
+}

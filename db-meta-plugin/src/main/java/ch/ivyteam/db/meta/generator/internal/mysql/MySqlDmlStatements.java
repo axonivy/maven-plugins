@@ -9,27 +9,22 @@ import ch.ivyteam.db.meta.generator.internal.Identifiers;
 import ch.ivyteam.db.meta.model.internal.SqlUpdate;
 import ch.ivyteam.db.meta.model.internal.SqlUpdateColumnExpression;
 
-final class MySqlDmlStatements extends DmlStatements
-{
+final class MySqlDmlStatements extends DmlStatements {
 
-  public MySqlDmlStatements(DbHints dbHints, Delimiter delimiter, Identifiers identifiers)
-  {
+  public MySqlDmlStatements(DbHints dbHints, Delimiter delimiter, Identifiers identifiers) {
     super(dbHints, delimiter, identifiers);
   }
-  
+
   @Override
-  public void generateUpdate(PrintWriter pr, SqlUpdate updateStmt, int indent)
-  {
+  public void generateUpdate(PrintWriter pr, SqlUpdate updateStmt, int indent) {
     spaces.generate(pr, indent);
     pr.print("UPDATE ");
     pr.println(updateStmt.getTable());
     spaces.generate(pr, indent);
     pr.print("SET ");
     boolean first = true;
-    for (SqlUpdateColumnExpression expr: updateStmt.getColumnExpressions())
-    {
-      if (!first)
-      {
+    for (SqlUpdateColumnExpression expr : updateStmt.getColumnExpressions()) {
+      if (!first) {
         pr.print(", ");
       }
       first = false;

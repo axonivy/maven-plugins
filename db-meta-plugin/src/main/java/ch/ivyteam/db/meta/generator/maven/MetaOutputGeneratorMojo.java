@@ -21,51 +21,39 @@ import org.sonatype.plexus.build.incremental.BuildContext;
 import ch.ivyteam.db.meta.generator.MetaOutputGenerator;
 import ch.ivyteam.db.meta.generator.Target;
 
-@Mojo(name="generate-meta-output", defaultPhase=LifecyclePhase.GENERATE_SOURCES, threadSafe=true)
-public class MetaOutputGeneratorMojo extends AbstractMojo
-{
-  static final String GOAL = "generate-meta-output";
+@Mojo(name = "generate-meta-output", defaultPhase = LifecyclePhase.GENERATE_SOURCES, threadSafe = true)
+public class MetaOutputGeneratorMojo extends AbstractMojo {
 
+  static final String GOAL = "generate-meta-output";
   @Parameter(required = true)
   private String generatorClass;
-
-  @Parameter(defaultValue="generated-db")
+  @Parameter(defaultValue = "generated-db")
   private File outputDirectory;
-
   @Parameter
   private String outputFile;
-
-  @Parameter(defaultValue="meta")
+  @Parameter(defaultValue = "meta")
   private File inputDirectory;
-
   @Parameter
   private String[] includes = {"**/*.meta"};
-
   @Parameter()
   private List<String> arguments;
-
   @Component
   private BuildContext buildContext;
-
-  @Parameter(defaultValue="${project}", required=true, readonly=true)
+  @Parameter(defaultValue = "${project}", required = true, readonly = true)
   MavenProject project;
 
   @Override
-  public void execute() throws MojoExecutionException, MojoFailureException
-  {
+  public void execute() throws MojoExecutionException, MojoFailureException {
     MetaOutputGenerator generator = new MetaOutputGenerator();
-    try
-    {
+    try {
       List<File> sqlMetaFiles = getSqlMetaFiles();
-      if (sqlMetaFiles.isEmpty())
-      {
+      if (sqlMetaFiles.isEmpty()) {
         getLog().warn("No meta input files found. Nothing to do.");
         return;
       }
       String[] args = getArguments(sqlMetaFiles);
       generator.analyseArgs(args);
       Target target = generator.getTarget();
-
       var targetDir = target.getTargetDirectory();
       if (targetDir == null) {
         target.getSingleTargetFile().delete();
@@ -73,16 +61,11 @@ public class MetaOutputGeneratorMojo extends AbstractMojo
         delete(targetDir.toPath());
       }
       logGenerating(target);
-
       generator.parseMetaDefinition();
       generator.generateMetaOutput();
-
       logSuccess(target);
-
       refresh(target);
-    }
-    catch(Throwable ex)
-    {
+    } catch (Throwable ex) {
       generator.printHelp();
       getLog().error(ex);
       throw new MojoExecutionException("Could not generate meta output", ex);
@@ -98,100 +81,77 @@ public class MetaOutputGeneratorMojo extends AbstractMojo
             .forEach(File::delete);
   }
 
-  private void refresh(Target target)
-  {
-    if (target.isSingleTargetFile())
-    {
+  private void refresh(Target target) {
+    if (target.isSingleTargetFile()) {
       buildContext.refresh(target.getSingleTargetFile());
-    }
-    else
-    {
+    } else {
       buildContext.refresh(target.getTargetDirectory());
     }
   }
 
-  private String[] getArguments(List<File> sqlMetaFiles)
-  {
+  private String[] getArguments(List<File> sqlMetaFiles) {
     List<String> args = new ArrayList<String>();
     args.add("-sql");
-    for (File sqlMetaFile : sqlMetaFiles)
-    {
+    for (File sqlMetaFile : sqlMetaFiles) {
       args.add(sqlMetaFile.getAbsolutePath());
     }
     args.add("-generator");
     args.add(generatorClass);
-    if (outputFile != null)
-    {
+    if (outputFile != null) {
       args.add("-outputFile");
       args.add(new File(outputDirectory, outputFile).getAbsolutePath());
-    }
-    else
-    {
+    } else {
       args.add("-outputDir");
-      if (!outputDirectory.exists())
-      {
+      if (!outputDirectory.exists()) {
         outputDirectory.mkdirs();
       }
       args.add(outputDirectory.getAbsolutePath());
     }
-    if (arguments != null)
-    {
+    if (arguments != null) {
       args.addAll(arguments);
     }
     return args.toArray(new String[args.size()]);
   }
 
-  private List<File> getSqlMetaFiles() throws IOException
-  {
+  private List<File> getSqlMetaFiles() throws IOException {
     inputDirectory = inputDirectory.getCanonicalFile();
     Scanner inputScanner = buildContext.newScanner(inputDirectory, true);
     inputScanner.setIncludes(includes);
     inputScanner.scan();
     String[] includedFiles = inputScanner.getIncludedFiles();
     List<File> sqlMetaFiles = new ArrayList<>();
-    for (String input : includedFiles)
-    {
+    for (String input : includedFiles) {
       sqlMetaFiles.add(new File(inputDirectory, input));
     }
     return sqlMetaFiles;
   }
 
-  private void logGenerating(Target target)
-  {
-    getLog().info("Generating meta output "+formatTarget(target)+" using generator class "+ generatorClass +" ...");
+  private void logGenerating(Target target) {
+    getLog().info("Generating meta output " + formatTarget(target) + " using generator class "
+            + generatorClass + " ...");
   }
 
-  private void logSuccess(Target target)
-  {
-    getLog().info("Meta output "+formatTarget(target)+" sucessful generated.");
+  private void logSuccess(Target target) {
+    getLog().info("Meta output " + formatTarget(target) + " sucessful generated.");
   }
 
-  private String formatTarget(Target target)
-  {
-    if (target.isSingleTargetFile())
-    {
-      return "file "+getAbsolutePath(target.getSingleTargetFile());
-    }
-    else
-    {
-      if (target.numberOfTargetFiles() > 0)
-      {
-        return "files ("+Integer.toString(target.numberOfTargetFiles())+") in directory "+getAbsolutePath(target.getTargetDirectory());
-      }
-      else
-      {
-        return "files in directory "+getAbsolutePath(target.getTargetDirectory());
+  private String formatTarget(Target target) {
+    if (target.isSingleTargetFile()) {
+      return "file " + getAbsolutePath(target.getSingleTargetFile());
+    } else {
+      if (target.numberOfTargetFiles() > 0) {
+        return "files (" + Integer.toString(target.numberOfTargetFiles()) + ") in directory "
+                + getAbsolutePath(target.getTargetDirectory());
+      } else {
+        return "files in directory " + getAbsolutePath(target.getTargetDirectory());
       }
     }
   }
 
-  private String getAbsolutePath(File targetDirectoryOrFile)
-  {
-    if (targetDirectoryOrFile == null)
-    {
+  private String getAbsolutePath(File targetDirectoryOrFile) {
+    if (targetDirectoryOrFile == null) {
       return "";
     }
     return targetDirectoryOrFile.getAbsolutePath();
   }
-
 }

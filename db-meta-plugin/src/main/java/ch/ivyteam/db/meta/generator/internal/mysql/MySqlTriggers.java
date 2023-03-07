@@ -11,22 +11,20 @@ import ch.ivyteam.db.meta.generator.internal.Triggers;
 import ch.ivyteam.db.meta.model.internal.SqlDmlStatement;
 import ch.ivyteam.db.meta.model.internal.SqlTable;
 
-final class MySqlTriggers extends Triggers
-{
-  MySqlTriggers(DbHints dbHints, Delimiter delimiter, DmlStatements dmlStatements, ForeignKeys foreignKeys)
-  {
+final class MySqlTriggers extends Triggers {
+
+  MySqlTriggers(DbHints dbHints, Delimiter delimiter, DmlStatements dmlStatements, ForeignKeys foreignKeys) {
     super(dbHints, delimiter, dmlStatements, foreignKeys);
   }
 
   @Override
-  protected String getRowTriggerOldVariableName()
-  {
+  protected String getRowTriggerOldVariableName() {
     return "OLD";
   }
 
   @Override
-  protected void forEachRowDeleteTrigger(PrintWriter pr, SqlTable table, List<SqlDmlStatement> triggerStatements, boolean recursiveTrigger)
-  {
+  protected void forEachRowDeleteTrigger(PrintWriter pr, SqlTable table,
+          List<SqlDmlStatement> triggerStatements, boolean recursiveTrigger) {
     pr.print("CREATE TRIGGER ");
     triggerName(pr, table);
     pr.println();
@@ -34,8 +32,7 @@ final class MySqlTriggers extends Triggers
     pr.println(table.getId());
     pr.println("FOR EACH ROW");
     pr.println("BEGIN");
-    for (SqlDmlStatement stmt : triggerStatements)
-    {
+    for (SqlDmlStatement stmt : triggerStatements) {
       generateDmlStatement(pr, stmt, 2);
       delimiter.generate(pr);
       pr.println();

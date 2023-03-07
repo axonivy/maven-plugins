@@ -4,8 +4,7 @@ package ch.ivyteam.db.meta.model.internal;
  * Meta exception
  * @author rwei
  */
-public class MetaException extends RuntimeException
-{
+public class MetaException extends RuntimeException {
 
   /**
    * serial version uid
@@ -14,11 +13,9 @@ public class MetaException extends RuntimeException
 
   /**
    * Constructor
-   * @param message 
+   * @param message
    */
-  public MetaException(String message)
-  {
+  public MetaException(String message) {
     super(message);
   }
-  
 }

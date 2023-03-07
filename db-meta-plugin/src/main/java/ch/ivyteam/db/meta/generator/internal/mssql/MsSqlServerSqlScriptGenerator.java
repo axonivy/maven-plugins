@@ -26,35 +26,33 @@ import ch.ivyteam.db.meta.model.internal.SqlUniqueConstraint;
  * Generates the sql script for Microsoft SQL Server database systems
  * @author rwei
  */
-public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
-{
-  private static final String DROP_UNIQUE_CONSTRAINT_STORED_PROCUDRE  = "IWA_Drop_Unique"; 
+public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator {
+
+  private static final String DROP_UNIQUE_CONSTRAINT_STORED_PROCUDRE = "IWA_Drop_Unique";
   private static final String DROP_PRIMARY_CONSTRAINT_STORED_PROCUDRE = "IWA_Drop_PrimaryKey";
   static final String DROP_FOREIGN_CONSTRAINT_STORED_PROCUDRE = "IWA_Drop_ForeignKey";
   private static final Delimiter DELIMITER = new Delimiter("\nGO");
-  public static final String MS_SQL_SERVER = String.valueOf("MsSqlServer");  
+  public static final String MS_SQL_SERVER = String.valueOf("MsSqlServer");
   private List<String> dropUniqueForTables = new ArrayList<>();
-  
-  public MsSqlServerSqlScriptGenerator()
-  {
+
+  public MsSqlServerSqlScriptGenerator() {
     super(MS_SQL_SERVER, DELIMITER, Identifiers.STANDARD, Comments.STANDARD);
   }
-  
+
   @Override
-  protected DmlStatements createDmlStatementsGenerator(DbHints hints, Delimiter delim, Identifiers ident)
-  {
+  protected DmlStatements createDmlStatementsGenerator(DbHints hints, Delimiter delim, Identifiers ident) {
     return new MsSqlDmlStatements(hints, delim, ident);
   }
-  
+
   @Override
-  protected Triggers createTriggersGenerator(DbHints hints, Delimiter delim, DmlStatements dmlStmts, ForeignKeys fKeys)
-  {
+  protected Triggers createTriggersGenerator(DbHints hints, Delimiter delim, DmlStatements dmlStmts,
+          ForeignKeys fKeys) {
     return new MsSqlTriggers(hints, delim, dmlStmts, fKeys);
   }
-  
+
   @Override
-  protected ForeignKeys createForeignKeysGenerator(DbHints hints, Delimiter delim, Identifiers ident, Comments cmmnts)
-  {
+  protected ForeignKeys createForeignKeysGenerator(DbHints hints, Delimiter delim, Identifiers ident,
+          Comments cmmnts) {
     return new MsSqlForeignKeys(hints, delim, ident, cmmnts);
   }
 
@@ -67,7 +65,8 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
       if (dataType.getLength() >= 0) {
         pr.print('(');
         var length = dataType.getLength();
-        // because MS SQL Server uses bytes as varchar length, we reserve 4 bytes per character
+        // because MS SQL Server uses bytes as varchar length, we reserve 4
+        // bytes per character
         if (dataType.getDataType().equals(DataType.VARCHAR)) {
           if (artifact instanceof SqlTableColumn) {
             var column = (SqlTableColumn) artifact;
@@ -87,10 +86,8 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
   }
 
   @Override
-  protected void generateDataType(PrintWriter pr, DataType dataType)
-  {
-    switch(dataType)
-    {
+  protected void generateDataType(PrintWriter pr, DataType dataType) {
+    switch (dataType) {
       case CLOB:
         pr.append("VARCHAR(MAX)");
         break;
@@ -102,33 +99,28 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
       case DATETIME:
         pr.append("DATETIME2(3)");
         break;
-       default:
+      default:
         super.generateDataType(pr, dataType);
         break;
-    }   
+    }
   }
-    
+
   @Override
-  protected boolean isIndexInTableSupported()
-  {
+  protected boolean isIndexInTableSupported() {
     return false;
   }
-  
+
   @Override
-  public String dbName()
-  {
+  public String dbName() {
     return "Microsoft SQL Server";
   }
 
   @Override
-  protected void generatePrefix(PrintWriter pr)
-  {
+  protected void generatePrefix(PrintWriter pr) {
     var path = fOutputFile.getAbsolutePath();
-    if (!path.contains("mssqlserver.sql") && !path.contains("CreateDatabase.sql"))
-    {
+    if (!path.contains("mssqlserver.sql") && !path.contains("CreateDatabase.sql")) {
       return;
     }
-
     pr.print("SET IMPLICIT_TRANSACTIONS OFF");
     delimiter.generate(pr);
     pr.println();
@@ -144,8 +136,7 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
     pr.println();
   }
 
-  private void generateAlterDatabaseForSnapshotIsolation(PrintWriter pr)
-  {
+  private void generateAlterDatabaseForSnapshotIsolation(PrintWriter pr) {
     comments.generate(pr, "Alter database so that read operations are not blocked by write operations.");
     pr.print("ALTER DATABASE [${databaseName}] SET ALLOW_SNAPSHOT_ISOLATION ON");
     delimiter.generate(pr);
@@ -155,8 +146,7 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
     delimiter.generate(pr);
   }
 
-  private void generateAlterDatabaseForRecursiveTriggers(PrintWriter pr)
-  {
+  private void generateAlterDatabaseForRecursiveTriggers(PrintWriter pr) {
     comments.generate(pr, "Alter database so that recursive triggers work.");
     pr.print("ALTER DATABASE [${databaseName}] SET RECURSIVE_TRIGGERS ON");
     delimiter.generate(pr);
@@ -164,59 +154,48 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
   }
 
   @Override
-  public void generateAlterTableAlterColumn(PrintWriter pr, SqlTableColumn newColumn, SqlTable newTable, SqlTableColumn oldColumn)
-  {
-    GenerateAlterTableUtil.generateAlterTableAlterColumnWithNullConstraints(pr, this, newColumn, newTable, "ALTER COLUMN");
-  }  
-  
+  public void generateAlterTableAlterColumn(PrintWriter pr, SqlTableColumn newColumn, SqlTable newTable,
+          SqlTableColumn oldColumn) {
+    GenerateAlterTableUtil.generateAlterTableAlterColumnWithNullConstraints(pr, this, newColumn, newTable,
+            "ALTER COLUMN");
+  }
+
   @Override
-  protected void generateNullConstraint(PrintWriter pr, boolean canBeNull, SqlTableColumn column)
-  {
-    if (!canBeNull)
-    {
+  protected void generateNullConstraint(PrintWriter pr, boolean canBeNull, SqlTableColumn column) {
+    if (!canBeNull) {
       pr.append(" NOT NULL");
-    }
-    else
-    {
+    } else {
       pr.append(" NULL");
     }
   }
-  
+
   @Override
-  public void generateAlterTableAddColumn(PrintWriter pr, SqlTableColumn newColumn, SqlTable newTable)
-  {
+  public void generateAlterTableAddColumn(PrintWriter pr, SqlTableColumn newColumn, SqlTable newTable) {
     GenerateAlterTableUtil.generateAlterTableAddColumn(pr, this, newColumn, newTable, "ADD");
   }
-  
+
   @Override
-  protected void generateAlterTableDropUniqueConstraint(PrintWriter pr, SqlTable table, SqlUniqueConstraint unique, List<String> createdTemporaryStoredProcedures)
-  {
+  protected void generateAlterTableDropUniqueConstraint(PrintWriter pr, SqlTable table,
+          SqlUniqueConstraint unique, List<String> createdTemporaryStoredProcedures) {
     generateDropUniqueConstraintStoredProcedure(pr, createdTemporaryStoredProcedures);
-    
     String tableName = table.getId();
-    if (!dropUniqueForTables.contains(tableName))
-    {
+    if (!dropUniqueForTables.contains(tableName)) {
       pr.print("EXECUTE ");
       pr.print(DROP_UNIQUE_CONSTRAINT_STORED_PROCUDRE);
       pr.print(" '");
       pr.print(tableName);
       pr.print("'");
       dropUniqueForTables.add(tableName);
-    }
-    else
-    {
+    } else {
       pr.print("select null");
     }
   }
 
-  private void generateDropUniqueConstraintStoredProcedure(PrintWriter pr, List<String> createdTemporaryStoredProcedures)
-  {
-    if (!createdTemporaryStoredProcedures.contains(DROP_UNIQUE_CONSTRAINT_STORED_PROCUDRE))
-    {
+  private void generateDropUniqueConstraintStoredProcedure(PrintWriter pr,
+          List<String> createdTemporaryStoredProcedures) {
+    if (!createdTemporaryStoredProcedures.contains(DROP_UNIQUE_CONSTRAINT_STORED_PROCUDRE)) {
       createdTemporaryStoredProcedures.add(DROP_UNIQUE_CONSTRAINT_STORED_PROCUDRE);
-      
       comments.generate(pr, "Store Procedure to drop a unique constraint");
-
       pr.print("CREATE PROCEDURE ");
       pr.println(DROP_UNIQUE_CONSTRAINT_STORED_PROCUDRE);
       pr.println("@tablename varchar(100)");
@@ -234,14 +213,15 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
       pr.println("  RETURN");
       pr.println("END");
       pr.println("DECLARE uq_cursor CURSOR FOR");
-      pr.println("SELECT name from sysobjects WHERE parent_obj = @parentid AND xtype = 'UQ'"); 
+      pr.println("SELECT name from sysobjects WHERE parent_obj = @parentid AND xtype = 'UQ'");
       pr.println("CLOSE table_cursor");
       pr.println("DEALLOCATE table_cursor");
       pr.println("OPEN uq_cursor");
       pr.println("FETCH NEXT FROM uq_cursor INTO @uqname");
       pr.println("IF @@FETCH_STATUS<>0");
       pr.println("BEGIN");
-      pr.println("  RAISERROR('Unique constraint of table %s not found in table sysobjects', 16, 1, @tablename);");
+      pr.println(
+              "  RAISERROR('Unique constraint of table %s not found in table sysobjects', 16, 1, @tablename);");
       pr.println("  CLOSE uq_cursor");
       pr.println("  DEALLOCATE uq_cursor");
       pr.println("  RETURN");
@@ -258,29 +238,26 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
       pr.println();
     }
   }
-  
+
   @Override
-  public void generateDropPrimaryKey(PrintWriter pr, SqlTable table, SqlPrimaryKey primaryKey, List<String> createdTemporaryStoredProcedures)
-  {
+  public void generateDropPrimaryKey(PrintWriter pr, SqlTable table, SqlPrimaryKey primaryKey,
+          List<String> createdTemporaryStoredProcedures) {
     generateDropPrimaryKeyConstraintStoredProcedure(pr, createdTemporaryStoredProcedures);
     pr.print("EXECUTE ");
     pr.print(DROP_PRIMARY_CONSTRAINT_STORED_PROCUDRE);
     pr.print("");
-    pr.print(" @tableName='");           
-    pr.print(table.getId()); 
-    pr.print("'");    
+    pr.print(" @tableName='");
+    pr.print(table.getId());
+    pr.print("'");
     delimiter.generate(pr);
-    pr.println(); 
-  } 
-  
-  private void generateDropPrimaryKeyConstraintStoredProcedure(PrintWriter pr, List<String> createdTemporaryStoredProcedures)
-  {
-    if (!createdTemporaryStoredProcedures.contains(DROP_PRIMARY_CONSTRAINT_STORED_PROCUDRE))
-    {
-      createdTemporaryStoredProcedures.add(DROP_PRIMARY_CONSTRAINT_STORED_PROCUDRE);
-      
-      comments.generate(pr, "Store Procedure to drop a primary key constraint");
+    pr.println();
+  }
 
+  private void generateDropPrimaryKeyConstraintStoredProcedure(PrintWriter pr,
+          List<String> createdTemporaryStoredProcedures) {
+    if (!createdTemporaryStoredProcedures.contains(DROP_PRIMARY_CONSTRAINT_STORED_PROCUDRE)) {
+      createdTemporaryStoredProcedures.add(DROP_PRIMARY_CONSTRAINT_STORED_PROCUDRE);
+      comments.generate(pr, "Store Procedure to drop a primary key constraint");
       pr.print("CREATE PROCEDURE ");
       pr.println(DROP_PRIMARY_CONSTRAINT_STORED_PROCUDRE);
       pr.println("@tableName varchar(100)");
@@ -290,52 +267,50 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator
       pr.println("  SELECT [name] FROM sysobjects");
       pr.println("    WHERE [xtype] = 'PK'");
       pr.println("          AND [parent_obj] = OBJECT_ID(N'[dbo].['+@tableName+N']')");
-      pr.println(")" );
+      pr.println(")");
       pr.println("DECLARE @dropSql varchar(4000)");
       pr.println("SET @dropSql=");
       pr.println("  'ALTER TABLE [dbo].['+@tableName+']");
       pr.println("    DROP CONSTRAINT ['+@PkName+']'");
       pr.println("EXEC(@dropSql)");
-      delimiter.generate(pr); 
+      delimiter.generate(pr);
       pr.println();
       pr.println();
     }
   }
-  
 
   @Override
-  public void generateDropIndex(PrintWriter pr, SqlTable table, SqlIndex index) 
-  {
+  public void generateDropIndex(PrintWriter pr, SqlTable table, SqlIndex index) {
     pr.print("DROP INDEX ");
-    identifiers.generate(pr, table.getId()+"."+getIndexName(index));
+    identifiers.generate(pr, table.getId() + "." + getIndexName(index));
     delimiter.generate(pr);
-    pr.println(); 
+    pr.println();
   }
-  
+
   @Override
-  public RecreateOptions getRecreateOptions()
-  {
+  public RecreateOptions getRecreateOptions() {
     RecreateOptions options = super.getRecreateOptions();
     options.defaultConstraints = true;
     options.foreignKeysOnAlterTable = true;
     options.primaryKeysOnAlterTable = true;
     options.indexesOnAlterTable = true;
-    
     // DO NOT REMOVE THIS METHOD OR CHANGE THE BEHAVIOUR OF IT
     //
-    // There are some rare cases where altering a column on which a UNIQUE constraint is set can lead to the following error message:
+    // There are some rare cases where altering a column on which a UNIQUE
+    // constraint is set can lead to the following error message:
     // -----
     // Msg 5074, Level 16, State 1, Line 9
     // The object 'UniqueConstraintKey' is dependent on column 'ColumnName'.
     // Msg 4922, Level 16, State 9, Line 9
-    // ALTER TABLE ALTER COLUMN ColumnName failed because one or more objects access this column.
+    // ALTER TABLE ALTER COLUMN ColumnName failed because one or more objects
+    // access this column.
     // ----
-    // It is not clear when this happens. We never had this problem with our test cases or when testing manually. 
-    // But we have some customers that had this error. 
+    // It is not clear when this happens. We never had this problem with our
+    // test cases or when testing manually.
+    // But we have some customers that had this error.
     // See issue #23610 for details
     options.uniqueConstraintsOnAlterTable = true;
     options.allUniqueConstraintsOnAlterTable = true;
-    
     return options;
   }
 }

@@ -1,4 +1,5 @@
 package ch.ivyteam.db.meta.generator;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
@@ -22,59 +23,53 @@ import ch.ivyteam.db.meta.generator.internal.postgresql.PostgreSqlSqlScriptGener
 import ch.ivyteam.db.meta.model.internal.SqlMeta;
 
 @RunWith(Parameterized.class)
-public class TestMetaOutputDifferenceGenerator
-{
+public class TestMetaOutputDifferenceGenerator {
+
   private static final File TESTS_DIRECTORY = new File("src/test/resources/difference");
   private String testName;
 
-  public TestMetaOutputDifferenceGenerator(String testName)
-  {
+  public TestMetaOutputDifferenceGenerator(String testName) {
     this.testName = testName;
   }
-  
-  @Parameters(name="{0}")
-  public static Collection<String[]> createTests()
-  {
+
+  @Parameters(name = "{0}")
+  public static Collection<String[]> createTests() {
     String[] names = TESTS_DIRECTORY.list(new SuffixFileFilter("_from.meta"));
     return Arrays
-        .stream(names)
-        .map(name -> StringUtils.remove(name, "_from.meta"))
-        .map(name -> new String[] {name})
-        .collect(Collectors.toList());
+            .stream(names)
+            .map(name -> StringUtils.remove(name, "_from.meta"))
+            .map(name -> new String[] {name})
+            .collect(Collectors.toList());
   }
-  
+
   @Test
-  public void postgre() throws Exception
-  {
+  public void postgre() throws Exception {
     runDiffGeneratorTest(PostgreSqlSqlScriptGenerator.class.getName(), "postgre");
   }
-  
+
   @Test
-  public void oracle() throws Exception
-  {
+  public void oracle() throws Exception {
     runDiffGeneratorTest(OracleSqlScriptGenerator.class.getName(), "oracle");
   }
-  
-  private void runDiffGeneratorTest(String generatorName, String dbName) throws Exception
-  {
-    SqlMeta metaFrom = MetaOutputDifferenceGenerator.parseMetaDefinitions(new File(TESTS_DIRECTORY, testName+"_from.meta"));
-    SqlMeta metaTo = MetaOutputDifferenceGenerator.parseMetaDefinitions(new File(TESTS_DIRECTORY, testName+"_to.meta"));
-    
-    try (StringWriter sw = new StringWriter(); PrintWriter pr = new PrintWriter(sw))
-    {
-      SqlScriptGenerator scriptGenerator = MetaOutputDifferenceGenerator.findGeneratorClass(generatorName);
-      MetaOutputDifferenceGenerator differenceGenerator = new MetaOutputDifferenceGenerator(metaFrom, metaTo, null, scriptGenerator, 2);
-      
-      differenceGenerator.generate(pr);
 
-      String assertOutput = normalizeLineEnds(FileUtils.readFileToString(new File(TESTS_DIRECTORY, testName + "_" + dbName + ".sql")));
+  private void runDiffGeneratorTest(String generatorName, String dbName) throws Exception {
+    SqlMeta metaFrom = MetaOutputDifferenceGenerator
+            .parseMetaDefinitions(new File(TESTS_DIRECTORY, testName + "_from.meta"));
+    SqlMeta metaTo = MetaOutputDifferenceGenerator
+            .parseMetaDefinitions(new File(TESTS_DIRECTORY, testName + "_to.meta"));
+    try (StringWriter sw = new StringWriter(); PrintWriter pr = new PrintWriter(sw)) {
+      SqlScriptGenerator scriptGenerator = MetaOutputDifferenceGenerator.findGeneratorClass(generatorName);
+      MetaOutputDifferenceGenerator differenceGenerator = new MetaOutputDifferenceGenerator(metaFrom, metaTo,
+              null, scriptGenerator, 2);
+      differenceGenerator.generate(pr);
+      String assertOutput = normalizeLineEnds(
+              FileUtils.readFileToString(new File(TESTS_DIRECTORY, testName + "_" + dbName + ".sql")));
       String testee = removeHeaderAndUpdateVersion(sw.toString());
       assertThat(testee).isEqualTo(assertOutput);
     }
   }
 
-  private String removeHeaderAndUpdateVersion(String testee)
-  {
+  private String removeHeaderAndUpdateVersion(String testee) {
     testee = normalizeLineEnds(testee);
     testee = StringUtils.substringAfter(testee, "\n");
     testee = StringUtils.substringBefore(testee, "\n-- Update Version");
@@ -82,8 +77,7 @@ public class TestMetaOutputDifferenceGenerator
     return testee;
   }
 
-  private String normalizeLineEnds(String testee)
-  {
+  private String normalizeLineEnds(String testee) {
     return StringUtils.replace(testee, "\r\n", "\n");
   }
 }

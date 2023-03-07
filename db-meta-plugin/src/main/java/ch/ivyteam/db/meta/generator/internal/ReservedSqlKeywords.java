@@ -9,19 +9,15 @@ import java.util.Set;
  * @author Urs-Martin
  * @version 11.6.2001
  */
+public class ReservedSqlKeywords {
 
-public class ReservedSqlKeywords
-{
   /** The reserved keywords */
   private static Set<String> reservedKeywords;
 
   /** No instances of this class */
-  private ReservedSqlKeywords()
-  {
-  }
+  private ReservedSqlKeywords() {}
 
-  static
-  {
+  static {
     Set<String> reserved = new HashSet<>(1000);
     reserved.add("ABSOLUTE");
     reserved.add("ACTION");
@@ -349,8 +345,7 @@ public class ReservedSqlKeywords
    * Gets the reserved sql keywords
    * @return reserved sql keywords
    */
-  public static Set<String> get()
-  {
+  public static Set<String> get() {
     return reservedKeywords;
   }
 }

@@ -4,11 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
 
-public class TestJavaClassGenerator
-{
+public class TestJavaClassGenerator {
+
   @Test
-  public void removeAtRef()
-  {
+  public void removeAtRef() {
     assertThat(JavaClassGenerator.removeAtRef("a")).isEqualTo("a");
     assertThat(JavaClassGenerator.removeAtRef("abc")).isEqualTo("abc");
     assertThat(JavaClassGenerator.removeAtRef("a {@ref hey}")).isEqualTo("a {hey}");

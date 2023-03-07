@@ -5,8 +5,8 @@ package ch.ivyteam.db.meta.model.internal;
  * @author rwei
  * @since 02.10.2009
  */
-public class SqlNot extends SqlSimpleExpr
-{
+public class SqlNot extends SqlSimpleExpr {
+
   /** The expression */
   private SqlSimpleExpr fExpression;
 
@@ -14,28 +14,24 @@ public class SqlNot extends SqlSimpleExpr
    * Constructor
    * @param expr
    */
-  public SqlNot(SqlSimpleExpr expr)
-  {
+  public SqlNot(SqlSimpleExpr expr) {
     assert expr != null : "Parameter expr must not be null";
     fExpression = expr;
   }
-  
+
   /**
    * Returns the expression
    * @return the expression
    */
-  public SqlSimpleExpr getExpression()
-  {
+  public SqlSimpleExpr getExpression() {
     return fExpression;
   }
-  
+
   /**
    * @see java.lang.Object#toString()
    */
   @Override
-  public String toString()
-  {
+  public String toString() {
     return "NOT " + super.toString();
   }
-
 }

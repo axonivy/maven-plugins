@@ -5,13 +5,15 @@ import java.util.Map;
 import ch.ivyteam.db.meta.model.internal.SqlMeta;
 import ch.ivyteam.db.meta.model.internal.SqlTable;
 
-public class JavaClassPersistencyServiceImplementationTemplateWriter extends AbstractJavaClassPersistencyServiceImplementationTemplateWriter {
+public class JavaClassPersistencyServiceImplementationTemplateWriter
+        extends AbstractJavaClassPersistencyServiceImplementationTemplateWriter {
 
   private static final String PERSISTENCY_SERVICE_IMPLEMENTATION_CLASS_TEMPLATE = "JavaClassPersistencyServiceImplementation.ftl";
   private SqlTable table;
   private String entityPackage;
 
-  public JavaClassPersistencyServiceImplementationTemplateWriter(SqlTable table, SqlMeta meta, String targetPackage, String entityPackage) {
+  public JavaClassPersistencyServiceImplementationTemplateWriter(SqlTable table, SqlMeta meta,
+          String targetPackage, String entityPackage) {
     super(meta, targetPackage);
     this.table = table;
     this.entityPackage = entityPackage;

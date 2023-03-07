@@ -22,36 +22,27 @@ import ch.ivyteam.db.meta.generator.internal.NewLinePrintWriter;
 import ch.ivyteam.db.meta.generator.internal.SqlScriptGenerator;
 import ch.ivyteam.db.meta.model.internal.SqlMeta;
 
-@Mojo(name="generate-meta-output-difference", defaultPhase=LifecyclePhase.GENERATE_SOURCES, threadSafe=true)
-public class MetaOutputDifferenceGeneratorMojo extends AbstractMojo
-{
-  static final String GOAL = "generate-meta-output-difference";
+@Mojo(name = "generate-meta-output-difference", defaultPhase = LifecyclePhase.GENERATE_SOURCES, threadSafe = true)
+public class MetaOutputDifferenceGeneratorMojo extends AbstractMojo {
 
+  static final String GOAL = "generate-meta-output-difference";
   @Parameter(required = true)
   private String generatorClass;
-
-  @Parameter(defaultValue="generated-db")
+  @Parameter(defaultValue = "generated-db")
   private File outputDirectory;
-
   @Parameter
   private String outputFile;
-
   @Parameter
   private FileSet inputFrom;
-
   @Parameter
   private FileSet inputTo;
-
   @Parameter
   private String oldVersionId;
-
   @Parameter
   private File additionalConversion;
-
   @Component
   private BuildContext buildContext;
-
-  @Parameter(defaultValue="${project}", required=true, readonly=true)
+  @Parameter(defaultValue = "${project}", required = true, readonly = true)
   MavenProject project;
 
   @Override
@@ -60,7 +51,6 @@ public class MetaOutputDifferenceGeneratorMojo extends AbstractMojo
     if (output.exists()) {
       output.delete();
     }
-
     try {
       logGenerating(output);
       generate(output);
@@ -73,77 +63,65 @@ public class MetaOutputDifferenceGeneratorMojo extends AbstractMojo
     }
   }
 
-  private void generate(File output) throws Exception
-  {
+  private void generate(File output) throws Exception {
     SqlMeta metaFrom = MetaOutputDifferenceGenerator.parseMetaDefinitions(getInputFromFiles());
     SqlMeta metaTo = MetaOutputDifferenceGenerator.parseMetaDefinitions(getInputToFiles());
-    SqlMeta additionalConversionMeta = MetaOutputDifferenceGenerator.parseMetaDefinitions(additionalConversion);
-
-    try (PrintWriter pr = new NewLinePrintWriter(output))
-    {
+    SqlMeta additionalConversionMeta = MetaOutputDifferenceGenerator
+            .parseMetaDefinitions(additionalConversion);
+    try (PrintWriter pr = new NewLinePrintWriter(output)) {
       SqlScriptGenerator scriptGenerator = MetaOutputDifferenceGenerator.findGeneratorClass(generatorClass);
-      int newVersionId = Integer.parseInt(oldVersionId) +1;
-      MetaOutputDifferenceGenerator differenceGenerator = new MetaOutputDifferenceGenerator(metaFrom, metaTo, additionalConversionMeta, scriptGenerator, newVersionId);
+      int newVersionId = Integer.parseInt(oldVersionId) + 1;
+      MetaOutputDifferenceGenerator differenceGenerator = new MetaOutputDifferenceGenerator(metaFrom, metaTo,
+              additionalConversionMeta, scriptGenerator, newVersionId);
       differenceGenerator.generate(pr);
     }
   }
 
-  private File[] getInputFromFiles()
-  {
+  private File[] getInputFromFiles() {
     return getIncludedFiles(inputFrom);
   }
 
-  private File[] getInputToFiles()
-  {
+  private File[] getInputToFiles() {
     return getIncludedFiles(inputTo);
   }
 
-  private File[] getIncludedFiles(FileSet fileSet)
-  {
+  private File[] getIncludedFiles(FileSet fileSet) {
     File baseDir = getBaseDir(fileSet);
-
     Scanner inputScanner = buildContext.newScanner(baseDir, true);
     inputScanner.setIncludes(fileSet.getIncludesArray());
     inputScanner.setExcludes(fileSet.getExcludesArray());
     inputScanner.scan();
     String[] includedFiles = inputScanner.getIncludedFiles();
     List<String> includedFilePaths = Arrays.asList(includedFiles);
-
     return includedFilePaths.stream()
             .map(filePath -> new File(baseDir, filePath))
             .toArray(File[]::new);
   }
 
-  private File getBaseDir(FileSet fileSet)
-  {
+  private File getBaseDir(FileSet fileSet) {
     File baseDir = new File(fileSet.getDirectory());
-    if (!baseDir.isAbsolute())
-    {
+    if (!baseDir.isAbsolute()) {
       baseDir = new File(project.getBasedir(), fileSet.getDirectory());
     }
     return baseDir;
   }
 
-  private void refresh(File output)
-  {
+  private void refresh(File output) {
     getLog().debug("Refresh '" + getAbsolutePath(output) + "'");
     buildContext.refresh(output);
   }
 
-  private void logGenerating(File output)
-  {
-    getLog().info("Generating meta output difference " + getAbsolutePath(output) + " using generator class "+ generatorClass +" ...");
+  private void logGenerating(File output) {
+    getLog().info("Generating meta output difference " + getAbsolutePath(output) + " using generator class "
+            + generatorClass + " ...");
   }
 
-  private void logSuccess(File output)
-  {
+  private void logSuccess(File output) {
     getLog().info("Meta output difference " + getAbsolutePath(output) + " sucessful generated.");
   }
 
-  private static String getAbsolutePath(File file)
-  {
-    if (file == null)
-    {
+  private static String getAbsolutePath(File file) {
+    if (file == null) {
       return "";
     }
     return file.getAbsolutePath();

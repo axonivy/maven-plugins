@@ -9,43 +9,39 @@ import java.util.stream.Collectors;
  * @author rwei
  * @since 25.07.2012
  */
-public class SqlSelect
-{
+public class SqlSelect {
+
   /** The select columns expressions */
   private List<SqlSelectExpression> expressions;
   /** the tables the view gather data from */
   private List<SqlJoinTable> joinTables;
   /** The condition of the view */
   private SqlSimpleExpr condition;
-   
+
   /**
    * @param expressions
    * @param joinTables
    * @param condition
    */
-  public SqlSelect(List<SqlSelectExpression> expressions, List<SqlJoinTable> joinTables, SqlSimpleExpr condition)
-  {
+  public SqlSelect(List<SqlSelectExpression> expressions, List<SqlJoinTable> joinTables,
+          SqlSimpleExpr condition) {
     super();
     this.expressions = expressions;
     this.joinTables = joinTables;
     this.condition = condition;
   }
 
-  public List<SqlSelectExpression> getExpressions()
-  {
+  public List<SqlSelectExpression> getExpressions() {
     return expressions;
   }
 
   @Override
-  public String toString()
-  {
+  public String toString() {
     StringBuilder builder = new StringBuilder();
     boolean first = true;
     builder.append("SELECT\n");
-    for (SqlSelectExpression expression : expressions)
-    {
-      if (!first)
-      {
+    for (SqlSelectExpression expression : expressions) {
+      if (!first) {
         builder.append(",\n");
       }
       first = false;
@@ -55,12 +51,9 @@ public class SqlSelect
     builder.append("\n");
     builder.append("FROM ");
     first = true;
-    for (SqlJoinTable joinTable : joinTables)
-    {
-      if (!first)
-      {
-        if (joinTable.getJoinKind() == null)
-        {
+    for (SqlJoinTable joinTable : joinTables) {
+      if (!first) {
+        if (joinTable.getJoinKind() == null) {
           builder.append(",");
         }
         builder.append(" ");
@@ -68,31 +61,27 @@ public class SqlSelect
       first = false;
       builder.append(joinTable);
     }
-    if (condition != null)
-    {
+    if (condition != null) {
       builder.append("\nWHERE ");
       builder.append(condition);
     }
     return builder.toString();
   }
 
-  public List<SqlJoinTable> getJoinTables()
-  {
+  public List<SqlJoinTable> getJoinTables() {
     return joinTables;
   }
 
-  public Map<String, String> getTableAliases()
-  {
+  public Map<String, String> getTableAliases() {
     Map<String, String> aliases = joinTables
-        .stream()
-        .map(joinTable -> joinTable.getTable())
-        .filter(table-> table.getAlias() != null)
-        .collect(Collectors.toMap(SqlTableId::getAlias, SqlTableId::getName));
+            .stream()
+            .map(joinTable -> joinTable.getTable())
+            .filter(table -> table.getAlias() != null)
+            .collect(Collectors.toMap(SqlTableId::getAlias, SqlTableId::getName));
     return aliases;
   }
 
-  public SqlSimpleExpr getCondition()
-  {
+  public SqlSimpleExpr getCondition() {
     return condition;
   }
 }

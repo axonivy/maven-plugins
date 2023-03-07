@@ -7,8 +7,8 @@ import java.util.List;
  * @author rwei
  * @since 01.10.2009
  */
-public class SqlTableContentDefinition extends SqlObject
-{
+public class SqlTableContentDefinition extends SqlObject {
+
   /**
    * Constructor
    * @param id
@@ -17,9 +17,7 @@ public class SqlTableContentDefinition extends SqlObject
    * @throws MetaException
    */
   public SqlTableContentDefinition(String id, List<SqlDatabaseSystemHints> dbSysHints, String comment)
-          throws MetaException
-  {
+          throws MetaException {
     super(id, dbSysHints, comment);
   }
-
 }

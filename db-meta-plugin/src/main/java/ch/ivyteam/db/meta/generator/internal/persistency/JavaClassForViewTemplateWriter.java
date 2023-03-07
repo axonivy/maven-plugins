@@ -9,29 +9,27 @@ import ch.ivyteam.db.meta.model.internal.SqlView;
 /**
  * Generates a java class for a view
  */
-public class JavaClassForViewTemplateWriter extends AbstractJavaClassPersistencyServiceImplementationTemplateWriter
-{
+public class JavaClassForViewTemplateWriter
+        extends AbstractJavaClassPersistencyServiceImplementationTemplateWriter {
+
   private final SqlView view;
 
-  public JavaClassForViewTemplateWriter(SqlView view, SqlMeta meta, String targetPackage)
-  {
+  public JavaClassForViewTemplateWriter(SqlView view, SqlMeta meta, String targetPackage) {
     super(meta, targetPackage);
     this.view = view;
   }
 
   @Override
-  protected String getTemplateName()
-  {
+  protected String getTemplateName() {
     return "JavaClassForView.ftl";
   }
-  
+
   @Override
-  protected Map<String, Object> getDataMap()
-  {
+  protected Map<String, Object> getDataMap() {
     Map<String, Object> map = super.getDataMap();
-    map.put("view",  view);
-    map.put("className", "Db"+JavaClassGeneratorUtil.getEntityClassName(view));
-    map.put("columns",  ViewColumnInfo.getViewColumns(view));
+    map.put("view", view);
+    map.put("className", "Db" + JavaClassGeneratorUtil.getEntityClassName(view));
+    map.put("columns", ViewColumnInfo.getViewColumns(view));
     return map;
   }
 }
