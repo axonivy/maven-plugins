@@ -36,7 +36,7 @@ public class ChangelogGeneratorMojo extends AbstractMojo {
   public String jiraServerId;
 
   /** jira base url */
-  @Parameter(property = "jiraServerUri", defaultValue = "https://axonivy.atlassian.net")
+  @Parameter(property = "jiraServerUri", defaultValue = "https://1ivy.atlassian.net")
   public String jiraServerUri;
 
   /*** filter query to run against Jira */
