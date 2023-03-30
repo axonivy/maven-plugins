@@ -7,7 +7,7 @@
     {
       "expand": "operations,versionedRepresentations,editmeta,changelog,customfield_10010.requestTypePractice,renderedFields",
       "id": "125093",
-      "self": "https://axonivy.atlassian.net/rest/api/2/issue/125093",
+      "self": "https://1ivy.atlassian.net/rest/api/2/issue/125093",
       "key": "XIVY-6324",
       "fields": {
         "statuscategorychangedate": "2021-10-18T13:06:48.317+0000",
@@ -19,7 +19,7 @@
         "customfield_10077": null,
         "fixVersions": [
           {
-            "self": "https://axonivy.atlassian.net/rest/api/2/version/12198",
+            "self": "https://1ivy.atlassian.net/rest/api/2/version/12198",
             "id": "12198",
             "description": "Weissfluh Minor Release 3",
             "name": "9.3",
@@ -30,7 +30,7 @@
         "customfield_10078": null,
         "customfield_10079": null,
         "resolution": {
-          "self": "https://axonivy.atlassian.net/rest/api/2/resolution/10001",
+          "self": "https://1ivy.atlassian.net/rest/api/2/resolution/10001",
           "id": "10001",
           "description": "A fix for this issue is checked into the tree, is tested and has been reviewed.",
           "name": "Fixed with Review"
@@ -40,8 +40,8 @@
         "customfield_10062": null,
         "customfield_10066": null,
         "priority": {
-          "self": "https://axonivy.atlassian.net/rest/api/2/priority/10002",
-          "iconUrl": "https://axonivy.atlassian.net/images/icons/priorities/major.svg",
+          "self": "https://1ivy.atlassian.net/rest/api/2/priority/10002",
+          "iconUrl": "https://1ivy.atlassian.net/images/icons/priorities/major.svg",
           "name": "Major",
           "id": "10002"
         },
@@ -57,7 +57,7 @@
         "issuelinks": [
         ],
         "assignee": {
-          "self": "https://axonivy.atlassian.net/rest/api/2/user?accountId=557058%3A1fdb90fd-6219-49cf-95d0-8dbe82773524",
+          "self": "https://1ivy.atlassian.net/rest/api/2/user?accountId=557058%3A1fdb90fd-6219-49cf-95d0-8dbe82773524",
           "accountId": "557058:1fdb90fd-6219-49cf-95d0-8dbe82773524",
           "avatarUrls": {
             "48x48": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/557058:1fdb90fd-6219-49cf-95d0-8dbe82773524/d812081b-dd47-46e9-ba0c-d7f41ee2b2c0/48",
@@ -71,13 +71,13 @@
           "accountType": "atlassian"
         },
         "status": {
-          "self": "https://axonivy.atlassian.net/rest/api/2/status/6",
+          "self": "https://1ivy.atlassian.net/rest/api/2/status/6",
           "description": "The issue is considered finished, the resolution is correct. Issues which are closed can be reopened.",
-          "iconUrl": "https://axonivy.atlassian.net/images/icons/statuses/closed.png",
+          "iconUrl": "https://1ivy.atlassian.net/images/icons/statuses/closed.png",
           "name": "Closed",
           "id": "6",
           "statusCategory": {
-            "self": "https://axonivy.atlassian.net/rest/api/2/statuscategory/3",
+            "self": "https://1ivy.atlassian.net/rest/api/2/statuscategory/3",
             "id": 3,
             "key": "done",
             "colorName": "green",
@@ -86,7 +86,7 @@
         },
         "components": [
           {
-            "self": "https://axonivy.atlassian.net/rest/api/2/component/10080",
+            "self": "https://1ivy.atlassian.net/rest/api/2/component/10080",
             "id": "10080",
             "name": "Designer",
             "description": "Axon Ivy Designer"
@@ -99,7 +99,7 @@
         "customfield_10049": null,
         "aggregatetimeestimate": null,
         "creator": {
-          "self": "https://axonivy.atlassian.net/rest/api/2/user?accountId=557058%3A7e347a82-e379-4d9d-85f6-8325681c2c98",
+          "self": "https://1ivy.atlassian.net/rest/api/2/user?accountId=557058%3A7e347a82-e379-4d9d-85f6-8325681c2c98",
           "accountId": "557058:7e347a82-e379-4d9d-85f6-8325681c2c98",
           "avatarUrls": {
             "48x48": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/557058:7e347a82-e379-4d9d-85f6-8325681c2c98/9c094b6f-425c-45b2-a87b-4e6045379b56/48",
@@ -116,17 +116,17 @@
           {
             "id": "275909",
             "key": "XIVY-6588",
-            "self": "https://axonivy.atlassian.net/rest/api/2/issue/275909",
+            "self": "https://1ivy.atlassian.net/rest/api/2/issue/275909",
             "fields": {
               "summary": "Add toolbar botton to open internal browser with the market page.",
               "status": {
-                "self": "https://axonivy.atlassian.net/rest/api/2/status/10003",
+                "self": "https://1ivy.atlassian.net/rest/api/2/status/10003",
                 "description": "Issue is done. It was accepted by the reporter/product owner (Migrated on 20 Aug 2021 15:20 UTC)",
-                "iconUrl": "https://axonivy.atlassian.net/images/icons/statuses/generic.png",
+                "iconUrl": "https://1ivy.atlassian.net/images/icons/statuses/generic.png",
                 "name": "Done",
                 "id": "10003",
                 "statusCategory": {
-                  "self": "https://axonivy.atlassian.net/rest/api/2/statuscategory/3",
+                  "self": "https://1ivy.atlassian.net/rest/api/2/statuscategory/3",
                   "id": 3,
                   "key": "done",
                   "colorName": "green",
@@ -134,16 +134,16 @@
                 }
               },
               "priority": {
-                "self": "https://axonivy.atlassian.net/rest/api/2/priority/10005",
+                "self": "https://1ivy.atlassian.net/rest/api/2/priority/10005",
                 "iconUrl": "https://www.sgscc.edu.au/s/img/blank.png",
                 "name": "None",
                 "id": "10005"
               },
               "issuetype": {
-                "self": "https://axonivy.atlassian.net/rest/api/2/issuetype/10029",
+                "self": "https://1ivy.atlassian.net/rest/api/2/issuetype/10029",
                 "id": "10029",
                 "description": "A technical task. (Migrated on 20 Aug 2021 15:20 UTC)",
-                "iconUrl": "https://axonivy.atlassian.net/secure/viewavatar?size=medium&avatarId=10321&avatarType=issuetype",
+                "iconUrl": "https://1ivy.atlassian.net/secure/viewavatar?size=medium&avatarId=10321&avatarType=issuetype",
                 "name": "Technical task",
                 "subtask": true,
                 "avatarId": 10321,
@@ -154,17 +154,17 @@
           {
             "id": "275911",
             "key": "XIVY-6590",
-            "self": "https://axonivy.atlassian.net/rest/api/2/issue/275911",
+            "self": "https://1ivy.atlassian.net/rest/api/2/issue/275911",
             "fields": {
               "summary": "Remove old \"Import Ivy Projects (Utils, Demo, Portal)\"",
               "status": {
-                "self": "https://axonivy.atlassian.net/rest/api/2/status/10003",
+                "self": "https://1ivy.atlassian.net/rest/api/2/status/10003",
                 "description": "Issue is done. It was accepted by the reporter/product owner (Migrated on 20 Aug 2021 15:20 UTC)",
-                "iconUrl": "https://axonivy.atlassian.net/images/icons/statuses/generic.png",
+                "iconUrl": "https://1ivy.atlassian.net/images/icons/statuses/generic.png",
                 "name": "Done",
                 "id": "10003",
                 "statusCategory": {
-                  "self": "https://axonivy.atlassian.net/rest/api/2/statuscategory/3",
+                  "self": "https://1ivy.atlassian.net/rest/api/2/statuscategory/3",
                   "id": 3,
                   "key": "done",
                   "colorName": "green",
@@ -172,16 +172,16 @@
                 }
               },
               "priority": {
-                "self": "https://axonivy.atlassian.net/rest/api/2/priority/10005",
+                "self": "https://1ivy.atlassian.net/rest/api/2/priority/10005",
                 "iconUrl": "https://www.sgscc.edu.au/s/img/blank.png",
                 "name": "None",
                 "id": "10005"
               },
               "issuetype": {
-                "self": "https://axonivy.atlassian.net/rest/api/2/issuetype/10029",
+                "self": "https://1ivy.atlassian.net/rest/api/2/issuetype/10029",
                 "id": "10029",
                 "description": "A technical task. (Migrated on 20 Aug 2021 15:20 UTC)",
-                "iconUrl": "https://axonivy.atlassian.net/secure/viewavatar?size=medium&avatarId=10321&avatarType=issuetype",
+                "iconUrl": "https://1ivy.atlassian.net/secure/viewavatar?size=medium&avatarId=10321&avatarType=issuetype",
                 "name": "Technical task",
                 "subtask": true,
                 "avatarId": 10321,
@@ -192,17 +192,17 @@
           {
             "id": "275913",
             "key": "XIVY-6592",
-            "self": "https://axonivy.atlassian.net/rest/api/2/issue/275913",
+            "self": "https://1ivy.atlassian.net/rest/api/2/issue/275913",
             "fields": {
               "summary": "Improve validation of demo projects during build (project-build-plugin)",
               "status": {
-                "self": "https://axonivy.atlassian.net/rest/api/2/status/10003",
+                "self": "https://1ivy.atlassian.net/rest/api/2/status/10003",
                 "description": "Issue is done. It was accepted by the reporter/product owner (Migrated on 20 Aug 2021 15:20 UTC)",
-                "iconUrl": "https://axonivy.atlassian.net/images/icons/statuses/generic.png",
+                "iconUrl": "https://1ivy.atlassian.net/images/icons/statuses/generic.png",
                 "name": "Done",
                 "id": "10003",
                 "statusCategory": {
-                  "self": "https://axonivy.atlassian.net/rest/api/2/statuscategory/3",
+                  "self": "https://1ivy.atlassian.net/rest/api/2/statuscategory/3",
                   "id": 3,
                   "key": "done",
                   "colorName": "green",
@@ -210,16 +210,16 @@
                 }
               },
               "priority": {
-                "self": "https://axonivy.atlassian.net/rest/api/2/priority/10005",
+                "self": "https://1ivy.atlassian.net/rest/api/2/priority/10005",
                 "iconUrl": "https://www.sgscc.edu.au/s/img/blank.png",
                 "name": "None",
                 "id": "10005"
               },
               "issuetype": {
-                "self": "https://axonivy.atlassian.net/rest/api/2/issuetype/10029",
+                "self": "https://1ivy.atlassian.net/rest/api/2/issuetype/10029",
                 "id": "10029",
                 "description": "A technical task. (Migrated on 20 Aug 2021 15:20 UTC)",
-                "iconUrl": "https://axonivy.atlassian.net/secure/viewavatar?size=medium&avatarId=10321&avatarType=issuetype",
+                "iconUrl": "https://1ivy.atlassian.net/secure/viewavatar?size=medium&avatarId=10321&avatarType=issuetype",
                 "name": "Technical task",
                 "subtask": true,
                 "avatarId": 10321,
@@ -230,17 +230,17 @@
           {
             "id": "275910",
             "key": "XIVY-6589",
-            "self": "https://axonivy.atlassian.net/rest/api/2/issue/275910",
+            "self": "https://1ivy.atlassian.net/rest/api/2/issue/275910",
             "fields": {
               "summary": "Add new \"Import from Market\" wizard",
               "status": {
-                "self": "https://axonivy.atlassian.net/rest/api/2/status/10003",
+                "self": "https://1ivy.atlassian.net/rest/api/2/status/10003",
                 "description": "Issue is done. It was accepted by the reporter/product owner (Migrated on 20 Aug 2021 15:20 UTC)",
-                "iconUrl": "https://axonivy.atlassian.net/images/icons/statuses/generic.png",
+                "iconUrl": "https://1ivy.atlassian.net/images/icons/statuses/generic.png",
                 "name": "Done",
                 "id": "10003",
                 "statusCategory": {
-                  "self": "https://axonivy.atlassian.net/rest/api/2/statuscategory/3",
+                  "self": "https://1ivy.atlassian.net/rest/api/2/statuscategory/3",
                   "id": 3,
                   "key": "done",
                   "colorName": "green",
@@ -248,16 +248,16 @@
                 }
               },
               "priority": {
-                "self": "https://axonivy.atlassian.net/rest/api/2/priority/10005",
+                "self": "https://1ivy.atlassian.net/rest/api/2/priority/10005",
                 "iconUrl": "https://www.sgscc.edu.au/s/img/blank.png",
                 "name": "None",
                 "id": "10005"
               },
               "issuetype": {
-                "self": "https://axonivy.atlassian.net/rest/api/2/issuetype/10029",
+                "self": "https://1ivy.atlassian.net/rest/api/2/issuetype/10029",
                 "id": "10029",
                 "description": "A technical task. (Migrated on 20 Aug 2021 15:20 UTC)",
-                "iconUrl": "https://axonivy.atlassian.net/secure/viewavatar?size=medium&avatarId=10321&avatarType=issuetype",
+                "iconUrl": "https://1ivy.atlassian.net/secure/viewavatar?size=medium&avatarId=10321&avatarType=issuetype",
                 "name": "Technical task",
                 "subtask": true,
                 "avatarId": 10321,
@@ -268,17 +268,17 @@
           {
             "id": "275912",
             "key": "XIVY-6591",
-            "self": "https://axonivy.atlassian.net/rest/api/2/issue/275912",
+            "self": "https://1ivy.atlassian.net/rest/api/2/issue/275912",
             "fields": {
               "summary": "Move RCPTT demo projects import tests into separate build",
               "status": {
-                "self": "https://axonivy.atlassian.net/rest/api/2/status/10003",
+                "self": "https://1ivy.atlassian.net/rest/api/2/status/10003",
                 "description": "Issue is done. It was accepted by the reporter/product owner (Migrated on 20 Aug 2021 15:20 UTC)",
-                "iconUrl": "https://axonivy.atlassian.net/images/icons/statuses/generic.png",
+                "iconUrl": "https://1ivy.atlassian.net/images/icons/statuses/generic.png",
                 "name": "Done",
                 "id": "10003",
                 "statusCategory": {
-                  "self": "https://axonivy.atlassian.net/rest/api/2/statuscategory/3",
+                  "self": "https://1ivy.atlassian.net/rest/api/2/statuscategory/3",
                   "id": 3,
                   "key": "done",
                   "colorName": "green",
@@ -286,16 +286,16 @@
                 }
               },
               "priority": {
-                "self": "https://axonivy.atlassian.net/rest/api/2/priority/10005",
+                "self": "https://1ivy.atlassian.net/rest/api/2/priority/10005",
                 "iconUrl": "https://www.sgscc.edu.au/s/img/blank.png",
                 "name": "None",
                 "id": "10005"
               },
               "issuetype": {
-                "self": "https://axonivy.atlassian.net/rest/api/2/issuetype/10029",
+                "self": "https://1ivy.atlassian.net/rest/api/2/issuetype/10029",
                 "id": "10029",
                 "description": "A technical task. (Migrated on 20 Aug 2021 15:20 UTC)",
-                "iconUrl": "https://axonivy.atlassian.net/secure/viewavatar?size=medium&avatarId=10321&avatarType=issuetype",
+                "iconUrl": "https://1ivy.atlassian.net/secure/viewavatar?size=medium&avatarId=10321&avatarType=issuetype",
                 "name": "Technical task",
                 "subtask": true,
                 "avatarId": 10321,
@@ -309,7 +309,7 @@
         "customfield_10042": null,
         "customfield_10043": null,
         "reporter": {
-          "self": "https://axonivy.atlassian.net/rest/api/2/user?accountId=557058%3A7e347a82-e379-4d9d-85f6-8325681c2c98",
+          "self": "https://1ivy.atlassian.net/rest/api/2/user?accountId=557058%3A7e347a82-e379-4d9d-85f6-8325681c2c98",
           "accountId": "557058:7e347a82-e379-4d9d-85f6-8325681c2c98",
           "avatarUrls": {
             "48x48": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/557058:7e347a82-e379-4d9d-85f6-8325681c2c98/9c094b6f-425c-45b2-a87b-4e6045379b56/48",
@@ -336,15 +336,15 @@
           "total": 0
         },
         "votes": {
-          "self": "https://axonivy.atlassian.net/rest/api/2/issue/XIVY-6324/votes",
+          "self": "https://1ivy.atlassian.net/rest/api/2/issue/XIVY-6324/votes",
           "votes": 0,
           "hasVoted": false
         },
         "issuetype": {
-          "self": "https://axonivy.atlassian.net/rest/api/2/issuetype/10010",
+          "self": "https://1ivy.atlassian.net/rest/api/2/issuetype/10010",
           "id": "10010",
           "description": "Stories track functionality or features expressed as user goals.",
-          "iconUrl": "https://axonivy.atlassian.net/images/icons/issuetypes/story.svg",
+          "iconUrl": "https://1ivy.atlassian.net/images/icons/issuetypes/story.svg",
           "name": "Story",
           "subtask": false,
           "hierarchyLevel": 0
@@ -353,20 +353,20 @@
         "customfield_10030": null,
         "customfield_10031": null,
         "project": {
-          "self": "https://axonivy.atlassian.net/rest/api/2/project/10019",
+          "self": "https://1ivy.atlassian.net/rest/api/2/project/10019",
           "id": "10019",
           "key": "XIVY",
           "name": "Axon Ivy Platform",
           "projectTypeKey": "software",
           "simplified": false,
           "avatarUrls": {
-            "48x48": "https://axonivy.atlassian.net/secure/projectavatar?pid=10019&avatarId=10569",
-            "24x24": "https://axonivy.atlassian.net/secure/projectavatar?size=small&s=small&pid=10019&avatarId=10569",
-            "16x16": "https://axonivy.atlassian.net/secure/projectavatar?size=xsmall&s=xsmall&pid=10019&avatarId=10569",
-            "32x32": "https://axonivy.atlassian.net/secure/projectavatar?size=medium&s=medium&pid=10019&avatarId=10569"
+            "48x48": "https://1ivy.atlassian.net/secure/projectavatar?pid=10019&avatarId=10569",
+            "24x24": "https://1ivy.atlassian.net/secure/projectavatar?size=small&s=small&pid=10019&avatarId=10569",
+            "16x16": "https://1ivy.atlassian.net/secure/projectavatar?size=xsmall&s=xsmall&pid=10019&avatarId=10569",
+            "32x32": "https://1ivy.atlassian.net/secure/projectavatar?size=medium&s=medium&pid=10019&avatarId=10569"
           },
           "projectCategory": {
-            "self": "https://axonivy.atlassian.net/rest/api/2/projectCategory/10000",
+            "self": "https://1ivy.atlassian.net/rest/api/2/projectCategory/10000",
             "id": "10000",
             "description": "",
             "name": "Axon Ivy Core"
@@ -384,7 +384,7 @@
         "resolutiondate": "2021-10-18T13:06:48.297+0000",
         "workratio": -1,
         "watches": {
-          "self": "https://axonivy.atlassian.net/rest/api/2/issue/XIVY-6324/watchers",
+          "self": "https://1ivy.atlassian.net/rest/api/2/issue/XIVY-6324/watchers",
           "watchCount": 2,
           "isWatching": false
         },
@@ -449,7 +449,7 @@
     {
       "expand": "operations,versionedRepresentations,editmeta,changelog,customfield_10010.requestTypePractice,renderedFields",
       "id": "125212",
-      "self": "https://axonivy.atlassian.net/rest/api/2/issue/125212",
+      "self": "https://1ivy.atlassian.net/rest/api/2/issue/125212",
       "key": "XIVY-6434",
       "fields": {
         "statuscategorychangedate": "2021-10-26T13:23:29.794+0000",
@@ -460,7 +460,7 @@
         "customfield_10075": null,
         "fixVersions": [
           {
-            "self": "https://axonivy.atlassian.net/rest/api/2/version/12198",
+            "self": "https://1ivy.atlassian.net/rest/api/2/version/12198",
             "id": "12198",
             "description": "Weissfluh Minor Release 3",
             "name": "9.3",
@@ -472,7 +472,7 @@
         "customfield_10078": null,
         "customfield_10079": null,
         "resolution": {
-          "self": "https://axonivy.atlassian.net/rest/api/2/resolution/10001",
+          "self": "https://1ivy.atlassian.net/rest/api/2/resolution/10001",
           "id": "10001",
           "description": "A fix for this issue is checked into the tree, is tested and has been reviewed.",
           "name": "Fixed with Review"
@@ -482,8 +482,8 @@
         "customfield_10062": null,
         "customfield_10066": null,
         "priority": {
-          "self": "https://axonivy.atlassian.net/rest/api/2/priority/10002",
-          "iconUrl": "https://axonivy.atlassian.net/images/icons/priorities/major.svg",
+          "self": "https://1ivy.atlassian.net/rest/api/2/priority/10002",
+          "iconUrl": "https://1ivy.atlassian.net/images/icons/priorities/major.svg",
           "name": "Major",
           "id": "10002"
         },
@@ -500,28 +500,28 @@
         "issuelinks": [
           {
             "id": "122760",
-            "self": "https://axonivy.atlassian.net/rest/api/2/issueLink/122760",
+            "self": "https://1ivy.atlassian.net/rest/api/2/issueLink/122760",
             "type": {
               "id": "10003",
               "name": "Relates",
               "inward": "relates to",
               "outward": "relates to",
-              "self": "https://axonivy.atlassian.net/rest/api/2/issueLinkType/10003"
+              "self": "https://1ivy.atlassian.net/rest/api/2/issueLinkType/10003"
             },
             "inwardIssue": {
               "id": "119547",
               "key": "MARKET-105",
-              "self": "https://axonivy.atlassian.net/rest/api/2/issue/119547",
+              "self": "https://1ivy.atlassian.net/rest/api/2/issue/119547",
               "fields": {
                 "summary": "Do not force Market Product providers to write Meta.json",
                 "status": {
-                  "self": "https://axonivy.atlassian.net/rest/api/2/status/1",
+                  "self": "https://1ivy.atlassian.net/rest/api/2/status/1",
                   "description": "The issue is open and ready for the assignee to start work on it.",
-                  "iconUrl": "https://axonivy.atlassian.net/images/icons/statuses/open.png",
+                  "iconUrl": "https://1ivy.atlassian.net/images/icons/statuses/open.png",
                   "name": "Open",
                   "id": "1",
                   "statusCategory": {
-                    "self": "https://axonivy.atlassian.net/rest/api/2/statuscategory/2",
+                    "self": "https://1ivy.atlassian.net/rest/api/2/statuscategory/2",
                     "id": 2,
                     "key": "new",
                     "colorName": "blue-gray",
@@ -529,16 +529,16 @@
                   }
                 },
                 "priority": {
-                  "self": "https://axonivy.atlassian.net/rest/api/2/priority/10002",
-                  "iconUrl": "https://axonivy.atlassian.net/images/icons/priorities/major.svg",
+                  "self": "https://1ivy.atlassian.net/rest/api/2/priority/10002",
+                  "iconUrl": "https://1ivy.atlassian.net/images/icons/priorities/major.svg",
                   "name": "Major",
                   "id": "10002"
                 },
                 "issuetype": {
-                  "self": "https://axonivy.atlassian.net/rest/api/2/issuetype/10010",
+                  "self": "https://1ivy.atlassian.net/rest/api/2/issuetype/10010",
                   "id": "10010",
                   "description": "Stories track functionality or features expressed as user goals.",
-                  "iconUrl": "https://axonivy.atlassian.net/images/icons/issuetypes/story.svg",
+                  "iconUrl": "https://1ivy.atlassian.net/images/icons/issuetypes/story.svg",
                   "name": "Story",
                   "subtask": false,
                   "hierarchyLevel": 0
@@ -548,7 +548,7 @@
           }
         ],
         "assignee": {
-          "self": "https://axonivy.atlassian.net/rest/api/2/user?accountId=5bb5c22aa132135e3829e080",
+          "self": "https://1ivy.atlassian.net/rest/api/2/user?accountId=5bb5c22aa132135e3829e080",
           "accountId": "5bb5c22aa132135e3829e080",
           "avatarUrls": {
             "48x48": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/5bb5c22aa132135e3829e080/73366864-0d69-4b72-97de-dd272684d027/48",
@@ -562,13 +562,13 @@
           "accountType": "atlassian"
         },
         "status": {
-          "self": "https://axonivy.atlassian.net/rest/api/2/status/6",
+          "self": "https://1ivy.atlassian.net/rest/api/2/status/6",
           "description": "The issue is considered finished, the resolution is correct. Issues which are closed can be reopened.",
-          "iconUrl": "https://axonivy.atlassian.net/images/icons/statuses/closed.png",
+          "iconUrl": "https://1ivy.atlassian.net/images/icons/statuses/closed.png",
           "name": "Closed",
           "id": "6",
           "statusCategory": {
-            "self": "https://axonivy.atlassian.net/rest/api/2/statuscategory/3",
+            "self": "https://1ivy.atlassian.net/rest/api/2/statuscategory/3",
             "id": 3,
             "key": "done",
             "colorName": "green",
@@ -577,7 +577,7 @@
         },
         "components": [
           {
-            "self": "https://axonivy.atlassian.net/rest/api/2/component/10080",
+            "self": "https://1ivy.atlassian.net/rest/api/2/component/10080",
             "id": "10080",
             "name": "Designer",
             "description": "Axon Ivy Designer"
@@ -590,7 +590,7 @@
         "customfield_10049": null,
         "aggregatetimeestimate": null,
         "creator": {
-          "self": "https://axonivy.atlassian.net/rest/api/2/user?accountId=557058%3Aad29d518-2c2d-4194-9217-e3ab58cfae61",
+          "self": "https://1ivy.atlassian.net/rest/api/2/user?accountId=557058%3Aad29d518-2c2d-4194-9217-e3ab58cfae61",
           "accountId": "557058:ad29d518-2c2d-4194-9217-e3ab58cfae61",
           "emailAddress": "reguel.wermelinger@axonivy.com",
           "avatarUrls": {
@@ -608,17 +608,17 @@
           {
             "id": "283379",
             "key": "XIVY-6786",
-            "self": "https://axonivy.atlassian.net/rest/api/2/issue/283379",
+            "self": "https://1ivy.atlassian.net/rest/api/2/issue/283379",
             "fields": {
               "summary": "introduce a static pre-configured 'demo' tag that users may choose for process starts",
               "status": {
-                "self": "https://axonivy.atlassian.net/rest/api/2/status/10003",
+                "self": "https://1ivy.atlassian.net/rest/api/2/status/10003",
                 "description": "Issue is done. It was accepted by the reporter/product owner (Migrated on 20 Aug 2021 15:20 UTC)",
-                "iconUrl": "https://axonivy.atlassian.net/images/icons/statuses/generic.png",
+                "iconUrl": "https://1ivy.atlassian.net/images/icons/statuses/generic.png",
                 "name": "Done",
                 "id": "10003",
                 "statusCategory": {
-                  "self": "https://axonivy.atlassian.net/rest/api/2/statuscategory/3",
+                  "self": "https://1ivy.atlassian.net/rest/api/2/statuscategory/3",
                   "id": 3,
                   "key": "done",
                   "colorName": "green",
@@ -626,16 +626,16 @@
                 }
               },
               "priority": {
-                "self": "https://axonivy.atlassian.net/rest/api/2/priority/10002",
-                "iconUrl": "https://axonivy.atlassian.net/images/icons/priorities/major.svg",
+                "self": "https://1ivy.atlassian.net/rest/api/2/priority/10002",
+                "iconUrl": "https://1ivy.atlassian.net/images/icons/priorities/major.svg",
                 "name": "Major",
                 "id": "10002"
               },
               "issuetype": {
-                "self": "https://axonivy.atlassian.net/rest/api/2/issuetype/10029",
+                "self": "https://1ivy.atlassian.net/rest/api/2/issuetype/10029",
                 "id": "10029",
                 "description": "A technical task. (Migrated on 20 Aug 2021 15:20 UTC)",
-                "iconUrl": "https://axonivy.atlassian.net/secure/viewavatar?size=medium&avatarId=10321&avatarType=issuetype",
+                "iconUrl": "https://1ivy.atlassian.net/secure/viewavatar?size=medium&avatarId=10321&avatarType=issuetype",
                 "name": "Technical task",
                 "subtask": true,
                 "avatarId": 10321,
@@ -646,17 +646,17 @@
           {
             "id": "283380",
             "key": "XIVY-6787",
-            "self": "https://axonivy.atlassian.net/rest/api/2/issue/283380",
+            "self": "https://1ivy.atlassian.net/rest/api/2/issue/283380",
             "fields": {
               "summary": "after import: find 'demo' processes and auto-open",
               "status": {
-                "self": "https://axonivy.atlassian.net/rest/api/2/status/10003",
+                "self": "https://1ivy.atlassian.net/rest/api/2/status/10003",
                 "description": "Issue is done. It was accepted by the reporter/product owner (Migrated on 20 Aug 2021 15:20 UTC)",
-                "iconUrl": "https://axonivy.atlassian.net/images/icons/statuses/generic.png",
+                "iconUrl": "https://1ivy.atlassian.net/images/icons/statuses/generic.png",
                 "name": "Done",
                 "id": "10003",
                 "statusCategory": {
-                  "self": "https://axonivy.atlassian.net/rest/api/2/statuscategory/3",
+                  "self": "https://1ivy.atlassian.net/rest/api/2/statuscategory/3",
                   "id": 3,
                   "key": "done",
                   "colorName": "green",
@@ -664,16 +664,16 @@
                 }
               },
               "priority": {
-                "self": "https://axonivy.atlassian.net/rest/api/2/priority/10002",
-                "iconUrl": "https://axonivy.atlassian.net/images/icons/priorities/major.svg",
+                "self": "https://1ivy.atlassian.net/rest/api/2/priority/10002",
+                "iconUrl": "https://1ivy.atlassian.net/images/icons/priorities/major.svg",
                 "name": "Major",
                 "id": "10002"
               },
               "issuetype": {
-                "self": "https://axonivy.atlassian.net/rest/api/2/issuetype/10029",
+                "self": "https://1ivy.atlassian.net/rest/api/2/issuetype/10029",
                 "id": "10029",
                 "description": "A technical task. (Migrated on 20 Aug 2021 15:20 UTC)",
-                "iconUrl": "https://axonivy.atlassian.net/secure/viewavatar?size=medium&avatarId=10321&avatarType=issuetype",
+                "iconUrl": "https://1ivy.atlassian.net/secure/viewavatar?size=medium&avatarId=10321&avatarType=issuetype",
                 "name": "Technical task",
                 "subtask": true,
                 "avatarId": 10321,
@@ -684,17 +684,17 @@
           {
             "id": "283381",
             "key": "XIVY-6788",
-            "self": "https://axonivy.atlassian.net/rest/api/2/issue/283381",
+            "self": "https://1ivy.atlassian.net/rest/api/2/issue/283381",
             "fields": {
               "summary": "adapt market products: just a PR yet, as we have to comply with 9.2",
               "status": {
-                "self": "https://axonivy.atlassian.net/rest/api/2/status/10003",
+                "self": "https://1ivy.atlassian.net/rest/api/2/status/10003",
                 "description": "Issue is done. It was accepted by the reporter/product owner (Migrated on 20 Aug 2021 15:20 UTC)",
-                "iconUrl": "https://axonivy.atlassian.net/images/icons/statuses/generic.png",
+                "iconUrl": "https://1ivy.atlassian.net/images/icons/statuses/generic.png",
                 "name": "Done",
                 "id": "10003",
                 "statusCategory": {
-                  "self": "https://axonivy.atlassian.net/rest/api/2/statuscategory/3",
+                  "self": "https://1ivy.atlassian.net/rest/api/2/statuscategory/3",
                   "id": 3,
                   "key": "done",
                   "colorName": "green",
@@ -702,16 +702,16 @@
                 }
               },
               "priority": {
-                "self": "https://axonivy.atlassian.net/rest/api/2/priority/10002",
-                "iconUrl": "https://axonivy.atlassian.net/images/icons/priorities/major.svg",
+                "self": "https://1ivy.atlassian.net/rest/api/2/priority/10002",
+                "iconUrl": "https://1ivy.atlassian.net/images/icons/priorities/major.svg",
                 "name": "Major",
                 "id": "10002"
               },
               "issuetype": {
-                "self": "https://axonivy.atlassian.net/rest/api/2/issuetype/10029",
+                "self": "https://1ivy.atlassian.net/rest/api/2/issuetype/10029",
                 "id": "10029",
                 "description": "A technical task. (Migrated on 20 Aug 2021 15:20 UTC)",
-                "iconUrl": "https://axonivy.atlassian.net/secure/viewavatar?size=medium&avatarId=10321&avatarType=issuetype",
+                "iconUrl": "https://1ivy.atlassian.net/secure/viewavatar?size=medium&avatarId=10321&avatarType=issuetype",
                 "name": "Technical task",
                 "subtask": true,
                 "avatarId": 10321,
@@ -722,17 +722,17 @@
           {
             "id": "284468",
             "key": "XIVY-6812",
-            "self": "https://axonivy.atlassian.net/rest/api/2/issue/284468",
+            "self": "https://1ivy.atlassian.net/rest/api/2/issue/284468",
             "fields": {
               "summary": "Fix automatic openning demo processes when importing with eclipse general importer",
               "status": {
-                "self": "https://axonivy.atlassian.net/rest/api/2/status/10003",
+                "self": "https://1ivy.atlassian.net/rest/api/2/status/10003",
                 "description": "Issue is done. It was accepted by the reporter/product owner (Migrated on 20 Aug 2021 15:20 UTC)",
-                "iconUrl": "https://axonivy.atlassian.net/images/icons/statuses/generic.png",
+                "iconUrl": "https://1ivy.atlassian.net/images/icons/statuses/generic.png",
                 "name": "Done",
                 "id": "10003",
                 "statusCategory": {
-                  "self": "https://axonivy.atlassian.net/rest/api/2/statuscategory/3",
+                  "self": "https://1ivy.atlassian.net/rest/api/2/statuscategory/3",
                   "id": 3,
                   "key": "done",
                   "colorName": "green",
@@ -740,16 +740,16 @@
                 }
               },
               "priority": {
-                "self": "https://axonivy.atlassian.net/rest/api/2/priority/10002",
-                "iconUrl": "https://axonivy.atlassian.net/images/icons/priorities/major.svg",
+                "self": "https://1ivy.atlassian.net/rest/api/2/priority/10002",
+                "iconUrl": "https://1ivy.atlassian.net/images/icons/priorities/major.svg",
                 "name": "Major",
                 "id": "10002"
               },
               "issuetype": {
-                "self": "https://axonivy.atlassian.net/rest/api/2/issuetype/10029",
+                "self": "https://1ivy.atlassian.net/rest/api/2/issuetype/10029",
                 "id": "10029",
                 "description": "A technical task. (Migrated on 20 Aug 2021 15:20 UTC)",
-                "iconUrl": "https://axonivy.atlassian.net/secure/viewavatar?size=medium&avatarId=10321&avatarType=issuetype",
+                "iconUrl": "https://1ivy.atlassian.net/secure/viewavatar?size=medium&avatarId=10321&avatarType=issuetype",
                 "name": "Technical task",
                 "subtask": true,
                 "avatarId": 10321,
@@ -760,17 +760,17 @@
           {
             "id": "284469",
             "key": "XIVY-6813",
-            "self": "https://axonivy.atlassian.net/rest/api/2/issue/284469",
+            "self": "https://1ivy.atlassian.net/rest/api/2/issue/284469",
             "fields": {
               "summary": "Fix Null IProcessManager",
               "status": {
-                "self": "https://axonivy.atlassian.net/rest/api/2/status/10003",
+                "self": "https://1ivy.atlassian.net/rest/api/2/status/10003",
                 "description": "Issue is done. It was accepted by the reporter/product owner (Migrated on 20 Aug 2021 15:20 UTC)",
-                "iconUrl": "https://axonivy.atlassian.net/images/icons/statuses/generic.png",
+                "iconUrl": "https://1ivy.atlassian.net/images/icons/statuses/generic.png",
                 "name": "Done",
                 "id": "10003",
                 "statusCategory": {
-                  "self": "https://axonivy.atlassian.net/rest/api/2/statuscategory/3",
+                  "self": "https://1ivy.atlassian.net/rest/api/2/statuscategory/3",
                   "id": 3,
                   "key": "done",
                   "colorName": "green",
@@ -778,16 +778,16 @@
                 }
               },
               "priority": {
-                "self": "https://axonivy.atlassian.net/rest/api/2/priority/10002",
-                "iconUrl": "https://axonivy.atlassian.net/images/icons/priorities/major.svg",
+                "self": "https://1ivy.atlassian.net/rest/api/2/priority/10002",
+                "iconUrl": "https://1ivy.atlassian.net/images/icons/priorities/major.svg",
                 "name": "Major",
                 "id": "10002"
               },
               "issuetype": {
-                "self": "https://axonivy.atlassian.net/rest/api/2/issuetype/10029",
+                "self": "https://1ivy.atlassian.net/rest/api/2/issuetype/10029",
                 "id": "10029",
                 "description": "A technical task. (Migrated on 20 Aug 2021 15:20 UTC)",
-                "iconUrl": "https://axonivy.atlassian.net/secure/viewavatar?size=medium&avatarId=10321&avatarType=issuetype",
+                "iconUrl": "https://1ivy.atlassian.net/secure/viewavatar?size=medium&avatarId=10321&avatarType=issuetype",
                 "name": "Technical task",
                 "subtask": true,
                 "avatarId": 10321,
@@ -800,7 +800,7 @@
         "customfield_10041": null,
         "customfield_10042": null,
         "reporter": {
-          "self": "https://axonivy.atlassian.net/rest/api/2/user?accountId=557058%3Aad29d518-2c2d-4194-9217-e3ab58cfae61",
+          "self": "https://1ivy.atlassian.net/rest/api/2/user?accountId=557058%3Aad29d518-2c2d-4194-9217-e3ab58cfae61",
           "accountId": "557058:ad29d518-2c2d-4194-9217-e3ab58cfae61",
           "emailAddress": "reguel.wermelinger@axonivy.com",
           "avatarUrls": {
@@ -829,15 +829,15 @@
           "total": 0
         },
         "votes": {
-          "self": "https://axonivy.atlassian.net/rest/api/2/issue/XIVY-6434/votes",
+          "self": "https://1ivy.atlassian.net/rest/api/2/issue/XIVY-6434/votes",
           "votes": 0,
           "hasVoted": false
         },
         "issuetype": {
-          "self": "https://axonivy.atlassian.net/rest/api/2/issuetype/10010",
+          "self": "https://1ivy.atlassian.net/rest/api/2/issuetype/10010",
           "id": "10010",
           "description": "Stories track functionality or features expressed as user goals.",
-          "iconUrl": "https://axonivy.atlassian.net/images/icons/issuetypes/story.svg",
+          "iconUrl": "https://1ivy.atlassian.net/images/icons/issuetypes/story.svg",
           "name": "Story",
           "subtask": false,
           "hierarchyLevel": 0
@@ -845,20 +845,20 @@
         "timespent": null,
         "customfield_10030": null,
         "project": {
-          "self": "https://axonivy.atlassian.net/rest/api/2/project/10019",
+          "self": "https://1ivy.atlassian.net/rest/api/2/project/10019",
           "id": "10019",
           "key": "XIVY",
           "name": "Axon Ivy Platform",
           "projectTypeKey": "software",
           "simplified": false,
           "avatarUrls": {
-            "48x48": "https://axonivy.atlassian.net/secure/projectavatar?pid=10019&avatarId=10569",
-            "24x24": "https://axonivy.atlassian.net/secure/projectavatar?size=small&s=small&pid=10019&avatarId=10569",
-            "16x16": "https://axonivy.atlassian.net/secure/projectavatar?size=xsmall&s=xsmall&pid=10019&avatarId=10569",
-            "32x32": "https://axonivy.atlassian.net/secure/projectavatar?size=medium&s=medium&pid=10019&avatarId=10569"
+            "48x48": "https://1ivy.atlassian.net/secure/projectavatar?pid=10019&avatarId=10569",
+            "24x24": "https://1ivy.atlassian.net/secure/projectavatar?size=small&s=small&pid=10019&avatarId=10569",
+            "16x16": "https://1ivy.atlassian.net/secure/projectavatar?size=xsmall&s=xsmall&pid=10019&avatarId=10569",
+            "32x32": "https://1ivy.atlassian.net/secure/projectavatar?size=medium&s=medium&pid=10019&avatarId=10569"
           },
           "projectCategory": {
-            "self": "https://axonivy.atlassian.net/rest/api/2/projectCategory/10000",
+            "self": "https://1ivy.atlassian.net/rest/api/2/projectCategory/10000",
             "id": "10000",
             "description": "",
             "name": "Axon Ivy Core"
@@ -877,7 +877,7 @@
         "resolutiondate": "2021-10-26T13:23:29.765+0000",
         "workratio": -1,
         "watches": {
-          "self": "https://axonivy.atlassian.net/rest/api/2/issue/XIVY-6434/watchers",
+          "self": "https://1ivy.atlassian.net/rest/api/2/issue/XIVY-6434/watchers",
           "watchCount": 2,
           "isWatching": true
         },
