@@ -25,7 +25,7 @@ public class TestJiraService {
     Server server = new Server();
     server.setUsername(System.getProperty("jira.username"));
     server.setPassword(System.getProperty("jira.password"));
-    testee = new JiraService("https://axonivy.atlassian.net", server, new SystemStreamLog());
+    testee = new JiraService("https://1ivy.atlassian.net", server, new SystemStreamLog());
   }
 
   @Test
