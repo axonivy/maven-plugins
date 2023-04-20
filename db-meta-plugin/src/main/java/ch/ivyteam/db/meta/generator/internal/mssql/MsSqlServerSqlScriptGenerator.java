@@ -142,7 +142,7 @@ public class MsSqlServerSqlScriptGenerator extends SqlScriptGenerator {
     delimiter.generate(pr);
     pr.println();
     pr.println();
-    pr.print("ALTER DATABASE [${databaseName}] SET READ_COMMITTED_SNAPSHOT ON WITH ROLLBACK IMMEDIATE");
+    pr.print("ALTER DATABASE [${databaseName}] SET READ_COMMITTED_SNAPSHOT ON");
     delimiter.generate(pr);
   }
 
