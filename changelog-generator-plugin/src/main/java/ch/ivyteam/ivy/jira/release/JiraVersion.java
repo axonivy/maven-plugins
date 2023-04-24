@@ -22,7 +22,7 @@ public class JiraVersion {
   public static JiraVersion newXivy(String version) {
     JiraVersion v = new JiraVersion();
     v.project = "XIVY";
-    v.projectId = 10019;
+    v.projectId = 10048;
     v.name = version;
     return v;
   }
