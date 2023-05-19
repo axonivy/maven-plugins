@@ -4,9 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Date;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.assertj.core.api.AbstractFileAssert;
@@ -49,7 +49,8 @@ public class TestMetaOutputGeneratorMojo {
           throws IllegalAccessException, MojoExecutionException, MojoFailureException, IOException {
     mojoRule.setVariableValueToObject(mojo, "generatorClass", HtmlDocGenerator.class.getName());
     File file = getProjectFile("generated/blah.html");
-    FileUtils.touch(file);
+    Files.createDirectories(file.getParentFile().toPath());
+    Files.createFile(file.toPath());
     file.setLastModified(OLD_TIME_STAMP);
     mojo.execute();
     assertThatProjectFile("generated/IWA_ClusterHost.html").exists();
@@ -69,7 +70,8 @@ public class TestMetaOutputGeneratorMojo {
     mojoRule.setVariableValueToObject(mojo, "generatorClass", OracleSqlScriptGenerator.class.getName());
     mojoRule.setVariableValueToObject(mojo, "outputFile", "oracle.sql");
     File sqlFile = getProjectFile("generated/oracle.sql");
-    FileUtils.touch(sqlFile);
+    Files.createDirectories(sqlFile.getParentFile().toPath());
+    Files.createFile(sqlFile.toPath());
     sqlFile.setLastModified(OLD_TIME_STAMP);
     mojo.execute();
     assertThat(getProjectFile("generated/oracle.sql").lastModified()).isGreaterThan(RECENT_TIME_STAMP);

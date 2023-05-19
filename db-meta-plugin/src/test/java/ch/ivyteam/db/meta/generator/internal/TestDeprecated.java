@@ -7,8 +7,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
 import org.junit.Test;
@@ -31,7 +32,7 @@ public class TestDeprecated {
     File templateDirectory = tempFolder.newFolder();
     String template = loadTestResource("QueryClass.ftl");
     File templateFile = new File(templateDirectory, "QueryClass.ftl");
-    FileUtils.write(templateFile, template);
+    Files.writeString(templateFile.toPath(), template);
     File sourceDirectory = tempFolder.newFolder();
     JavaQueryClassGenerator generator = new JavaQueryClassGenerator();
     generator.analyseArgs(new String[] {
@@ -41,8 +42,7 @@ public class TestDeprecated {
         "-templateDir", templateDirectory.getAbsolutePath(),
         "-sourceDir", sourceDirectory.getAbsolutePath()});
     generator.generateMetaOutput(meta);
-    String generatedJavaClass = FileUtils
-            .readFileToString(new File(outputDirectory, "ch/ivyteam/meta/query/TaskQuery.java"));
+    String generatedJavaClass = Files.readString(new File(outputDirectory, "ch/ivyteam/meta/query/TaskQuery.java").toPath());
     String originalJavaClass = loadTestResource("deprecated/TaskQuery.java");
     generatedJavaClass = removeGenerationDate(generatedJavaClass);
     originalJavaClass = removeGenerationDate(originalJavaClass);
@@ -57,7 +57,7 @@ public class TestDeprecated {
 
   private String loadTestResource(String name) throws IOException {
     try (InputStream is = TestDeprecated.class.getResourceAsStream(name)) {
-      return IOUtils.toString(is);
+      return IOUtils.toString(is, StandardCharsets.UTF_8);
     }
   }
 

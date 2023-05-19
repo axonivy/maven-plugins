@@ -4,10 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.junit.Before;
@@ -116,6 +116,6 @@ public class TestMetaOutputGeneratorMojoContent {
   }
 
   private String getProjectFileContent(String path) throws IOException {
-    return FileUtils.readFileToString(getProjectFile(path));
+    return Files.readString(getProjectFile(path).toPath());
   }
 }

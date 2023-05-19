@@ -5,10 +5,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
 import org.junit.Test;
@@ -51,15 +51,14 @@ public class TestLocalizedView {
         "-entityPackage", "ch.ivyteam.data",
         "-tables", "IWA_Case"});
     generator.generateMetaOutput(meta);
-    String generatedJavaClass = FileUtils
-            .readFileToString(new File(outputDirectory, "ch/ivyteam/db/DbCaseData.java"));
+    String generatedJavaClass = Files.readString(new File(outputDirectory, "ch/ivyteam/db/DbCaseData.java").toPath());
     String originalJavaClass = loadTestResource("DbCaseData.java");
     assertThat(generatedJavaClass).isEqualTo(originalJavaClass);
   }
 
   private String loadTestResource(String name) throws IOException {
-    try (InputStream is = TestComplexView.class.getResourceAsStream(name)) {
-      return IOUtils.toString(is);
+    try (var is = TestComplexView.class.getResourceAsStream(name)) {
+      return IOUtils.toString(is, StandardCharsets.UTF_8);
     }
   }
 
