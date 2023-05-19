@@ -5,10 +5,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
 import org.junit.Test;
@@ -65,7 +65,7 @@ public class TestComplexView {
     File outputDir = tempFolder.newFolder();
     html.analyseArgs(new String[] {"-outputDir", outputDir.getAbsolutePath()});
     html.generateMetaOutput(meta);
-    String generatedHtml = FileUtils.readFileToString(new File(outputDir, "IWA_TaskQuery.html"));
+    String generatedHtml = Files.readString(new File(outputDir, "IWA_TaskQuery.html").toPath());
     String originalHtml = loadTestResource("IWA_TaskQuery.html");
     assertThat(generatedHtml).isEqualTo(originalHtml);
   }
@@ -92,7 +92,7 @@ public class TestComplexView {
     File templateDirectory = tempFolder.newFolder();
     String template = loadTestResource("QueryClass.ftl");
     File templateFile = new File(templateDirectory, "QueryClass.ftl");
-    FileUtils.write(templateFile, template);
+    Files.writeString(templateFile.toPath(), template);
     File sourceDirectory = tempFolder.newFolder();
     JavaQueryClassGenerator generator = new JavaQueryClassGenerator();
     generator.analyseArgs(new String[] {
@@ -102,8 +102,7 @@ public class TestComplexView {
         "-templateDir", templateDirectory.getAbsolutePath(),
         "-sourceDir", sourceDirectory.getAbsolutePath()});
     generator.generateMetaOutput(meta);
-    String generatedJavaClass = FileUtils
-            .readFileToString(new File(outputDirectory, "ch/ivyteam/meta/query/TaskQuery.java"));
+    String generatedJavaClass = Files.readString(new File(outputDirectory, "ch/ivyteam/meta/query/TaskQuery.java").toPath());
     String originalJavaClass = loadTestResource("TaskQuery.java");
     generatedJavaClass = removeGenerationDate(generatedJavaClass);
     originalJavaClass = removeGenerationDate(originalJavaClass);
@@ -121,14 +120,14 @@ public class TestComplexView {
     File outputFile = tempFolder.newFile(fileName);
     generator.analyseArgs(new String[] {"-outputFile", outputFile.getAbsolutePath()});
     generator.generateMetaOutput(meta);
-    String generatedSql = FileUtils.readFileToString(outputFile);
+    String generatedSql = Files.readString(outputFile.toPath());
     String originalSql = loadTestResource(fileName);
     assertThat(generatedSql).isEqualTo(originalSql);
   }
 
   private String loadTestResource(String name) throws IOException {
-    try (InputStream is = TestComplexView.class.getResourceAsStream(name)) {
-      return IOUtils.toString(is);
+    try (var is = TestComplexView.class.getResourceAsStream(name)) {
+      return IOUtils.toString(is, StandardCharsets.UTF_8);
     }
   }
 

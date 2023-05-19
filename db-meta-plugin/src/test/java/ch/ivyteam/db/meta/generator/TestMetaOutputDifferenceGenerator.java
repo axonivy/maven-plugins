@@ -5,11 +5,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
@@ -62,8 +62,7 @@ public class TestMetaOutputDifferenceGenerator {
       MetaOutputDifferenceGenerator differenceGenerator = new MetaOutputDifferenceGenerator(metaFrom, metaTo,
               null, scriptGenerator, 2);
       differenceGenerator.generate(pr);
-      String assertOutput = normalizeLineEnds(
-              FileUtils.readFileToString(new File(TESTS_DIRECTORY, testName + "_" + dbName + ".sql")));
+      String assertOutput = normalizeLineEnds(Files.readString(new File(TESTS_DIRECTORY, testName + "_" + dbName + ".sql").toPath()));
       String testee = removeHeaderAndUpdateVersion(sw.toString());
       assertThat(testee).isEqualTo(assertOutput);
     }
