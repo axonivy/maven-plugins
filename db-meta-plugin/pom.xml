@@ -54,11 +54,6 @@
       <version>2.3.32</version>
     </dependency>
     <dependency>
-      <groupId>net.sf.squirrel-sql.thirdparty-non-maven</groupId>
-      <artifactId>java-cup</artifactId>
-      <version>0.11a</version>
-    </dependency>
-    <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
       <version>2.12.0</version>
@@ -67,16 +62,6 @@
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
       <version>1.2.17</version>
-    </dependency>
-    <dependency>
-      <groupId>de.jflex</groupId>
-      <artifactId>jflex</artifactId>
-      <version>1.6.1</version>
-    </dependency>
-    <dependency>
-      <groupId>ch.ivyteam.maven</groupId>
-      <artifactId>parser-generator-plugin</artifactId>
-      <version>9.4.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.apache.maven</groupId>
@@ -103,6 +88,12 @@
       <artifactId>plexus-utils</artifactId>
       <version>3.5.1</version>
     </dependency>
+    
+    <dependency>
+            <groupId>com.github.vbmacher</groupId>
+            <artifactId>java-cup-runtime</artifactId>
+            <version>11b-20160615</version>
+        </dependency>
 
     <dependency>
       <groupId>org.apache.maven</groupId>
@@ -146,22 +137,55 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>ch.ivyteam.maven</groupId>
-        <artifactId>parser-generator-plugin</artifactId>
-        <version>9.4.0-SNAPSHOT</version>
+        <groupId>de.jflex</groupId>
+        <artifactId>maven-jflex-plugin</artifactId>
+        <version>1.4.2</version>
         <executions>
           <execution>
             <id>generate-parser</id>
-            <phase>validate</phase>
             <goals>
-              <goal>generate-parser</goal>
+              <goal>generate</goal>
             </goals>
+            <phase>validate</phase>
+            <configuration>
+              <outputDirectory>${basedir}/src/main/java</outputDirectory>
+              <lexDefinitions>
+                <lexDefinition>${basedir}/grammar/Scanner.jflex</lexDefinition>
+              </lexDefinitions>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>com.github.vbmacher</groupId>
+        <artifactId>cup-maven-plugin</artifactId>
+        <version>11b-20160615</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+            <phase>validate</phase>
           </execution>
         </executions>
         <configuration>
+          <cupDefinition>${basedir}/grammar/Parser.cup</cupDefinition>
+          <className>Parser</className>
           <outputDirectory>${basedir}/src/main/java</outputDirectory>
-          <parserFile>${basedir}/grammar/Parser.cup</parserFile>
-          <scannerFile>${basedir}/grammar/Scanner.jflex</scannerFile>
+          <packageName>ch.ivyteam.db.meta.parser.internal</packageName>
+          <symbolsName>Symbols</symbolsName>
+          <symbolsInterface>true</symbolsInterface>
+          <noWarn>true</noWarn>
+        </configuration>
+      </plugin>
+      
+       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.11.0</version>
+        <configuration>
+          <release>17</release>
         </configuration>
       </plugin>
        <plugin>
