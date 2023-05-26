@@ -18,7 +18,7 @@ pipeline {
       steps {
         script {
           def phase = env.BRANCH_NAME == 'master' || env.BRANCH_NAME.startsWith("release/") ? 'deploy' : 'verify'
-          maven cmd: phase
+          maven cmd: "-f db-meta-plugin $phase"
         }
         recordIssues tools: [eclipse()], unstableTotalAll: 1
         recordIssues tools: [mavenConsole()]

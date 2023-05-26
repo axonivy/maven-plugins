@@ -7,6 +7,7 @@ import java.util.List;
  * in the meta information
  * @author rwei
  */
+@SuppressWarnings("all")
 public class MetaParserException extends Exception {
 
   /**
