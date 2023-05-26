@@ -6,6 +6,7 @@ import java_cup.runtime.Symbol;
  * @author rwei
  * @since 15.09.2006
  */
+@SuppressWarnings("all")
 public class TerminalSymbol extends Symbol {
 
   /** The name of the symbol */
