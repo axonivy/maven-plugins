@@ -152,13 +152,14 @@
         <executions>
           <execution>
             <id>generate-parser</id>
+            <phase>validate</phase>
             <goals>
               <goal>generate-parser</goal>
             </goals>
           </execution>
         </executions>
         <configuration>
-          <outputDirectory>${basedir}/target/generated-sources/parser</outputDirectory>
+          <outputDirectory>${basedir}/src/main/java</outputDirectory>
           <parserFile>${basedir}/grammar/Parser.cup</parserFile>
           <scannerFile>${basedir}/grammar/Scanner.jflex</scannerFile>
         </configuration>
@@ -191,44 +192,6 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
           <version>3.1.0</version>
-        </plugin>
-        <plugin>
-          <groupId>org.eclipse.m2e</groupId>
-          <artifactId>lifecycle-mapping</artifactId>
-          <version>1.0.0</version>
-          <configuration>
-            <lifecycleMappingMetadata>
-              <pluginExecutions>
-                <pluginExecution>
-                  <pluginExecutionFilter>
-                    <groupId>ch.ivyteam.maven</groupId>
-                    <artifactId>parser-generator-plugin</artifactId>
-                    <versionRange>[0.0.1-SNAPSHOT,)</versionRange>
-                    <goals>
-                      <goal>generate-parser</goal>
-                    </goals>
-                  </pluginExecutionFilter>
-                  <action>
-                    <ignore></ignore>
-                  </action>
-                </pluginExecution>
-                <pluginExecution>
-                  <pluginExecutionFilter>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-plugin-plugin</artifactId>
-                    <versionRange>[3.2,)</versionRange>
-                    <goals>
-                      <goal>descriptor</goal>
-                      <goal>helpmojo</goal>
-                    </goals>
-                  </pluginExecutionFilter>
-                  <action>
-                    <ignore></ignore>
-                  </action>
-                </pluginExecution>     
-              </pluginExecutions>
-            </lifecycleMappingMetadata>
-          </configuration>
         </plugin>
       </plugins>
     </pluginManagement>

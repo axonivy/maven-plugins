@@ -7,6 +7,7 @@ import java.text.MessageFormat;
  * @author rwei
  * @since 15.09.2006
  */
+@SuppressWarnings("all")
 public class SyntaxError {
 
   /** The error message */
