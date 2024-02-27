@@ -20,7 +20,7 @@ pipeline {
           def phase = env.BRANCH_NAME == 'master' || env.BRANCH_NAME.startsWith("release/") ? 'deploy' : 'verify'
           maven cmd: "-f db-meta-plugin $phase"
         }
-        recordIssues tools: [eclipse()], unstableTotalAll: 1
+        recordIssues tools: [eclipse()], qualityGates: [[threshold: 1, type: 'TOTAL']]
         recordIssues tools: [mavenConsole()]
         junit testDataPublishers: [[$class: 'StabilityTestDataPublisher']], testResults: '**/target/surefire-reports/**/*.xml'
         archiveArtifacts '**/target/*.jar'
